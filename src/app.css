@@ -229,9 +229,7 @@ select {
   inset: 0;
   transform-origin: 50% 12%;
   will-change: transform;
-  backface-visibility: hidden;
-  transform: translate3d(0, 0, 0);
-  contain: layout paint;
+  contain: layout;
 }
 
 .notes-card-layer[data-stack-role="front"] {
@@ -512,7 +510,7 @@ select {
   justify-content: center;
   min-height: var(--rail-frame-height, 104px);
   height: 100%;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .progress-step-shell {
