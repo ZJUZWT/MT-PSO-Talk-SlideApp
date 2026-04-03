@@ -53,19 +53,14 @@ function LegendChip({label, color}: {label: string; color: string}) {
 
 function NotesCard({
   step,
-  stepIndex,
-  stepCount,
 }: {
   step: WorkbenchState["currentStep"];
-  stepIndex: number;
-  stepCount: number;
 }) {
   const codeLines = step.codeSample?.split("\n") ?? [];
 
   return (
     <article className="notes-card">
       <div className="notes-header">
-        <div className="notes-kicker">{`Step ${stepIndex + 1} / ${stepCount}`}</div>
         <div className="notes-focus-pill">{step.focusTarget}</div>
       </div>
 
@@ -142,15 +137,8 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
   const outgoingStep = transition
     ? state.steps.find((step) => step.id === transition.outgoingStepId) ?? null
     : null;
-  const stepCount = state.steps.length;
   const currentStackRole = transition ? "back" : "front";
   const outgoingStackRole = transition ? "front" : "back";
-  const currentStepIndex = state.steps.findIndex(
-    (step) => step.id === state.currentStep.id,
-  );
-  const outgoingStepIndex = outgoingStep
-    ? state.steps.findIndex((step) => step.id === outgoingStep.id)
-    : -1;
 
   return (
     <section
@@ -167,11 +155,7 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           data-stack-role={currentStackRole}
           data-fade="off"
         >
-          <NotesCard
-            step={state.currentStep}
-            stepCount={stepCount}
-            stepIndex={currentStepIndex}
-          />
+          <NotesCard step={state.currentStep} />
         </div>
 
         <div
@@ -184,15 +168,7 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           data-fade="off"
           aria-hidden="true"
         >
-          {outgoingStep ? (
-            <NotesCard
-              step={outgoingStep}
-              stepCount={stepCount}
-              stepIndex={outgoingStepIndex}
-            />
-          ) : (
-            <NotesCardGhost />
-          )}
+          {outgoingStep ? <NotesCard step={outgoingStep} /> : <NotesCardGhost />}
         </div>
       </div>
     </section>

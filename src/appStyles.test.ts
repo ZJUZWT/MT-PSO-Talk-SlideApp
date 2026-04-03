@@ -24,4 +24,20 @@ describe("app.css regressions", () => {
     expect(notesCardLayerRule).not.toMatch(/contain:\s*layout paint;/);
     expect(notesCardLayerRule).toMatch(/contain:\s*layout;/);
   });
+
+  it("widens the notes column through shell layout variables", () => {
+    const workbenchMainRule = readRuleBlock(".workbench-main");
+
+    expect(workbenchMainRule).toMatch(
+      /grid-template-columns:\s*minmax\(var\(--notes-column-min,\s*22rem\),\s*var\(--notes-column-max,\s*30rem\)\)\s+minmax\(0,\s*var\(--stage-column-fr,\s*0\.94fr\)\);/,
+    );
+  });
+
+  it("uses a slower ease-in pull-away curve for notes cards", () => {
+    expect(
+      readRuleBlock(
+        '.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="forward"],\n.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="backward"]',
+      ),
+    ).toMatch(/cubic-bezier\(0\.55,\s*0\.055,\s*0\.675,\s*0\.19\)/);
+  });
 });

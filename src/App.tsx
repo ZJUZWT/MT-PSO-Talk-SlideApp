@@ -14,9 +14,16 @@ const MOTION_PRESETS = [
 ] as const;
 
 type MotionPresetId = (typeof MOTION_PRESETS)[number]["id"];
+const DEFAULT_MOTION_PRESET_ID: MotionPresetId = "normal";
 const NOTES_TRANSITION_BASE_MS = 300;
+const NOTES_BASELINE_SPEED_FACTOR = 0.5;
 const RAIL_FRAME_HEIGHT_PX = 104;
-const RAIL_SPEED_FACTOR = 0.75;
+const RAIL_SPEED_FACTOR = 0.5;
+const PANEL_LAYOUT = {
+  notesColumnMin: "22rem",
+  notesColumnMax: "30rem",
+  stageColumnFr: "0.94fr",
+} as const;
 
 function shouldIgnoreKeyboardNavigation(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -33,7 +40,8 @@ function shouldIgnoreKeyboardNavigation(target: EventTarget | null): boolean {
 export function App() {
   const state = useWorkbenchState();
   const [controlsCollapsed, setControlsCollapsed] = useState(true);
-  const [motionPresetId, setMotionPresetId] = useState<MotionPresetId>("normal");
+  const [motionPresetId, setMotionPresetId] =
+    useState<MotionPresetId>(DEFAULT_MOTION_PRESET_ID);
   const [stepTransition, setStepTransition] = useState<{
     direction: "forward" | "backward";
     outgoingStepId: typeof state.stepId;
@@ -46,10 +54,11 @@ export function App() {
       MOTION_PRESETS[2],
     [motionPresetId],
   );
-  const railDurationScale = 1 / RAIL_SPEED_FACTOR;
-  const stepTransitionMs = Math.round(
-    NOTES_TRANSITION_BASE_MS * motionPreset.durationScale,
+  const notesBaseMs = Math.round(
+    NOTES_TRANSITION_BASE_MS / NOTES_BASELINE_SPEED_FACTOR,
   );
+  const railDurationScale = 1 / RAIL_SPEED_FACTOR;
+  const stepTransitionMs = Math.round(notesBaseMs * motionPreset.durationScale);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -136,9 +145,13 @@ export function App() {
       style={
         {
           "--motion-duration-scale": motionPreset.durationScale,
+          "--notes-motion-ms": `${notesBaseMs}`,
           "--rail-frame-height": `${RAIL_FRAME_HEIGHT_PX}px`,
           "--rail-speed-factor": `${RAIL_SPEED_FACTOR}`,
           "--rail-duration-scale": `${railDurationScale}`,
+          "--notes-column-min": PANEL_LAYOUT.notesColumnMin,
+          "--notes-column-max": PANEL_LAYOUT.notesColumnMax,
+          "--stage-column-fr": PANEL_LAYOUT.stageColumnFr,
         } as CSSProperties
       }
     >

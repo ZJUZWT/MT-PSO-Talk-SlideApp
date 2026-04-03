@@ -196,7 +196,9 @@ select {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(17rem, 23rem) minmax(0, 1.08fr);
+  grid-template-columns:
+    minmax(var(--notes-column-min, 22rem), var(--notes-column-max, 30rem))
+    minmax(0, var(--stage-column-fr, 0.94fr));
   gap: clamp(18px, 3vw, 28px);
   min-height: 0;
   align-items: stretch;
@@ -274,7 +276,7 @@ select {
 .notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="backward"] {
   animation:
     notes-card-pull-away calc(var(--notes-motion-ms) * var(--motion-duration-scale) * 1ms)
-    cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
 }
 
 .notes-card--ghost {
@@ -284,24 +286,9 @@ select {
 .notes-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.notes-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .notes-focus-pill {

@@ -31,6 +31,23 @@ describe("App", () => {
     expect(screen.queryByText("Remotion")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Variant")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Motion")).not.toBeInTheDocument();
+    expect(screen.getByText(/Motion 1x/)).toBeInTheDocument();
+    expect(screen.queryByText(/Step 1 \/ 6/)).not.toBeInTheDocument();
+    expect(document.querySelector(".workbench-shell")).toHaveAttribute(
+      "data-motion-preset",
+      "normal",
+    );
+  });
+
+  it("exposes inline layout tuning variables for the wider notes column", () => {
+    render(<App />);
+
+    const shell = document.querySelector(".workbench-shell");
+
+    expect(shell).not.toBeNull();
+    expect(shell).toHaveStyle("--notes-column-min: 22rem");
+    expect(shell).toHaveStyle("--notes-column-max: 30rem");
+    expect(shell).toHaveStyle("--stage-column-fr: 0.94fr");
   });
 
   it("renders browser-neutral select shells for all four controls", () => {
@@ -303,7 +320,7 @@ describe("App", () => {
       "--rail-frame-height: 104px",
     );
     expect(document.querySelector(".workbench-shell")).toHaveStyle(
-      "--rail-speed-factor: 0.75",
+      "--rail-speed-factor: 0.5",
     );
     expect(document.querySelector(".progress-rail-window")).toBeInTheDocument();
   });
@@ -318,6 +335,11 @@ describe("App", () => {
 
   it("supports keyboard motion debugging shortcuts", async () => {
     render(<App />);
+
+    expect(document.querySelector(".workbench-shell")).toHaveAttribute(
+      "data-motion-preset",
+      "normal",
+    );
 
     fireEvent.keyDown(document.body, {key: "[", bubbles: true});
     await waitFor(() => {
