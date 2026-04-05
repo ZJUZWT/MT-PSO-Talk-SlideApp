@@ -113,6 +113,13 @@ const PAGE5_COOKED_BOX: Box = {
   height: 76,
   radius: 20,
 };
+const PAGE5_BINARY_BOX: Box = {
+  x: 566,
+  y: 252,
+  width: 200,
+  height: 76,
+  radius: 20,
+};
 
 const PIXEL_GRID_SIZE = 60;
 const PIXEL_CELL_SIZE = 12;
@@ -152,6 +159,24 @@ function mixRgba(from: RgbaColor, to: RgbaColor, progress: number) {
   const a = Math.round(mix(from.a, to.a, progress) * 1000) / 1000;
 
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function hexToRgbaColor(hex: string, alpha = 1): RgbaColor {
+  const normalized = hex.replace("#", "");
+  const value =
+    normalized.length === 3
+      ? normalized
+          .split("")
+          .map((char) => `${char}${char}`)
+          .join("")
+      : normalized;
+
+  return {
+    r: Number.parseInt(value.slice(0, 2), 16),
+    g: Number.parseInt(value.slice(2, 4), 16),
+    b: Number.parseInt(value.slice(4, 6), 16),
+    a: alpha,
+  };
 }
 
 function easeInOutCubic(value: number) {
@@ -335,6 +360,7 @@ function StageBox({
 }: StageBoxProps) {
   const centerX = boxCenterX(box);
   const centerY = boxCenterY(box) + 3;
+  const boxTone = tone === "asset" ? "asset" : "default";
 
   return (
     <>
@@ -347,27 +373,8 @@ function StageBox({
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth}
+        data-tone={boxTone}
       />
-      {tone === "asset" ? (
-        <>
-          <rect
-            x={box.x + 16}
-            y={box.y + 10}
-            width={box.width - 32}
-            height={10}
-            rx="5"
-            fill="rgba(132, 179, 144, 0.2)"
-          />
-          <rect
-            x={box.x + 16}
-            y={box.y + 24}
-            width={44}
-            height={6}
-            rx="3"
-            fill="rgba(98, 132, 108, 0.2)"
-          />
-        </>
-      ) : null}
       {label ? (
         <text
           x={centerX}
@@ -440,6 +447,7 @@ function ApiBadge({
   fill = "rgba(255, 251, 246, 0.98)",
   radius = 12,
   opacity = 1,
+  testId,
 }: {
   x: number;
   y: number;
@@ -448,9 +456,10 @@ function ApiBadge({
   fill?: string;
   radius?: number;
   opacity?: number;
+  testId?: string;
 }) {
   return (
-    <g opacity={opacity}>
+    <g opacity={opacity} data-testid={testId}>
       <circle cx={x} cy={y} r={radius} fill={fill} stroke={stroke} strokeWidth="2" />
       <text
         x={x}
@@ -585,6 +594,7 @@ function StrokeArrow({
   underlayWidth = 6,
   underlayOpacity = 0.12,
   headSize = 10,
+  testId,
 }: {
   d: string;
   stroke: string;
@@ -596,9 +606,10 @@ function StrokeArrow({
   underlayWidth?: number;
   underlayOpacity?: number;
   headSize?: number;
+  testId?: string;
 }) {
   return (
-    <>
+    <g data-testid={testId}>
       <ArrowPath
         d={d}
         stroke={stroke}
@@ -616,7 +627,7 @@ function StrokeArrow({
         size={headSize}
         strokeWidth={shaftWidth}
       />
-    </>
+    </g>
   );
 }
 
@@ -629,6 +640,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   frame,
   variantId = "bus-clean",
 }) => {
+  const PAGE5_SPINE_SHIFT = 100;
   const page12Progress = resolveSegmentProgress(frame, PAGE_01_FRAME, PAGE_02_FRAME);
   const page23Progress = resolveSegmentProgress(frame, PAGE_02_FRAME, PAGE_03_FRAME);
   const page34Progress = resolveSegmentProgress(frame, PAGE_03_FRAME, PAGE_04_FRAME);
@@ -646,23 +658,33 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const nodeStroke = "rgba(34, 48, 61, 0.78)";
   const wireStroke = "rgba(76, 90, 102, 0.72)";
   const apiStroke = "#d06b44";
+  const neutralFillColor = {r: 255, g: 251, b: 246, a: 0.98};
+  const focusFillColor = {r: 248, g: 236, b: 226, a: 0.98};
+  const assetFillColor = {r: 231, g: 242, b: 233, a: 0.98};
   const wireStrokeColor = {r: 76, g: 90, b: 102, a: 0.72};
   const apiStrokeColor = {r: 208, g: 107, b: 68, a: 1};
+  const nodeStrokeColor = {r: 34, g: 48, b: 61, a: 0.78};
+  const assetStrokeColor = {r: 104, g: 140, b: 114, a: 0.86};
+  const accentStrokeColor = hexToRgbaColor(theme.accent, 1);
 
   const page34SpineShift = mix(0, 28, settledPage34Progress);
+  const page45SpineShift = mix(0, PAGE5_SPINE_SHIFT, settledPage45Progress);
   const mixedLeftBox = mixBox(PAGE2_LEFT_BOX, PAGE3_LEFT_BOX, settledPage23Progress);
   const mixedCenterBox = mixBox(PAGE2_CENTER_BOX, PAGE3_CENTER_BOX, settledPage23Progress);
   const mixedRightBox = mixBox(PAGE2_RIGHT_BOX, PAGE3_RIGHT_BOX, settledPage23Progress);
   const leftBox = {
     ...mixedLeftBox,
+    x: mixedLeftBox.x + page45SpineShift,
     y: mixedLeftBox.y + page34SpineShift,
   };
   const centerBox = {
     ...mixedCenterBox,
+    x: mixedCenterBox.x + page45SpineShift,
     y: mixedCenterBox.y + page34SpineShift,
   };
   const rightBox = {
     ...mixedRightBox,
+    x: mixedRightBox.x + page45SpineShift,
     y: mixedRightBox.y + page34SpineShift,
   };
 
@@ -757,7 +779,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const psoScale = mix(0.9, 1, easeInOutCubic(psoOpacity));
   const createOpacity = clamp01((settledPage34Progress - 0.3) / 0.22);
   const psoBindOpacity = clamp01((settledPage34Progress - 0.5) / 0.18);
-  const page4UpperNodeOpacity = upperNodeOpacity * clamp01(1 - settledPage45Progress / 0.78);
+  const page4StateNodeOpacity = upperNodeOpacity * clamp01(1 - settledPage45Progress / 0.72);
   const page4UpperLineOpacity =
     upperLineOpacity * clamp01(1 - settledPage45Progress / 0.72);
   const page4MiddleFade = clamp01(1 - settledPage45Progress / 0.52);
@@ -765,6 +787,9 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page4PsoOpacity = psoOpacity * page4MiddleFade;
   const page4CreateOpacity = createOpacity * page4MiddleFade;
   const page4PsoBindOpacity = psoBindOpacity * page4MiddleFade;
+  const page5CookMoveProgress = easeInOutCubic(
+    clamp01((settledPage45Progress - 0.12) / 0.5),
+  );
   const upperBandBottomY = Math.max(
     boxBottom(shaderBinaryBox),
     boxBottom(depthBox),
@@ -774,6 +799,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     (gpuTopY - upperBandBottomY - PAGE4_DESCRIPTION_BOX.height - PAGE4_PSO_BOX.height) / 3;
   const descriptionBox = {
     ...PAGE4_DESCRIPTION_BOX,
+    x: PAGE4_DESCRIPTION_BOX.x + page45SpineShift,
     y: upperBandBottomY + layerGap,
   };
   const descriptionCenterX = boxCenterX(descriptionBox);
@@ -781,6 +807,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const descriptionTipY = descriptionBox.y - 14;
   const psoBox = {
     ...PAGE4_PSO_BOX,
+    x: PAGE4_PSO_BOX.x + page45SpineShift,
     y: descriptionBox.y + descriptionBox.height + layerGap,
   };
   const psoCenterX = boxCenterX(psoBox);
@@ -800,34 +827,126 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page5AssetOpacity = clamp01((settledPage45Progress - 0.14) / 0.28);
   const page5AssetScale = mix(0.9, 1, easeInOutCubic(page5AssetOpacity));
   const page5ArrowOpacity = clamp01((settledPage45Progress - 0.24) / 0.24);
-  const page5CookOpacity = clamp01((settledPage45Progress - 0.2) / 0.22);
-  const page5VertexLabelOpacity = clamp01((settledPage45Progress - 0.2) / 0.24);
-  const page5VertexIconOpacity = newShapeOpacity * clamp01(1 - settledPage45Progress / 0.84);
+  const page5LabelMorphProgress = easeInOutCubic(
+    clamp01((settledPage45Progress - 0.08) / 0.72),
+  );
+  const page5VertexRetainProgress = easeInOutCubic(
+    clamp01(settledPage45Progress / 0.76),
+  );
+  const page5VertexIconOpacity = mix(newShapeOpacity, 1, page5VertexRetainProgress);
+  const page5VertexIconScale = mix(newShapeScale, 1, page5VertexRetainProgress);
+  const page5VertexIconY = axisY;
   const page5MeshBox = {
     ...PAGE5_MESH_BOX,
-    x: leftBox.x - 24 - PAGE5_MESH_BOX.width,
+    x:
+      leftBox.x -
+      (centerBox.x - (leftBox.x + leftBox.width)) -
+      PAGE5_MESH_BOX.width,
     y: axisY - PAGE5_MESH_BOX.height / 2,
   };
-  const page5CookedBox = {
-    ...PAGE5_COOKED_BOX,
-    x: centerCenterX - PAGE5_COOKED_BOX.width / 2,
-  };
-  const page5MaterialBox = {
+  const page5MaterialTargetBox = {
     ...PAGE5_MATERIAL_BOX,
-    x: page5CookedBox.x - 40 - PAGE5_MATERIAL_BOX.width,
+    x: page5MeshBox.x + page5MeshBox.width / 2 - PAGE5_MATERIAL_BOX.width / 2,
+    y: boxCenterY(shaderCodeBox) - PAGE5_MATERIAL_BOX.height / 2,
+  };
+  const page5CookedTargetBox = {
+    ...PAGE5_COOKED_BOX,
+    x: shaderBinaryCenterX - PAGE5_COOKED_BOX.width / 2,
+    y: boxCenterY(shaderBinaryBox) - PAGE5_COOKED_BOX.height / 2,
+  };
+  const page5MaterialBox = mixBox(
+    shaderCodeBox,
+    page5MaterialTargetBox,
+    page5CookMoveProgress,
+  );
+  const page5CookedBox = mixBox(
+    shaderBinaryBox,
+    page5CookedTargetBox,
+    page5CookMoveProgress,
+  );
+  const page5BinaryGap =
+    (gpuTopY - boxBottom(page5CookedBox) - PAGE5_BINARY_BOX.height) / 2;
+  const page5BinaryTargetBox = {
+    ...PAGE5_BINARY_BOX,
+    x: boxCenterX(page5CookedBox) - PAGE5_BINARY_BOX.width / 2,
+    y: boxBottom(page5CookedBox) + page5BinaryGap,
   };
   const page5MeshCenterX = boxCenterX(page5MeshBox);
   const page5MeshCenterY = boxCenterY(page5MeshBox);
-  const page5MaterialCenterX = boxCenterX(page5MaterialBox);
-  const page5CookedCenterX = boxCenterX(page5CookedBox);
-  const page5CookedCenterY = boxCenterY(page5CookedBox);
-  const page5MeshToVertexStartX = page5MeshBox.x + page5MeshBox.width + 8;
-  const page5MeshToVertexEndX = leftBox.x - 8;
-  const page5MaterialToCookY = boxCenterY(page5MaterialBox);
-  const page5MaterialToCookStartX = page5MaterialBox.x + page5MaterialBox.width + 8;
-  const page5MaterialToCookEndX = page5CookedBox.x - 8;
-  const page5CookedToGpuStartY = boxBottom(page5CookedBox) + 10;
+  const page5MeshToVertexStartX = page5MeshBox.x + page5MeshBox.width + arrowStartGap;
+  const page5MeshToVertexEndX = leftBox.x - arrowEndGap;
   const page5CookedToGpuEndY = gpuTopY - 12;
+  const page5BinaryOpacity = clamp01((settledPage45Progress - 0.26) / 0.22);
+  const page5BinaryScale = mix(0.9, 1, easeInOutCubic(page5BinaryOpacity));
+  const sharedUpperLeftBox = mixBox(shaderCodeBox, page5MaterialTargetBox, page5CookMoveProgress);
+  const sharedUpperRightBox = mixBox(
+    shaderBinaryBox,
+    page5CookedTargetBox,
+    page5CookMoveProgress,
+  );
+  const sharedUpperLeftCenterX = boxCenterX(sharedUpperLeftBox);
+  const sharedUpperLeftCenterY = boxCenterY(sharedUpperLeftBox);
+  const sharedUpperRightCenterX = boxCenterX(sharedUpperRightBox);
+  const sharedUpperRightCenterY = boxCenterY(sharedUpperRightBox);
+  const sharedUpperNodeOpacity = upperNodeOpacity;
+  const sharedUpperLeftFill = mixRgba(
+    neutralFillColor,
+    assetFillColor,
+    page5LabelMorphProgress,
+  );
+  const sharedUpperLeftStroke = mixRgba(
+    nodeStrokeColor,
+    assetStrokeColor,
+    page5LabelMorphProgress,
+  );
+  const sharedUpperRightFill = mixRgba(
+    neutralFillColor,
+    focusFillColor,
+    page5LabelMorphProgress,
+  );
+  const sharedUpperRightStroke = mixRgba(
+    nodeStrokeColor,
+    accentStrokeColor,
+    page5LabelMorphProgress,
+  );
+  const sharedUpperHorizontalOpacity = clamp01(
+    Math.max(page4RelationOpacity, page5ArrowOpacity),
+  );
+  const sharedUpperHorizontalStroke = mixRgba(
+    wireStrokeColor,
+    assetStrokeColor,
+    page5LabelMorphProgress,
+  );
+  const sharedUpperHorizontalStartX = sharedUpperLeftBox.x + sharedUpperLeftBox.width + 12;
+  const sharedUpperHorizontalEndX = sharedUpperRightBox.x - 12;
+  const sharedUpperHorizontalY = mix(
+    shaderLineY,
+    sharedUpperLeftCenterY,
+    page5CookMoveProgress,
+  );
+  const sharedUpperVerticalOpacity = clamp01(
+    Math.max(page4UpperLineOpacity, page5ArrowOpacity),
+  );
+  const sharedUpperVerticalStroke =
+    settledPage34Progress <= 0
+      ? apiStroke
+      : settledPage45Progress > 0
+      ? mixRgba(wireStrokeColor, assetStrokeColor, page5LabelMorphProgress)
+      : verticalMorphStroke;
+  const sharedUpperVerticalStartY = mix(
+    binaryLineStartY,
+    boxBottom(sharedUpperRightBox) + 10,
+    page5CookMoveProgress,
+  );
+  const sharedUpperVerticalEndY = mix(
+    verticalMorphEndY,
+    page5BinaryTargetBox.y - 10,
+    page5CookMoveProgress,
+  );
+  const page5BinaryCenterX = boxCenterX(page5BinaryTargetBox);
+  const page5BinaryCenterY = boxCenterY(page5BinaryTargetBox);
+  const page5CookedToBinaryStartY = boxBottom(sharedUpperRightBox) + 10;
+  const page5BinaryToGpuStartY = boxBottom(page5BinaryTargetBox) + 10;
 
   return (
     <AbsoluteFill
@@ -898,9 +1017,9 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
           </text>
           <VertexTriangles
             cx={leftCenterX}
-            cy={axisY}
+            cy={page5VertexIconY}
             opacity={page5VertexIconOpacity}
-            scale={newShapeScale}
+            scale={page5VertexIconScale}
           />
 
           <StageBox
@@ -973,22 +1092,39 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
           {settledPage23Progress > 0 ? (
             <>
               <g
-                opacity={page4UpperNodeOpacity}
-                transform={`translate(${shaderCodeCenterX} ${boxCenterY(shaderCodeBox)}) scale(${upperNodeScale}) translate(${-shaderCodeCenterX} ${-boxCenterY(shaderCodeBox)})`}
+                opacity={sharedUpperNodeOpacity}
+                transform={`translate(${sharedUpperLeftCenterX} ${sharedUpperLeftCenterY}) scale(${upperNodeScale}) translate(${-sharedUpperLeftCenterX} ${-sharedUpperLeftCenterY})`}
               >
                 <StageBox
-                  box={shaderCodeBox}
-                  fill={neutralFill}
-                  stroke={nodeStroke}
+                  box={sharedUpperLeftBox}
+                  fill={sharedUpperLeftFill}
+                  stroke={sharedUpperLeftStroke}
                 />
-                <StackedLabel
-                  x={shaderCodeCenterX}
-                  y={boxCenterY(shaderCodeBox) + 2}
-                  lines={["Raw", "ShaderCode"]}
-                  fontSize={22}
-                  fontWeight={680}
-                  lineGap={23}
-                />
+                {page5LabelMorphProgress < 0.999 ? (
+                  <StackedLabel
+                    x={sharedUpperLeftCenterX}
+                    y={sharedUpperLeftCenterY + 2}
+                    lines={["Raw", "ShaderCode"]}
+                    opacity={1 - page5LabelMorphProgress}
+                    fontSize={22}
+                    fontWeight={680}
+                    lineGap={23}
+                  />
+                ) : null}
+                {page5LabelMorphProgress > 0.001 ? (
+                  <text
+                    x={sharedUpperLeftCenterX}
+                    y={sharedUpperLeftCenterY + 3}
+                    fill="#22303d"
+                    fontSize="24"
+                    fontWeight="720"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    opacity={page5LabelMorphProgress}
+                  >
+                    Material
+                  </text>
+                ) : null}
               </g>
 
               {legacyUpperCallOpacity > 0 ? (
@@ -1016,18 +1152,18 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
               ) : null}
 
               <g
-                opacity={page4UpperNodeOpacity}
-                transform={`translate(${shaderBinaryCenterX} ${boxCenterY(shaderBinaryBox)}) scale(${upperNodeScale}) translate(${-shaderBinaryCenterX} ${-boxCenterY(shaderBinaryBox)})`}
+                opacity={sharedUpperNodeOpacity}
+                transform={`translate(${sharedUpperRightCenterX} ${sharedUpperRightCenterY}) scale(${upperNodeScale}) translate(${-sharedUpperRightCenterX} ${-sharedUpperRightCenterY})`}
               >
                 <StageBox
-                  box={shaderBinaryBox}
-                  fill={neutralFill}
-                  stroke={nodeStroke}
+                  box={sharedUpperRightBox}
+                  fill={sharedUpperRightFill}
+                  stroke={sharedUpperRightStroke}
                 />
                 {shaderArtifactLabelProgress < 0.999 ? (
                   <StackedLabel
-                    x={shaderBinaryCenterX}
-                    y={boxCenterY(shaderBinaryBox) + 2}
+                    x={sharedUpperRightCenterX}
+                    y={sharedUpperRightCenterY + 2}
                     lines={["Binary", "ShaderCode"]}
                     opacity={1 - shaderArtifactLabelProgress}
                     fontSize={21}
@@ -1035,21 +1171,52 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     lineGap={22}
                   />
                 ) : null}
-                {shaderArtifactLabelProgress > 0.001 ? (
+                {shaderArtifactLabelProgress > 0.001 && page5LabelMorphProgress < 0.999 ? (
                   <StackedLabel
-                    x={shaderBinaryCenterX}
-                    y={boxCenterY(shaderBinaryBox) + 2}
+                    x={sharedUpperRightCenterX}
+                    y={sharedUpperRightCenterY + 2}
                     lines={["SPIR-V", "ShaderCode"]}
-                    opacity={shaderArtifactLabelProgress}
+                    opacity={shaderArtifactLabelProgress * (1 - page5LabelMorphProgress)}
                     fontSize={21}
                     fontWeight={760}
                     lineGap={22}
                   />
                 ) : null}
+                {page5LabelMorphProgress > 0.001 ? (
+                  <StackedLabel
+                    x={sharedUpperRightCenterX}
+                    y={sharedUpperRightCenterY + 2}
+                    lines={["Cooked", "ShaderCode"]}
+                    opacity={page5LabelMorphProgress}
+                    fontSize={22}
+                    fontWeight={760}
+                    lineGap={23}
+                  />
+                ) : null}
               </g>
 
+              {settledPage34Progress > 0 && sharedUpperHorizontalOpacity > 0 ? (
+                <StrokeArrow
+                  testId="shared-upper-horizontal-arrow"
+                  d={horizontalPath(
+                    sharedUpperHorizontalStartX,
+                    sharedUpperHorizontalEndX,
+                    sharedUpperHorizontalY,
+                  )}
+                  stroke={sharedUpperHorizontalStroke}
+                  opacity={sharedUpperHorizontalOpacity}
+                  tipX={sharedUpperHorizontalEndX}
+                  tipY={sharedUpperHorizontalY}
+                  direction="right"
+                  shaftWidth={3}
+                  underlayWidth={5.6}
+                  underlayOpacity={0.12}
+                  headSize={9}
+                />
+              ) : null}
+
               <g
-                opacity={page4UpperNodeOpacity}
+                opacity={page4StateNodeOpacity}
                 transform={`translate(${depthCenterX} ${boxCenterY(depthBox)}) scale(${upperNodeScale}) translate(${-depthCenterX} ${-boxCenterY(depthBox)})`}
               >
                 <StageBox
@@ -1062,7 +1229,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
               </g>
 
               <g
-                opacity={page4UpperNodeOpacity}
+                opacity={page4StateNodeOpacity}
                 transform={`translate(${blendCenterX} ${boxCenterY(blendBox)}) scale(${upperNodeScale}) translate(${-blendCenterX} ${-boxCenterY(blendBox)})`}
               >
                 <StageBox
@@ -1076,25 +1243,6 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 
               {page4UpperLineOpacity > 0 ? (
                 <>
-                  <StrokeArrow
-                    d={verticalPath(shaderBinaryCenterX, binaryLineStartY, verticalMorphEndY)}
-                    stroke={verticalMorphStroke}
-                    opacity={page4UpperLineOpacity}
-                    tipX={shaderBinaryCenterX}
-                    tipY={verticalMorphEndY}
-                    direction="down"
-                    shaftWidth={3.2}
-                    underlayWidth={6}
-                    underlayOpacity={0.12}
-                    headSize={10}
-                  />
-                  <ApiBadge
-                    x={shaderBinaryCenterX - 18}
-                    y={mix(binaryLineStartY, verticalMorphEndY, 0.44)}
-                    id={2}
-                    stroke={apiStroke}
-                    opacity={verticalBadgeOpacity}
-                  />
                   <StrokeArrow
                     d={verticalPath(depthCenterX, depthLineStartY, verticalMorphEndY)}
                     stroke={verticalMorphStroke}
@@ -1136,21 +1284,40 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 </>
               ) : null}
 
+              {settledPage23Progress > 0 && sharedUpperVerticalOpacity > 0 ? (
+                <g
+                  data-testid={settledPage45Progress > 0 ? "page5-cooked-to-binary-arrow" : undefined}
+                >
+                  <StrokeArrow
+                    testId="shared-upper-vertical-arrow"
+                    d={verticalPath(
+                      sharedUpperRightCenterX,
+                      sharedUpperVerticalStartY,
+                      sharedUpperVerticalEndY,
+                    )}
+                    stroke={sharedUpperVerticalStroke}
+                  opacity={sharedUpperVerticalOpacity}
+                  tipX={sharedUpperRightCenterX}
+                  tipY={sharedUpperVerticalEndY}
+                  direction="down"
+                  shaftWidth={3}
+                  underlayWidth={5.6}
+                  underlayOpacity={0.12}
+                  headSize={9}
+                />
+                  <ApiBadge
+                    testId="shared-upper-vertical-badge"
+                    x={sharedUpperRightCenterX - 18}
+                    y={mix(sharedUpperVerticalStartY, sharedUpperVerticalEndY, 0.44)}
+                    id={2}
+                    stroke={apiStroke}
+                    opacity={verticalBadgeOpacity}
+                  />
+                </g>
+              ) : null}
+
               {settledPage34Progress > 0 && page4MiddleFade > 0 ? (
                 <>
-                  <StrokeArrow
-                    d={horizontalPath(shaderLineStartX, shaderLineEndX, shaderLineY)}
-                    stroke={wireStroke}
-                    opacity={page4RelationOpacity}
-                    tipX={shaderLineEndX}
-                    tipY={shaderLineY}
-                    direction="right"
-                    shaftWidth={3}
-                    underlayWidth={5.6}
-                    underlayOpacity={0.12}
-                    headSize={9}
-                  />
-
                   <g
                     opacity={page4DescriptionOpacity}
                     transform={`translate(${descriptionCenterX} ${descriptionCenterY}) scale(${descriptionScale}) translate(${-descriptionCenterX} ${-descriptionCenterY})`}
@@ -1225,18 +1392,39 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 
               {settledPage45Progress > 0 ? (
                 <>
-                  <text
-                    x={leftCenterX}
-                    y={axisY + 4}
-                    fill="#22303d"
-                    fontSize="24"
-                    fontWeight="680"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    opacity={page5VertexLabelOpacity}
+                  <g
+                    opacity={page5BinaryOpacity}
+                    transform={`translate(${page5BinaryCenterX} ${page5BinaryCenterY}) scale(${page5BinaryScale}) translate(${-page5BinaryCenterX} ${-page5BinaryCenterY})`}
                   >
-                    VertexData
-                  </text>
+                    <StageBox
+                      box={page5BinaryTargetBox}
+                      fill={focusFill}
+                      stroke={theme.accent}
+                      strokeWidth={2.8}
+                    />
+                    <StackedLabel
+                      x={page5BinaryCenterX}
+                      y={page5BinaryCenterY + 2}
+                      lines={["Binary", "ShaderCode"]}
+                      fontSize={22}
+                      fontWeight={760}
+                      lineGap={23}
+                    />
+                  </g>
+
+                  <StrokeArrow
+                    testId="page5-binary-to-gpu-arrow"
+                    d={verticalPath(page5BinaryCenterX, page5BinaryToGpuStartY, page5CookedToGpuEndY)}
+                    stroke={apiStroke}
+                    opacity={page5ArrowOpacity}
+                    tipX={page5BinaryCenterX}
+                    tipY={page5CookedToGpuEndY}
+                    direction="down"
+                    shaftWidth={3}
+                    underlayWidth={5.6}
+                    underlayOpacity={0.12}
+                    headSize={9}
+                  />
 
                   <g
                     opacity={page5AssetOpacity}
@@ -1254,43 +1442,8 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     />
                   </g>
 
-                  <g
-                    opacity={page5AssetOpacity}
-                    transform={`translate(${page5MaterialCenterX} ${boxCenterY(page5MaterialBox)}) scale(${page5AssetScale}) translate(${-page5MaterialCenterX} ${-boxCenterY(page5MaterialBox)})`}
-                  >
-                    <StageBox
-                      box={page5MaterialBox}
-                      fill={assetFill}
-                      stroke={assetStroke}
-                      strokeWidth={2.8}
-                      tone="asset"
-                      label="Material"
-                      labelSize={24}
-                      labelWeight={700}
-                    />
-                  </g>
-
-                  <g
-                    opacity={page5CookOpacity}
-                    transform={`translate(${page5CookedCenterX} ${page5CookedCenterY}) scale(${mix(0.9, 1, easeInOutCubic(page5CookOpacity))}) translate(${-page5CookedCenterX} ${-page5CookedCenterY})`}
-                  >
-                    <StageBox
-                      box={page5CookedBox}
-                      fill={focusFill}
-                      stroke={theme.accent}
-                      strokeWidth={3}
-                    />
-                    <StackedLabel
-                      x={page5CookedCenterX}
-                      y={page5CookedCenterY + 2}
-                      lines={["Cooked", "ShaderCode"]}
-                      fontSize={22}
-                      fontWeight={760}
-                      lineGap={23}
-                    />
-                  </g>
-
                   <StrokeArrow
+                    testId="page5-mesh-arrow"
                     d={horizontalPath(page5MeshToVertexStartX, page5MeshToVertexEndX, axisY)}
                     stroke={wireStroke}
                     opacity={page5ArrowOpacity}
@@ -1301,30 +1454,6 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     underlayWidth={5.6}
                     underlayOpacity={0.12}
                     headSize={9}
-                  />
-                  <StrokeArrow
-                    d={horizontalPath(page5MaterialToCookStartX, page5MaterialToCookEndX, page5MaterialToCookY)}
-                    stroke={theme.accent}
-                    opacity={page5ArrowOpacity}
-                    tipX={page5MaterialToCookEndX}
-                    tipY={page5MaterialToCookY}
-                    direction="right"
-                    shaftWidth={3.2}
-                    underlayWidth={6}
-                    underlayOpacity={0.12}
-                    headSize={10}
-                  />
-                  <StrokeArrow
-                    d={verticalPath(page5CookedCenterX, page5CookedToGpuStartY, page5CookedToGpuEndY)}
-                    stroke={theme.accent}
-                    opacity={page5ArrowOpacity}
-                    tipX={page5CookedCenterX}
-                    tipY={page5CookedToGpuEndY}
-                    direction="down"
-                    shaftWidth={3.2}
-                    underlayWidth={6}
-                    underlayOpacity={0.12}
-                    headSize={10}
                   />
                 </>
               ) : null}
