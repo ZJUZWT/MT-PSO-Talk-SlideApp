@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-04 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, open an OpenGL upper configuration band, then insert a Vulkan PSO layer that collapses multiple API calls into one highlighted bind step.",
+    "Pages 01-05 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, then move from OpenGL raw-to-binary compilation into a Vulkan PSO packaging view, and finally bridge toward a UE-style asset cook flow.",
   steps: [
     {
       id: "page_01",
@@ -38,16 +38,16 @@ export const masterStoryboard: Storyboard = {
       id: "page_03",
       label: "OpenGL",
       caption:
-        "保留底部 VertexData -> GPU -> Pixels 主轴，但整体下移，在 GPU 上方插入 Shader 编译链和状态配置层。",
+        "把 Raw ShaderCode 通过 glCompileShader() 变成 Binary ShaderCode，再连同状态一起喂给 GPU。",
       notes:
-        "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。GPU 进一步放大，左边出现 ShaderCode 到 ShaderBinary 的横向链路，右边的 Depth、Blend 通过带编号的 Graphics API 调用从上往下收口到 GPU。",
+        "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。这里左边最重要的是 Raw ShaderCode 经由 glCompileShader() 变成 Binary ShaderCode，右边的 Depth、Blend 继续通过 Graphics API 调用往下配置到 GPU。",
       focusTarget: "OpenGL",
       timingHint:
         "先让底部三段整体下移，再显出上方配置层，最后停在 GPU 被多条上方配置线汇入的终态。",
       intro:
         "现在开始把“GPU 自己算”这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
       manuscript:
-        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 ShaderCode 通过 glCompileShader() 走到 ShaderBinary，再用 glUseProgram() 往下启用；右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
+        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 Raw ShaderCode 通过 glCompileShader() 变成 Binary ShaderCode，再用 glUseProgram() 往下启用；右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
       apiListTitle: "Graphics API",
       apiList: [
         {id: 1, label: "glCompileShader()"},
@@ -59,24 +59,40 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_04",
-      label: "Vulkan PSO",
+      label: "Vulkan",
       caption:
-        "保留第三页的上下两层，但把上方输入先收进 Description，再创建出 PSO，真正高亮的 Graphics API 调用只剩下 PSO -> GPU。",
+        "把 Raw ShaderCode 更早整理成 SPIR-V ShaderCode，再连同状态先收进 Description 和 PSO，运行时只保留更少的高亮调用。",
       notes:
-        "第四页继承第三页的底部主轴和上方输入分区，不重画结构，只把 Vulkan 语义讲准确。左侧的 ShaderCode 先走到 SPIR-V，SPIR-V 和右侧的 Depth、Blend 先汇入一个 Description，再由 create 过程生成 PSO；真正高亮的只剩下一条运行时 Vulkan 绑定线。",
+        "第四页继承第三页的底部主轴和上方输入分区，不重画结构，而是在保持 Raw ShaderCode -> SPIR-V ShaderCode 这条 Vulkan shader 路径的同时，把 SPIR-V、Depth、Blend 先收进一份 Description，再由 create 过程生成 PSO。真正高亮的只剩下运行时那一条绑定线。",
       focusTarget: "PSO",
       timingHint:
-        "先让第三页的直达 GPU 调用缩回并改色，再显出 Description，接着由 Description 生成 PSO，最后只保留一条橙色 PSO -> GPU 通道。",
+        "先保留第三页的空间记忆，把左侧 shader 产物改写成 SPIR-V，再让三条直达 GPU 的调用缩回到 Description，接着生成 PSO，最后只保留一条橙色 PSO -> GPU 通道。",
       intro:
-        "Vulkan 的关键变化不是 GPU 消失了，而是上方配置先进入一份 description，再提前创建出 PSO，运行时只需要绑定它。",
+        "Vulkan 的关键变化不只是 shader 形态更稳定，还在于上方配置会先被显式组织成可以复用和绑定的对象。",
       manuscript:
-        "到了第四页，第三页上方那套结构没有消失，但它的语义变了。左边不再强调 ShaderBinary，而是 ShaderCode 先得到 SPIR-V；SPIR-V 再和 Depth、Blend 一起写进一份 Description。然后这份 Description 通过 vkCreateGraphicsPipelines() 创建出正确的 PSO。到了运行时，真正高亮的 Graphics API 调用只剩下 vkCmdBindPipeline()。这就是 Vulkan 风格带来的变化：创建阶段更显式，但面向 GPU 的运行时绑定被收敛成了更少的一步。",
+        "到了第四页，第三页上方那套结构没有消失，但它的语义变了。左边不再强调 Binary ShaderCode，而是从 Raw ShaderCode 先得到 SPIR-V ShaderCode。接下来，SPIR-V ShaderCode 不再和 Depth、Blend 一样各自直接高亮敲到 GPU 上，而是先一起进入一份 Description。然后这份 Description 通过 vkCreateGraphicsPipelines() 创建出正确的 PSO。到了运行时，真正高亮的一步只剩下 vkCmdBindPipeline()。也就是说，Vulkan 既强调更早拿到稳定的 shader 产物，也强调把这些状态预先收拢成 PSO，减少面向 GPU 的分散调用。",
       apiListTitle: "Graphics API",
       apiList: [
         {id: 1, label: "vkCreateGraphicsPipelines()"},
         {id: 2, label: "vkCmdBindPipeline()"},
       ],
       focusColorKey: "vulkan",
+    },
+    {
+      id: "page_05",
+      label: "UE Asset Cook",
+      caption:
+        "把实际资产接进来：Mesh 生成 VertexData，Material 经过 cook 变成 Cooked ShaderCode。",
+      notes:
+        "这一页是慢慢过渡到 UE 的关键。先不要把 PSO 那些中间层重新塞回来，而是回到更干净的主轴：资产先变成运行时真正要喂给 GPU 的东西。Mesh 对应 VertexData，Material 对应 Cooked ShaderCode。",
+      focusTarget: "Cook",
+      timingHint:
+        "让 Vulkan 页里偏技术产物的视角，平滑过渡到 UE 里的资产视角，同时保持 GPU 和 Pixels 的位置稳定。",
+      intro:
+        "到了 UE 语境，大家更容易接触到的不是 raw shader 文件本身，而是 Material 和 Mesh 这些资产入口。",
+      manuscript:
+        "第五页先不急着讲 PSO，而是先把实际资产接进来。Mesh 会整理出运行时要用的 VertexData；Material 会在 cook 过程中产出 Cooked ShaderCode。也就是说，这一页本质上是把前面的 shader 与输入语义，翻译成 UE 更常见的资产来源，然后再一起送向 GPU。",
+      focusColorKey: "ue",
     },
   ],
 };

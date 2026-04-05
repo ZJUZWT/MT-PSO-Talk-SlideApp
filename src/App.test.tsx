@@ -112,12 +112,29 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_04");
     expect(
       screen.getByRole("heading", {
-        name: "Vulkan PSO",
+        name: "Vulkan",
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("vkCreateGraphicsPipelines()").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("vkCmdBindPipeline()").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/SPIR-V/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/PSO/).length).toBeGreaterThan(0);
+  });
+
+  it("lets the user switch directly to page 05 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_05");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_05");
+    expect(
+      screen.getByRole("heading", {
+        name: "UE Asset Cook",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Cooked ShaderCode/).length).toBeGreaterThan(0);
   });
 
   it("moves between storyboard steps with arrow keys", async () => {
@@ -154,10 +171,10 @@ describe("App", () => {
     });
   });
 
-  it("renders the progress rail with one current step and three compact future steps", () => {
+  it("renders the progress rail with one current step and four compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(4);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(5);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -176,6 +193,11 @@ describe("App", () => {
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_04"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_05"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
   });

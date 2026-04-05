@@ -6,6 +6,7 @@ export const REMOTION_STEP_SEQUENCE: StoryStepId[] = [
   "page_02",
   "page_03",
   "page_04",
+  "page_05",
 ];
 
 export function resolveRemotionSceneWindow(frame: number) {

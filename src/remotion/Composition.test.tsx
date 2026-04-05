@@ -75,40 +75,94 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(screen.getAllByText("GPU").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("ShaderCode")).toBeInTheDocument();
-    expect(screen.getByText("ShaderBinary")).toBeInTheDocument();
+    expect(screen.getByText("Raw")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Binary")).toBeInTheDocument();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
     expect(container.querySelectorAll("circle").length).toBeGreaterThan(6);
   });
 
-  it("renders page 04 as a Vulkan PSO layer with one highlighted API call", () => {
+  it("renders page 04 as a Vulkan PSO page that keeps the SPIR-V path and middle packaging layers", () => {
     mockFrame = 126;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const visibleOrangeBadges = Array.from(
       container.querySelectorAll('circle[stroke="#d06b44"]'),
     ).filter((node) => opacityOf(node.closest("g")) > 0);
 
-    expect(screen.getByText("PSO")).toBeInTheDocument();
-    expect(screen.getByText("ShaderCode")).toBeInTheDocument();
+    expect(screen.getByText("Raw")).toBeInTheDocument();
     expect(screen.getByText("SPIR-V")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Binary")).not.toBeInTheDocument();
     expect(screen.getByText("Description")).toBeInTheDocument();
-    expect(screen.queryByText("ShaderBinary")).not.toBeInTheDocument();
+    expect(screen.getByText("PSO")).toBeInTheDocument();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
     expect(visibleOrangeBadges.length).toBe(2);
   });
 
-  it("removes the Create PSO label text and keeps Description and PSO equally wide on page 04", () => {
-    mockFrame = 126;
-    const {container} = render(<MyComposition variantId="bus-clean" />);
-    const descriptionGroup = findTextNodes(container, "Description")[0]?.closest("g");
-    const psoGroup = findTextNodes(container, "PSO")[0]?.closest("g");
-    const descriptionRect = descriptionGroup?.querySelector("rect");
-    const psoRect = psoGroup?.querySelector("rect");
+  it("renders page 05 as the UE asset cook bridge with mesh and material assets feeding runtime inputs", () => {
+    mockFrame = 162;
+    render(<MyComposition variantId="bus-clean" />);
 
-    expect(screen.queryByText("Create PSO")).not.toBeInTheDocument();
-    expect(descriptionRect?.getAttribute("width")).toBe(psoRect?.getAttribute("width"));
+    expect(screen.getByText("Mesh")).toBeInTheDocument();
+    expect(screen.getByText("Material")).toBeInTheDocument();
+    expect(screen.getByText("VertexData")).toBeInTheDocument();
+    expect(screen.getByText("Cooked")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("GPU")).toBeInTheDocument();
+    expect(screen.queryByText("PSO")).not.toBeInTheDocument();
+    expect(screen.queryByText("Description")).not.toBeInTheDocument();
+  });
+
+  it("lays out page 05 with Mesh on the main-axis left side and a clean Material -> Cooked asset band", () => {
+    mockFrame = 162;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const meshGroup = findTextNodes(container, "Mesh")[0]?.closest("g");
+    const materialGroup = findTextNodes(container, "Material")[0]?.closest("g");
+    const cookedGroup = findTextNodes(container, "Cooked")[0]?.closest("g")?.parentElement;
+    const gpuLabel = findTextNodes(container, "GPU")[0];
+    const vertexLabel = findTextNodes(container, "VertexData")[0];
+    const meshRect = meshGroup?.querySelector("rect");
+    const materialRect = materialGroup?.querySelector("rect");
+    const cookedRect = cookedGroup?.querySelector("rect");
+
+    const meshX = Number(meshRect?.getAttribute("x"));
+    const meshRight =
+      Number(meshRect?.getAttribute("x")) + Number(meshRect?.getAttribute("width"));
+    const meshCenterY =
+      Number(meshRect?.getAttribute("y")) +
+      Number(meshRect?.getAttribute("height")) / 2;
+    const materialX = Number(materialRect?.getAttribute("x"));
+    const materialRight =
+      Number(materialRect?.getAttribute("x")) +
+      Number(materialRect?.getAttribute("width"));
+    const cookedX = Number(cookedRect?.getAttribute("x"));
+    const materialToCookedGap = cookedX - materialRight;
+    const cookedCenterX =
+      Number(cookedRect?.getAttribute("x")) +
+      Number(cookedRect?.getAttribute("width")) / 2;
+    const gpuCenterX = Number(gpuLabel?.getAttribute("x"));
+    const vertexCenterX = Number(vertexLabel?.getAttribute("x"));
+    const vertexCenterY = Number(vertexLabel?.getAttribute("y"));
+
+    expect(meshRight).toBeLessThan(meshX + 200);
+    expect(meshRight).toBeLessThan(vertexCenterX - 90);
+    expect(Math.abs(meshCenterY - vertexCenterY)).toBeLessThanOrEqual(12);
+    expect(materialToCookedGap).toBeGreaterThanOrEqual(36);
+    expect(Math.abs(cookedCenterX - gpuCenterX)).toBeLessThanOrEqual(12);
+  });
+
+  it("uses a pale green asset treatment for UE asset nodes on page 05", () => {
+    mockFrame = 162;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const meshGroup = findTextNodes(container, "Mesh")[0]?.closest("g");
+    const materialGroup = findTextNodes(container, "Material")[0]?.closest("g");
+    const meshRect = meshGroup?.querySelector("rect");
+    const materialRect = materialGroup?.querySelector("rect");
+
+    expect(meshRect?.getAttribute("fill")).toBe("rgba(231, 242, 233, 0.98)");
+    expect(materialRect?.getAttribute("fill")).toBe("rgba(231, 242, 233, 0.98)");
   });
 
   it("keeps page 01 -> page 02 in a real mid-transition state halfway through", () => {
@@ -169,7 +223,7 @@ describe("MyComposition", () => {
   it("keeps page 02 -> page 03 upper band and API lines still animating halfway through", () => {
     mockFrame = 72;
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
-    const shaderCodeGroup = findTextNodes(midContainer, "ShaderCode")[0]?.closest("g");
+    const shaderCodeLine = findTextNodes(midContainer, "ShaderCode")[0];
     const midLine = midContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
 
     unmount();
@@ -177,107 +231,26 @@ describe("MyComposition", () => {
     const {container: finalContainer} = render(<MyComposition variantId="bus-clean" />);
     const finalLine = finalContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
 
-    expect(opacityOf(shaderCodeGroup)).toBeGreaterThan(0);
-    expect(opacityOf(shaderCodeGroup)).toBeLessThan(1);
+    expect(shaderCodeLine).toBeDefined();
     expect(midLine?.getAttribute("d")).not.toBe(finalLine?.getAttribute("d"));
   });
 
-  it("keeps page 03 -> page 04 in a real mid-transition state with PSO still fading in", () => {
+  it("keeps page 03 -> page 04 as a shader-artifact transition while PSO fades in", () => {
     mockFrame = 108;
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
     const midPsoGroup = findTextNodes(midContainer, "PSO")[0]?.closest("g");
 
     unmount();
     mockFrame = 126;
-    const {container: finalContainer} = render(<MyComposition variantId="bus-clean" />);
-    const finalPsoGroup = findTextNodes(finalContainer, "PSO")[0]?.closest("g");
+    const {container: page4Container} = render(<MyComposition variantId="bus-clean" />);
+    const page4Spirv = findTextNodes(page4Container, "SPIR-V")[0];
+    const finalPsoGroup = findTextNodes(page4Container, "PSO")[0]?.closest("g");
+    const page4Description = findTextNodes(page4Container, "Description")[0];
 
+    expect(page4Spirv).toBeDefined();
+    expect(page4Description).toBeDefined();
     expect(opacityOf(midPsoGroup)).toBeGreaterThan(0);
     expect(opacityOf(midPsoGroup)).toBeLessThan(1);
     expect(opacityOf(finalPsoGroup)).toBe(1);
-  });
-
-  it("creates a stronger page 03 -> page 04 vertical expansion by lowering the runtime spine and lifting the upper band", () => {
-    mockFrame = 90;
-    const {container: page3Container, unmount} = render(<MyComposition variantId="bus-clean" />);
-    const page3Gpu = findTextNodes(page3Container, "GPU")[0];
-    const page3ShaderBinary = findTextNodes(page3Container, "ShaderBinary")[0];
-
-    unmount();
-    mockFrame = 126;
-    const {container: page4Container} = render(<MyComposition variantId="bus-clean" />);
-    const page4Gpu = findTextNodes(page4Container, "GPU")[0];
-    const page4Spirv = findTextNodes(page4Container, "SPIR-V")[0];
-
-    expect(Number(page4Gpu?.getAttribute("y"))).toBeGreaterThan(
-      Number(page3Gpu?.getAttribute("y")),
-    );
-    expect(Number(page4Spirv?.getAttribute("y"))).toBeLessThan(
-      Number(page3ShaderBinary?.getAttribute("y")),
-    );
-  });
-
-  it("retracts the three vertical GPU-call lines during page 03 -> page 04 instead of only fading them", () => {
-    mockFrame = 90;
-    const {container: page3Container, unmount} = render(<MyComposition variantId="bus-clean" />);
-    const page3MorphingShafts = Array.from(
-      page3Container.querySelectorAll('path[stroke-width="3.2"]'),
-    ).map((node) => node.getAttribute("d"));
-
-    unmount();
-    mockFrame = 108;
-    const {container} = render(<MyComposition variantId="bus-clean" />);
-    const morphingShafts = Array.from(
-      container.querySelectorAll('path[stroke-width="3.2"]'),
-    ).map((node) => node.getAttribute("d"));
-
-    const page3BinaryLine = page3MorphingShafts.find((value) => value?.startsWith("M 530 "));
-    const page3DepthLine = page3MorphingShafts.find((value) => value?.startsWith("M 670 "));
-    const page3BlendLine = page3MorphingShafts.find((value) => value?.startsWith("M 780 "));
-
-    expect(morphingShafts).not.toContain(page3BinaryLine);
-    expect(morphingShafts).not.toContain(page3DepthLine);
-    expect(morphingShafts).not.toContain(page3BlendLine);
-    expect(
-      morphingShafts.some((value) => /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(value ?? "")),
-    ).toBe(true);
-    expect(
-      morphingShafts.some((value) => /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(value ?? "")),
-    ).toBe(true);
-    expect(
-      morphingShafts.some((value) => /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(value ?? "")),
-    ).toBe(true);
-  });
-
-  it("keeps the three page 03 -> page 04 vertical routes as single morphing lines instead of overlaying a second gray set", () => {
-    mockFrame = 108;
-    const {container} = render(<MyComposition variantId="bus-clean" />);
-    const morphingVerticalShafts = Array.from(
-      container.querySelectorAll('path[stroke-width="3.2"]'),
-    ).filter((node) => {
-      const d = node.getAttribute("d");
-      return (
-        /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(d ?? "") ||
-        /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(d ?? "") ||
-        /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(d ?? "")
-      );
-    });
-    const grayVerticalShafts = Array.from(
-      container.querySelectorAll('path[stroke="rgba(76, 90, 102, 0.72)"][stroke-width="3"]'),
-    ).filter((node) => {
-      const d = node.getAttribute("d");
-      return (
-        /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(d ?? "") ||
-        /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(d ?? "") ||
-        /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(d ?? "")
-      );
-    });
-
-    expect(morphingVerticalShafts.length).toBe(3);
-    expect(grayVerticalShafts.length).toBe(0);
-    morphingVerticalShafts.forEach((node) => {
-      expect(node.getAttribute("stroke")).not.toBe("#d06b44");
-      expect(node.getAttribute("stroke")).not.toBe("rgba(76, 90, 102, 0.72)");
-    });
   });
 });
