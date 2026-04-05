@@ -38,7 +38,7 @@ export function useWorkbenchState(): WorkbenchState {
     stepId: StoryStepId;
   }>({
     variantId: "bus-clean",
-    stepId: "base_formula",
+    stepId: "page_01",
   });
   const supportedStepIds = masterStoryboard.steps.map((step) => step.id);
 

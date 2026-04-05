@@ -2,64 +2,49 @@ import type {StoryStepId} from "../storyboard-data/pso-workbench-types";
 import {resolveRemotionStepFrame} from "./embed";
 
 export const REMOTION_STEP_SEQUENCE: StoryStepId[] = [
-  "base_formula",
-  "opengl_state_machine",
-  "vulkan_pso",
-  "open_pso",
-  "inline_material",
-  "shared_code",
+  "page_01",
+  "page_02",
+  "page_03",
 ];
 
 export function resolveRemotionSceneWindow(frame: number) {
   const safeFrame = Math.max(0, Math.round(frame));
-  const firstStepId = REMOTION_STEP_SEQUENCE[0];
-  const firstFrame = resolveRemotionStepFrame(firstStepId);
+  const firstStep = REMOTION_STEP_SEQUENCE[0];
+  const firstFrame = resolveRemotionStepFrame(firstStep);
 
-  if (safeFrame <= firstFrame) {
+  if (safeFrame <= firstFrame || REMOTION_STEP_SEQUENCE.length === 1) {
     return {
-      fromStepId: firstStepId,
-      toStepId: firstStepId,
-      fromFrame: firstFrame,
+      fromStepId: firstStep,
+      toStepId: firstStep,
+      fromFrame: safeFrame,
       toFrame: firstFrame,
       progress: 1,
     };
   }
 
-  for (let index = 1; index < REMOTION_STEP_SEQUENCE.length; index += 1) {
-    const stepId = REMOTION_STEP_SEQUENCE[index];
-    const stepFrame = resolveRemotionStepFrame(stepId);
+  for (let index = 0; index < REMOTION_STEP_SEQUENCE.length - 1; index += 1) {
+    const fromStepId = REMOTION_STEP_SEQUENCE[index]!;
+    const toStepId = REMOTION_STEP_SEQUENCE[index + 1]!;
+    const fromFrame = resolveRemotionStepFrame(fromStepId);
+    const toFrame = resolveRemotionStepFrame(toStepId);
 
-    if (safeFrame === stepFrame) {
+    if (safeFrame <= toFrame) {
       return {
-        fromStepId: stepId,
-        toStepId: stepId,
-        fromFrame: stepFrame,
-        toFrame: stepFrame,
-        progress: 1,
-      };
-    }
-
-    if (safeFrame < stepFrame) {
-      const previousStepId = REMOTION_STEP_SEQUENCE[index - 1];
-      const previousFrame = resolveRemotionStepFrame(previousStepId);
-      const progress = (safeFrame - previousFrame) / (stepFrame - previousFrame);
-
-      return {
-        fromStepId: previousStepId,
-        toStepId: stepId,
-        fromFrame: previousFrame,
-        toFrame: stepFrame,
-        progress,
+        fromStepId,
+        toStepId,
+        fromFrame,
+        toFrame,
+        progress: (safeFrame - fromFrame) / Math.max(1, toFrame - fromFrame),
       };
     }
   }
 
-  const lastStepId = REMOTION_STEP_SEQUENCE[REMOTION_STEP_SEQUENCE.length - 1];
-  const lastFrame = resolveRemotionStepFrame(lastStepId);
+  const lastStep = REMOTION_STEP_SEQUENCE[REMOTION_STEP_SEQUENCE.length - 1]!;
+  const lastFrame = resolveRemotionStepFrame(lastStep);
 
   return {
-    fromStepId: lastStepId,
-    toStepId: lastStepId,
+    fromStepId: lastStep,
+    toStepId: lastStep,
     fromFrame: lastFrame,
     toFrame: lastFrame,
     progress: 1,

@@ -3,13 +3,7 @@ export type VariantId =
   | "bus-wide"
   | "shared-focus";
 
-export type StoryStepId =
-  | "base_formula"
-  | "opengl_state_machine"
-  | "vulkan_pso"
-  | "open_pso"
-  | "inline_material"
-  | "shared_code";
+export type StoryStepId = "page_01" | "page_02" | "page_03";
 
 export type StoryStep = {
   id: StoryStepId;
@@ -22,6 +16,8 @@ export type StoryStep = {
   manuscript?: string;
   codeSample?: string;
   codeLegend?: Array<{label: string; color: string}>;
+  apiListTitle?: string;
+  apiList?: Array<{id: number; label: string}>;
   focusColorKey?: string;
 };
 

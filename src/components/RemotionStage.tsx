@@ -1,57 +1,39 @@
-import {Player} from "@remotion/player";
-import type {PlayerRef} from "@remotion/player";
 import {useEffect, useMemo, useRef, useState} from "react";
-import type {
-  StoryStepId,
-  VariantId,
-} from "../storyboard-data/pso-workbench-types";
+import type {StoryStepId, VariantId} from "../storyboard-data/pso-workbench-types";
+import {SceneSvg} from "../remotion/Composition";
+import {resolveRemotionStepFrame} from "../remotion/embed";
 import {resolvePlaybackFrame} from "../storyboard-data/playbackTimeline";
-import {MyComposition} from "../remotion/Composition";
-import {REMOTION_PLAYER_CONFIG} from "../remotion/embed";
-import {createRemotionAdapter} from "../adapters/remotionAdapter";
-import {createPlaybackPlan} from "../storyboard/playbackPlan";
 
 type RemotionStageProps = {
   motionDurationScale: number;
-  previousStepId: StoryStepId | null;
   stepId: StoryStepId;
   variantId: VariantId;
 };
 
 export function RemotionStage({
   motionDurationScale,
-  previousStepId,
   stepId,
   variantId,
 }: RemotionStageProps) {
-  const adapter = useMemo(() => createRemotionAdapter(), []);
-  const playerRef = useRef<PlayerRef>(null);
   const animationHandleRef = useRef<number | null>(null);
-  const lastAppliedFrameRef = useRef<number>(adapter.getFrameForStep(stepId));
-  const [currentFrame, setCurrentFrame] = useState(
-    adapter.getFrameForStep(stepId),
-  );
+  const initialFrame = resolveRemotionStepFrame(stepId);
+  const lastAppliedFrameRef = useRef<number>(initialFrame);
+  const [currentFrame, setCurrentFrame] = useState(initialFrame);
   const [isAnimating, setIsAnimating] = useState(false);
-  const plan = useMemo(
-    () =>
-      createPlaybackPlan({
-        previousStepId,
-        stepId,
-        resolveFrame: adapter.getFrameForStep,
-      }),
-    [adapter, previousStepId, stepId],
-  );
-  const effectiveDurationMs = plan.shouldAnimate
-    ? Math.max(120, Math.round(plan.durationMs * motionDurationScale))
-    : 0;
+  const targetFrame = useMemo(() => resolveRemotionStepFrame(stepId), [stepId]);
+  const effectiveDurationMs = useMemo(() => {
+    const frameDistance = Math.abs(targetFrame - lastAppliedFrameRef.current);
 
-  useEffect(() => {
-    const player = playerRef.current;
-
-    if (!player) {
-      return;
+    if (frameDistance === 0) {
+      return 0;
     }
 
+    const baseDurationMs = Math.max(320, Math.min(440, frameDistance * 12));
+
+    return Math.max(120, Math.round(baseDurationMs * motionDurationScale));
+  }, [motionDurationScale, targetFrame]);
+
+  useEffect(() => {
     const stopAnimation = () => {
       if (animationHandleRef.current !== null) {
         cancelAnimationFrame(animationHandleRef.current);
@@ -64,19 +46,19 @@ export function RemotionStage({
         return;
       }
 
-      player.seekTo(frame);
       lastAppliedFrameRef.current = frame;
       setCurrentFrame(frame);
     };
 
     stopAnimation();
-    applyFrame(plan.fromFrame);
-    player.pause();
-    setCurrentFrame(plan.fromFrame);
-    setIsAnimating(plan.shouldAnimate);
+    const fromFrame = lastAppliedFrameRef.current;
+    setCurrentFrame(fromFrame);
+    const shouldAnimate = fromFrame !== targetFrame;
+    setIsAnimating(shouldAnimate);
 
-    if (!plan.shouldAnimate) {
-      applyFrame(plan.toFrame);
+    if (!shouldAnimate) {
+      lastAppliedFrameRef.current = targetFrame;
+      setCurrentFrame(targetFrame);
       setIsAnimating(false);
       return stopAnimation;
     }
@@ -88,8 +70,8 @@ export function RemotionStage({
       const progress =
         effectiveDurationMs <= 0 ? 1 : Math.min(1, elapsedMs / effectiveDurationMs);
       const nextFrame = resolvePlaybackFrame({
-        fromFrame: plan.fromFrame,
-        toFrame: plan.toFrame,
+        fromFrame,
+        toFrame: targetFrame,
         durationMs: effectiveDurationMs,
         elapsedMs,
       });
@@ -102,8 +84,8 @@ export function RemotionStage({
       }
 
       animationHandleRef.current = null;
-      applyFrame(plan.toFrame);
-      player.pause();
+      lastAppliedFrameRef.current = targetFrame;
+      setCurrentFrame(targetFrame);
       setIsAnimating(false);
     };
 
@@ -112,9 +94,7 @@ export function RemotionStage({
     return stopAnimation;
   }, [
     effectiveDurationMs,
-    plan.fromFrame,
-    plan.shouldAnimate,
-    plan.toFrame,
+    targetFrame,
     variantId,
   ]);
 
@@ -125,23 +105,7 @@ export function RemotionStage({
       data-animating={isAnimating ? "true" : "false"}
       data-motion-scale={motionDurationScale}
     >
-      <Player
-        ref={playerRef}
-        key={variantId}
-        component={MyComposition}
-        compositionWidth={REMOTION_PLAYER_CONFIG.compositionWidth}
-        compositionHeight={REMOTION_PLAYER_CONFIG.compositionHeight}
-        durationInFrames={REMOTION_PLAYER_CONFIG.durationInFrames}
-        fps={REMOTION_PLAYER_CONFIG.fps}
-        inputProps={adapter.createInputProps(variantId)}
-        initialFrame={plan.fromFrame}
-        acknowledgeRemotionLicense
-        controls={false}
-        clickToPlay={false}
-        moveToBeginningWhenEnded={false}
-        showPosterWhenUnplayed={false}
-        style={{width: "100%", height: "100%"}}
-      />
+      <SceneSvg frame={currentFrame} variantId={variantId} />
     </div>
   );
 }

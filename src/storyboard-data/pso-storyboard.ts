@@ -1,119 +1,61 @@
 import type {Storyboard} from "./pso-workbench-types";
 
 export const masterStoryboard: Storyboard = {
-  storyId: "pso-concept",
-  title: "PSO Concept Evolution",
+  storyId: "storyboard-reset",
+  title: "新动画剧本",
   summary:
-    "A browser workbench for comparing how different animation runtimes explain the same PSO storyline.",
+    "Pages 01-03 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, then open an upper configuration band that feeds the GPU from above.",
   steps: [
     {
-      id: "base_formula",
-      label: "A -> f(x) -> B",
-      caption:
-        "Start with the irreducible render model before introducing UE-specific structure.",
+      id: "page_01",
+      label: "Input -> f(x) -> Output",
+      caption: "从输入经过一个函数得到输出，这是后续所有框架演化前的最小骨架。",
       notes:
-        "Anchor the audience on the stable transform first. Everything later is an expansion of f(x), not a brand-new concept.",
-      focusTarget: "f(x)",
-      timingHint: "Hold briefly and keep the skeleton centered.",
+        "第一页保持静态终态，不做入场动画。观众先记住这条最简单的主轴，后面我们再往这条主轴上加结构。",
+      focusTarget: "基础公式",
+      timingHint: "静态停留，让观众先建立稳定的空间记忆。",
       intro:
-        "Input moves through a single function so we can focus on what PSO will later refine.",
+        "这页不解释图形 API，只先建立最朴素的输入、变换、输出关系。",
       manuscript:
-        "Think of this first page as the book cover: one function, one concept, and one goal—turn inputs into pixels.",
-      focusColorKey: "fx",
+        "先把复杂系统压缩成一个函数模型：Input 进入，经过 f(x) 处理，最后得到 Output。后面的 OpenGL、Vulkan PSO、UE 结构，都是在这个最小骨架上逐步展开。",
+      focusColorKey: "page_01",
     },
     {
-      id: "opengl_state_machine",
-      label: "OpenGL state machine",
-      caption:
-        "OpenGL draws pixels by manually feeding shader + fixed-function chunks.",
+      id: "page_02",
+      label: "VertexData -> GPU -> Pixels",
+      caption: "把抽象的 f(x) 具体化成 GPU，把输入和输出也换成更接近图形渲染语义的表达。",
       notes:
-        "Describe how shader objects, blend state, and rasterization state must be bound one at a time when OpenGL drives the pipeline.",
-      focusTarget: "OpenGL state",
-      timingHint: "Show fragmented modules that never coalesce.",
+        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出。",
+      focusTarget: "GPU",
+      timingHint: "让三处位置保持稳定，只让内容和轮廓形变。",
       intro:
-        "OpenGL lacks a single PSO, so applications layer shader and plumbing state piece by piece.",
+        "现在开始把公式里的抽象变量替换成图形渲染里的真实角色。",
       manuscript:
-        "Use two colors in the code block: one for shader stage setups and one for fixed pipeline states. Each call is independent.",
-      codeSample: [
-        "glUseProgram(shaderProgram); // shader stage",
-        "glBindVertexArray(vao);",
-        "glEnable(GL_DEPTH_TEST); // depth state",
-        "glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // blend state",
-        "glDrawElements(...);",
-      ].join("\n"),
-      codeLegend: [
-        {label: "Shader stage binds", color: "--accent"},
-        {label: "Fixed pipeline tweaks", color: "--muted"},
+        "第一页我们只说 Input 经过 f(x) 变成 Output。到了这一页，Input 更具体地变成 VertexData，f(x) 更具体地变成 GPU，而 Output 也不再是抽象结果，而是最终的像素块。",
+      focusColorKey: "page_02",
+    },
+    {
+      id: "page_03",
+      label: "OpenGL",
+      caption:
+        "保留底部 VertexData -> GPU -> Pixels 主轴，但整体下移，在 GPU 上方插入 Shader 编译链和状态配置层。",
+      notes:
+        "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。GPU 进一步放大，左边出现 ShaderCode 到 ShaderBinary 的横向链路，右边的 Depth、Blend 通过带编号的 Graphics API 调用从上往下收口到 GPU。",
+      focusTarget: "OpenGL",
+      timingHint:
+        "先让底部三段整体下移，再显出上方配置层，最后停在 GPU 被多条上方配置线汇入的终态。",
+      intro:
+        "现在开始把“GPU 自己算”这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
+      manuscript:
+        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 ShaderCode 通过 CompileShader() 变成 ShaderBinary，再用 SetShaderBinary() 送进 GPU；右边则是 Depth 和 Blend 分别通过 SetDepthState() 与 SetBlendState() 往下配置到 GPU。",
+      apiListTitle: "Graphics API",
+      apiList: [
+        {id: 1, label: "CompileShader()"},
+        {id: 2, label: "SetShaderBinary()"},
+        {id: 3, label: "SetDepthState()"},
+        {id: 4, label: "SetBlendState()"},
       ],
       focusColorKey: "opengl",
-    },
-    {
-      id: "vulkan_pso",
-      label: "Vulkan PSO",
-      caption:
-        "Vulkan surfaces a create-info structure that bundles shader + fixed states into a single PSO.",
-      notes:
-        "Emphasize the single `VkGraphicsPipelineCreateInfo` declaration and how it captures shader stages, blend, rasterization, and depth/stencil state together.",
-      focusTarget: "Vulkan pipeline",
-      timingHint: "Unfold the big capsule in one reveal.",
-      intro:
-        "Vulkan asks you to describe your pipeline in one go so the driver can compile it ahead of time.",
-      manuscript:
-        "Point out that the just-in-time PSO creation streamlines the earlier OpenGL mess into one orange concept.",
-      codeSample: [
-        "VkGraphicsPipelineCreateInfo pipelineInfo = {};",
-        "pipelineInfo.stageCount = shaderStageCount;",
-        "pipelineInfo.pStages = shaderStages; // shaders",
-        "pipelineInfo.pRasterizationState = &rasterState;",
-        "pipelineInfo.pColorBlendState = &blendState;",
-        "vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineInfo, nullptr, &pipeline);",
-      ].join("\n"),
-      codeLegend: [{label: "Shader + fixed states", color: "--accent"}],
-      focusColorKey: "vulkan",
-    },
-    {
-      id: "open_pso",
-      label: "Open PSO",
-      caption:
-        "Unpack the PSO capsule into shader code and pipeline state for teaching clarity.",
-      notes:
-        "Explain how shared shader code and pipeline configuration form the body of a PSO.",
-      focusTarget: "ShaderCode + Pipeline State",
-      timingHint: "Expand the capsule, then show the connectors.",
-      intro:
-        "The PSO you just built now splits back into shader code and the supporting pipeline records.",
-      manuscript:
-        "This page is a gentle reminder: even PSOs unfold into shader code plus fixed states.",
-      focusColorKey: "open_pso",
-    },
-    {
-      id: "inline_material",
-      label: "Inline material",
-      caption: "Show how Material can directly feed ShaderCode in the inline path.",
-      notes:
-        "Use orthogonal routing and move nodes if space gets tight. The path should read as engineered, not decorative.",
-      focusTarget: "Material -> ShaderCode",
-      timingHint: "Bring Material in from the side, then reveal the path.",
-      intro:
-        "A Material can still trickle straight into shader code when sharing is not present yet.",
-      manuscript:
-        "Highlight the inline paths with a single arrow for clarity and keep the rest muted.",
-      focusColorKey: "inline_material",
-    },
-    {
-      id: "shared_code",
-      label: "Shared shader code",
-      caption:
-        "Collapse multiple Materials toward a shared ShaderCodeLib and reconnect the main function path.",
-      notes:
-        "The key is structural compression: many materials converge, shared code centralizes, and runtime use becomes readable again.",
-      focusTarget: "ShaderCodeLib",
-      timingHint: "Settle into a stable overview state that can hold on a slide.",
-      intro:
-        "Shared code lenses show how material variants converge onto reusable shader libraries.",
-      manuscript:
-        "Stack the material cards from left-bottom to right-top and feed one clean line into ShaderCodeLib.",
-      focusColorKey: "shared_code",
     },
   ],
 };

@@ -51,6 +51,31 @@ function LegendChip({label, color}: {label: string; color: string}) {
   );
 }
 
+function ApiListPanel({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{id: number; label: string}>;
+}) {
+  return (
+    <section className="notes-api-panel" aria-label={title}>
+      <p className="notes-api-title">{title}</p>
+      <ul className="notes-api-list">
+        {items.map((item) => (
+          <li key={`${item.id}-${item.label}`} className="notes-api-item">
+            <span className="notes-api-line" aria-hidden="true" />
+            <span className="notes-api-badge" aria-hidden="true">
+              {item.id}
+            </span>
+            <span className="notes-api-label">{item.label}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function NotesCard({
   step,
 }: {
@@ -65,11 +90,18 @@ function NotesCard({
       </div>
 
       <div className="notes-heading-block">
-        <h1 className="notes-title">{step.label}</h1>
+        <h2 className="notes-title">{step.label}</h2>
         <p className="notes-caption">{step.caption}</p>
       </div>
 
       {step.intro ? <p className="notes-intro">{step.intro}</p> : null}
+
+      {step.apiList?.length ? (
+        <ApiListPanel
+          title={step.apiListTitle ?? "Graphics API"}
+          items={step.apiList}
+        />
+      ) : null}
 
       {step.manuscript ? (
         <section className="notes-section">

@@ -33,11 +33,44 @@ describe("app.css regressions", () => {
     );
   });
 
-  it("uses a slower ease-in pull-away curve for notes cards", () => {
+  it("uses the original slower pull-away timing for notes cards", () => {
+    expect(
+      readRuleBlock(
+        '.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="forward"],\n.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="backward"]',
+      ),
+    ).toMatch(/notes-card-slide-away/);
     expect(
       readRuleBlock(
         '.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="forward"],\n.notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="backward"]',
       ),
     ).toMatch(/cubic-bezier\(0\.55,\s*0\.055,\s*0\.675,\s*0\.19\)/);
+  });
+
+  it("keeps a dedicated heading band above the runtime canvas", () => {
+    expect(readRuleBlock(".stage-frame")).toMatch(
+      /grid-template-rows:\s*var\(--stage-heading-height,\s*8\.75rem\)\s+minmax\(0,\s*1fr\);/,
+    );
+
+    expect(readRuleBlock(".stage-heading")).toMatch(
+      /min-block-size:\s*var\(--stage-heading-height,\s*8\.75rem\);/,
+    );
+  });
+
+  it("keeps exactly one visible frame around the runtime canvas", () => {
+    const stageRuntimeRule = readRuleBlock(".stage-runtime");
+
+    expect(stageRuntimeRule).toMatch(/border:\s*1px solid rgba\(76,\s*90,\s*102,\s*0\.12\);/);
+    expect(stageRuntimeRule).toMatch(/background:\s*linear-gradient\(/);
+    expect(stageRuntimeRule).not.toMatch(/background:\s*transparent;/);
+  });
+
+  it("renders the notes-side Graphics API sample as a real orange line with an arrow tip", () => {
+    const apiLineRule = readRuleBlock(".notes-api-line");
+    const apiLineAfterRule = readRuleBlock(".notes-api-line::after");
+
+    expect(apiLineRule).toMatch(/border-top:\s*3px solid var\(--accent\);/);
+    expect(apiLineRule).toMatch(/width:\s*36px;/);
+    expect(apiLineAfterRule).toMatch(/border-top:\s*3px solid var\(--accent\);/);
+    expect(apiLineAfterRule).toMatch(/border-right:\s*3px solid var\(--accent\);/);
   });
 });

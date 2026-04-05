@@ -111,13 +111,13 @@ select {
 .workbench-glow-left {
   top: -8rem;
   left: -10rem;
-  background: rgba(198, 111, 76, 0.08);
+  background: rgba(198, 111, 76, 0.03);
 }
 
 .workbench-glow-right {
   right: -8rem;
   bottom: -10rem;
-  background: rgba(74, 110, 139, 0.08);
+  background: rgba(198, 111, 76, 0.025);
 }
 
 .control-bar {
@@ -275,7 +275,7 @@ select {
 .notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="forward"],
 .notes-card-layer--outgoing[data-has-step="true"][data-stack-role="front"][data-motion-axis="vertical"][data-motion-direction="backward"] {
   animation:
-    notes-card-pull-away calc(var(--notes-motion-ms) * var(--motion-duration-scale) * 1ms)
+    notes-card-slide-away calc(var(--notes-motion-ms) * var(--motion-duration-scale) * 1ms)
     cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
 }
 
@@ -331,6 +331,77 @@ select {
   color: var(--ink);
   font-size: 1.03rem;
   line-height: 1.66;
+}
+
+.notes-api-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0 2px;
+  border-top: 1px solid var(--line);
+}
+
+.notes-api-title {
+  margin: 0;
+  color: var(--accent);
+  font-size: 1.28rem;
+  font-weight: 780;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.notes-api-list {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.notes-api-item {
+  display: grid;
+  grid-template-columns: 42px 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.notes-api-line {
+  display: block;
+  position: relative;
+  width: 36px;
+  height: 0;
+  border-top: 3px solid var(--accent);
+}
+
+.notes-api-line::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 3px solid var(--accent);
+  border-right: 3px solid var(--accent);
+  transform: rotate(45deg);
+}
+
+.notes-api-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.notes-api-label {
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 650;
+  line-height: 1.35;
 }
 
 .notes-section {
@@ -451,9 +522,46 @@ select {
   min-height: 0;
   height: 100%;
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-rows: var(--stage-heading-height, 8.75rem) minmax(0, 1fr);
+  gap: 12px;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.stage-heading {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-block-size: var(--stage-heading-height, 8.75rem);
+  padding: 4px 4px 0 2px;
+}
+
+.stage-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stage-title {
+  margin: 0;
+  color: var(--ink);
+  max-width: 100%;
+  font-size: clamp(1.9rem, 3vw, 2.9rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+
+.stage-caption {
+  margin: 0;
+  max-width: 44rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.55;
 }
 
 .stage-runtime {
@@ -461,9 +569,17 @@ select {
   width: 100%;
   height: 100%;
   min-height: 100%;
+  border: 1px solid rgba(76, 90, 102, 0.12);
   border-radius: 32px;
   overflow: hidden;
-  background: transparent;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 252, 248, 0.9) 0%,
+    rgba(249, 244, 236, 0.92) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.58),
+    0 20px 48px rgba(54, 47, 38, 0.08);
 }
 
 .stage-runtime > div {
@@ -659,7 +775,7 @@ select {
   white-space: nowrap;
 }
 
-@keyframes notes-card-pull-away {
+@keyframes notes-card-slide-away {
   from {
     transform: translate3d(0, 0, 0) scale(1);
   }
@@ -689,6 +805,15 @@ select {
 
   .stage-frame {
     min-height: auto;
+  }
+
+  .stage-title {
+    font-size: clamp(1.7rem, 6vw, 2.2rem);
+    white-space: normal;
+  }
+
+  .stage-heading {
+    gap: 8px;
   }
 
   .control-rail-header {

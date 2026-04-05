@@ -6,7 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {afterEach, describe, expect, it, vi} from "vitest";
+import {afterEach, describe, expect, it} from "vitest";
 import {App} from "./App";
 
 afterEach(() => {
@@ -14,29 +14,26 @@ afterEach(() => {
 });
 
 describe("App", () => {
-  it("shows the current step with controls collapsed by default", () => {
+  it("shows page 01 with controls collapsed by default", () => {
     render(<App />);
 
     expect(
-      screen.getByRole("heading", {name: "A -> f(x) -> B", level: 1}),
+      screen.getByRole("heading", {name: "Input -> f(x) -> Output", level: 1}),
     ).toBeInTheDocument();
     expect(
+      screen.getAllByText(
+        "从输入经过一个函数得到输出，这是后续所有框架演化前的最小骨架。",
+      ),
+    ).toHaveLength(2);
+    expect(
       screen.getByText(
-        "Input moves through a single function so we can focus on what PSO will later refine.",
+        "第一页保持静态终态，不做入场动画。观众先记住这条最简单的主轴，后面我们再往这条主轴上加结构。",
       ),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", {name: "Show controls"})).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(4);
-    expect(screen.queryByLabelText("Library")).not.toBeInTheDocument();
-    expect(screen.queryByText("Remotion")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Variant")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Motion")).not.toBeInTheDocument();
     expect(screen.getByText(/Motion 1x/)).toBeInTheDocument();
-    expect(screen.queryByText(/Step 1 \/ 6/)).not.toBeInTheDocument();
-    expect(document.querySelector(".workbench-shell")).toHaveAttribute(
-      "data-motion-preset",
-      "normal",
-    );
   });
 
   it("exposes inline layout tuning variables for the wider notes column", () => {
@@ -67,24 +64,42 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the editing controls focused on variant, step, aspect, and motion", async () => {
+  it("lets the user switch directly to page 02 from the controls", async () => {
     const user = userEvent.setup();
 
     render(<App />);
     await user.click(screen.getByRole("button", {name: "Show controls"}));
 
     await user.selectOptions(screen.getByLabelText("Variant"), "shared-focus");
-    await user.selectOptions(screen.getByLabelText("Step"), "shared_code");
+    await user.selectOptions(screen.getByLabelText("Step"), "page_02");
     await user.selectOptions(screen.getByLabelText("Motion"), "half");
 
     expect(screen.getByLabelText("Variant")).toHaveValue("shared-focus");
-    expect(screen.getByLabelText("Step")).toHaveValue("shared_code");
+    expect(screen.getByLabelText("Step")).toHaveValue("page_02");
     expect(screen.getByLabelText("Aspect")).toHaveValue("16:9");
     expect(screen.getByLabelText("Motion")).toHaveValue("half");
-    expect(document.querySelector(".workbench-shell")).toHaveAttribute(
-      "data-motion-preset",
-      "half",
-    );
+    expect(
+      screen.getByRole("heading", {
+        name: "VertexData -> GPU -> Pixels",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("lets the user switch directly to page 03 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_03");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_03");
+    expect(
+      screen.getByRole("heading", {
+        name: "OpenGL",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
   });
 
   it("moves between storyboard steps with arrow keys", async () => {
@@ -93,243 +108,68 @@ describe("App", () => {
     fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "OpenGL state machine",
+        "VertexData -> GPU -> Pixels",
       );
     });
+    expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
+      "data-motion-direction",
+      "forward",
+    );
 
-    fireEvent.keyDown(document.body, {key: "ArrowDown", bubbles: true});
+    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
+    await waitFor(() => {
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
+    });
+
+    fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Vulkan PSO",
+        "VertexData -> GPU -> Pixels",
       );
     });
 
     fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "OpenGL state machine",
-      );
-    });
-
-    fireEvent.keyDown(document.body, {key: "ArrowUp", bubbles: true});
-    await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "A -> f(x) -> B",
+        "Input -> f(x) -> Output",
       );
     });
   });
 
-  it("renders the current storyboard step as the expanded rail item", () => {
+  it("renders the progress rail with one current step and two compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll('.progress-bubble[data-compact="true"]').length).toBeGreaterThanOrEqual(2);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(3);
     expect(
-      document.querySelector('.progress-bubble[data-state="current"][data-compact="false"]'),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector('.progress-step-shell[data-state="current"] .progress-bubble[data-single-line="true"]'),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector('.progress-step-shell[data-state="current"][data-layout="inline"]'),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector('.progress-step-shell[data-state="current"][data-size-mode="expanded"]'),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelectorAll('.progress-step-shell[data-size-mode="compact"]').length,
-    ).toBeGreaterThanOrEqual(2);
-  });
-
-  it("does not programmatically smooth-scroll the step rail during keyboard navigation", async () => {
-    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
-    const scrollIntoView = vi.fn();
-    HTMLElement.prototype.scrollIntoView = scrollIntoView;
-
-    try {
-      render(<App />);
-
-      fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-
-      await waitFor(() => {
-        expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-          "OpenGL state machine",
-        );
-      });
-
-      expect(scrollIntoView).not.toHaveBeenCalled();
-    } finally {
-      HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
-    }
-  });
-
-  it("renders manuscript content and code legends for lecture-driven steps", async () => {
-    render(<App />);
-
-    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "OpenGL state machine",
-      );
-    });
-
-    expect(
-      screen.getByText(
-        "OpenGL lacks a single PSO, so applications layer shader and plumbing state piece by piece.",
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "Use two colors in the code block: one for shader stage setups and one for fixed pipeline states. Each call is independent.",
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_02"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("glUseProgram(shaderProgram); // shader stage"),
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_03"][data-state="future"][data-size-mode="compact"]',
+      ),
     ).toBeInTheDocument();
-    expect(screen.getByText("Shader stage binds")).toBeInTheDocument();
-    expect(screen.getByText("Fixed pipeline tweaks")).toBeInTheDocument();
   });
 
-  it("animates the manuscript card as a pull-away stack transition", async () => {
+  it("renders baseline notes as the current card with no outgoing step", () => {
     render(<App />);
 
     expect(document.querySelectorAll(".notes-card-layer")).toHaveLength(2);
     expect(
       document.querySelector(
-        '.notes-card-layer--outgoing[data-has-step="false"][data-stack-role="back"]',
+        '.notes-card-layer--current[data-step-id="page_01"][data-stack-role="front"][data-motion-direction="idle"]',
       ),
     ).toBeInTheDocument();
     expect(
       document.querySelector(
-        '.notes-card-layer--current[data-step-id="base_formula"][data-stack-role="front"]',
+        '.notes-card-layer--outgoing[data-has-step="false"][data-stack-role="back"][data-fade="off"]',
       ),
-    ).toBeInTheDocument();
-
-    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-
-    await waitFor(() => {
-      expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
-        "data-motion-direction",
-        "forward",
-      );
-    });
-    expect(
-      document.querySelector(
-        '.notes-card-layer--outgoing[data-step-id="base_formula"][data-motion-direction="forward"][data-stack-role="front"][data-has-step="true"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector('.notes-card-layer--outgoing[data-fade="off"]'),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.notes-card-layer--outgoing[data-motion-axis="vertical"][data-step-id="base_formula"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.notes-card-layer--current[data-step-id="opengl_state_machine"][data-stack-role="back"][data-motion-direction="idle"][data-motion-axis="vertical"]',
-      ),
-    ).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
-        "data-motion-direction",
-        "idle",
-      );
-    });
-
-    fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
-
-    await waitFor(() => {
-      expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
-        "data-motion-direction",
-        "backward",
-      );
-    });
-    expect(
-      document.querySelector(
-        '.notes-card-layer--outgoing[data-step-id="opengl_state_machine"][data-motion-direction="backward"][data-stack-role="front"][data-has-step="true"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.notes-card-layer--current[data-step-id="base_formula"][data-stack-role="back"][data-motion-direction="idle"][data-motion-axis="vertical"]',
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("keeps pulling the current front card away during rapid step changes", async () => {
-    render(<App />);
-
-    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-
-    await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Vulkan PSO",
-      );
-    });
-
-    expect(
-      document.querySelector(
-        '.notes-card-layer--outgoing[data-step-id="base_formula"][data-motion-direction="forward"][data-stack-role="front"][data-has-step="true"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.notes-card-layer--current[data-step-id="vulkan_pso"][data-stack-role="back"][data-motion-direction="idle"]',
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("restores the rail collapse animation while keeping the row centered", async () => {
-    render(<App />);
-
-    fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
-
-    await waitFor(() => {
-      expect(
-        document.querySelector(
-          '.progress-step-shell[data-step-id="opengl_state_machine"][data-size-mode="expanding"]',
-        ),
-      ).toBeInTheDocument();
-    });
-
-    expect(
-      document.querySelector(
-        '.progress-step-shell[data-step-id="base_formula"][data-size-mode="collapsing"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.progress-step-shell[data-step-id="base_formula"][data-size-mode="collapsing"][data-layout="compact"] .progress-bubble[data-size-mode="collapsing"][data-compact="true"][data-shape-mode="dot"]',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      document.querySelector(
-        '.progress-bubble[data-size-mode="compact"][data-compact="true"][data-shape-mode="dot"]',
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("reserves a fixed rail lane so footer animation does not shift the stage", () => {
-    render(<App />);
-
-    expect(document.querySelector(".workbench-shell")).toHaveStyle(
-      "--rail-frame-height: 104px",
-    );
-    expect(document.querySelector(".workbench-shell")).toHaveStyle(
-      "--rail-speed-factor: 0.5",
-    );
-    expect(document.querySelector(".progress-rail-window")).toBeInTheDocument();
-  });
-
-  it("keeps the progress row visually centered while step widths change", () => {
-    render(<App />);
-
-    expect(
-      document.querySelector('.progress-bubbles[data-cross-align="centered"]'),
     ).toBeInTheDocument();
   });
 
@@ -383,6 +223,9 @@ describe("App", () => {
 
     fireEvent.keyDown(variantSelect, {key: "ArrowRight", bubbles: true});
 
-    expect(screen.getByLabelText("Step")).toHaveValue("base_formula");
+    expect(screen.getByLabelText("Step")).toHaveValue("page_01");
+    expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+      "Input -> f(x) -> Output",
+    );
   });
 });

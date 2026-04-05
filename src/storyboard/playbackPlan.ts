@@ -29,6 +29,6 @@ export function createPlaybackPlan(input: {
     shouldAnimate: true,
     fromFrame,
     toFrame,
-    durationMs: Math.max(280, Math.min(360, Math.abs(toFrame - fromFrame) * 9)),
+    durationMs: Math.max(320, Math.min(440, Math.abs(toFrame - fromFrame) * 12)),
   };
 }
