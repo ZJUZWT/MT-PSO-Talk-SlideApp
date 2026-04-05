@@ -102,6 +102,22 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("lets the user switch directly to page 04 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_04");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_04");
+    expect(
+      screen.getByRole("heading", {
+        name: "Vulkan PSO",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+  });
+
   it("moves between storyboard steps with arrow keys", async () => {
     render(<App />);
 
@@ -136,10 +152,10 @@ describe("App", () => {
     });
   });
 
-  it("renders the progress rail with one current step and two compact future steps", () => {
+  it("renders the progress rail with one current step and three compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(3);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(4);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -153,6 +169,11 @@ describe("App", () => {
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_03"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_04"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
   });

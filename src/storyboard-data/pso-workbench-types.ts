@@ -3,7 +3,7 @@ export type VariantId =
   | "bus-wide"
   | "shared-focus";
 
-export type StoryStepId = "page_01" | "page_02" | "page_03";
+export type StoryStepId = "page_01" | "page_02" | "page_03" | "page_04";
 
 export type StoryStep = {
   id: StoryStepId;

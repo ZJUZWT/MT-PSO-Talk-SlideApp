@@ -1,6 +1,6 @@
 import React from "react";
-import {render, screen} from "@testing-library/react";
-import {beforeEach, describe, expect, it, vi} from "vitest";
+import {cleanup, render, screen} from "@testing-library/react";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 
 let mockFrame = 18;
 
@@ -34,6 +34,10 @@ function findTextNodes(container: HTMLElement, label: string) {
 describe("MyComposition", () => {
   beforeEach(() => {
     mockFrame = 18;
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("renders page 01 as the minimal formula model", () => {
@@ -76,6 +80,21 @@ describe("MyComposition", () => {
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
     expect(container.querySelectorAll("circle").length).toBeGreaterThan(6);
+  });
+
+  it("renders page 04 as a Vulkan PSO layer with one highlighted API call", () => {
+    mockFrame = 126;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visibleOrangeBadges = Array.from(
+      container.querySelectorAll('circle[stroke="#d06b44"]'),
+    ).filter((node) => opacityOf(node.closest("g")) > 0);
+
+    expect(screen.getByText("PSO")).toBeInTheDocument();
+    expect(screen.getByText("ShaderCode")).toBeInTheDocument();
+    expect(screen.getByText("ShaderBinary")).toBeInTheDocument();
+    expect(screen.getByText("Depth")).toBeInTheDocument();
+    expect(screen.getByText("Blend")).toBeInTheDocument();
+    expect(visibleOrangeBadges.length).toBe(1);
   });
 
   it("keeps page 01 -> page 02 in a real mid-transition state halfway through", () => {
@@ -147,5 +166,73 @@ describe("MyComposition", () => {
     expect(opacityOf(shaderCodeGroup)).toBeGreaterThan(0);
     expect(opacityOf(shaderCodeGroup)).toBeLessThan(1);
     expect(midLine?.getAttribute("d")).not.toBe(finalLine?.getAttribute("d"));
+  });
+
+  it("keeps page 03 -> page 04 in a real mid-transition state with PSO still fading in", () => {
+    mockFrame = 108;
+    const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
+    const midPsoGroup = findTextNodes(midContainer, "PSO")[0]?.closest("g");
+
+    unmount();
+    mockFrame = 126;
+    const {container: finalContainer} = render(<MyComposition variantId="bus-clean" />);
+    const finalPsoGroup = findTextNodes(finalContainer, "PSO")[0]?.closest("g");
+
+    expect(opacityOf(midPsoGroup)).toBeGreaterThan(0);
+    expect(opacityOf(midPsoGroup)).toBeLessThan(1);
+    expect(opacityOf(finalPsoGroup)).toBe(1);
+  });
+
+  it("retracts the three vertical GPU-call lines during page 03 -> page 04 instead of only fading them", () => {
+    mockFrame = 108;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const morphingShafts = Array.from(
+      container.querySelectorAll('path[stroke-width="3.2"]'),
+    ).map((node) => node.getAttribute("d"));
+
+    expect(morphingShafts).not.toContain("M 530 186 L 530 374");
+    expect(morphingShafts).not.toContain("M 670 186 L 670 374");
+    expect(morphingShafts).not.toContain("M 780 186 L 780 374");
+    expect(
+      morphingShafts.some((value) => value?.startsWith("M 530 186 L 530 ")),
+    ).toBe(true);
+    expect(
+      morphingShafts.some((value) => value?.startsWith("M 670 186 L 670 ")),
+    ).toBe(true);
+    expect(
+      morphingShafts.some((value) => value?.startsWith("M 780 186 L 780 ")),
+    ).toBe(true);
+  });
+
+  it("keeps the three page 03 -> page 04 vertical routes as single morphing lines instead of overlaying a second gray set", () => {
+    mockFrame = 108;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const morphingVerticalShafts = Array.from(
+      container.querySelectorAll('path[stroke-width="3.2"]'),
+    ).filter((node) => {
+      const d = node.getAttribute("d");
+      return (
+        d?.startsWith("M 530 186 L 530 ") ||
+        d?.startsWith("M 670 186 L 670 ") ||
+        d?.startsWith("M 780 186 L 780 ")
+      );
+    });
+    const grayVerticalShafts = Array.from(
+      container.querySelectorAll('path[stroke="rgba(76, 90, 102, 0.72)"][stroke-width="3"]'),
+    ).filter((node) => {
+      const d = node.getAttribute("d");
+      return (
+        d?.startsWith("M 530 186 L 530 ") ||
+        d?.startsWith("M 670 186 L 670 ") ||
+        d?.startsWith("M 780 186 L 780 ")
+      );
+    });
+
+    expect(morphingVerticalShafts.length).toBe(3);
+    expect(grayVerticalShafts.length).toBe(0);
+    morphingVerticalShafts.forEach((node) => {
+      expect(node.getAttribute("stroke")).not.toBe("#d06b44");
+      expect(node.getAttribute("stroke")).not.toBe("rgba(76, 90, 102, 0.72)");
+    });
   });
 });

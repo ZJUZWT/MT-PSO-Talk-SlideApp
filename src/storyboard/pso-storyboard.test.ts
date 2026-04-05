@@ -7,13 +7,15 @@ describe("masterStoryboard", () => {
       "page_01",
       "page_02",
       "page_03",
+      "page_04",
     ]);
   });
 
-  it("exposes formula-first guidance, GPU concretization, and upper-band GPU setup", () => {
+  it("exposes formula-first guidance, GPU concretization, OpenGL setup, and Vulkan PSO packaging", () => {
     const page01 = masterStoryboard.steps[0];
     const page02 = masterStoryboard.steps[1];
     const page03 = masterStoryboard.steps[2];
+    const page04 = masterStoryboard.steps[3];
 
     expect(page01?.label).toBe("Input -> f(x) -> Output");
     expect(page01?.caption).toContain("最小骨架");
@@ -23,7 +25,11 @@ describe("masterStoryboard", () => {
     expect(page03?.label).toBe("OpenGL");
     expect(page03?.caption).toContain("Shader");
     expect(page03?.manuscript).toContain("ShaderBinary");
-    expect(page03?.manuscript).toContain("CompileShader()");
-    expect(page03?.manuscript).toContain("SetBlendState()");
+    expect(page03?.manuscript).toContain("glCompileShader()");
+    expect(page03?.manuscript).toContain("glBlendFunc()");
+    expect(page04?.label).toBe("Vulkan PSO");
+    expect(page04?.caption).toContain("PSO");
+    expect(page04?.manuscript).toContain("PSO");
+    expect(page04?.manuscript).toContain("vkCmdBindPipeline()");
   });
 });

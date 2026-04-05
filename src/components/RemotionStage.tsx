@@ -1,8 +1,11 @@
 import {useEffect, useMemo, useRef, useState} from "react";
 import type {StoryStepId, VariantId} from "../storyboard-data/pso-workbench-types";
 import {SceneSvg} from "../remotion/Composition";
-import {resolveRemotionStepFrame} from "../remotion/embed";
-import {resolvePlaybackFrame} from "../storyboard-data/playbackTimeline";
+import {REMOTION_PLAYER_CONFIG, resolveRemotionStepFrame} from "../remotion/embed";
+import {
+  resolvePlaybackDurationMs,
+  resolvePlaybackFrame,
+} from "../storyboard-data/playbackTimeline";
 
 type RemotionStageProps = {
   motionDurationScale: number;
@@ -22,15 +25,12 @@ export function RemotionStage({
   const [isAnimating, setIsAnimating] = useState(false);
   const targetFrame = useMemo(() => resolveRemotionStepFrame(stepId), [stepId]);
   const effectiveDurationMs = useMemo(() => {
-    const frameDistance = Math.abs(targetFrame - lastAppliedFrameRef.current);
-
-    if (frameDistance === 0) {
-      return 0;
-    }
-
-    const baseDurationMs = Math.max(320, Math.min(440, frameDistance * 12));
-
-    return Math.max(120, Math.round(baseDurationMs * motionDurationScale));
+    return resolvePlaybackDurationMs({
+      fromFrame: lastAppliedFrameRef.current,
+      toFrame: targetFrame,
+      fps: REMOTION_PLAYER_CONFIG.fps,
+      durationScale: motionDurationScale,
+    });
   }, [motionDurationScale, targetFrame]);
 
   useEffect(() => {

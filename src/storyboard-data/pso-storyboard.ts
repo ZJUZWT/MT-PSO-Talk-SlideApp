@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-03 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, then open an upper configuration band that feeds the GPU from above.",
+    "Pages 01-04 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, open an OpenGL upper configuration band, then insert a Vulkan PSO layer that collapses multiple API calls into one highlighted bind step.",
   steps: [
     {
       id: "page_01",
@@ -47,15 +47,33 @@ export const masterStoryboard: Storyboard = {
       intro:
         "现在开始把“GPU 自己算”这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
       manuscript:
-        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 ShaderCode 通过 CompileShader() 变成 ShaderBinary，再用 SetShaderBinary() 送进 GPU；右边则是 Depth 和 Blend 分别通过 SetDepthState() 与 SetBlendState() 往下配置到 GPU。",
+        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 ShaderCode 通过 glCompileShader() 走到 ShaderBinary，再用 glUseProgram() 往下启用；右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
       apiListTitle: "Graphics API",
       apiList: [
-        {id: 1, label: "CompileShader()"},
-        {id: 2, label: "SetShaderBinary()"},
-        {id: 3, label: "SetDepthState()"},
-        {id: 4, label: "SetBlendState()"},
+        {id: 1, label: "glCompileShader()"},
+        {id: 2, label: "glUseProgram()"},
+        {id: 3, label: "glDepthFunc()"},
+        {id: 4, label: "glBlendFunc()"},
       ],
       focusColorKey: "opengl",
+    },
+    {
+      id: "page_04",
+      label: "Vulkan PSO",
+      caption:
+        "保留第三页的上下两层，但在中间插入 PSO，让上方状态先被打包，真正高亮的 Graphics API 调用只剩下 PSO -> GPU。",
+      notes:
+        "第四页继承第三页的底部主轴和上方输入分区，不重画结构，只在中间插入一个 PSO。ShaderBinary、Depth、Blend 先用灰线汇入 PSO，强调它们在这一页不再是逐条直接配置 GPU；真正高亮的只剩下一条 Vulkan API 绑定线。",
+      focusTarget: "PSO",
+      timingHint:
+        "先让第三页的橙色上方调用退场，再让 PSO 从中层长出来，最后只保留一条橙色 PSO -> GPU 通道。",
+      intro:
+        "Vulkan 的关键变化不是 GPU 消失了，而是 GPU 之前多条分散的状态调用，被提前收进了一个 Pipeline State Object。",
+      manuscript:
+        "到了第四页，第三页上方那些 ShaderBinary、Depth、Blend 还在，但它们不再各自作为高亮的 Graphics API 调用直接敲到 GPU 上。它们先在中间汇成一个 PSO，运行时真正高亮的一步只剩下 vkCmdBindPipeline()。这就是 Vulkan 风格带来的变化：同样的配置关系还在，但面向 GPU 的显式调用显著变少了。",
+      apiListTitle: "Graphics API",
+      apiList: [{id: 1, label: "vkCmdBindPipeline()"}],
+      focusColorKey: "vulkan",
     },
   ],
 };

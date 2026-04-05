@@ -29,9 +29,17 @@ type Box = {
   radius: number;
 };
 
+type RgbaColor = {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+};
+
 const PAGE_01_FRAME = resolveRemotionStepFrame("page_01");
 const PAGE_02_FRAME = resolveRemotionStepFrame("page_02");
 const PAGE_03_FRAME = resolveRemotionStepFrame("page_03");
+const PAGE_04_FRAME = resolveRemotionStepFrame("page_04");
 
 const PAGE2_LEFT_BOX: Box = {x: 210, y: 316, width: 150, height: 88, radius: 20};
 const PAGE2_CENTER_BOX: Box = {x: 480, y: 304, width: 320, height: 112, radius: 24};
@@ -69,6 +77,13 @@ const PAGE3_BLEND_BOX: Box = {
   height: 54,
   radius: 18,
 };
+const PAGE4_PSO_BOX: Box = {
+  x: 465,
+  y: 242,
+  width: 350,
+  height: 72,
+  radius: 24,
+};
 
 const PIXEL_GRID_SIZE = 60;
 const PIXEL_CELL_SIZE = 12;
@@ -99,6 +114,15 @@ function clamp01(value: number) {
 
 function mix(from: number, to: number, progress: number) {
   return from + (to - from) * progress;
+}
+
+function mixRgba(from: RgbaColor, to: RgbaColor, progress: number) {
+  const r = Math.round(mix(from.r, to.r, progress));
+  const g = Math.round(mix(from.g, to.g, progress));
+  const b = Math.round(mix(from.b, to.b, progress));
+  const a = Math.round(mix(from.a, to.a, progress) * 1000) / 1000;
+
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 function easeInOutCubic(value: number) {
@@ -510,8 +534,10 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 }) => {
   const page12Progress = resolveSegmentProgress(frame, PAGE_01_FRAME, PAGE_02_FRAME);
   const page23Progress = resolveSegmentProgress(frame, PAGE_02_FRAME, PAGE_03_FRAME);
+  const page34Progress = resolveSegmentProgress(frame, PAGE_03_FRAME, PAGE_04_FRAME);
   const settledPage12Progress = frame >= PAGE_02_FRAME ? 1 : page12Progress;
   const settledPage23Progress = frame <= PAGE_02_FRAME ? 0 : page23Progress;
+  const settledPage34Progress = frame <= PAGE_03_FRAME ? 0 : page34Progress;
   const theme = VARIANT_THEME[variantId];
 
   const neutralFill = "rgba(255, 251, 246, 0.98)";
@@ -519,6 +545,8 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const nodeStroke = "rgba(34, 48, 61, 0.78)";
   const wireStroke = "rgba(76, 90, 102, 0.72)";
   const apiStroke = "#d06b44";
+  const wireStrokeColor = {r: 76, g: 90, b: 102, a: 0.72};
+  const apiStrokeColor = {r: 208, g: 107, b: 68, a: 1};
 
   const leftBox = mixBox(PAGE2_LEFT_BOX, PAGE3_LEFT_BOX, settledPage23Progress);
   const centerBox = mixBox(PAGE2_CENTER_BOX, PAGE3_CENTER_BOX, settledPage23Progress);
@@ -599,6 +627,37 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const binaryLineEndY = mix(binaryLineStartY, apiArrowTipY, upperLineProgress);
   const depthLineEndY = mix(depthLineStartY, apiArrowTipY, upperLineProgress);
   const blendLineEndY = mix(blendLineStartY, apiArrowTipY, upperLineProgress);
+  const legacyRetractProgress = easeInOutCubic(
+    clamp01((settledPage34Progress - 0.04) / 0.66),
+  );
+  const legacyUpperCallOpacity =
+    upperLineOpacity * clamp01(1 - settledPage34Progress / 0.92);
+  const psoOpacity = clamp01((settledPage34Progress - 0.12) / 0.42);
+  const psoScale = mix(0.88, 1, easeInOutCubic(psoOpacity));
+  const psoLineOpacity = clamp01((settledPage34Progress - 0.22) / 0.3);
+  const psoBindOpacity = clamp01((settledPage34Progress - 0.34) / 0.28);
+  const psoBox = PAGE4_PSO_BOX;
+  const psoCenterX = boxCenterX(psoBox);
+  const psoCenterY = boxCenterY(psoBox);
+  const psoArrowGap = 14;
+  const psoTipY = psoBox.y - psoArrowGap;
+  const psoBindStartY = boxBottom(psoBox) + upperLineNodeGap;
+  const psoBindEndY = gpuTopY - gpuArrowGap;
+  const verticalMorphHoldY = psoTipY + 48;
+  const verticalMorphShiftProgress = easeInOutCubic(
+    clamp01((settledPage34Progress - 0.38) / 0.56),
+  );
+  const verticalMorphEndY =
+    settledPage34Progress < 0.38
+      ? mix(apiArrowTipY, verticalMorphHoldY, legacyRetractProgress)
+      : mix(verticalMorphHoldY, psoTipY, verticalMorphShiftProgress);
+  const verticalMorphStroke = mixRgba(
+    apiStrokeColor,
+    wireStrokeColor,
+    easeInOutCubic(clamp01((settledPage34Progress - 0.24) / 0.5)),
+  );
+  const verticalBadgeOpacity =
+    upperLineOpacity * clamp01(1 - settledPage34Progress / 0.58);
 
   return (
     <AbsoluteFill
@@ -680,6 +739,16 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
             stroke={theme.accent}
             strokeWidth={mix(2.8, 3.2, settledPage23Progress)}
           />
+          {settledPage34Progress > 0 ? (
+            <g opacity={settledPage34Progress}>
+              <StageBox
+                box={centerBox}
+                fill={neutralFill}
+                stroke={nodeStroke}
+                strokeWidth={2.8}
+              />
+            </g>
+          ) : null}
           <text
             x={centerCenterX}
             y={centerTextY}
@@ -747,25 +816,29 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               </g>
 
-              <StrokeArrow
-                d={horizontalPath(shaderLineStartX, shaderArrowTipX, shaderLineY)}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-                tipX={shaderArrowTipX}
-                tipY={shaderLineY}
-                direction="right"
-                shaftWidth={3.2}
-                underlayWidth={6}
-                underlayOpacity={0.12}
-                headSize={10}
-              />
-              <ApiBadge
-                x={mix(shaderLineStartX, (shaderLineStartX + shaderLineEndX) / 2, upperLineProgress)}
-                y={shaderLineY - 18}
-                id={1}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-              />
+              {legacyUpperCallOpacity > 0 ? (
+                <>
+                  <StrokeArrow
+                    d={horizontalPath(shaderLineStartX, shaderArrowTipX, shaderLineY)}
+                    stroke={apiStroke}
+                    opacity={legacyUpperCallOpacity}
+                    tipX={shaderArrowTipX}
+                    tipY={shaderLineY}
+                    direction="right"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={mix(shaderLineStartX, (shaderLineStartX + shaderLineEndX) / 2, upperLineProgress)}
+                    y={shaderLineY - 18}
+                    id={1}
+                    stroke={apiStroke}
+                    opacity={legacyUpperCallOpacity}
+                  />
+                </>
+              ) : null}
 
               <g
                 opacity={upperNodeOpacity}
@@ -807,63 +880,119 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               </g>
 
-              <StrokeArrow
-                d={verticalPath(shaderBinaryCenterX, binaryLineStartY, binaryLineEndY)}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-                tipX={shaderBinaryCenterX}
-                tipY={binaryLineEndY}
-                direction="down"
-                shaftWidth={3.2}
-                underlayWidth={6}
-                underlayOpacity={0.12}
-                headSize={10}
-              />
-              <ApiBadge
-                x={shaderBinaryCenterX - 18}
-                y={mix(binaryLineStartY, binaryLineEndY, 0.44)}
-                id={2}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-              />
-              <StrokeArrow
-                d={verticalPath(depthCenterX, depthLineStartY, depthLineEndY)}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-                tipX={depthCenterX}
-                tipY={depthLineEndY}
-                direction="down"
-                shaftWidth={3.2}
-                underlayWidth={6}
-                underlayOpacity={0.12}
-                headSize={10}
-              />
-              <ApiBadge
-                x={depthCenterX - 18}
-                y={mix(depthLineStartY, depthLineEndY, 0.44)}
-                id={3}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-              />
-              <StrokeArrow
-                d={verticalPath(blendCenterX, blendLineStartY, blendLineEndY)}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-                tipX={blendCenterX}
-                tipY={blendLineEndY}
-                direction="down"
-                shaftWidth={3.2}
-                underlayWidth={6}
-                underlayOpacity={0.12}
-                headSize={10}
-              />
-              <ApiBadge
-                x={blendCenterX + 18}
-                y={mix(blendLineStartY, blendLineEndY, 0.44)}
-                id={4}
-                stroke={apiStroke}
-                opacity={upperLineOpacity}
-              />
+              {upperLineOpacity > 0 ? (
+                <>
+                  <StrokeArrow
+                    d={verticalPath(shaderBinaryCenterX, binaryLineStartY, verticalMorphEndY)}
+                    stroke={verticalMorphStroke}
+                    opacity={upperLineOpacity}
+                    tipX={shaderBinaryCenterX}
+                    tipY={verticalMorphEndY}
+                    direction="down"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={shaderBinaryCenterX - 18}
+                    y={mix(binaryLineStartY, verticalMorphEndY, 0.44)}
+                    id={2}
+                    stroke={apiStroke}
+                    opacity={verticalBadgeOpacity}
+                  />
+                  <StrokeArrow
+                    d={verticalPath(depthCenterX, depthLineStartY, verticalMorphEndY)}
+                    stroke={verticalMorphStroke}
+                    opacity={upperLineOpacity}
+                    tipX={depthCenterX}
+                    tipY={verticalMorphEndY}
+                    direction="down"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={depthCenterX - 18}
+                    y={mix(depthLineStartY, verticalMorphEndY, 0.44)}
+                    id={3}
+                    stroke={apiStroke}
+                    opacity={verticalBadgeOpacity}
+                  />
+                  <StrokeArrow
+                    d={verticalPath(blendCenterX, blendLineStartY, verticalMorphEndY)}
+                    stroke={verticalMorphStroke}
+                    opacity={upperLineOpacity}
+                    tipX={blendCenterX}
+                    tipY={verticalMorphEndY}
+                    direction="down"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={blendCenterX + 18}
+                    y={mix(blendLineStartY, verticalMorphEndY, 0.44)}
+                    id={4}
+                    stroke={apiStroke}
+                    opacity={verticalBadgeOpacity}
+                  />
+                </>
+              ) : null}
+
+              {settledPage34Progress > 0 ? (
+                <>
+                  <StrokeArrow
+                    d={horizontalPath(shaderLineStartX, shaderLineEndX, shaderLineY)}
+                    stroke={wireStroke}
+                    opacity={psoLineOpacity}
+                    tipX={shaderLineEndX}
+                    tipY={shaderLineY}
+                    direction="right"
+                    shaftWidth={3}
+                    underlayWidth={5.6}
+                    underlayOpacity={0.12}
+                    headSize={9}
+                  />
+
+                  <g
+                    opacity={psoOpacity}
+                    transform={`translate(${psoCenterX} ${psoCenterY}) scale(${psoScale}) translate(${-psoCenterX} ${-psoCenterY})`}
+                  >
+                    <StageBox
+                      box={psoBox}
+                      fill={focusFill}
+                      stroke={theme.accent}
+                      strokeWidth={3}
+                      label="PSO"
+                      labelSize={30}
+                      labelWeight={760}
+                    />
+                  </g>
+
+                  <StrokeArrow
+                    d={verticalPath(psoCenterX, psoBindStartY, psoBindEndY)}
+                    stroke={apiStroke}
+                    opacity={psoBindOpacity}
+                    tipX={psoCenterX}
+                    tipY={psoBindEndY}
+                    direction="down"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={psoCenterX - 18}
+                    y={mix(psoBindStartY, psoBindEndY, 0.44)}
+                    id={1}
+                    stroke={apiStroke}
+                    opacity={psoBindOpacity}
+                  />
+                </>
+              ) : null}
             </>
           ) : null}
         </svg>
