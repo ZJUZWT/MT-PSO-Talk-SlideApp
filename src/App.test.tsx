@@ -116,6 +116,8 @@ describe("App", () => {
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(screen.getAllByText("vkCreateGraphicsPipelines()").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("vkCmdBindPipeline()").length).toBeGreaterThan(0);
   });
 
   it("moves between storyboard steps with arrow keys", async () => {

@@ -61,18 +61,21 @@ export const masterStoryboard: Storyboard = {
       id: "page_04",
       label: "Vulkan PSO",
       caption:
-        "保留第三页的上下两层，但在中间插入 PSO，让上方状态先被打包，真正高亮的 Graphics API 调用只剩下 PSO -> GPU。",
+        "保留第三页的上下两层，但把上方输入先收进 Description，再创建出 PSO，真正高亮的 Graphics API 调用只剩下 PSO -> GPU。",
       notes:
-        "第四页继承第三页的底部主轴和上方输入分区，不重画结构，只在中间插入一个 PSO。ShaderBinary、Depth、Blend 先用灰线汇入 PSO，强调它们在这一页不再是逐条直接配置 GPU；真正高亮的只剩下一条 Vulkan API 绑定线。",
+        "第四页继承第三页的底部主轴和上方输入分区，不重画结构，只把 Vulkan 语义讲准确。左侧的 ShaderCode 先走到 SPIR-V，SPIR-V 和右侧的 Depth、Blend 先汇入一个 Description，再由 create 过程生成 PSO；真正高亮的只剩下一条运行时 Vulkan 绑定线。",
       focusTarget: "PSO",
       timingHint:
-        "先让第三页的橙色上方调用退场，再让 PSO 从中层长出来，最后只保留一条橙色 PSO -> GPU 通道。",
+        "先让第三页的直达 GPU 调用缩回并改色，再显出 Description，接着由 Description 生成 PSO，最后只保留一条橙色 PSO -> GPU 通道。",
       intro:
-        "Vulkan 的关键变化不是 GPU 消失了，而是 GPU 之前多条分散的状态调用，被提前收进了一个 Pipeline State Object。",
+        "Vulkan 的关键变化不是 GPU 消失了，而是上方配置先进入一份 description，再提前创建出 PSO，运行时只需要绑定它。",
       manuscript:
-        "到了第四页，第三页上方那些 ShaderBinary、Depth、Blend 还在，但它们不再各自作为高亮的 Graphics API 调用直接敲到 GPU 上。它们先在中间汇成一个 PSO，运行时真正高亮的一步只剩下 vkCmdBindPipeline()。这就是 Vulkan 风格带来的变化：同样的配置关系还在，但面向 GPU 的显式调用显著变少了。",
+        "到了第四页，第三页上方那套结构没有消失，但它的语义变了。左边不再强调 ShaderBinary，而是 ShaderCode 先得到 SPIR-V；SPIR-V 再和 Depth、Blend 一起写进一份 Description。然后这份 Description 通过 vkCreateGraphicsPipelines() 创建出正确的 PSO。到了运行时，真正高亮的 Graphics API 调用只剩下 vkCmdBindPipeline()。这就是 Vulkan 风格带来的变化：创建阶段更显式，但面向 GPU 的运行时绑定被收敛成了更少的一步。",
       apiListTitle: "Graphics API",
-      apiList: [{id: 1, label: "vkCmdBindPipeline()"}],
+      apiList: [
+        {id: 1, label: "vkCreateGraphicsPipelines()"},
+        {id: 2, label: "vkCmdBindPipeline()"},
+      ],
       focusColorKey: "vulkan",
     },
   ],

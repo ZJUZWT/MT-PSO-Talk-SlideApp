@@ -29,7 +29,15 @@ describe("masterStoryboard", () => {
     expect(page03?.manuscript).toContain("glBlendFunc()");
     expect(page04?.label).toBe("Vulkan PSO");
     expect(page04?.caption).toContain("PSO");
+    expect(page04?.caption).toContain("Description");
     expect(page04?.manuscript).toContain("PSO");
+    expect(page04?.manuscript).toContain("SPIR-V");
+    expect(page04?.manuscript).toContain("Description");
+    expect(page04?.manuscript).toContain("vkCreateGraphicsPipelines()");
     expect(page04?.manuscript).toContain("vkCmdBindPipeline()");
+    expect(page04?.apiList?.map((entry) => entry.label)).toEqual([
+      "vkCreateGraphicsPipelines()",
+      "vkCmdBindPipeline()",
+    ]);
   });
 });

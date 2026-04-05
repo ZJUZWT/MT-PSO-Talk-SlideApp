@@ -91,10 +91,24 @@ describe("MyComposition", () => {
 
     expect(screen.getByText("PSO")).toBeInTheDocument();
     expect(screen.getByText("ShaderCode")).toBeInTheDocument();
-    expect(screen.getByText("ShaderBinary")).toBeInTheDocument();
+    expect(screen.getByText("SPIR-V")).toBeInTheDocument();
+    expect(screen.getByText("Description")).toBeInTheDocument();
+    expect(screen.queryByText("ShaderBinary")).not.toBeInTheDocument();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
-    expect(visibleOrangeBadges.length).toBe(1);
+    expect(visibleOrangeBadges.length).toBe(2);
+  });
+
+  it("removes the Create PSO label text and keeps Description and PSO equally wide on page 04", () => {
+    mockFrame = 126;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const descriptionGroup = findTextNodes(container, "Description")[0]?.closest("g");
+    const psoGroup = findTextNodes(container, "PSO")[0]?.closest("g");
+    const descriptionRect = descriptionGroup?.querySelector("rect");
+    const psoRect = psoGroup?.querySelector("rect");
+
+    expect(screen.queryByText("Create PSO")).not.toBeInTheDocument();
+    expect(descriptionRect?.getAttribute("width")).toBe(psoRect?.getAttribute("width"));
   });
 
   it("keeps page 01 -> page 02 in a real mid-transition state halfway through", () => {
@@ -183,24 +197,55 @@ describe("MyComposition", () => {
     expect(opacityOf(finalPsoGroup)).toBe(1);
   });
 
+  it("creates a stronger page 03 -> page 04 vertical expansion by lowering the runtime spine and lifting the upper band", () => {
+    mockFrame = 90;
+    const {container: page3Container, unmount} = render(<MyComposition variantId="bus-clean" />);
+    const page3Gpu = findTextNodes(page3Container, "GPU")[0];
+    const page3ShaderBinary = findTextNodes(page3Container, "ShaderBinary")[0];
+
+    unmount();
+    mockFrame = 126;
+    const {container: page4Container} = render(<MyComposition variantId="bus-clean" />);
+    const page4Gpu = findTextNodes(page4Container, "GPU")[0];
+    const page4Spirv = findTextNodes(page4Container, "SPIR-V")[0];
+
+    expect(Number(page4Gpu?.getAttribute("y"))).toBeGreaterThan(
+      Number(page3Gpu?.getAttribute("y")),
+    );
+    expect(Number(page4Spirv?.getAttribute("y"))).toBeLessThan(
+      Number(page3ShaderBinary?.getAttribute("y")),
+    );
+  });
+
   it("retracts the three vertical GPU-call lines during page 03 -> page 04 instead of only fading them", () => {
+    mockFrame = 90;
+    const {container: page3Container, unmount} = render(<MyComposition variantId="bus-clean" />);
+    const page3MorphingShafts = Array.from(
+      page3Container.querySelectorAll('path[stroke-width="3.2"]'),
+    ).map((node) => node.getAttribute("d"));
+
+    unmount();
     mockFrame = 108;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const morphingShafts = Array.from(
       container.querySelectorAll('path[stroke-width="3.2"]'),
     ).map((node) => node.getAttribute("d"));
 
-    expect(morphingShafts).not.toContain("M 530 186 L 530 374");
-    expect(morphingShafts).not.toContain("M 670 186 L 670 374");
-    expect(morphingShafts).not.toContain("M 780 186 L 780 374");
+    const page3BinaryLine = page3MorphingShafts.find((value) => value?.startsWith("M 530 "));
+    const page3DepthLine = page3MorphingShafts.find((value) => value?.startsWith("M 670 "));
+    const page3BlendLine = page3MorphingShafts.find((value) => value?.startsWith("M 780 "));
+
+    expect(morphingShafts).not.toContain(page3BinaryLine);
+    expect(morphingShafts).not.toContain(page3DepthLine);
+    expect(morphingShafts).not.toContain(page3BlendLine);
     expect(
-      morphingShafts.some((value) => value?.startsWith("M 530 186 L 530 ")),
+      morphingShafts.some((value) => /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(value ?? "")),
     ).toBe(true);
     expect(
-      morphingShafts.some((value) => value?.startsWith("M 670 186 L 670 ")),
+      morphingShafts.some((value) => /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(value ?? "")),
     ).toBe(true);
     expect(
-      morphingShafts.some((value) => value?.startsWith("M 780 186 L 780 ")),
+      morphingShafts.some((value) => /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(value ?? "")),
     ).toBe(true);
   });
 
@@ -212,9 +257,9 @@ describe("MyComposition", () => {
     ).filter((node) => {
       const d = node.getAttribute("d");
       return (
-        d?.startsWith("M 530 186 L 530 ") ||
-        d?.startsWith("M 670 186 L 670 ") ||
-        d?.startsWith("M 780 186 L 780 ")
+        /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(d ?? "") ||
+        /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(d ?? "") ||
+        /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(d ?? "")
       );
     });
     const grayVerticalShafts = Array.from(
@@ -222,9 +267,9 @@ describe("MyComposition", () => {
     ).filter((node) => {
       const d = node.getAttribute("d");
       return (
-        d?.startsWith("M 530 186 L 530 ") ||
-        d?.startsWith("M 670 186 L 670 ") ||
-        d?.startsWith("M 780 186 L 780 ")
+        /^M 530 \d+(?:\.\d+)? L 530 \d+(?:\.\d+)?$/.test(d ?? "") ||
+        /^M 670 \d+(?:\.\d+)? L 670 \d+(?:\.\d+)?$/.test(d ?? "") ||
+        /^M 780 \d+(?:\.\d+)? L 780 \d+(?:\.\d+)?$/.test(d ?? "")
       );
     });
 

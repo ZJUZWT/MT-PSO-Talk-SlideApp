@@ -45,44 +45,51 @@ const PAGE2_LEFT_BOX: Box = {x: 210, y: 316, width: 150, height: 88, radius: 20}
 const PAGE2_CENTER_BOX: Box = {x: 480, y: 304, width: 320, height: 112, radius: 24};
 const PAGE2_RIGHT_BOX: Box = {x: 920, y: 316, width: 150, height: 88, radius: 20};
 
-const PAGE3_LEFT_BOX: Box = {x: 210, y: 410, width: 150, height: 88, radius: 20};
-const PAGE3_CENTER_BOX: Box = {x: 420, y: 388, width: 440, height: 126, radius: 28};
-const PAGE3_RIGHT_BOX: Box = {x: 920, y: 410, width: 150, height: 88, radius: 20};
+const PAGE3_LEFT_BOX: Box = {x: 210, y: 424, width: 150, height: 88, radius: 20};
+const PAGE3_CENTER_BOX: Box = {x: 420, y: 402, width: 440, height: 126, radius: 28};
+const PAGE3_RIGHT_BOX: Box = {x: 920, y: 424, width: 150, height: 88, radius: 20};
 
 const PAGE3_SHADER_CODE_BOX: Box = {
   x: 286,
-  y: 120,
+  y: 134,
   width: 156,
   height: 54,
   radius: 18,
 };
 const PAGE3_SHADER_BINARY_BOX: Box = {
   x: 536,
-  y: 120,
+  y: 134,
   width: 152,
   height: 54,
   radius: 18,
 };
 const PAGE3_DEPTH_BOX: Box = {
   x: 700,
-  y: 120,
+  y: 134,
   width: 92,
   height: 54,
   radius: 18,
 };
 const PAGE3_BLEND_BOX: Box = {
   x: 814,
-  y: 120,
+  y: 134,
   width: 92,
   height: 54,
   radius: 18,
 };
+const PAGE4_DESCRIPTION_BOX: Box = {
+  x: 460,
+  y: 0,
+  width: 360,
+  height: 44,
+  radius: 18,
+};
 const PAGE4_PSO_BOX: Box = {
-  x: 465,
-  y: 242,
-  width: 350,
-  height: 72,
-  radius: 24,
+  x: 460,
+  y: 0,
+  width: 360,
+  height: 52,
+  radius: 20,
 };
 
 const PIXEL_GRID_SIZE = 60;
@@ -548,14 +555,27 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const wireStrokeColor = {r: 76, g: 90, b: 102, a: 0.72};
   const apiStrokeColor = {r: 208, g: 107, b: 68, a: 1};
 
-  const leftBox = mixBox(PAGE2_LEFT_BOX, PAGE3_LEFT_BOX, settledPage23Progress);
-  const centerBox = mixBox(PAGE2_CENTER_BOX, PAGE3_CENTER_BOX, settledPage23Progress);
-  const rightBox = mixBox(PAGE2_RIGHT_BOX, PAGE3_RIGHT_BOX, settledPage23Progress);
+  const page34SpineShift = mix(0, 28, settledPage34Progress);
+  const mixedLeftBox = mixBox(PAGE2_LEFT_BOX, PAGE3_LEFT_BOX, settledPage23Progress);
+  const mixedCenterBox = mixBox(PAGE2_CENTER_BOX, PAGE3_CENTER_BOX, settledPage23Progress);
+  const mixedRightBox = mixBox(PAGE2_RIGHT_BOX, PAGE3_RIGHT_BOX, settledPage23Progress);
+  const leftBox = {
+    ...mixedLeftBox,
+    y: mixedLeftBox.y + page34SpineShift,
+  };
+  const centerBox = {
+    ...mixedCenterBox,
+    y: mixedCenterBox.y + page34SpineShift,
+  };
+  const rightBox = {
+    ...mixedRightBox,
+    y: mixedRightBox.y + page34SpineShift,
+  };
 
   const leftCenterX = boxCenterX(leftBox);
   const centerCenterX = boxCenterX(centerBox);
   const rightCenterX = boxCenterX(rightBox);
-  const axisY = mix(boxCenterY(PAGE2_LEFT_BOX), boxCenterY(PAGE3_LEFT_BOX), settledPage23Progress);
+  const axisY = boxCenterY(leftBox);
   const centerTextY = boxCenterY(centerBox) + 4;
   const arrowStartGap = mix(24, 20, settledPage23Progress);
   const arrowEndGap = mix(24, 20, settledPage23Progress);
@@ -577,6 +597,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const upperNodeScale = mix(0.86, 1, easeInOutCubic(upperNodeOpacity));
   const upperLineProgress = clamp01((settledPage23Progress - 0.42) / 0.34);
   const upperLift = mix(-34, 0, easeInOutCubic(upperNodeOpacity));
+  const page34UpperShift = mix(0, -24, settledPage34Progress);
   const upperBandGap = 18;
   const shaderCompileGap = 60;
   const gpuQuarterStep = centerBox.width / 4;
@@ -590,22 +611,22 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const shaderCodeBox = {
     ...PAGE3_SHADER_CODE_BOX,
     x: shaderCodeTargetX,
-    y: PAGE3_SHADER_CODE_BOX.y + upperLift,
+    y: PAGE3_SHADER_CODE_BOX.y + upperLift + page34UpperShift,
   };
   const shaderBinaryBox = {
     ...PAGE3_SHADER_BINARY_BOX,
     x: binaryTargetX,
-    y: PAGE3_SHADER_BINARY_BOX.y + upperLift,
+    y: PAGE3_SHADER_BINARY_BOX.y + upperLift + page34UpperShift,
   };
   const depthBox = {
     ...PAGE3_DEPTH_BOX,
     x: depthTargetX,
-    y: PAGE3_DEPTH_BOX.y + upperLift,
+    y: PAGE3_DEPTH_BOX.y + upperLift + page34UpperShift,
   };
   const blendBox = {
     ...PAGE3_BLEND_BOX,
     x: blendTargetX,
-    y: PAGE3_BLEND_BOX.y + upperLift,
+    y: PAGE3_BLEND_BOX.y + upperLift + page34UpperShift,
   };
 
   const gpuTopY = centerBox.y;
@@ -632,25 +653,43 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   );
   const legacyUpperCallOpacity =
     upperLineOpacity * clamp01(1 - settledPage34Progress / 0.92);
-  const psoOpacity = clamp01((settledPage34Progress - 0.12) / 0.42);
-  const psoScale = mix(0.88, 1, easeInOutCubic(psoOpacity));
-  const psoLineOpacity = clamp01((settledPage34Progress - 0.22) / 0.3);
-  const psoBindOpacity = clamp01((settledPage34Progress - 0.34) / 0.28);
-  const psoBox = PAGE4_PSO_BOX;
+  const descriptionOpacity = clamp01((settledPage34Progress - 0.12) / 0.26);
+  const descriptionScale = mix(0.92, 1, easeInOutCubic(descriptionOpacity));
+  const page4RelationOpacity = clamp01((settledPage34Progress - 0.18) / 0.24);
+  const shaderArtifactLabelProgress = easeInOutCubic(
+    clamp01((settledPage34Progress - 0.08) / 0.3),
+  );
+  const psoOpacity = clamp01((settledPage34Progress - 0.36) / 0.24);
+  const psoScale = mix(0.9, 1, easeInOutCubic(psoOpacity));
+  const createOpacity = clamp01((settledPage34Progress - 0.3) / 0.22);
+  const psoBindOpacity = clamp01((settledPage34Progress - 0.5) / 0.18);
+  const upperBandBottomY = Math.max(
+    boxBottom(shaderBinaryBox),
+    boxBottom(depthBox),
+    boxBottom(blendBox),
+  );
+  const layerGap =
+    (gpuTopY - upperBandBottomY - PAGE4_DESCRIPTION_BOX.height - PAGE4_PSO_BOX.height) / 3;
+  const descriptionBox = {
+    ...PAGE4_DESCRIPTION_BOX,
+    y: upperBandBottomY + layerGap,
+  };
+  const descriptionCenterX = boxCenterX(descriptionBox);
+  const descriptionCenterY = boxCenterY(descriptionBox);
+  const descriptionArrowGap = 14;
+  const descriptionTipY = descriptionBox.y - descriptionArrowGap;
+  const psoBox = {
+    ...PAGE4_PSO_BOX,
+    y: descriptionBox.y + descriptionBox.height + layerGap,
+  };
   const psoCenterX = boxCenterX(psoBox);
   const psoCenterY = boxCenterY(psoBox);
   const psoArrowGap = 14;
   const psoTipY = psoBox.y - psoArrowGap;
-  const psoBindStartY = boxBottom(psoBox) + upperLineNodeGap;
-  const psoBindEndY = gpuTopY - gpuArrowGap;
-  const verticalMorphHoldY = psoTipY + 48;
-  const verticalMorphShiftProgress = easeInOutCubic(
-    clamp01((settledPage34Progress - 0.38) / 0.56),
-  );
-  const verticalMorphEndY =
-    settledPage34Progress < 0.38
-      ? mix(apiArrowTipY, verticalMorphHoldY, legacyRetractProgress)
-      : mix(verticalMorphHoldY, psoTipY, verticalMorphShiftProgress);
+  const descriptionToPsoStartY = boxBottom(descriptionBox) + 10;
+  const psoBindStartY = boxBottom(psoBox) + 10;
+  const psoBindEndY = gpuTopY - 12;
+  const verticalMorphEndY = mix(apiArrowTipY, descriptionTipY, legacyRetractProgress);
   const verticalMorphStroke = mixRgba(
     apiStrokeColor,
     wireStrokeColor,
@@ -848,10 +887,35 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   box={shaderBinaryBox}
                   fill={neutralFill}
                   stroke={nodeStroke}
-                  label="ShaderBinary"
-                  labelSize={23}
-                  labelWeight={700}
                 />
+                {shaderArtifactLabelProgress < 0.999 ? (
+                  <text
+                    x={shaderBinaryCenterX}
+                    y={boxCenterY(shaderBinaryBox) + 3}
+                    fill="#22303d"
+                    fontSize="23"
+                    fontWeight="700"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    opacity={1 - shaderArtifactLabelProgress}
+                  >
+                    ShaderBinary
+                  </text>
+                ) : null}
+                {shaderArtifactLabelProgress > 0.001 ? (
+                  <text
+                    x={shaderBinaryCenterX}
+                    y={boxCenterY(shaderBinaryBox) + 3}
+                    fill="#22303d"
+                    fontSize="24"
+                    fontWeight="760"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    opacity={shaderArtifactLabelProgress}
+                  >
+                    SPIR-V
+                  </text>
+                ) : null}
               </g>
 
               <g
@@ -947,7 +1011,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   <StrokeArrow
                     d={horizontalPath(shaderLineStartX, shaderLineEndX, shaderLineY)}
                     stroke={wireStroke}
-                    opacity={psoLineOpacity}
+                    opacity={page4RelationOpacity}
                     tipX={shaderLineEndX}
                     tipY={shaderLineY}
                     direction="right"
@@ -955,6 +1019,41 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     underlayWidth={5.6}
                     underlayOpacity={0.12}
                     headSize={9}
+                  />
+
+                  <g
+                    opacity={descriptionOpacity}
+                    transform={`translate(${descriptionCenterX} ${descriptionCenterY}) scale(${descriptionScale}) translate(${-descriptionCenterX} ${-descriptionCenterY})`}
+                  >
+                    <StageBox
+                      box={descriptionBox}
+                      fill={neutralFill}
+                      stroke={nodeStroke}
+                      strokeWidth={2.8}
+                      label="Description"
+                      labelSize={23}
+                      labelWeight={700}
+                    />
+                  </g>
+
+                  <StrokeArrow
+                    d={verticalPath(psoCenterX, descriptionToPsoStartY, psoTipY)}
+                    stroke={apiStroke}
+                    opacity={createOpacity}
+                    tipX={psoCenterX}
+                    tipY={psoTipY}
+                    direction="down"
+                    shaftWidth={3.2}
+                    underlayWidth={6}
+                    underlayOpacity={0.12}
+                    headSize={10}
+                  />
+                  <ApiBadge
+                    x={psoCenterX - 18}
+                    y={mix(descriptionToPsoStartY, psoTipY, 0.44)}
+                    id={1}
+                    stroke={apiStroke}
+                    opacity={createOpacity}
                   />
 
                   <g
@@ -987,7 +1086,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   <ApiBadge
                     x={psoCenterX - 18}
                     y={mix(psoBindStartY, psoBindEndY, 0.44)}
-                    id={1}
+                    id={2}
                     stroke={apiStroke}
                     opacity={psoBindOpacity}
                   />
