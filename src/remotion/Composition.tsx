@@ -138,112 +138,112 @@ const PAGE6_ZOOM_PANEL: Box = {
   radius: 36,
 };
 const PAGE6_MATERIAL_BOX: Box = {
-  x: 120,
+  x: 30,
   y: 232,
-  width: 188,
+  width: 140,
   height: 74,
   radius: 20,
 };
 const PAGE6_UASSET_FRAME: Box = {
-  x: 96,
+  x: 36,
   y: 56,
-  width: 1050,
+  width: 1160,
   height: 500,
   radius: 30,
 };
 const PAGE6_PLATFORM_TABLE_BOX: Box = {
-  x: 104,
+  x: 20,
   y: 334,
-  width: 220,
+  width: 170,
   height: 106,
   radius: 18,
 };
 const PAGE6_RESOURCE_BOX: Box = {
-  x: 388,
+  x: 250,
   y: 232,
-  width: 244,
+  width: 190,
   height: 74,
   radius: 20,
 };
 const PAGE6_RESOURCE_TOP_BOX: Box = {
-  x: 404,
+  x: 264,
   y: 204,
-  width: 244,
+  width: 190,
   height: 62,
   radius: 20,
 };
 const PAGE6_RESOURCE_BOTTOM_BOX: Box = {
-  x: 396,
+  x: 257,
   y: 218,
-  width: 244,
+  width: 190,
   height: 62,
   radius: 20,
 };
 const PAGE6_RESOURCE_TABLE_BOX: Box = {
-  x: 382,
+  x: 238,
   y: 334,
-  width: 256,
+  width: 214,
   height: 98,
   radius: 18,
 };
 const PAGE6_SHADERMAP_BOX: Box = {
-  x: 716,
+  x: 520,
   y: 232,
-  width: 188,
+  width: 150,
   height: 74,
   radius: 20,
 };
 const PAGE6_SHADER_TOP_BOX: Box = {
-  x: 732,
+  x: 534,
   y: 204,
-  width: 188,
+  width: 150,
   height: 62,
   radius: 20,
 };
 const PAGE6_SHADER_BOTTOM_BOX: Box = {
-  x: 724,
+  x: 527,
   y: 218,
-  width: 188,
+  width: 150,
   height: 62,
   radius: 20,
 };
 const PAGE6_SHADER_TABLE_BOX: Box = {
-  x: 682,
+  x: 492,
   y: 334,
-  width: 264,
+  width: 206,
   height: 98,
   radius: 18,
 };
 const PAGE6_FSHADER_BOX: Box = {
-  x: 848,
+  x: 750,
   y: 232,
-  width: 100,
+  width: 110,
   height: 74,
   radius: 20,
 };
 const PAGE6_FSHADER_TOP_BOX: Box = {
-  x: 862,
+  x: 764,
   y: 204,
-  width: 100,
+  width: 110,
   height: 62,
   radius: 20,
 };
 const PAGE6_FSHADER_BOTTOM_BOX: Box = {
-  x: 855,
+  x: 757,
   y: 218,
-  width: 100,
+  width: 110,
   height: 62,
   radius: 20,
 };
 const PAGE6_INLINE_BOX: Box = {
-  x: 1000,
+  x: 940,
   y: 232,
   width: 128,
   height: 74,
   radius: 20,
 };
 const PAGE7_CACHE_BOX: Box = {
-  x: 1136,
+  x: 1120,
   y: 190,
   width: 118,
   height: 176,
@@ -1519,16 +1519,16 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     easeInOutCubic(page56QuestionMoveProgress),
   );
   const page56SettledScale = 1;
-  const page7ReadingScale = 1.82;
-  const page8ReadingScale = 1.68;
+  const page7ReadingScale = 1.4;
+  const page8ReadingScale = 1.3;
   const page56ZoomScale = page56SettledScale;
   const page67ZoomScale = mix(page56ZoomScale, page7ReadingScale, settledPage67Progress);
   const zoomScale = mix(page67ZoomScale, page8ReadingScale, settledPage78Progress);
   const page6FocusX = cameraViewportCenterX;
   const page6FocusY = cameraViewportCenterY;
-  const page7FocusX = 820;
+  const page7FocusX = 950;
   const page7FocusY = 258;
-  const page8FocusX = 760;
+  const page8FocusX = 750;
   const page8FocusY = 286;
   const page56FocusX = page6FocusX;
   const page56FocusY = page6FocusY;
@@ -2527,7 +2527,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 
               {page6NodeOpacity > 0.001 ? (
                 <StrokeArrow
-                  testId="page6-shadermap-to-inline-arrow"
+                  testId="page6-shadermap-to-fshader-arrow"
                   d={horizontalPath(
                     page6ShaderArrowStartX,
                     page6ShaderArrowEndX,

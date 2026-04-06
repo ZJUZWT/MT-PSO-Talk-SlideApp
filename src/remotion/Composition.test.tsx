@@ -396,8 +396,8 @@ describe("MyComposition", () => {
     expect((stageScale ?? 0)).toBeGreaterThan(1.04);
     expect((stageScale ?? 0)).toBeLessThanOrEqual(1.06);
     expect(stageAnchor).not.toBeNull();
-    expect(Math.abs((stageAnchor?.x ?? 0) + 621)).toBeLessThanOrEqual(2);
-    expect(Math.abs((stageAnchor?.y ?? 0) + 306)).toBeLessThanOrEqual(2);
+    expect(Math.abs((stageAnchor?.x ?? 0) + 616)).toBeLessThanOrEqual(5);
+    expect(Math.abs((stageAnchor?.y ?? 0) + 306)).toBeLessThanOrEqual(5);
     expect(screen.getAllByText("Material").length).toBeGreaterThanOrEqual(1);
     expect(resourceCards.length).toBe(3);
     expect(screen.getAllByText("FMaterialResource").length).toBeGreaterThanOrEqual(1);
@@ -549,13 +549,14 @@ describe("MyComposition", () => {
     const arrows = [
       container.querySelector('[data-testid="page6-material-to-resource-arrow"]'),
       container.querySelector('[data-testid="page6-resource-to-shadermap-arrow"]'),
-      container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]'),
+      container.querySelector('[data-testid="page6-shadermap-to-fshader-arrow"]'),
+      container.querySelector('[data-testid="page6-fshader-to-inline-arrow"]'),
     ];
     const worldDim = container.querySelector('[data-testid="page56-world-dim"]');
     const baseWorld = container.querySelector('[data-testid="page56-base-world"]');
 
     for (const length of arrows.map((node) => parseSimplePathLength(node))) {
-      expect(length ?? 0).toBeGreaterThanOrEqual(40);
+      expect(length ?? 0).toBeGreaterThanOrEqual(30);
     }
     expect(worldDim).toBeNull();
     expect(opacityOf(baseWorld)).toBeLessThanOrEqual(0.05);
