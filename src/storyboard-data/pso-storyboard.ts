@@ -45,7 +45,7 @@ export const masterStoryboard: Storyboard = {
       timingHint:
         "先让底部三段整体下移，再显出上方配置层，最后停在 GPU 被多条上方配置线汇入的终态。",
       intro:
-        "现在开始把“GPU 自己算”这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
+        "现在开始把\"GPU 自己算\"这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
       manuscript:
         "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 Raw ShaderCode 先通过 glCompileShader() 变成 Binary ShaderCode，再由多个 shader 一起经 glLinkProgram() 组织成 Program；这一整组还可以通过 glGetProgramBinary() 取回成可复用缓存，最后再用 glUseProgram() 往下启用。右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
       apiListTitle: "Graphics API",
@@ -101,48 +101,48 @@ export const masterStoryboard: Storyboard = {
       id: "page_06",
       label: "InlineCode 内部结构",
       caption:
-        "从 Material 到 FMaterialResource，再到 FShaderMap 与 InlineCode blob，把第五页那个问号真正放大开来看。",
+        "从 Material 到 FMaterialResource、FShaderMap、FShader，再到 ShaderCode bytecode，把第五页那个问号真正放大开来看。",
       notes:
-        "第六页不是另起炉灶，而是把第五页 Material -> Cooked ShaderCode 那一小段放大。重点不是 GPU，而是 UE 内部存储链路：一个 Material 会派生出 FMaterialResource，里面挂着 FShaderMap；InlineCode 模式下，真正的 shader code 会跟着这个 ShaderMap 一起被塞进 uasset 包里。",
+        "第六页把第五页 Material -> Cooked ShaderCode 那一小段放大。4 个停留点：Material 为什么变成多个 FMaterialResource（FeatureLevel × QualityLevel）；每个 Resource 持有一个 FShaderMap；ShaderMap 里是一堆 FShader（VS/PS + permutation）；InlineCode 模式下 bytecode 跟着 ShaderMap 一起塞进 uasset。不提 Hash，不提问题，让观众先建立完整稳定的认知。",
       focusTarget: "InlineCode",
       timingHint:
-        "从第五页问号位置做局部放大，把原来的资产链条淡出成背景，再在放大画布里展开 Material、FMaterialResource、FShaderMap、InlineCode 这一串。",
+        "从第五页问号位置做局部放大，把原来的资产链条淡出成背景，再在放大画布里展开 Material、FMaterialResource、FShaderMap、FShader、ShaderCode 这一串。",
       intro:
         "如果只停在 Cooked ShaderCode 这个名字上，观众还是不知道 UE 里究竟是谁在持有这些 code。",
       manuscript:
-        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，能看到更具体的 UE 结构。一个 Material 在 cook 时不会直接变成 ready-to-bind 的 PSO，而是先展开成多个 FMaterialResource；每个 FMaterialResource 又持有自己的 FShaderMap。到了 InlineCode 模式，这个 FShaderMap 对应的 code 和 metadata 会一起内联进 uasset，所以你可以把它理解成“每个材质资源都带着自己那份 InlineCode blob”。这就是最直观、也最容易理解的起点。",
+        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，能看到更具体的 UE 结构。一个 Material 在 cook 时会按 FeatureLevel × QualityLevel 展开成多个 FMaterialResource；每个 FMaterialResource 持有自己的 FShaderMap；ShaderMap 里是一堆 FShader 实例，每个对应一个具体的 VS 或 PS 加上 permutation。到了 InlineCode 模式，这些 FShader 的 bytecode 会跟着 ShaderMap 一起内联进 uasset。每个材质资产自己带着自己的全部 shader bytecode，简单直接。",
       focusColorKey: "ue",
     },
     {
       id: "page_07",
       label: "PSO cache 为什么只存 Hash",
       caption:
-        "把 PSO cache 放到同一个放大视角里，就能看清它记录的是 Hash、key 和 metadata，而不是整份 ShaderCode。",
+        "下方长出 PSO 结构表格，FShader 连线指向 Hash 字段，观众一眼看到 PSO 存的是 Hash 而不是 code。",
       notes:
-        "第七页延续第六页的放大画布，不要换坐标系。左边还是 InlineCode 那条链，右边引入 PSO cache。视觉重点是把“代码存储”和“PSO 记录”明确分开：PSO cache 只记 Hash、key、metadata，用来索引与重建，并不把完整 ShaderCode 再复制一份进去。",
+        "第七页延续第六页的放大画布，不换坐标系。下方长出一个 PSO 结构表格（VS Hash、PS Hash、BlendState、DepthStencilState、RasterizerState、RT Format），从第六页的 FShader 盒子拉出连线指向表格里的 Hash 字段。这里自然引出 FSHAHash 的概念。收尾点出问题：预编译时拿到 Hash，code 在哪？InlineCode 下 code 散落在各个 uasset 里。",
       focusTarget: "PSO cache",
       timingHint:
-        "保留第六页骨架，只在右侧长出 PSO cache 盒子和 Hash 索引线，让观众感受到这是同一张图上的新解释层。",
+        "保留第六页骨架，下方长出 PSO 结构表格和 FShader 到 Hash 的连线，让观众感受到这是同一张图上的新解释层。",
       intro:
         "理解了 InlineCode 的归属之后，下一步就要解释一个常见误区：为什么 PSO cache 文件里看到的主要是 Hash。",
       manuscript:
-        "PSO cache 的职责不是替代 shader 存储层，而是记录“这个 PSO 组合需要哪些 shader、状态和查找线索”。所以在这一层里，更重要的是 Hash、key 和 metadata，而不是把整份 ShaderCode 再抄一遍。这样做的好处是 cache 文件更轻，也更稳定；它只负责描述和索引，真正的 ShaderCode 仍然待在原来的存储体系里。问题也随之出现了：如果运行时只拿到 Hash，要去哪里反查真正的 code？",
+        "PSO cache 的职责不是替代 shader 存储层，而是记录一个 PSO 组合需要哪些 shader 和状态——本质上是 metadata。下方这个表格就是 PSO 的数据结构：VS Hash、PS Hash 加上 BlendState、DepthStencilState 这些管线状态描述。注意看连线——PSO 里存的就是 FShader 的 Hash，不是 ShaderCode 本身。这样 cache 文件更轻、更稳定，它只负责描述和索引。但问题来了：预编译时拿到 Hash，要去哪里反查真正的 code？InlineCode 模式下，没有一个全局的 Hash → Code 查找路径。",
       focusColorKey: "page_04",
     },
     {
       id: "page_08",
       label: "SharedCode 为什么成为必需",
       caption:
-        "当 PSO 预编译只拿到 Hash 时，就必须有一套全局 SharedCode / ShaderArchive 来完成反查、去重和复用。",
+        "去重和 PSO 反查两个问题同时逼出 SharedCode：多个材质汇聚到全局 SharedCode Library，PSO 的 Hash 也能连线反查到 code。",
       notes:
-        "第八页延续第七页结构，不推翻第六页，而是让多个 Material / ShaderMap 汇到同一个 SharedCode Library。重点要讲清两件事：第一，InlineCode 会让相同 shader code 分散在很多资产里；第二，PSO 预编译只有 Hash，没有一个全局 ShaderArchive 就没法反查，也没法高效去重。",
+        "第八页延续第七页结构。双驱动叙事：第一，左侧出现多个材质来源（Material A/B/C），同一个 FShader bytecode 在每个材质里各存一份，包体膨胀；第二，PSO 表格的 Hash 需要反查 code，InlineCode 下散落在各 uasset 里没有全局索引。SharedCode Library 同时解决两个问题：全局去重 + Hash → Code 反查成立。",
       focusTarget: "SharedCode",
       timingHint:
-        "让第六页那块 InlineCode blob 平滑演化成 SharedCode Library，同时从上方接入多个来源，形成“集中存储、全局索引”的感觉。",
+        "让第六页的 InlineCode blob 平滑演化成 SharedCode Library，同时从左侧接入多个材质来源，形成集中存储、全局索引的感觉。",
       intro:
-        "这时候 SharedCode 就不是锦上添花，而是被 PSO 预编译和跨资产复用共同逼出来的基础设施。",
+        "这时候 SharedCode 就不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       manuscript:
-        "一旦系统进入 PSO 预编译阶段，运行时拿到的往往只是 Hash，而不是现成的 ShaderCode blob。InlineCode 模式下，这些 code 分散在各个 uasset 里，既重复存储，也没有一套全局 Hash -> ShaderCode 的反查路径。于是 SharedCode 变成必需：把大量重复的 ShaderCode 统一收进 SharedCode Library 或 ShaderArchive，前面只保留 ResourceHash、ShaderHash 这类索引。这样既能去重，也能让 PSO 根据 Hash 找回真正的 code，完成预编译与复用。",
+        "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下存了 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，code 散落在各个 uasset 里，没有全局索引，PSO 预编译无法完成。SharedCode 同时解决两个问题：把所有 ShaderCode 统一收进 SharedCode Library（即 ShaderArchive），全局去重；同时 PSO 的 Hash 也能连线到这个 Library，全局 Hash → Code 反查成立。SharedCode 不是优化，是被去重和 PSO 预编译共同逼出来的基础设施。",
       focusColorKey: "shared",
     },
   ],
