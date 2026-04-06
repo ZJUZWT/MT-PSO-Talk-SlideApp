@@ -80,6 +80,21 @@ function strokePalette(group: Element | null | undefined) {
     .join(",");
 }
 
+function dashSignature(group: Element | null | undefined) {
+  return Array.from(group?.querySelectorAll("path") ?? [])
+    .map((node) => node.getAttribute("stroke-dasharray"))
+    .filter((value): value is string => Boolean(value))
+    .filter((value, index, values) => values.indexOf(value) === index)
+    .join(",");
+}
+
+function parseVerticalPathX(group: Element | null | undefined) {
+  const d = group?.querySelector("path")?.getAttribute("d");
+  const match = d?.match(/M ([-\d.]+) [-\d.]+ L \1 [-\d.]+/);
+
+  return match ? Number(match[1]) : null;
+}
+
 describe("MyComposition", () => {
   beforeEach(() => {
     mockFrame = 18;
@@ -133,17 +148,49 @@ describe("MyComposition", () => {
         (opacityOf(node.closest("g")) > 0 || opacityOf(node) > 0)
       );
     });
-    const badge2 = container.querySelector('[data-testid="shared-upper-vertical-badge"]');
+    const programGroup = findBoxGroupByLabel(container, "Program");
+    const badge2 = container.querySelector('[data-testid="page3-useprogram-badge"]');
+    const badge5 = container.querySelector('[data-testid="page3-linkprogram-badge"]');
+    const badge6 = container.querySelector('[data-testid="page3-getprogrambinary-badge"]');
+    const linkLeft = container.querySelector('[data-testid="page3-linkprogram-input-left"]');
+    const linkRight = container.querySelector('[data-testid="page3-linkprogram-input-right"]');
+    const workflowFrame = container.querySelector('[data-testid="page3-program-workflow-frame"]');
+    const badge5Circle = badge5?.querySelector("circle");
+    const badge6Circle = badge6?.querySelector("circle");
+    const workflowRect = workflowFrame?.querySelector("rect");
+    const leftX = parseVerticalPathX(linkLeft);
+    const rightX = parseVerticalPathX(linkRight);
 
     expect(screen.getAllByText("GPU").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Raw")).toBeInTheDocument();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Binary")).toBeInTheDocument();
+    expect(programGroup).toBeTruthy();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
     expect(orangeArrows.length).toBeGreaterThanOrEqual(4);
     expect(badge2).not.toBeNull();
     expect(opacityOf(badge2)).toBeGreaterThan(0.9);
+    expect(badge5).not.toBeNull();
+    expect(opacityOf(badge5)).toBeGreaterThan(0.9);
+    expect(badge6).not.toBeNull();
+    expect(opacityOf(badge6)).toBeGreaterThan(0.9);
+    expect(dashSignature(linkLeft)).toBe("7 7");
+    expect(dashSignature(linkRight)).toBe("7 7");
+    expect(workflowFrame?.querySelector("rect")?.getAttribute("stroke-dasharray")).toBe("10 8");
+    expect(workflowRect?.getAttribute("stroke")).toBe("#d06b44");
+    expect(Number(badge6Circle?.getAttribute("cx"))).toBeLessThanOrEqual(
+      Number(workflowRect?.getAttribute("x")) + 36,
+    );
+    expect(Number(badge6Circle?.getAttribute("cy"))).toBeGreaterThanOrEqual(
+      Number(workflowRect?.getAttribute("y")) + Number(workflowRect?.getAttribute("height")) - 36,
+    );
+    expect(Number(badge5Circle?.getAttribute("cx"))).toBeCloseTo(
+      ((leftX ?? 0) + (rightX ?? 0)) / 2,
+      0,
+    );
+    expect(Number(findBoxGroupByLabel(container, "Depth")?.querySelector("rect")?.getAttribute("x"))).toBeGreaterThan(640);
+    expect(Number(findBoxGroupByLabel(container, "Blend")?.querySelector("rect")?.getAttribute("x"))).toBeGreaterThan(750);
     expect(container.querySelectorAll("circle").length).toBeGreaterThan(6);
   });
 
@@ -153,16 +200,38 @@ describe("MyComposition", () => {
     const visibleOrangeBadges = Array.from(
       container.querySelectorAll('circle[stroke="#d06b44"]'),
     ).filter((node) => opacityOf(node.closest("g")) > 0);
+    const page4WorkflowFrame = container.querySelector('[data-testid="page4-pso-workflow-frame"]');
+    const page4WorkflowBadge = container.querySelector(
+      '[data-testid="page4-getpipelinecachedata-badge"]',
+    );
+    const page4WorkflowRect = page4WorkflowFrame?.querySelector("rect");
+    const page4WorkflowBadgeCircle = page4WorkflowBadge?.querySelector("circle");
 
     expect(screen.getByText("Raw")).toBeInTheDocument();
     expect(screen.getByText("SPIR-V")).toBeInTheDocument();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("Binary")).not.toBeInTheDocument();
+    expect(screen.queryByText("Program")).not.toBeInTheDocument();
+    expect(container.querySelector('[data-testid="page3-program-workflow-frame"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page3-getprogrambinary-badge"]')).toBeNull();
+    expect(page4WorkflowFrame).not.toBeNull();
+    expect(page4WorkflowFrame?.querySelector("rect")?.getAttribute("stroke")).toBe("#d06b44");
+    expect(page4WorkflowBadge).not.toBeNull();
+    expect(opacityOf(page4WorkflowBadge)).toBeGreaterThan(0.9);
+    expect(page4WorkflowBadge?.textContent).toContain("3");
+    expect(Number(page4WorkflowBadgeCircle?.getAttribute("cx"))).toBeLessThanOrEqual(
+      Number(page4WorkflowRect?.getAttribute("x")) + 36,
+    );
+    expect(Number(page4WorkflowBadgeCircle?.getAttribute("cy"))).toBeGreaterThanOrEqual(
+      Number(page4WorkflowRect?.getAttribute("y")) +
+        Number(page4WorkflowRect?.getAttribute("height")) -
+        36,
+    );
     expect(screen.getByText("Description")).toBeInTheDocument();
     expect(screen.getByText("PSO")).toBeInTheDocument();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
-    expect(visibleOrangeBadges.length).toBe(2);
+    expect(visibleOrangeBadges.length).toBe(3);
   });
 
   it("renders page 05 as the UE asset cook bridge with mesh and material assets feeding runtime inputs", () => {
@@ -419,6 +488,10 @@ describe("MyComposition", () => {
     mockFrame = 108;
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
     const midPsoGroup = findTextNodes(midContainer, "PSO")[0]?.closest("g");
+    const midProgramArrow = midContainer.querySelector('[data-testid="page3-useprogram-arrow"]');
+    const midSharedVerticalArrow = midContainer.querySelector(
+      '[data-testid="shared-upper-vertical-arrow"]',
+    );
 
     unmount();
     mockFrame = 126;
@@ -431,6 +504,8 @@ describe("MyComposition", () => {
     expect(page4Description).toBeDefined();
     expect(opacityOf(midPsoGroup)).toBeGreaterThan(0);
     expect(opacityOf(midPsoGroup)).toBeLessThan(1);
+    expect(midProgramArrow).toBeNull();
+    expect(midSharedVerticalArrow).not.toBeNull();
     expect(opacityOf(finalPsoGroup)).toBe(1);
   });
 

@@ -64,6 +64,13 @@ const PAGE3_SHADER_BINARY_BOX: Box = {
   height: 54,
   radius: 18,
 };
+const PAGE3_PROGRAM_BOX: Box = {
+  x: 528,
+  y: 244,
+  width: 152,
+  height: 52,
+  radius: 18,
+};
 const PAGE3_DEPTH_BOX: Box = {
   x: 700,
   y: 134,
@@ -483,6 +490,7 @@ function ArrowPath({
   shaftWidth = 3.2,
   underlayWidth = 6,
   underlayOpacity = 0.12,
+  dashArray,
 }: {
   d: string;
   stroke: string;
@@ -490,6 +498,7 @@ function ArrowPath({
   shaftWidth?: number;
   underlayWidth?: number;
   underlayOpacity?: number;
+  dashArray?: string;
 }) {
   return (
     <>
@@ -500,6 +509,7 @@ function ArrowPath({
         strokeWidth={underlayWidth}
         strokeLinecap="round"
         opacity={opacity * underlayOpacity}
+        strokeDasharray={dashArray}
       />
       <path
         d={d}
@@ -509,6 +519,7 @@ function ArrowPath({
         strokeLinecap="round"
         strokeLinejoin="round"
         opacity={opacity}
+        strokeDasharray={dashArray}
       />
     </>
   );
@@ -595,6 +606,7 @@ function StrokeArrow({
   underlayOpacity = 0.12,
   headSize = 10,
   testId,
+  dashArray,
 }: {
   d: string;
   stroke: string;
@@ -607,6 +619,7 @@ function StrokeArrow({
   underlayOpacity?: number;
   headSize?: number;
   testId?: string;
+  dashArray?: string;
 }) {
   return (
     <g data-testid={testId}>
@@ -617,6 +630,7 @@ function StrokeArrow({
         shaftWidth={shaftWidth}
         underlayWidth={underlayWidth}
         underlayOpacity={underlayOpacity}
+        dashArray={dashArray}
       />
       <ArrowHead
         tipX={tipX}
@@ -717,9 +731,11 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const upperBandGap = 18;
   const shaderCompileGap = 60;
   const gpuQuarterStep = centerBox.width / 4;
+  const page3StateShiftX = 24;
   const binaryTargetX =
     centerBox.x + gpuQuarterStep - PAGE3_SHADER_BINARY_BOX.width / 2;
-  const depthTargetX = binaryTargetX + PAGE3_SHADER_BINARY_BOX.width + upperBandGap;
+  const depthTargetX =
+    binaryTargetX + PAGE3_SHADER_BINARY_BOX.width + upperBandGap + page3StateShiftX;
   const blendTargetX = depthTargetX + PAGE3_DEPTH_BOX.width + upperBandGap;
   const shaderCodeTargetX = leftCenterX - PAGE3_SHADER_CODE_BOX.width / 2;
   const upperLineNodeGap = 12;
@@ -795,6 +811,41 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     boxBottom(depthBox),
     boxBottom(blendBox),
   );
+  const page3ProgramOpacity =
+    upperNodeOpacity * clamp01(1 - settledPage34Progress / 0.34);
+  const page3ProgramLineOpacity =
+    upperLineOpacity * clamp01(1 - settledPage34Progress / 0.3);
+  const page3ProgramScale = mix(0.9, 1, easeInOutCubic(page3ProgramOpacity));
+  const page3ProgramBox = {
+    ...PAGE3_PROGRAM_BOX,
+    x: shaderBinaryCenterX - PAGE3_PROGRAM_BOX.width / 2,
+    y: upperBandBottomY + (gpuTopY - upperBandBottomY - PAGE3_PROGRAM_BOX.height) / 2,
+  };
+  const page3WorkflowFrameOpacity =
+    upperNodeOpacity * clamp01(1 - settledPage34Progress / 0.28);
+  const page3WorkflowFrameBox = {
+    x: shaderCodeBox.x - 22,
+    y: shaderCodeBox.y - 18,
+    width:
+      Math.max(page3ProgramBox.x + page3ProgramBox.width, shaderBinaryBox.x + shaderBinaryBox.width) -
+      (shaderCodeBox.x - 22) +
+      22,
+    height: boxBottom(page3ProgramBox) - (shaderCodeBox.y - 18) + 18,
+  };
+  const page3WorkflowFrameBadgeX = page3WorkflowFrameBox.x + 18;
+  const page3WorkflowFrameBadgeY =
+    page3WorkflowFrameBox.y + page3WorkflowFrameBox.height - 18;
+  const page3ProgramCenterX = boxCenterX(page3ProgramBox);
+  const page3ProgramCenterY = boxCenterY(page3ProgramBox);
+  const page3ProgramTipY = page3ProgramBox.y - 10;
+  const page3UseProgramStartY = boxBottom(page3ProgramBox) + 10;
+  const page3LinkStartY = boxBottom(shaderBinaryBox) + upperLineNodeGap;
+  const page3LinkLeftX = shaderBinaryBox.x + shaderBinaryBox.width * 0.3;
+  const page3LinkRightX = shaderBinaryBox.x + shaderBinaryBox.width * 0.7;
+  const page3LinkEndY = page3ProgramTipY;
+  const page34VerticalMorphProgress = easeInOutCubic(
+    clamp01(settledPage34Progress / 0.34),
+  );
   const layerGap =
     (gpuTopY - upperBandBottomY - PAGE4_DESCRIPTION_BOX.height - PAGE4_PSO_BOX.height) / 3;
   const descriptionBox = {
@@ -813,6 +864,8 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const psoCenterX = boxCenterX(psoBox);
   const psoCenterY = boxCenterY(psoBox);
   const psoTipY = psoBox.y - 14;
+  const page4WorkflowFrameOpacity =
+    Math.max(page4DescriptionOpacity, page4PsoOpacity) * clamp01(1 - settledPage45Progress / 0.4);
   const descriptionToPsoStartY = boxBottom(descriptionBox) + 10;
   const psoBindStartY = boxBottom(psoBox) + 10;
   const psoBindEndY = gpuTopY - 12;
@@ -884,6 +937,63 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     page5CookedTargetBox,
     page5CookMoveProgress,
   );
+  const page4WorkflowFrameBox = {
+    x: Math.min(
+      sharedUpperLeftBox.x,
+      sharedUpperRightBox.x,
+      depthBox.x,
+      blendBox.x,
+      descriptionBox.x,
+      psoBox.x,
+    ) - 22,
+    y: Math.min(
+      sharedUpperLeftBox.y,
+      sharedUpperRightBox.y,
+      depthBox.y,
+      blendBox.y,
+      descriptionBox.y,
+      psoBox.y,
+    ) - 18,
+    width:
+      Math.max(
+        sharedUpperLeftBox.x + sharedUpperLeftBox.width,
+        sharedUpperRightBox.x + sharedUpperRightBox.width,
+        depthBox.x + depthBox.width,
+        blendBox.x + blendBox.width,
+        descriptionBox.x + descriptionBox.width,
+        psoBox.x + psoBox.width,
+      ) -
+      (Math.min(
+        sharedUpperLeftBox.x,
+        sharedUpperRightBox.x,
+        depthBox.x,
+        blendBox.x,
+        descriptionBox.x,
+        psoBox.x,
+      ) - 22) +
+      22,
+    height:
+      Math.max(
+        boxBottom(sharedUpperLeftBox),
+        boxBottom(sharedUpperRightBox),
+        boxBottom(depthBox),
+        boxBottom(blendBox),
+        boxBottom(descriptionBox),
+        boxBottom(psoBox),
+      ) -
+      (Math.min(
+        sharedUpperLeftBox.y,
+        sharedUpperRightBox.y,
+        depthBox.y,
+        blendBox.y,
+        descriptionBox.y,
+        psoBox.y,
+      ) - 18) +
+      18,
+  };
+  const page4WorkflowFrameBadgeX = page4WorkflowFrameBox.x + 18;
+  const page4WorkflowFrameBadgeY =
+    page4WorkflowFrameBox.y + page4WorkflowFrameBox.height - 18;
   const sharedUpperLeftCenterX = boxCenterX(sharedUpperLeftBox);
   const sharedUpperLeftCenterY = boxCenterY(sharedUpperLeftBox);
   const sharedUpperRightCenterX = boxCenterX(sharedUpperRightBox);
@@ -933,8 +1043,13 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
       : settledPage45Progress > 0
       ? mixRgba(wireStrokeColor, assetStrokeColor, page5LabelMorphProgress)
       : verticalMorphStroke;
-  const sharedUpperVerticalStartY = mix(
+  const sharedUpperVerticalPage34StartY = mix(
+    page3UseProgramStartY,
     binaryLineStartY,
+    page34VerticalMorphProgress,
+  );
+  const sharedUpperVerticalStartY = mix(
+    sharedUpperVerticalPage34StartY,
     boxBottom(sharedUpperRightBox) + 10,
     page5CookMoveProgress,
   );
@@ -1215,6 +1330,91 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               ) : null}
 
+              {page3ProgramOpacity > 0.001 ? (
+                <g
+                  opacity={page3ProgramOpacity}
+                  transform={`translate(${page3ProgramCenterX} ${page3ProgramCenterY}) scale(${page3ProgramScale}) translate(${-page3ProgramCenterX} ${-page3ProgramCenterY})`}
+                >
+                  <StageBox
+                    box={page3ProgramBox}
+                    fill={focusFill}
+                    stroke={theme.accent}
+                    strokeWidth={2.8}
+                    label="Program"
+                    labelSize={24}
+                    labelWeight={720}
+                  />
+                </g>
+              ) : null}
+
+              {page3WorkflowFrameOpacity > 0.001 ? (
+                <g
+                  data-testid="page3-program-workflow-frame"
+                  opacity={page3WorkflowFrameOpacity}
+                >
+                  <rect
+                    x={page3WorkflowFrameBox.x}
+                    y={page3WorkflowFrameBox.y}
+                    width={page3WorkflowFrameBox.width}
+                    height={page3WorkflowFrameBox.height}
+                    rx="24"
+                    fill="rgba(255, 251, 246, 0.04)"
+                    stroke={apiStroke}
+                    strokeWidth="2.4"
+                    strokeDasharray="10 8"
+                  />
+                </g>
+              ) : null}
+
+              {page3ProgramLineOpacity > 0.001 ? (
+                <>
+                  <StrokeArrow
+                    testId="page3-linkprogram-input-left"
+                    d={verticalPath(page3LinkLeftX, page3LinkStartY, page3LinkEndY)}
+                    stroke={apiStroke}
+                    opacity={page3ProgramLineOpacity}
+                    tipX={page3LinkLeftX}
+                    tipY={page3LinkEndY}
+                    direction="down"
+                    shaftWidth={3}
+                    underlayWidth={5.6}
+                    underlayOpacity={0.12}
+                    headSize={9}
+                    dashArray="7 7"
+                  />
+                  <StrokeArrow
+                    testId="page3-linkprogram-input-right"
+                    d={verticalPath(page3LinkRightX, page3LinkStartY, page3LinkEndY)}
+                    stroke={apiStroke}
+                    opacity={page3ProgramLineOpacity}
+                    tipX={page3LinkRightX}
+                    tipY={page3LinkEndY}
+                    direction="down"
+                    shaftWidth={3}
+                    underlayWidth={5.6}
+                    underlayOpacity={0.12}
+                    headSize={9}
+                    dashArray="7 7"
+                  />
+                  <ApiBadge
+                    testId="page3-linkprogram-badge"
+                    x={(page3LinkLeftX + page3LinkRightX) / 2}
+                    y={mix(page3LinkStartY, page3LinkEndY, 0.5)}
+                    id={5}
+                    stroke={apiStroke}
+                    opacity={page3ProgramLineOpacity}
+                  />
+                  <ApiBadge
+                    testId="page3-getprogrambinary-badge"
+                    x={page3WorkflowFrameBadgeX}
+                    y={page3WorkflowFrameBadgeY}
+                    id={6}
+                    stroke={apiStroke}
+                    opacity={page3WorkflowFrameOpacity}
+                  />
+                </>
+              ) : null}
+
               <g
                 opacity={page4StateNodeOpacity}
                 transform={`translate(${depthCenterX} ${boxCenterY(depthBox)}) scale(${upperNodeScale}) translate(${-depthCenterX} ${-boxCenterY(depthBox)})`}
@@ -1306,7 +1506,11 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   headSize={9}
                 />
                   <ApiBadge
-                    testId="shared-upper-vertical-badge"
+                    testId={
+                      settledPage34Progress <= 0.001
+                        ? "page3-useprogram-badge"
+                        : "shared-upper-vertical-badge"
+                    }
                     x={sharedUpperRightCenterX - 18}
                     y={mix(sharedUpperVerticalStartY, sharedUpperVerticalEndY, 0.44)}
                     id={2}
@@ -1318,6 +1522,33 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 
               {settledPage34Progress > 0 && page4MiddleFade > 0 ? (
                 <>
+                  {page4WorkflowFrameOpacity > 0.001 ? (
+                    <g
+                      data-testid="page4-pso-workflow-frame"
+                      opacity={page4WorkflowFrameOpacity}
+                    >
+                      <rect
+                        x={page4WorkflowFrameBox.x}
+                        y={page4WorkflowFrameBox.y}
+                        width={page4WorkflowFrameBox.width}
+                        height={page4WorkflowFrameBox.height}
+                        rx="24"
+                        fill="rgba(255, 251, 246, 0.04)"
+                        stroke={apiStroke}
+                        strokeWidth="2.4"
+                        strokeDasharray="10 8"
+                      />
+                      <ApiBadge
+                        testId="page4-getpipelinecachedata-badge"
+                        x={page4WorkflowFrameBadgeX}
+                        y={page4WorkflowFrameBadgeY}
+                        id={3}
+                        stroke={apiStroke}
+                        opacity={page4WorkflowFrameOpacity}
+                      />
+                    </g>
+                  ) : null}
+
                   <g
                     opacity={page4DescriptionOpacity}
                     transform={`translate(${descriptionCenterX} ${descriptionCenterY}) scale(${descriptionScale}) translate(${-descriptionCenterX} ${-descriptionCenterY})`}
