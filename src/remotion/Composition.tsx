@@ -214,8 +214,29 @@ const PAGE6_SHADER_TABLE_BOX: Box = {
   height: 98,
   radius: 18,
 };
+const PAGE6_FSHADER_BOX: Box = {
+  x: 848,
+  y: 232,
+  width: 100,
+  height: 74,
+  radius: 20,
+};
+const PAGE6_FSHADER_TOP_BOX: Box = {
+  x: 862,
+  y: 204,
+  width: 100,
+  height: 62,
+  radius: 20,
+};
+const PAGE6_FSHADER_BOTTOM_BOX: Box = {
+  x: 855,
+  y: 218,
+  width: 100,
+  height: 62,
+  radius: 20,
+};
 const PAGE6_INLINE_BOX: Box = {
-  x: 974,
+  x: 1000,
   y: 232,
   width: 128,
   height: 74,
@@ -1552,7 +1573,11 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page6ResourceArrowStartX = boxRight(PAGE6_RESOURCE_BOX) + 18;
   const page6ResourceArrowEndX = PAGE6_SHADERMAP_BOX.x - 18;
   const page6ShaderArrowStartX = boxRight(PAGE6_SHADERMAP_BOX) + 6;
-  const page6ShaderArrowEndX = PAGE6_INLINE_BOX.x - 6;
+  const page6ShaderArrowEndX = PAGE6_FSHADER_BOX.x - 6;
+  const page6FShaderCenterX = boxCenterX(PAGE6_FSHADER_BOX);
+  const page6FShaderCenterY = boxCenterY(PAGE6_FSHADER_BOX);
+  const page6FShaderToInlineStartX = boxRight(PAGE6_FSHADER_BOX) + 6;
+  const page6FShaderToInlineEndX = PAGE6_INLINE_BOX.x - 6;
   const page6MaterialArrowY = boxCenterY(PAGE6_MATERIAL_BOX);
   const page6PlatformLinkX = page6MaterialCenterX;
   const page6PlatformLinkTopY = boxBottom(PAGE6_MATERIAL_BOX) + 12;
@@ -2511,6 +2536,70 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   opacity={page6NodeOpacity}
                   tipX={page6ShaderArrowEndX}
                   tipY={page6ShaderMapCenterY}
+                  direction="right"
+                  shaftWidth={3}
+                  underlayWidth={5.6}
+                  underlayOpacity={0.1}
+                  headSize={9}
+                />
+              ) : null}
+
+              <g
+                opacity={page6NodeOpacity}
+                transform={`translate(${page6FShaderCenterX} ${page6FShaderCenterY}) scale(${page6NodeScale}) translate(${-page6FShaderCenterX} ${-page6FShaderCenterY})`}
+              >
+                {[
+                  {box: PAGE6_FSHADER_TOP_BOX, opacity: page6NodeOpacity * 0.16, strokeWidth: 2},
+                  {box: PAGE6_FSHADER_BOTTOM_BOX, opacity: page6NodeOpacity * 0.2, strokeWidth: 2},
+                  {box: PAGE6_FSHADER_BOX, opacity: page6NodeOpacity, strokeWidth: 2.8},
+                ].map(({box, opacity, strokeWidth}, index) => {
+                  const centerX = boxCenterX(box);
+                  const centerY = boxCenterY(box);
+                  const isPrimary = box === PAGE6_FSHADER_BOX;
+
+                  return (
+                    <g
+                      key={`page6-fshader-${index}`}
+                      data-testid="page6-fshader-card"
+                      opacity={opacity}
+                      transform={`translate(${centerX} ${centerY}) scale(${page6NodeScale}) translate(${-centerX} ${-centerY})`}
+                    >
+                      <StageBox
+                        box={box}
+                        fill={neutralFill}
+                        stroke={nodeStroke}
+                        strokeWidth={strokeWidth}
+                      />
+                      {isPrimary ? (
+                        <text
+                          x={centerX}
+                          y={centerY + 2}
+                          fill="#22303d"
+                          fontSize="17"
+                          fontWeight="720"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          FShader
+                        </text>
+                      ) : null}
+                    </g>
+                  );
+                })}
+              </g>
+
+              {page6NodeOpacity > 0.001 ? (
+                <StrokeArrow
+                  testId="page6-fshader-to-inline-arrow"
+                  d={horizontalPath(
+                    page6FShaderToInlineStartX,
+                    page6FShaderToInlineEndX,
+                    page6FShaderCenterY,
+                  )}
+                  stroke={wireStroke}
+                  opacity={page6NodeOpacity}
+                  tipX={page6FShaderToInlineEndX}
+                  tipY={page6FShaderCenterY}
                   direction="right"
                   shaftWidth={3}
                   underlayWidth={5.6}

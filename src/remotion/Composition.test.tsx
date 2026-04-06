@@ -402,6 +402,9 @@ describe("MyComposition", () => {
     expect(resourceCards.length).toBe(3);
     expect(screen.getAllByText("FMaterialResource").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("FShaderMap")).toBeInTheDocument();
+    expect(screen.getByText("FShader")).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-testid="page6-fshader-card"]').length).toBe(3);
+    expect(container.querySelector('[data-testid="page6-fshader-to-inline-arrow"]')).not.toBeNull();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("ShaderPlatform")).toBeInTheDocument();
     expect(screen.getByText("uasset")).toBeInTheDocument();
