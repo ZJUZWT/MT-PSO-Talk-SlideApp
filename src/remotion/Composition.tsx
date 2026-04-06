@@ -243,11 +243,11 @@ const PAGE6_INLINE_BOX: Box = {
   radius: 20,
 };
 const PAGE7_CACHE_BOX: Box = {
-  x: 1120,
-  y: 190,
-  width: 118,
-  height: 176,
-  radius: 24,
+  x: 36,
+  y: 580,
+  width: 1160,
+  height: 100,
+  radius: 22,
 };
 const PAGE8_LIBRARY_BOX: Box = {
   x: 707,
@@ -1519,17 +1519,17 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     easeInOutCubic(page56QuestionMoveProgress),
   );
   const page56SettledScale = 1;
-  const page7ReadingScale = 1.4;
-  const page8ReadingScale = 1.3;
+  const page7ReadingScale = 1;
+  const page8ReadingScale = 1;
   const page56ZoomScale = page56SettledScale;
   const page67ZoomScale = mix(page56ZoomScale, page7ReadingScale, settledPage67Progress);
   const zoomScale = mix(page67ZoomScale, page8ReadingScale, settledPage78Progress);
   const page6FocusX = cameraViewportCenterX;
   const page6FocusY = cameraViewportCenterY;
-  const page7FocusX = 950;
-  const page7FocusY = 258;
-  const page8FocusX = 750;
-  const page8FocusY = 286;
+  const page7FocusX = cameraViewportCenterX;
+  const page7FocusY = cameraViewportCenterY;
+  const page8FocusX = cameraViewportCenterX;
+  const page8FocusY = cameraViewportCenterY;
   const page56FocusX = page6FocusX;
   const page56FocusY = page6FocusY;
   const page67FocusX = mix(page56FocusX, page7FocusX, settledPage67Progress);
@@ -1596,7 +1596,6 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page7CacheCenterY = boxCenterY(PAGE7_CACHE_BOX);
   const page7HashArrowOpacity = clamp01((settledPage67Progress - 0.24) / 0.22);
   const page7HashArrowY = boxCenterY(PAGE6_INLINE_BOX);
-  const page7FShaderHashArrowY = PAGE7_CACHE_BOX.y + 54;
   const page8SourceOpacity = clamp01((settledPage78Progress - 0.18) / 0.24);
   const page8SourceScale = mix(0.92, 1, easeInOutCubic(page8SourceOpacity));
   const page8MaterialBusX = 474;
@@ -2666,100 +2665,96 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   opacity={page7CacheOpacity}
                   transform={`translate(${page7CacheCenterX} ${page7CacheCenterY}) scale(${page7CacheScale}) translate(${-page7CacheCenterX} ${-page7CacheCenterY})`}
                 >
-                  <StageBox
-                    box={PAGE7_CACHE_BOX}
+                  <rect
+                    x={PAGE7_CACHE_BOX.x}
+                    y={PAGE7_CACHE_BOX.y}
+                    width={PAGE7_CACHE_BOX.width}
+                    height={PAGE7_CACHE_BOX.height}
+                    rx={PAGE7_CACHE_BOX.radius}
                     fill={neutralFill}
                     stroke={nodeStroke}
                     strokeWidth={2.8}
                   />
                   <text
-                    x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + 22}
+                    x={PAGE7_CACHE_BOX.x + 16}
+                    y={PAGE7_CACHE_BOX.y + PAGE7_CACHE_BOX.height / 2}
                     fill="#22303d"
-                    fontSize="17"
+                    fontSize="18"
                     fontWeight="760"
-                    textAnchor="middle"
+                    textAnchor="start"
                     dominantBaseline="middle"
                   >
                     PSO Cache
                   </text>
                   <path
-                    d={horizontalPath(PAGE7_CACHE_BOX.x + 10, PAGE7_CACHE_BOX.x + PAGE7_CACHE_BOX.width - 10, PAGE7_CACHE_BOX.y + 36)}
+                    d={verticalPath(PAGE7_CACHE_BOX.x + 140, PAGE7_CACHE_BOX.y + 12, PAGE7_CACHE_BOX.y + PAGE7_CACHE_BOX.height - 12)}
                     fill="none"
                     stroke="rgba(76, 90, 102, 0.18)"
                     strokeWidth="1.2"
                     strokeLinecap="round"
                   />
                   {[
-                    {label: "VS Hash", fill: apiStroke, fontWeight: "760"},
-                    {label: "PS Hash", fill: apiStroke, fontWeight: "760"},
-                    {label: "BlendState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
-                    {label: "DepthStencilState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
-                    {label: "RasterizerState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
-                    {label: "RT Format", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
-                  ].map(({label, fill, fontWeight}, index) => (
+                    {label: "VS Hash", x: 220, highlight: true},
+                    {label: "PS Hash", x: 370, highlight: true},
+                    {label: "BlendState", x: 520, highlight: false},
+                    {label: "DepthStencilState", x: 700, highlight: false},
+                    {label: "RasterizerState", x: 880, highlight: false},
+                    {label: "RT Format", x: 1050, highlight: false},
+                  ].map(({label, x, highlight}) => (
                     <text
                       key={label}
-                      data-testid={index < 2 ? `page7-cache-hash-row-${index}` : undefined}
-                      x={page7CacheCenterX}
-                      y={PAGE7_CACHE_BOX.y + 54 + index * 22}
-                      fill={fill}
-                      fontSize="14.5"
-                      fontWeight={fontWeight}
+                      data-testid={`page7-pso-field-${label.replace(/\s+/g, "-").toLowerCase()}`}
+                      x={PAGE7_CACHE_BOX.x + x}
+                      y={PAGE7_CACHE_BOX.y + PAGE7_CACHE_BOX.height / 2}
+                      fill={highlight ? apiStroke : "rgba(34, 48, 61, 0.72)"}
+                      fontSize={highlight ? "17" : "15.5"}
+                      fontWeight={highlight ? "720" : "640"}
                       textAnchor="middle"
                       dominantBaseline="middle"
                     >
                       {label}
                     </text>
                   ))}
-                  <text
-                    x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + PAGE7_CACHE_BOX.height - 14}
-                    fill="rgba(34, 48, 61, 0.45)"
-                    fontSize="12"
-                    fontWeight="600"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    key · metadata
-                  </text>
                 </g>
               ) : null}
 
               {page7HashArrowOpacity > 0.001 && page8LookupArrowOpacity < 0.999 ? (
-                <StrokeArrow
-                  testId="page7-hash-link-arrow"
-                  d={horizontalPath(
-                    boxRight(page6InlineBaseBox),
-                    PAGE7_CACHE_BOX.x,
-                    page7HashArrowY,
-                  )}
-                  stroke={apiStroke}
-                  opacity={page7HashArrowOpacity * (1 - page8LookupArrowOpacity)}
-                  tipX={PAGE7_CACHE_BOX.x}
-                  tipY={page7HashArrowY}
-                  direction="right"
-                  shaftWidth={3.1}
-                  underlayWidth={5.8}
-                  underlayOpacity={0.12}
-                  headSize={9}
-                />
-              ) : null}
-
-              {page7HashArrowOpacity > 0.001 && page8LookupArrowOpacity < 0.999 ? (
-                <StrokeArrow
-                  testId="page7-fshader-hash-arrow"
-                  d={`M ${boxRight(PAGE6_FSHADER_BOX) + 6} ${page6FShaderCenterY} L ${PAGE7_CACHE_BOX.x} ${page7FShaderHashArrowY}`}
-                  stroke={apiStroke}
-                  opacity={page7HashArrowOpacity * (1 - page8LookupArrowOpacity) * 0.7}
-                  tipX={PAGE7_CACHE_BOX.x}
-                  tipY={page7FShaderHashArrowY}
-                  direction="right"
-                  shaftWidth={2.2}
-                  underlayWidth={4.4}
-                  underlayOpacity={0.1}
-                  headSize={7}
-                />
+                <>
+                  <StrokeArrow
+                    testId="page7-fshader-to-vs-hash-arrow"
+                    d={verticalPath(
+                      PAGE7_CACHE_BOX.x + 220,
+                      boxBottom(PAGE6_UASSET_FRAME) + 4,
+                      PAGE7_CACHE_BOX.y - 4,
+                    )}
+                    stroke={apiStroke}
+                    opacity={page7HashArrowOpacity * (1 - page8LookupArrowOpacity)}
+                    tipX={PAGE7_CACHE_BOX.x + 220}
+                    tipY={PAGE7_CACHE_BOX.y - 4}
+                    direction="down"
+                    shaftWidth={2.6}
+                    underlayWidth={5}
+                    underlayOpacity={0.1}
+                    headSize={8}
+                  />
+                  <StrokeArrow
+                    testId="page7-fshader-to-ps-hash-arrow"
+                    d={verticalPath(
+                      PAGE7_CACHE_BOX.x + 370,
+                      boxBottom(PAGE6_UASSET_FRAME) + 4,
+                      PAGE7_CACHE_BOX.y - 4,
+                    )}
+                    stroke={apiStroke}
+                    opacity={page7HashArrowOpacity * (1 - page8LookupArrowOpacity)}
+                    tipX={PAGE7_CACHE_BOX.x + 370}
+                    tipY={PAGE7_CACHE_BOX.y - 4}
+                    direction="down"
+                    shaftWidth={2.6}
+                    underlayWidth={5}
+                    underlayOpacity={0.1}
+                    headSize={8}
+                  />
+                </>
               ) : null}
 
               {page8SourceOpacity > 0.001 ? (

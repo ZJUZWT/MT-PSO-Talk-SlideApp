@@ -608,22 +608,23 @@ describe("MyComposition", () => {
     expect(visibleQuestionLabels.length).toBe(0);
   });
 
-  it("renders page 07 with PSO Cache storing Hash, key, and metadata separately from ShaderCode storage", () => {
+  it("renders page 07 with PSO Cache table below uasset frame showing Hash fields and state fields", () => {
     mockFrame = 270;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const cacheBox = container.querySelector('[data-testid="page7-cache-box"]');
-    const hashArrow = container.querySelector('[data-testid="page7-hash-link-arrow"]');
-    const fshaderHashArrow = container.querySelector('[data-testid="page7-fshader-hash-arrow"]');
+    const vsHashArrow = container.querySelector('[data-testid="page7-fshader-to-vs-hash-arrow"]');
+    const psHashArrow = container.querySelector('[data-testid="page7-fshader-to-ps-hash-arrow"]');
 
     expect(cacheBox).not.toBeNull();
-    expect(hashArrow).not.toBeNull();
-    expect(fshaderHashArrow).not.toBeNull();
+    expect(vsHashArrow).not.toBeNull();
+    expect(psHashArrow).not.toBeNull();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
     expect(screen.getByText("VS Hash")).toBeInTheDocument();
     expect(screen.getByText("PS Hash")).toBeInTheDocument();
     expect(screen.getByText("BlendState")).toBeInTheDocument();
     expect(screen.getByText("DepthStencilState")).toBeInTheDocument();
-    expect(screen.getByText("key · metadata")).toBeInTheDocument();
+    expect(screen.getByText("RasterizerState")).toBeInTheDocument();
+    expect(screen.getByText("RT Format")).toBeInTheDocument();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
   });
 
