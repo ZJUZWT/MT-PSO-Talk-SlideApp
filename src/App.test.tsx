@@ -137,6 +137,57 @@ describe("App", () => {
     expect(screen.getAllByText(/Cooked ShaderCode/).length).toBeGreaterThan(0);
   });
 
+  it("lets the user switch directly to page 06 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_06");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_06");
+    expect(
+      screen.getByRole("heading", {
+        name: "InlineCode 内部结构",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/FMaterialResource/).length).toBeGreaterThan(0);
+  });
+
+  it("lets the user switch directly to page 07 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_07");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_07");
+    expect(
+      screen.getByRole("heading", {
+        name: "PSO cache 为什么只存 Hash",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Hash/).length).toBeGreaterThan(0);
+  });
+
+  it("lets the user switch directly to page 08 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_08");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_08");
+    expect(
+      screen.getByRole("heading", {
+        name: "SharedCode 为什么成为必需",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/SharedCode/).length).toBeGreaterThan(0);
+  });
+
   it("moves between storyboard steps with arrow keys", async () => {
     render(<App />);
 
@@ -169,12 +220,29 @@ describe("App", () => {
         "Input -> f(x) -> Output",
       );
     });
+
+    for (const expectedTitle of [
+      "VertexData -> GPU -> Pixels",
+      "OpenGL",
+      "Vulkan",
+      "UE Asset Cook",
+      "InlineCode 内部结构",
+      "PSO cache 为什么只存 Hash",
+      "SharedCode 为什么成为必需",
+    ]) {
+      fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
+      await waitFor(() => {
+        expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+          expectedTitle,
+        );
+      });
+    }
   });
 
-  it("renders the progress rail with one current step and four compact future steps", () => {
+  it("renders the progress rail with one current step and seven compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(5);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(8);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -198,6 +266,21 @@ describe("App", () => {
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_05"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_06"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_07"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_08"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
   });

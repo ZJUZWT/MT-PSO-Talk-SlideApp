@@ -25,6 +25,23 @@ function opacityOf(node: Element | null) {
   return Number(node?.getAttribute("opacity") ?? "1");
 }
 
+function effectiveOpacity(node: Element | null) {
+  let current: Element | null = node;
+  let opacity = 1;
+
+  while (current) {
+    const localOpacity = current.getAttribute("opacity");
+
+    if (localOpacity !== null) {
+      opacity *= Number(localOpacity);
+    }
+
+    current = current.parentElement;
+  }
+
+  return opacity;
+}
+
 function findTextNodes(container: HTMLElement, label: string) {
   return Array.from(container.querySelectorAll("text")).filter(
     (node) => node.textContent === label,
@@ -55,8 +72,40 @@ function parseLeadingTranslate(transform: string | null | undefined) {
   };
 }
 
+function parseTrailingTranslate(transform: string | null | undefined) {
+  const matches = Array.from(
+    transform?.matchAll(/translate\(([-\d.]+) ([-\d.]+)\)/g) ?? [],
+  );
+  const lastMatch = matches.at(-1);
+
+  if (!lastMatch) {
+    return null;
+  }
+
+  return {
+    x: Number(lastMatch[1]),
+    y: Number(lastMatch[2]),
+  };
+}
+
 function rectCenterX(rect: Element | null | undefined) {
   return Number(rect?.getAttribute("x")) + Number(rect?.getAttribute("width")) / 2;
+}
+
+function rectMetrics(rect: Element | null | undefined) {
+  const x = Number(rect?.getAttribute("x"));
+  const y = Number(rect?.getAttribute("y"));
+  const width = Number(rect?.getAttribute("width"));
+  const height = Number(rect?.getAttribute("height"));
+
+  return {
+    x,
+    y,
+    width,
+    height,
+    right: x + width,
+    bottom: y + height,
+  };
 }
 
 function parseScale(transform: string | null | undefined) {
@@ -93,6 +142,22 @@ function parseVerticalPathX(group: Element | null | undefined) {
   const match = d?.match(/M ([-\d.]+) [-\d.]+ L \1 [-\d.]+/);
 
   return match ? Number(match[1]) : null;
+}
+
+function parseSimplePathLength(group: Element | null | undefined) {
+  const d = group?.querySelector("path")?.getAttribute("d");
+  const match = d?.match(/M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)/);
+
+  if (!match) {
+    return null;
+  }
+
+  const x1 = Number(match[1]);
+  const y1 = Number(match[2]);
+  const x2 = Number(match[3]);
+  const y2 = Number(match[4]);
+
+  return Math.hypot(x2 - x1, y2 - y1);
 }
 
 describe("MyComposition", () => {
@@ -292,6 +357,286 @@ describe("MyComposition", () => {
     expect(strokePalette(materialToCookedArrow)).toBe("rgba(104, 140, 114, 0.86)");
     expect(strokePalette(cookedToBinaryArrow)).toBe("rgba(104, 140, 114, 0.86)");
     expect(strokePalette(binaryToGpuArrow)).toBe("#d06b44");
+  });
+
+  it("adds a visible question hook on the page 05 Material -> Cooked relation", () => {
+    mockFrame = 162;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
+
+    expect(questionBadge).not.toBeNull();
+    expect(opacityOf(questionBadge)).toBeGreaterThan(0.9);
+    expect(questionBadge?.textContent).toContain("?");
+  });
+
+  it("renders page 06 as a centered stage-scale reveal instead of a camera punch-in", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const resourceToMapArrow = container.querySelector(
+      '[data-testid="page6-resource-to-shadermap-arrow"]',
+    );
+    const resourceCards = container.querySelectorAll('[data-testid="page6-resource-card"]');
+    const uassetFrame = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const materialGroup = findBoxGroupByLabel(container, "Material");
+    const materialRect = materialGroup?.querySelector("rect");
+    const uassetLeft = Number(uassetFrame?.getAttribute("x"));
+    const uassetTop = Number(uassetFrame?.getAttribute("y"));
+    const uassetRight = uassetLeft + Number(uassetFrame?.getAttribute("width"));
+    const uassetBottom = uassetTop + Number(uassetFrame?.getAttribute("height"));
+    const materialLeft = Number(materialRect?.getAttribute("x"));
+    const materialTop = Number(materialRect?.getAttribute("y"));
+    const materialRight = materialLeft + Number(materialRect?.getAttribute("width"));
+    const materialBottom = materialTop + Number(materialRect?.getAttribute("height"));
+    const stageScale = parseScale(stageGroup?.getAttribute("transform"));
+    const stageAnchor = parseTrailingTranslate(stageGroup?.getAttribute("transform"));
+
+    expect(stageGroup).not.toBeNull();
+    expect(opacityOf(stageGroup)).toBeGreaterThan(0.96);
+    expect((stageScale ?? 0)).toBeGreaterThan(1.04);
+    expect((stageScale ?? 0)).toBeLessThanOrEqual(1.06);
+    expect(stageAnchor).not.toBeNull();
+    expect(Math.abs((stageAnchor?.x ?? 0) + 621)).toBeLessThanOrEqual(2);
+    expect(Math.abs((stageAnchor?.y ?? 0) + 306)).toBeLessThanOrEqual(2);
+    expect(screen.getAllByText("Material").length).toBeGreaterThanOrEqual(1);
+    expect(resourceCards.length).toBe(3);
+    expect(screen.getAllByText("FMaterialResource").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("FShaderMap")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("ShaderPlatform")).toBeInTheDocument();
+    expect(screen.getByText("uasset")).toBeInTheDocument();
+    expect(screen.getByText("FeatureLevel")).toBeInTheDocument();
+    expect(screen.getByText("QualityLevel")).toBeInTheDocument();
+    expect(screen.getByText("ShaderType")).toBeInTheDocument();
+    expect(screen.getByText("VertexFactory")).toBeInTheDocument();
+    expect(screen.getByText("Permutation")).toBeInTheDocument();
+    expect(screen.getByText("ES3_1")).toBeInTheDocument();
+    expect(screen.getByText("SM5")).toBeInTheDocument();
+    expect(screen.getByText("Low")).toBeInTheDocument();
+    expect(screen.getByText("High")).toBeInTheDocument();
+    expect(screen.getByText("BasePassPS")).toBeInTheDocument();
+    expect(screen.getByText("DepthVS")).toBeInTheDocument();
+    expect(screen.getByText("LocalVF")).toBeInTheDocument();
+    expect(screen.getByText("SkinVF")).toBeInTheDocument();
+    expect(screen.getByText("Sky=1")).toBeInTheDocument();
+    expect(screen.getByText("VT=0")).toBeInTheDocument();
+    expect(screen.getByText("OpenGL ES")).toBeInTheDocument();
+    expect(screen.getByText("Vulkan")).toBeInTheDocument();
+    expect(screen.getByText("Metal")).toBeInTheDocument();
+    expect(screen.queryByText("1:N")).not.toBeInTheDocument();
+    expect(screen.queryByText("1:1")).not.toBeInTheDocument();
+    expect(
+      container.querySelector('[data-testid="page6-platform-table"]'),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-resource-selector-table"]'),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-shadermap-selector-table"]'),
+    ).not.toBeNull();
+    expect(uassetFrame?.getAttribute("fill")).toBe("none");
+    expect(materialGroup).not.toBeNull();
+    expect(materialLeft).toBeGreaterThanOrEqual(uassetLeft);
+    expect(materialTop).toBeGreaterThanOrEqual(uassetTop);
+    expect(materialRight).toBeLessThanOrEqual(uassetRight);
+    expect(materialBottom).toBeLessThanOrEqual(uassetBottom);
+    expect(parseSimplePathLength(resourceToMapArrow)).toBeGreaterThanOrEqual(40);
+    expect(screen.queryByText("PSO Cache")).not.toBeInTheDocument();
+  });
+
+  it("adds horizontal row guides inside the page 06 selector tables", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const platformGuides = container.querySelectorAll(
+      '[data-testid^="page6-platform-table-note-row-guide-"]',
+    );
+    const resourceGuides = container.querySelectorAll(
+      '[data-testid^="page6-resource-selector-table-note-row-guide-"]',
+    );
+    const shaderGuides = container.querySelectorAll(
+      '[data-testid^="page6-shadermap-selector-table-note-row-guide-"]',
+    );
+
+    expect(platformGuides.length).toBe(2);
+    expect(resourceGuides.length).toBeGreaterThanOrEqual(2);
+    expect(shaderGuides.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps the page 06 shadow cards as an upper-right stack behind the primary cards", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const resourceCards = Array.from(
+      container.querySelectorAll('[data-testid="page6-resource-card"]'),
+    ).map((node) => rectMetrics(node.querySelector("rect")));
+    const shaderCards = Array.from(
+      container.querySelectorAll('[data-testid="page6-shadermap-card"]'),
+    ).map((node) => rectMetrics(node.querySelector("rect")));
+    const [resourceShadowFar, resourceShadowNear, resourceMain] = resourceCards;
+    const [shaderShadowFar, shaderShadowNear, shaderMain] = shaderCards;
+
+    expect(resourceCards.length).toBe(3);
+    expect(shaderCards.length).toBe(3);
+
+    expect(resourceShadowFar.x).toBeGreaterThan(resourceMain.x);
+    expect(resourceShadowNear.x).toBeGreaterThan(resourceMain.x);
+    expect(resourceShadowFar.y).toBeLessThan(resourceMain.y);
+    expect(resourceShadowNear.y).toBeLessThan(resourceMain.y);
+    expect(resourceShadowFar.x).toBeGreaterThan(resourceShadowNear.x);
+    expect(resourceShadowFar.y).toBeLessThan(resourceShadowNear.y);
+    expect(resourceShadowNear.x - resourceMain.x).toBeLessThanOrEqual(16);
+    expect(resourceMain.y - resourceShadowNear.y).toBeLessThanOrEqual(24);
+
+    expect(shaderShadowFar.x).toBeGreaterThan(shaderMain.x);
+    expect(shaderShadowNear.x).toBeGreaterThan(shaderMain.x);
+    expect(shaderShadowFar.y).toBeLessThan(shaderMain.y);
+    expect(shaderShadowNear.y).toBeLessThan(shaderMain.y);
+    expect(shaderShadowFar.x).toBeGreaterThan(shaderShadowNear.x);
+    expect(shaderShadowFar.y).toBeLessThan(shaderShadowNear.y);
+    expect(shaderShadowNear.x - shaderMain.x).toBeLessThanOrEqual(16);
+    expect(shaderMain.y - shaderShadowNear.y).toBeLessThanOrEqual(24);
+  });
+
+  it("moves the question hook monotonically toward the center before it disappears", () => {
+    const sampledFrames = [162, 186, 210];
+    const sampledPositions = sampledFrames.map((frame) => {
+      mockFrame = frame;
+      const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
+      const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
+      const questionCircle = questionBadge?.querySelector("circle");
+      unmount();
+
+      return {
+        x: Number(questionCircle?.getAttribute("cx")),
+        y: Number(questionCircle?.getAttribute("cy")),
+      };
+    });
+
+    expect(sampledPositions[1].x).toBeGreaterThan(sampledPositions[0].x);
+    expect(sampledPositions[2].x).toBeGreaterThan(sampledPositions[1].x);
+    expect(sampledPositions[1].y).toBeGreaterThan(sampledPositions[0].y);
+    expect(sampledPositions[2].y).toBeGreaterThan(sampledPositions[1].y);
+  });
+
+  it("does not keep a full-screen dim overlay during the page 05 -> page 06 handoff", () => {
+    mockFrame = 198;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(Boolean(container.querySelector('[data-testid="page56-world-dim"]'))).toBe(false);
+  });
+
+  it("reveals the page 06 stage as a monotonic center-scale animation", () => {
+    const sampledFrames = [222, 228, 234];
+    const sampledScales = sampledFrames.map((frame) => {
+      mockFrame = frame;
+      const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
+      const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+      const scale = parseScale(stageGroup?.getAttribute("transform"));
+      unmount();
+
+      return scale ?? 0;
+    });
+
+    expect(sampledScales[1]).toBeGreaterThan(sampledScales[0]);
+    expect(sampledScales[2]).toBeGreaterThan(sampledScales[1]);
+  });
+
+  it("keeps page 06 with readable arrow spans and de-emphasizes the old page 05 world", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const arrows = [
+      container.querySelector('[data-testid="page6-material-to-resource-arrow"]'),
+      container.querySelector('[data-testid="page6-resource-to-shadermap-arrow"]'),
+      container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]'),
+    ];
+    const worldDim = container.querySelector('[data-testid="page56-world-dim"]');
+    const baseWorld = container.querySelector('[data-testid="page56-base-world"]');
+
+    for (const length of arrows.map((node) => parseSimplePathLength(node))) {
+      expect(length ?? 0).toBeGreaterThanOrEqual(40);
+    }
+    expect(worldDim).toBeNull();
+    expect(opacityOf(baseWorld)).toBeLessThanOrEqual(0.05);
+  });
+
+  it("keeps page 06 as one world by avoiding duplicate visible Material labels", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visibleMaterialLabels = findTextNodes(container, "Material").filter(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
+
+    expect(visibleMaterialLabels.length).toBe(1);
+  });
+
+  it("keeps page 06 labels readable without glyph compression hacks", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const resourceLabels = findTextNodes(container, "FMaterialResource");
+    const shaderMapLabel = findTextNodes(container, "FShaderMap")[0];
+    const shaderKeyLabels = [
+      findTextNodes(container, "ShaderType")[0],
+      findTextNodes(container, "VertexFactory")[0],
+      findTextNodes(container, "Permutation")[0],
+    ];
+
+    expect(resourceLabels.length).toBeGreaterThanOrEqual(1);
+    for (const node of resourceLabels) {
+      expect(node.getAttribute("textLength")).toBeNull();
+      expect(node.getAttribute("lengthAdjust")).toBeNull();
+    }
+    expect(shaderMapLabel?.getAttribute("textLength")).toBeNull();
+    expect(shaderMapLabel?.getAttribute("lengthAdjust")).toBeNull();
+    for (const node of shaderKeyLabels) {
+      expect(node?.getAttribute("textLength")).toBeNull();
+      expect(node?.getAttribute("lengthAdjust")).toBeNull();
+    }
+  });
+
+  it("removes the page 05 question hook by the settled page 06 frame", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
+    const visibleQuestionLabels = findTextNodes(container, "?").filter(
+      (node) => effectiveOpacity(node) > 0.05,
+    );
+
+    expect(questionBadge).toBeNull();
+    expect(visibleQuestionLabels.length).toBe(0);
+  });
+
+  it("renders page 07 with PSO Cache storing Hash, key, and metadata separately from ShaderCode storage", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const cacheBox = container.querySelector('[data-testid="page7-cache-box"]');
+    const hashArrow = container.querySelector('[data-testid="page7-hash-link-arrow"]');
+
+    expect(cacheBox).not.toBeNull();
+    expect(hashArrow).not.toBeNull();
+    expect(screen.getByText("PSO Cache")).toBeInTheDocument();
+    expect(screen.getByText("Hash")).toBeInTheDocument();
+    expect(screen.getByText("key")).toBeInTheDocument();
+    expect(screen.getByText("metadata")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders page 08 with a SharedCode Library fed by multiple materials and queried by hash", () => {
+    mockFrame = 306;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const sharedLibrary = container.querySelector('[data-testid="page8-shared-library-box"]');
+    const materialBus = container.querySelector('[data-testid="page8-material-bus-arrow"]');
+    const cacheLookup = container.querySelector('[data-testid="page8-cache-lookup-arrow"]');
+
+    expect(sharedLibrary).not.toBeNull();
+    expect(materialBus).not.toBeNull();
+    expect(cacheLookup).not.toBeNull();
+    expect(screen.getByText("SharedCode")).toBeInTheDocument();
+    expect(screen.getByText("Library")).toBeInTheDocument();
+    expect(screen.getByText("ShaderArchive")).toBeInTheDocument();
+    expect(screen.getByText("Material A")).toBeInTheDocument();
+    expect(screen.getByText("Material B")).toBeInTheDocument();
+    expect(screen.getByText("Material C")).toBeInTheDocument();
+    expect(screen.getByText("PSO Cache")).toBeInTheDocument();
+    expect(screen.getByText("Hash")).toBeInTheDocument();
   });
 
   it("keeps pages 01-04 on the original spine and only shifts the runtime axis to the right for page 05", () => {

@@ -9,15 +9,21 @@ describe("masterStoryboard", () => {
       "page_03",
       "page_04",
       "page_05",
+      "page_06",
+      "page_07",
+      "page_08",
     ]);
   });
 
-  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the UE asset cook bridge", () => {
+  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the UE shader-code zoom narrative", () => {
     const page01 = masterStoryboard.steps[0];
     const page02 = masterStoryboard.steps[1];
     const page03 = masterStoryboard.steps[2];
     const page04 = masterStoryboard.steps[3];
     const page05 = masterStoryboard.steps[4];
+    const page06 = masterStoryboard.steps[5];
+    const page07 = masterStoryboard.steps[6];
+    const page08 = masterStoryboard.steps[7];
 
     expect(page01?.label).toBe("Input -> f(x) -> Output");
     expect(page01?.caption).toContain("最小骨架");
@@ -44,5 +50,20 @@ describe("masterStoryboard", () => {
     expect(page05?.manuscript).toContain("Material");
     expect(page05?.manuscript).toContain("Cooked ShaderCode");
     expect(page05?.manuscript).toContain("VertexData");
+    expect(page06?.label).toBe("InlineCode 内部结构");
+    expect(page06?.manuscript).toContain("FMaterialResource");
+    expect(page06?.manuscript).toContain("FShaderMap");
+    expect(page06?.manuscript).toContain("InlineCode");
+    expect(page06?.manuscript).toContain("uasset");
+    expect(page07?.label).toBe("PSO cache 为什么只存 Hash");
+    expect(page07?.manuscript).toContain("PSO cache");
+    expect(page07?.manuscript).toContain("Hash");
+    expect(page07?.manuscript).toContain("metadata");
+    expect(page07?.manuscript).toContain("ShaderCode");
+    expect(page08?.label).toBe("SharedCode 为什么成为必需");
+    expect(page08?.manuscript).toContain("SharedCode");
+    expect(page08?.manuscript).toContain("ShaderArchive");
+    expect(page08?.manuscript).toContain("去重");
+    expect(page08?.manuscript).toContain("PSO");
   });
 });
