@@ -612,13 +612,17 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const cacheBox = container.querySelector('[data-testid="page7-cache-box"]');
     const hashArrow = container.querySelector('[data-testid="page7-hash-link-arrow"]');
+    const fshaderHashArrow = container.querySelector('[data-testid="page7-fshader-hash-arrow"]');
 
     expect(cacheBox).not.toBeNull();
     expect(hashArrow).not.toBeNull();
+    expect(fshaderHashArrow).not.toBeNull();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
-    expect(screen.getByText("Hash")).toBeInTheDocument();
-    expect(screen.getByText("key")).toBeInTheDocument();
-    expect(screen.getByText("metadata")).toBeInTheDocument();
+    expect(screen.getByText("VS Hash")).toBeInTheDocument();
+    expect(screen.getByText("PS Hash")).toBeInTheDocument();
+    expect(screen.getByText("BlendState")).toBeInTheDocument();
+    expect(screen.getByText("DepthStencilState")).toBeInTheDocument();
+    expect(screen.getByText("key · metadata")).toBeInTheDocument();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
   });
 
@@ -639,7 +643,7 @@ describe("MyComposition", () => {
     expect(screen.getByText("Material B")).toBeInTheDocument();
     expect(screen.getByText("Material C")).toBeInTheDocument();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
-    expect(screen.getByText("Hash")).toBeInTheDocument();
+    expect(screen.getByText("VS Hash")).toBeInTheDocument();
   });
 
   it("keeps pages 01-04 on the original spine and only shifts the runtime axis to the right for page 05", () => {

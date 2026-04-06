@@ -1596,6 +1596,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page7CacheCenterY = boxCenterY(PAGE7_CACHE_BOX);
   const page7HashArrowOpacity = clamp01((settledPage67Progress - 0.24) / 0.22);
   const page7HashArrowY = boxCenterY(PAGE6_INLINE_BOX);
+  const page7FShaderHashArrowY = PAGE7_CACHE_BOX.y + 54;
   const page8SourceOpacity = clamp01((settledPage78Progress - 0.18) / 0.24);
   const page8SourceScale = mix(0.92, 1, easeInOutCubic(page8SourceOpacity));
   const page8MaterialBusX = 474;
@@ -2673,47 +2674,54 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   />
                   <text
                     x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + 34}
+                    y={PAGE7_CACHE_BOX.y + 22}
                     fill="#22303d"
-                    fontSize="22"
+                    fontSize="17"
                     fontWeight="760"
                     textAnchor="middle"
                     dominantBaseline="middle"
                   >
                     PSO Cache
                   </text>
+                  <path
+                    d={horizontalPath(PAGE7_CACHE_BOX.x + 10, PAGE7_CACHE_BOX.x + PAGE7_CACHE_BOX.width - 10, PAGE7_CACHE_BOX.y + 36)}
+                    fill="none"
+                    stroke="rgba(76, 90, 102, 0.18)"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                  />
+                  {[
+                    {label: "VS Hash", fill: apiStroke, fontWeight: "760"},
+                    {label: "PS Hash", fill: apiStroke, fontWeight: "760"},
+                    {label: "BlendState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
+                    {label: "DepthStencilState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
+                    {label: "RasterizerState", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
+                    {label: "RT Format", fill: "rgba(34, 48, 61, 0.76)", fontWeight: "640"},
+                  ].map(({label, fill, fontWeight}, index) => (
+                    <text
+                      key={label}
+                      data-testid={index < 2 ? `page7-cache-hash-row-${index}` : undefined}
+                      x={page7CacheCenterX}
+                      y={PAGE7_CACHE_BOX.y + 54 + index * 22}
+                      fill={fill}
+                      fontSize="14.5"
+                      fontWeight={fontWeight}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      {label}
+                    </text>
+                  ))}
                   <text
                     x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + 76}
-                    fill={apiStroke}
-                    fontSize="18"
-                    fontWeight="760"
+                    y={PAGE7_CACHE_BOX.y + PAGE7_CACHE_BOX.height - 14}
+                    fill="rgba(34, 48, 61, 0.45)"
+                    fontSize="12"
+                    fontWeight="600"
                     textAnchor="middle"
                     dominantBaseline="middle"
                   >
-                    Hash
-                  </text>
-                  <text
-                    x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + 104}
-                    fill="rgba(34, 48, 61, 0.76)"
-                    fontSize="17"
-                    fontWeight="680"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    key
-                  </text>
-                  <text
-                    x={page7CacheCenterX}
-                    y={PAGE7_CACHE_BOX.y + 132}
-                    fill="rgba(34, 48, 61, 0.76)"
-                    fontSize="17"
-                    fontWeight="680"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    metadata
+                    key · metadata
                   </text>
                 </g>
               ) : null}
@@ -2735,6 +2743,22 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   underlayWidth={5.8}
                   underlayOpacity={0.12}
                   headSize={9}
+                />
+              ) : null}
+
+              {page7HashArrowOpacity > 0.001 && page8LookupArrowOpacity < 0.999 ? (
+                <StrokeArrow
+                  testId="page7-fshader-hash-arrow"
+                  d={`M ${boxRight(PAGE6_FSHADER_BOX) + 6} ${page6FShaderCenterY} L ${PAGE7_CACHE_BOX.x} ${page7FShaderHashArrowY}`}
+                  stroke={apiStroke}
+                  opacity={page7HashArrowOpacity * (1 - page8LookupArrowOpacity) * 0.7}
+                  tipX={PAGE7_CACHE_BOX.x}
+                  tipY={page7FShaderHashArrowY}
+                  direction="right"
+                  shaftWidth={2.2}
+                  underlayWidth={4.4}
+                  underlayOpacity={0.1}
+                  headSize={7}
                 />
               ) : null}
 
