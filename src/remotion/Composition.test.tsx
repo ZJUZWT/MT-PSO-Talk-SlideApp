@@ -544,6 +544,38 @@ describe("MyComposition", () => {
     expect(screen.queryByText("PSO Cache")).not.toBeInTheDocument();
   });
 
+  it("treats page 06 as an ownership slide before InlineCode storage is expanded", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(container.querySelector('[data-testid="page6-platform-table"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).not.toBeNull();
+    expect(findTextNodes(container, "Material").length).toBeGreaterThan(0);
+    expect(findTextNodes(container, "FMaterialResource").length).toBeGreaterThan(0);
+    expect(findTextNodes(container, "FMaterialShaderMap").length).toBeGreaterThan(0);
+    expect(screen.queryByText("ShaderEntries[i]")).not.toBeInTheDocument();
+    expect(screen.queryByText("ShaderHashes[i]")).not.toBeInTheDocument();
+    expect(
+      findTextNodes(container, "Cooked").some((node) => effectiveOpacity(node) > 0.16),
+    ).toBe(false);
+  });
+
+  it("treats page 07 as the runtime InlineCode lookup slide before PSO Cache appears", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(container.querySelector('[data-testid="page6-platform-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).toBeNull();
+    expect(screen.getByText("FShader")).toBeInTheDocument();
+    expect(screen.getByText("ResourceIndex = i")).toBeInTheDocument();
+    expect(screen.getByText("ShaderEntries[i]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("PSO Cache")).not.toBeInTheDocument();
+  });
+
   it("models page 06 InlineCode access as ShaderMap ownership plus direct FShader lookup by i", () => {
     mockFrame = 234;
     const {container} = render(<MyComposition variantId="bus-clean" />);
