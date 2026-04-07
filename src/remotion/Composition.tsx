@@ -44,6 +44,7 @@ const PAGE_05_FRAME = resolveRemotionStepFrame("page_05");
 const PAGE_06_FRAME = resolveRemotionStepFrame("page_06");
 const PAGE_07_FRAME = resolveRemotionStepFrame("page_07");
 const PAGE_08_FRAME = resolveRemotionStepFrame("page_08");
+const PAGE_09_FRAME = resolveRemotionStepFrame("page_09");
 
 const PAGE2_LEFT_BOX: Box = {x: 210, y: 316, width: 150, height: 88, radius: 20};
 const PAGE2_CENTER_BOX: Box = {x: 480, y: 304, width: 320, height: 112, radius: 24};
@@ -138,137 +139,186 @@ const PAGE6_ZOOM_PANEL: Box = {
   radius: 36,
 };
 const PAGE6_MATERIAL_BOX: Box = {
-  x: 388,
-  y: 108,
-  width: 184,
-  height: 74,
+  x: 420,
+  y: 94,
+  width: 280,
+  height: 92,
   radius: 20,
 };
 const PAGE6_UASSET_FRAME: Box = {
-  x: 36,
-  y: 56,
+  x: 60,
+  y: 36,
   width: 1160,
-  height: 500,
+  height: 540,
   radius: 30,
 };
 const PAGE6_PLATFORM_TABLE_BOX: Box = {
-  x: 80,
-  y: 102,
-  width: 232,
-  height: 90,
+  x: 66,
+  y: 66,
+  width: 336,
+  height: 136,
   radius: 18,
 };
 const PAGE6_RESOURCE_BOX: Box = {
-  x: 388,
-  y: 230,
-  width: 184,
-  height: 74,
+  x: 420,
+  y: 260,
+  width: 280,
+  height: 92,
   radius: 20,
 };
 const PAGE6_RESOURCE_TOP_BOX: Box = {
-  x: 402,
-  y: 202,
-  width: 184,
-  height: 62,
+  x: 436,
+  y: 232,
+  width: 280,
+  height: 72,
   radius: 20,
 };
 const PAGE6_RESOURCE_BOTTOM_BOX: Box = {
-  x: 395,
-  y: 216,
-  width: 184,
-  height: 62,
+  x: 428,
+  y: 246,
+  width: 280,
+  height: 72,
   radius: 20,
 };
 const PAGE6_RESOURCE_TABLE_BOX: Box = {
-  x: 80,
-  y: 224,
-  width: 232,
-  height: 90,
+  x: 66,
+  y: 248,
+  width: 336,
+  height: 166,
   radius: 18,
 };
 const PAGE6_SHADERMAP_BOX: Box = {
-  x: 368,
-  y: 352,
-  width: 224,
-  height: 74,
+  x: 420,
+  y: 426,
+  width: 280,
+  height: 92,
   radius: 20,
 };
 const PAGE6_SHADER_TOP_BOX: Box = {
-  x: 382,
-  y: 324,
-  width: 224,
-  height: 62,
-  radius: 20,
-};
-const PAGE6_SHADER_BOTTOM_BOX: Box = {
-  x: 375,
-  y: 338,
-  width: 224,
-  height: 62,
-  radius: 20,
-};
-const PAGE6_SHADER_TABLE_BOX: Box = {
-  x: 48,
-  y: 346,
-  width: 296,
-  height: 96,
-  radius: 18,
-};
-const PAGE6_FSHADER_BOX: Box = {
-  x: 723,
-  y: 136,
-  width: 184,
-  height: 92,
-  radius: 20,
-};
-const PAGE6_FSHADER_TOP_BOX: Box = {
-  x: 723,
-  y: 136,
-  width: 184,
-  height: 92,
-  radius: 20,
-};
-const PAGE6_FSHADER_BOTTOM_BOX: Box = {
-  x: 723,
-  y: 136,
-  width: 184,
-  height: 92,
-  radius: 20,
-};
-const PAGE6_RESOURCE_INDEX_BOX: Box = {
-  x: 644,
-  y: 428,
-  width: 150,
+  x: 436,
+  y: 396,
+  width: 280,
   height: 74,
   radius: 20,
 };
-const PAGE6_RESOURCE_CODE_BOX: Box = {
-  x: 670,
-  y: 330,
-  width: 294,
-  height: 126,
+const PAGE6_SHADER_BOTTOM_BOX: Box = {
+  x: 428,
+  y: 410,
+  width: 280,
+  height: 74,
+  radius: 20,
+};
+const PAGE6_SHADER_TABLE_BOX: Box = {
+  x: 724,
+  y: 172,
+  width: 432,
+  height: 220,
   radius: 18,
 };
-const PAGE6_INLINE_RESOURCE_BOX: Box = {
-  x: 648,
-  y: 284,
-  width: 336,
-  height: 206,
-  radius: 24,
+const PAGE6_COOKED_BOX: Box = {
+  x: 992,
+  y: 426,
+  width: 220,
+  height: 92,
+  radius: 22,
 };
-const PAGE6_INLINE_CODE_BOX: Box = {
-  x: 1006,
-  y: 347,
-  width: 180,
+const PAGE7_MATERIAL_BOX: Box = {
+  x: 420,
+  y: 92,
+  width: 248,
+  height: 84,
+  radius: 20,
+};
+const PAGE7_RESOURCE_BOX: Box = {
+  x: 420,
+  y: 316,
+  width: 248,
+  height: 84,
+  radius: 20,
+};
+const PAGE7_RESOURCE_TOP_BOX: Box = {
+  x: 436,
+  y: 288,
+  width: 248,
+  height: 72,
+  radius: 20,
+};
+const PAGE7_RESOURCE_BOTTOM_BOX: Box = {
+  x: 428,
+  y: 302,
+  width: 248,
+  height: 72,
+  radius: 20,
+};
+const PAGE7_SHADERMAP_BOX: Box = {
+  x: 412,
+  y: 452,
+  width: 280,
+  height: 88,
+  radius: 20,
+};
+const PAGE7_SHADER_TOP_BOX: Box = {
+  x: 428,
+  y: 422,
+  width: 280,
+  height: 74,
+  radius: 20,
+};
+const PAGE7_SHADER_BOTTOM_BOX: Box = {
+  x: 420,
+  y: 436,
+  width: 280,
+  height: 74,
+  radius: 20,
+};
+const PAGE7_FSHADER_BOX: Box = {
+  x: 736,
+  y: 156,
+  width: 204,
+  height: 108,
+  radius: 20,
+};
+const PAGE7_RESOURCE_INDEX_BOX: Box = {
+  x: 626,
+  y: 462,
+  width: 158,
   height: 78,
   radius: 20,
 };
-const PAGE6_INLINE_ARCHIVE_BOX: Box = {
-  x: 706,
-  y: 412,
+const PAGE7_RESOURCE_CODE_BOX: Box = {
+  x: 738,
+  y: 354,
+  width: 200,
+  height: 136,
+  radius: 20,
+};
+const PAGE7_INLINE_RESOURCE_BOX: Box = {
+  x: 720,
+  y: 300,
+  width: 236,
+  height: 214,
+  radius: 28,
+};
+const PAGE7_INLINE_CODE_BOX: Box = {
+  x: 992,
+  y: 380,
   width: 214,
-  height: 96,
-  radius: 24,
+  height: 92,
+  radius: 22,
+};
+const PAGE7_COOKED_BOX: Box = {
+  x: 992,
+  y: 380,
+  width: 214,
+  height: 92,
+  radius: 22,
+};
+const PAGE7_INLINE_ARCHIVE_BOX: Box = {
+  x: 812,
+  y: 498,
+  width: 220,
+  height: 88,
+  radius: 20,
 };
 const PAGE7_CACHE_BOX: Box = {
   x: 36,
@@ -439,6 +489,30 @@ function boxBottom(box: Box) {
 
 function boxRight(box: Box) {
   return box.x + box.width;
+}
+
+function bandCenters(startY: number, endY: number, count: number, offset = 0) {
+  if (count <= 0) {
+    return [];
+  }
+
+  const cellHeight = (endY - startY) / count;
+
+  return Array.from({length: count}, (_, index) =>
+    Math.round(startY + cellHeight * (index + 0.5) + offset),
+  );
+}
+
+function bandBoundaries(startY: number, endY: number, count: number) {
+  if (count <= 1) {
+    return [];
+  }
+
+  const cellHeight = (endY - startY) / count;
+
+  return Array.from({length: count - 1}, (_, index) =>
+    Math.round(startY + cellHeight * (index + 1)),
+  );
 }
 
 function VertexTriangles({
@@ -838,6 +912,9 @@ function DiagramInfoTable({
   headerLineGap = 15,
   noteLineGap = 14,
   dividerOffsetY = 0,
+  headerInsetTop = 0,
+  noteInsetBottom = 0,
+  contentAlign = "start",
 }: {
   box: Box;
   segments: Array<{
@@ -856,11 +933,16 @@ function DiagramInfoTable({
   headerLineGap?: number;
   noteLineGap?: number;
   dividerOffsetY?: number;
+  // Optical nudges from the exact band center. Keep at 0 for true centering.
+  headerInsetTop?: number;
+  noteInsetBottom?: number;
+  contentAlign?: "start" | "center";
 }) {
-  const headerY = box.y + 24;
-  const noteY = boxBottom(box) - 28;
-  const dividerY = Math.round((headerY + noteY) / 2 + dividerOffsetY);
-  let cursorX = box.x;
+  const dividerY = Math.round(boxCenterY(box) + dividerOffsetY);
+  const segmentsWidth = segments.reduce((sum, segment) => sum + segment.width, 0);
+  const contentOffsetX =
+    contentAlign === "center" ? Math.max(0, (box.width - segmentsWidth) / 2) : 0;
+  let cursorX = box.x + contentOffsetX;
 
   return (
     <g opacity={opacity} data-testid={testId}>
@@ -875,6 +957,7 @@ function DiagramInfoTable({
         strokeWidth="1.7"
       />
       <path
+        data-role="table-divider"
         d={horizontalPath(box.x + 6, box.x + box.width - 6, dividerY)}
         fill="none"
         stroke="rgba(76, 90, 102, 0.18)"
@@ -884,17 +967,28 @@ function DiagramInfoTable({
       {segments.map((segment, index) => {
         const cellCenterX = cursorX + segment.width / 2;
         const cellStartX = cursorX;
+        const cellEndX = cellStartX + segment.width;
+        const headerLines = Array.isArray(segment.label) ? segment.label : [segment.label];
         const noteLines = Array.isArray(segment.note)
           ? segment.note
           : segment.note
             ? [segment.note]
             : [];
+        const headerCenters = bandCenters(box.y, dividerY, headerLines.length, headerInsetTop);
+        const noteCenters = bandCenters(
+          dividerY,
+          boxBottom(box),
+          noteLines.length,
+          -noteInsetBottom,
+        );
+        const noteBoundaryYs = bandBoundaries(dividerY, boxBottom(box), noteLines.length);
         cursorX += segment.width;
 
         return (
           <g key={`${cellStartX}-${segment.width}-${index}`}>
             {index > 0 ? (
               <path
+                data-role="segment-divider"
                 d={verticalPath(cellStartX, box.y + 10, boxBottom(box) - 10)}
                 fill="none"
                 stroke="rgba(76, 90, 102, 0.16)"
@@ -917,50 +1011,52 @@ function DiagramInfoTable({
               </text>
             ) : (
               <>
-                <StackedLabel
-                  x={cellCenterX}
-                  y={headerY}
-                  lines={Array.isArray(segment.label) ? segment.label : [segment.label]}
-                  fontSize={headerFontSize}
-                  fontWeight={780}
-                  lineGap={headerLineGap}
-                />
-                {segment.note ? (
-                  <>
-                    {noteLines.length > 1
-                      ? noteLines.slice(0, -1).map((_, rowIndex) => {
-                          const startY =
-                            noteY - ((noteLines.length - 1) * noteLineGap) / 2;
-                          const guideY = startY + rowIndex * noteLineGap + noteLineGap / 2;
-
-                          return (
-                            <path
-                              key={`note-guide-${rowIndex}`}
-                              data-testid={
-                                testId
-                                  ? `${testId}-note-row-guide-${index}-${rowIndex}`
-                                  : undefined
-                              }
-                              d={horizontalPath(cellStartX + 8, cellStartX + segment.width - 8, guideY)}
-                              fill="none"
-                              stroke="rgba(76, 90, 102, 0.12)"
-                              strokeWidth="1"
-                              strokeLinecap="round"
-                            />
-                          );
-                        })
-                      : null}
-                    <StackedLabel
-                      x={cellCenterX}
-                      y={noteY}
-                      lines={noteLines}
-                      fontSize={noteFontSize}
-                      fontWeight={690}
-                      lineGap={noteLineGap}
-                      fill="rgba(76, 90, 102, 0.82)"
-                    />
-                  </>
-                ) : null}
+                {headerLines.map((line, lineIndex) => (
+                  <text
+                    key={`header-line-${line}-${lineIndex}`}
+                    x={cellCenterX}
+                    y={headerCenters[lineIndex]}
+                    fill="#22303d"
+                    fontSize={headerFontSize}
+                    fontWeight="780"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    {line}
+                  </text>
+                ))}
+                {segment.note
+                  ? noteBoundaryYs.map((guideY, rowIndex) => (
+                      <path
+                        key={`note-guide-${rowIndex}`}
+                        data-role="note-row-divider"
+                        data-testid={
+                          testId ? `${testId}-note-row-guide-${index}-${rowIndex}` : undefined
+                        }
+                        d={horizontalPath(cellStartX + 10, cellEndX - 10, guideY)}
+                        fill="none"
+                        stroke="rgba(76, 90, 102, 0.12)"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                      />
+                    ))
+                  : null}
+                {segment.note
+                  ? noteLines.map((line, lineIndex) => (
+                      <text
+                        key={`note-line-${line}-${lineIndex}`}
+                        x={cellCenterX}
+                        y={noteCenters[lineIndex]}
+                        fill="rgba(76, 90, 102, 0.82)"
+                        fontSize={noteFontSize}
+                        fontWeight="690"
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        {line}
+                      </text>
+                    ))
+                  : null}
               </>
             )}
           </g>
@@ -1023,7 +1119,7 @@ function ArrowHead({
 }: {
   tipX: number;
   tipY: number;
-  direction: "right" | "down" | "left";
+  direction: "right" | "down" | "left" | "up";
   stroke: string;
   opacity: number;
   size?: number;
@@ -1082,6 +1178,31 @@ function ArrowHead({
     );
   }
 
+  if (direction === "up") {
+    return (
+      <>
+        <path
+          d={`M ${tipX - half} ${tipY + headStart} L ${tipX} ${tipY}`}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={opacity}
+        />
+        <path
+          d={`M ${tipX + half} ${tipY + headStart} L ${tipX} ${tipY}`}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={opacity}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <path
@@ -1125,7 +1246,7 @@ function StrokeArrow({
   opacity: number;
   tipX: number;
   tipY: number;
-  direction: "right" | "down" | "left";
+  direction: "right" | "down" | "left" | "up";
   shaftWidth?: number;
   underlayWidth?: number;
   underlayOpacity?: number;
@@ -1174,6 +1295,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page56Progress = resolveSegmentProgress(frame, PAGE_05_FRAME, PAGE_06_FRAME);
   const page67Progress = resolveSegmentProgress(frame, PAGE_06_FRAME, PAGE_07_FRAME);
   const page78Progress = resolveSegmentProgress(frame, PAGE_07_FRAME, PAGE_08_FRAME);
+  const page89Progress = resolveSegmentProgress(frame, PAGE_08_FRAME, PAGE_09_FRAME);
   const settledPage12Progress = frame >= PAGE_02_FRAME ? 1 : page12Progress;
   const settledPage23Progress = frame <= PAGE_02_FRAME ? 0 : page23Progress;
   const settledPage34Progress = frame <= PAGE_03_FRAME ? 0 : page34Progress;
@@ -1181,6 +1303,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const settledPage56Progress = frame <= PAGE_05_FRAME ? 0 : frame >= PAGE_06_FRAME ? 1 : page56Progress;
   const settledPage67Progress = frame <= PAGE_06_FRAME ? 0 : frame >= PAGE_07_FRAME ? 1 : page67Progress;
   const settledPage78Progress = frame <= PAGE_07_FRAME ? 0 : frame >= PAGE_08_FRAME ? 1 : page78Progress;
+  const settledPage89Progress = frame <= PAGE_08_FRAME ? 0 : frame >= PAGE_09_FRAME ? 1 : page89Progress;
   const theme = VARIANT_THEME[variantId];
 
   const neutralFill = "rgba(255, 251, 246, 0.98)";
@@ -1613,43 +1736,152 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page56SettledScale = 1;
   const page7ReadingScale = 1;
   const page8ReadingScale = 1;
+  const page9ReadingScale = 1;
   const page56ZoomScale = page56SettledScale;
   const page67ZoomScale = mix(page56ZoomScale, page7ReadingScale, settledPage67Progress);
-  const zoomScale = mix(page67ZoomScale, page8ReadingScale, settledPage78Progress);
+  const page78ZoomScale = mix(page67ZoomScale, page8ReadingScale, settledPage78Progress);
+  const zoomScale = mix(page78ZoomScale, page9ReadingScale, settledPage89Progress);
   const page6FocusX = cameraViewportCenterX;
   const page6FocusY = cameraViewportCenterY;
   const page7FocusX = cameraViewportCenterX;
   const page7FocusY = cameraViewportCenterY;
   const page8FocusX = cameraViewportCenterX;
   const page8FocusY = cameraViewportCenterY;
+  const page9FocusX = cameraViewportCenterX;
+  const page9FocusY = cameraViewportCenterY;
   const page56FocusX = page6FocusX;
   const page56FocusY = page6FocusY;
   const page67FocusX = mix(page56FocusX, page7FocusX, settledPage67Progress);
   const page67FocusY = mix(page56FocusY, page7FocusY, settledPage67Progress);
-  const zoomFocusX = mix(page67FocusX, page8FocusX, settledPage78Progress);
-  const zoomFocusY = mix(page67FocusY, page8FocusY, settledPage78Progress);
+  const page78FocusX = mix(page67FocusX, page8FocusX, settledPage78Progress);
+  const page78FocusY = mix(page67FocusY, page8FocusY, settledPage78Progress);
+  const zoomFocusX = mix(page78FocusX, page9FocusX, settledPage89Progress);
+  const zoomFocusY = mix(page78FocusY, page9FocusY, settledPage89Progress);
   const page56BaseWorldOpacity = 1 - easeInOutCubic(clamp01(settledPage56Progress / 0.54));
   const page6StageProgress = easeInOutCubic(clamp01((settledPage56Progress - 0.78) / 0.22));
   const page6StageOpacity = page6StageProgress;
   const page6StageScale = mix(0.56, 1.06, page6StageProgress);
+  const page67ChainShiftProgress = settledPage67Progress;
+  const page6OwnershipFocusOpacity = 1 - clamp01((settledPage67Progress - 0.08) / 0.28);
+  const page7LookupOpacity = clamp01((settledPage67Progress - 0.12) / 0.24);
+  const page6ChainOpacity = 1 - clamp01((settledPage89Progress - 0.08) / 0.44);
+  const page7LookupContentOpacity = page7LookupOpacity * page6ChainOpacity;
+  const page6FrameOpacity = page6ChainOpacity;
+  const page6NodeOpacity = page6ChainOpacity;
+  const page6NodeScale = 1;
+  const page6MetaOpacity = page6ChainOpacity * page6OwnershipFocusOpacity;
+  const page6MaterialBox = mixBox(
+    PAGE6_MATERIAL_BOX,
+    PAGE7_MATERIAL_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ResourceBox = mixBox(
+    PAGE6_RESOURCE_BOX,
+    PAGE7_RESOURCE_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ResourceTopBox = mixBox(
+    PAGE6_RESOURCE_TOP_BOX,
+    PAGE7_RESOURCE_TOP_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ResourceBottomBox = mixBox(
+    PAGE6_RESOURCE_BOTTOM_BOX,
+    PAGE7_RESOURCE_BOTTOM_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ShaderMapBox = mixBox(
+    PAGE6_SHADERMAP_BOX,
+    PAGE7_SHADERMAP_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ShaderTopBox = mixBox(
+    PAGE6_SHADER_TOP_BOX,
+    PAGE7_SHADER_TOP_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6ShaderBottomBox = mixBox(
+    PAGE6_SHADER_BOTTOM_BOX,
+    PAGE7_SHADER_BOTTOM_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6FShaderBox = PAGE7_FSHADER_BOX;
+  const page6ResourceCodeBox = PAGE7_RESOURCE_CODE_BOX;
+  const page6InlineResourceBox = PAGE7_INLINE_RESOURCE_BOX;
+  const page6InlineCodeBox = PAGE7_INLINE_CODE_BOX;
+  const page6InlineArchiveBox = PAGE7_INLINE_ARCHIVE_BOX;
+  const page6CookedBox = mixBox(
+    PAGE6_COOKED_BOX,
+    PAGE7_COOKED_BOX,
+    page67ChainShiftProgress,
+  );
+  const page6MaterialCenterX = boxCenterX(page6MaterialBox);
+  const page6MaterialCenterY = boxCenterY(page6MaterialBox);
+  const page6ResourceCenterX = boxCenterX(page6ResourceBox);
+  const page6ResourceCenterY = boxCenterY(page6ResourceBox);
+  const page6ShaderMapCenterX = boxCenterX(page6ShaderMapBox);
+  const page6ShaderMapCenterY = boxCenterY(page6ShaderMapBox);
+  const page6OwnershipLaneX = page6MaterialCenterX;
+  const page6CookedCenterX = boxCenterX(page6CookedBox);
+  const page6CookedCenterY = boxCenterY(page6CookedBox);
+  const page6ShaderArrowStartX = boxRight(page6ShaderMapBox);
+  const page6ShaderArrowEndX = page6InlineResourceBox.x;
+  const page6CookedArrowEndX = page6CookedBox.x;
+  const page6ShaderTableAnchorX = boxCenterX(PAGE6_SHADER_TABLE_BOX);
+  const page6ShaderArrowMidX = (page6ShaderArrowStartX + page6CookedArrowEndX) / 2;
+  const page6ShaderTableLinkStartY = page6ShaderMapCenterY;
+  const page6ShaderTableLinkEndY = boxBottom(PAGE6_SHADER_TABLE_BOX);
+  const page6CrossCenterX = boxCenterX(PAGE6_PLATFORM_TABLE_BOX);
+  const page6CrossCenterY =
+    (boxBottom(page6MaterialBox) + PAGE6_RESOURCE_BOX.y) / 2;
+  const page6CrossHalf = 9;
+  const page6LeftDashedLineStartX = page6OwnershipLaneX;
+  const page6LeftDashedLineEndX = page6CrossCenterX + page6CrossHalf + 8;
+  const page6CurrentVisibleRightX = Math.max(
+    boxRight(PAGE6_UASSET_FRAME),
+    boxRight(page6CookedBox),
+    boxRight(page6MaterialBox),
+    boxRight(page6ResourceBox),
+    boxRight(page6ShaderMapBox),
+  );
+  const page6CurrentVisibleBottomY = Math.max(
+    boxBottom(PAGE6_UASSET_FRAME),
+    boxBottom(page6CookedBox),
+    boxBottom(page6ShaderMapBox),
+  );
+  const page7ExpandedVisibleRightX = Math.max(
+    boxRight(PAGE6_UASSET_FRAME),
+    boxRight(page6FShaderBox),
+    boxRight(page6InlineResourceBox),
+    boxRight(page6InlineCodeBox),
+    boxRight(page6InlineArchiveBox),
+  );
+  const page7ExpandedVisibleBottomY = Math.max(
+    boxBottom(PAGE6_UASSET_FRAME),
+    boxBottom(page6InlineResourceBox),
+    boxBottom(page6InlineCodeBox),
+    boxBottom(page6FShaderBox),
+    boxBottom(page6InlineArchiveBox),
+  );
   const page6LowerBandBottomY = Math.max(
     boxBottom(PAGE6_PLATFORM_TABLE_BOX),
     boxBottom(PAGE6_RESOURCE_TABLE_BOX),
     boxBottom(PAGE6_SHADER_TABLE_BOX),
-    boxBottom(PAGE6_INLINE_RESOURCE_BOX),
-    boxBottom(PAGE6_INLINE_CODE_BOX),
-    boxBottom(PAGE6_FSHADER_BOX),
-    boxBottom(PAGE6_INLINE_ARCHIVE_BOX),
+    boxBottom(page6MaterialBox),
+    boxBottom(page6ResourceBox),
+    boxBottom(page6ShaderMapBox),
   );
   const page6VisibleLeftX = Math.min(PAGE6_PLATFORM_TABLE_BOX.x, PAGE6_UASSET_FRAME.x);
-  const page6VisibleRightX = Math.max(
-    boxRight(PAGE6_UASSET_FRAME),
-    boxRight(PAGE6_FSHADER_BOX),
-    boxRight(PAGE6_INLINE_RESOURCE_BOX),
-    boxRight(PAGE6_INLINE_CODE_BOX),
-    boxRight(PAGE6_INLINE_ARCHIVE_BOX),
+  const page6VisibleRightX = mix(
+    page6CurrentVisibleRightX,
+    page7ExpandedVisibleRightX,
+    settledPage67Progress,
   );
-  const page6VisibleBottomY = Math.max(boxBottom(PAGE6_UASSET_FRAME), page6LowerBandBottomY);
+  const page6VisibleBottomY = mix(
+    page6CurrentVisibleBottomY,
+    page7ExpandedVisibleBottomY,
+    settledPage67Progress,
+  );
   const page6StageCenterX = mix(
     (page6VisibleLeftX + page6VisibleRightX) / 2,
     cameraViewportCenterX,
@@ -1660,82 +1892,59 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     cameraViewportCenterY,
     settledPage67Progress,
   );
-  const page6ChainOpacity = 1 - clamp01((settledPage78Progress - 0.08) / 0.44);
-  const page6FrameOpacity = page6ChainOpacity;
-  const page6NodeOpacity = page6ChainOpacity;
-  const page6NodeScale = 1;
-  const page6MetaOpacity = page6ChainOpacity;
-  const page6MaterialCenterX = boxCenterX(PAGE6_MATERIAL_BOX);
-  const page6MaterialCenterY = boxCenterY(PAGE6_MATERIAL_BOX);
-  const page6ResourceCenterX = boxCenterX(PAGE6_RESOURCE_BOX);
-  const page6ResourceCenterY = boxCenterY(PAGE6_RESOURCE_BOX);
-  const page6ShaderMapCenterX = boxCenterX(PAGE6_SHADERMAP_BOX);
-  const page6ShaderMapCenterY = boxCenterY(PAGE6_SHADERMAP_BOX);
-  const page6OwnershipLaneX = page6MaterialCenterX;
-  const page6InlineTopCenterX = boxCenterX(PAGE6_INLINE_RESOURCE_BOX);
-  const page6InlineTopCenterY = boxCenterY(PAGE6_INLINE_RESOURCE_BOX);
-  const page6MaterialArrowStartY = boxBottom(PAGE6_MATERIAL_BOX) + 14;
-  const page6MaterialArrowEndY = PAGE6_RESOURCE_BOX.y - 14;
-  const page6ResourceArrowStartY = boxBottom(PAGE6_RESOURCE_BOX) + 14;
-  const page6ResourceArrowEndY = PAGE6_SHADERMAP_BOX.y - 14;
-  const page6ShaderArrowStartX = boxRight(PAGE6_SHADERMAP_BOX) + 8;
-  const page6ShaderArrowEndX = PAGE6_INLINE_RESOURCE_BOX.x - 8;
-  const page6FShaderCenterX = boxCenterX(PAGE6_FSHADER_BOX);
-  const page6FShaderCenterY = boxCenterY(PAGE6_FSHADER_BOX);
-  const page6FShaderTitleY = PAGE6_FSHADER_BOX.y + 24;
-  const page6FShaderDividerY = PAGE6_FSHADER_BOX.y + 38;
+  const page6MaterialArrowStartY = boxBottom(page6MaterialBox) + 14;
+  const page6MaterialArrowEndY = page6ResourceBox.y - 14;
+  const page6MaterialArrowMidY = (page6MaterialArrowStartY + page6MaterialArrowEndY) / 2;
+  const page6ResourceArrowStartY = boxBottom(page6ResourceBox) + 14;
+  const page6ResourceArrowEndY = page6ShaderMapBox.y - 14;
+  const page6FShaderCenterX = boxCenterX(page6FShaderBox);
+  const page6FShaderCenterY = boxCenterY(page6FShaderBox);
+  const page6FShaderTitleY = page6FShaderBox.y + 27;
+  const page6FShaderDividerY = page6FShaderBox.y + 44;
   const page6FShaderIndexPillCenterX = page6FShaderCenterX;
-  const page6FShaderIndexPillCenterY = PAGE6_FSHADER_BOX.y + 62;
-  const page6FShaderIndexPillWidth = 132;
-  const page6FShaderIndexPillHeight = 24;
-  const page6ResourceIndexCenterX = page6FShaderCenterX;
-  const page6ResourceIndexCenterY = page6FShaderCenterY + 14;
-  const page6ResourceCodeCenterX = boxCenterX(PAGE6_RESOURCE_CODE_BOX);
-  const page6ResourceCodeCenterY = boxCenterY(PAGE6_RESOURCE_CODE_BOX);
-  const page6EntriesPillLeftX = PAGE6_RESOURCE_CODE_BOX.x + 16;
-  const page6EntriesPillCenterY = PAGE6_RESOURCE_CODE_BOX.y + 56;
-  const page6HashesPillCenterY = PAGE6_RESOURCE_CODE_BOX.y + 92;
+  const page6FShaderIndexPillCenterY = page6FShaderBox.y + 76;
+  const page6FShaderIndexPillWidth = 154;
+  const page6FShaderIndexPillHeight = 28;
+  const page6ResourceIndexCenterY = page6FShaderIndexPillCenterY;
+  const page6ResourceCodeCenterX = boxCenterX(page6ResourceCodeBox);
+  const page6ResourceCodeCenterY = boxCenterY(page6ResourceCodeBox);
+  const page6EntriesPillLeftX = page6ResourceCodeBox.x + 18;
+  const page6EntriesPillCenterY = page6ResourceCodeBox.y + 71;
+  const page6HashesPillCenterY = page6ResourceCodeBox.y + 114;
   const page6FShaderToInlineX = page6FShaderCenterX;
-  const page6FShaderToInlineStartY = boxBottom(PAGE6_FSHADER_BOX) + 12;
-  const page6FShaderToInlineEndY = PAGE6_INLINE_RESOURCE_BOX.y - 12;
+  const page6FShaderToInlineStartY = boxBottom(page6FShaderBox) + 6;
+  const page6FShaderToInlineEndY = page6InlineResourceBox.y - 6;
   const page6IndexLabelCenterX = page6FShaderToInlineX + 22;
   const page6IndexLabelCenterY =
     (page6FShaderToInlineStartY + page6FShaderToInlineEndY) / 2;
-  const page6EntriesToCookedStartX = boxRight(PAGE6_RESOURCE_CODE_BOX) - 16;
-  const page6EntriesToCookedEndX = PAGE6_INLINE_CODE_BOX.x - 12;
-  const page6PlatformLinkStartX = boxRight(PAGE6_PLATFORM_TABLE_BOX) + 14;
-  const page6PlatformLinkEndX = PAGE6_MATERIAL_BOX.x - 14;
-  const page6ResourceLinkStartX = boxRight(PAGE6_RESOURCE_TABLE_BOX) + 14;
-  const page6ResourceLinkEndX = PAGE6_RESOURCE_BOX.x - 14;
-  const page6ShaderTableLinkStartX = boxRight(PAGE6_SHADER_TABLE_BOX) + 14;
-  const page6ShaderTableLinkEndX = PAGE6_SHADERMAP_BOX.x - 14;
+  const page6EntriesToCookedStartX = boxRight(page6ResourceCodeBox) - 18;
+  const page6EntriesToCookedEndX = page6CookedBox.x - 12;
   const page6InlineResourceBaseBox = mixBox(
-    PAGE6_INLINE_RESOURCE_BOX,
+    page6InlineResourceBox,
     PAGE8_SHARED_RESOURCE_BOX,
-    settledPage78Progress,
+    settledPage89Progress,
   );
   const page6InlineResourceCenterX = boxCenterX(page6InlineResourceBaseBox);
   const page6InlineResourceCenterY = boxCenterY(page6InlineResourceBaseBox);
-  const page6InlineCodeCenterX = boxCenterX(PAGE6_INLINE_CODE_BOX);
-  const page6InlineCodeCenterY = boxCenterY(PAGE6_INLINE_CODE_BOX);
   const page6InlineArchiveBaseBox = mixBox(
-    PAGE6_INLINE_ARCHIVE_BOX,
+    page6InlineArchiveBox,
     PAGE8_LIBRARY_BOX,
-    settledPage78Progress,
+    settledPage89Progress,
   );
   const page6InlineArchiveCenterX = boxCenterX(page6InlineArchiveBaseBox);
   const page6InlineArchiveCenterY = boxCenterY(page6InlineArchiveBaseBox);
-  const page8SharedNodeOpacity = clamp01((settledPage78Progress - 0.1) / 0.2);
-  const page8ShaderMapIndexOpacity = clamp01((settledPage78Progress - 0.24) / 0.18);
-  const page8ResourceLookupArrowOpacity = clamp01((settledPage78Progress - 0.3) / 0.2);
+  const page8SharedNodeOpacity = clamp01((settledPage89Progress - 0.1) / 0.2);
+  const page8ShaderMapIndexOpacity = clamp01((settledPage89Progress - 0.24) / 0.18);
+  const page8ResourceLookupArrowOpacity = clamp01((settledPage89Progress - 0.3) / 0.2);
   const page6SpineOpacity = Math.max(page6NodeOpacity, page8SharedNodeOpacity);
   const page6FrameRetainedOpacity = Math.max(page6FrameOpacity, page8SharedNodeOpacity * 0.88);
-  const page7CacheOpacity = clamp01((settledPage67Progress - 0.12) / 0.22);
+  const page6CookedBridgeOpacity = page6SpineOpacity * (1 - page7LookupOpacity);
+  const page7CacheOpacity = clamp01((settledPage78Progress - 0.12) / 0.22);
   const page7CacheScale = mix(0.9, 1, easeInOutCubic(page7CacheOpacity));
   const page7CacheCenterX = boxCenterX(PAGE7_CACHE_BOX);
   const page7CacheCenterY = boxCenterY(PAGE7_CACHE_BOX);
-  const page7HashArrowOpacity = clamp01((settledPage67Progress - 0.24) / 0.22);
-  const page8SourceOpacity = clamp01((settledPage78Progress - 0.18) / 0.24);
+  const page7HashArrowOpacity = clamp01((settledPage78Progress - 0.24) / 0.22);
+  const page8SourceOpacity = clamp01((settledPage89Progress - 0.18) / 0.24);
   const page8SourceScale = mix(0.92, 1, easeInOutCubic(page8SourceOpacity));
   const page8MaterialBusX = 952;
   const page8MaterialBusTopY = boxCenterY(PAGE8_MATERIAL_A_BOX);
@@ -1743,7 +1952,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
   const page8MaterialBusMidY = boxCenterY(PAGE8_MATERIAL_B_BOX);
   const page8LibraryCenterX = boxCenterX(PAGE8_LIBRARY_BOX);
   const page8LibraryCenterY = boxCenterY(PAGE8_LIBRARY_BOX);
-  const page8LookupArrowOpacity = clamp01((settledPage78Progress - 0.28) / 0.24);
+  const page8LookupArrowOpacity = clamp01((settledPage89Progress - 0.28) / 0.24);
   const page6HashAnchorX = page6ResourceCodeCenterX;
   const page6HashAnchorY = page6HashesPillCenterY;
 
@@ -2413,13 +2622,13 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   transform={`translate(${page6MaterialCenterX} ${page6MaterialCenterY}) scale(${page6NodeScale}) translate(${-page6MaterialCenterX} ${-page6MaterialCenterY})`}
                 >
                   <StageBox
-                    box={PAGE6_MATERIAL_BOX}
+                    box={page6MaterialBox}
                     fill={assetFill}
                     stroke={assetStroke}
                     strokeWidth={2.8}
                     tone="asset"
                     label="Material"
-                    labelSize={24}
+                    labelSize={23.5}
                     labelWeight={720}
                   />
                 </g>
@@ -2450,39 +2659,63 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 </g>
               ) : null}
 
-              {page6SpineOpacity > 0.001 ? (
-                <g opacity={page6SpineOpacity}>
-                  <path
-                    data-testid="page6-material-platform-link"
-                    d={horizontalPath(
-                      page6PlatformLinkStartX,
-                      page6PlatformLinkEndX,
-                      page6MaterialCenterY,
-                    )}
-                    fill="none"
-                    stroke={wireStroke}
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    opacity={page6MetaOpacity * 0.6}
-                  />
+              {page6MetaOpacity > 0.001 ? (
+                <g opacity={page6MetaOpacity}>
                   <StrokeArrow
-                    testId="page6-material-to-resource-arrow"
-                    d={verticalPath(
-                      page6OwnershipLaneX,
-                      page6MaterialArrowStartY,
-                      page6MaterialArrowEndY,
+                    testId="page6-platform-resource-spine"
+                    d={horizontalPath(
+                      page6LeftDashedLineStartX,
+                      page6LeftDashedLineEndX,
+                      page6MaterialArrowMidY,
                     )}
-                    stroke={assetStroke}
-                    opacity={page6SpineOpacity}
-                    tipX={page6OwnershipLaneX}
-                    tipY={page6MaterialArrowEndY}
-                    direction="down"
-                    shaftWidth={3}
-                    underlayWidth={5.8}
-                    underlayOpacity={0.1}
-                    headSize={9}
+                    stroke="#22303d"
+                    opacity={page6MetaOpacity}
+                    tipX={page6LeftDashedLineEndX}
+                    tipY={page6MaterialArrowMidY}
+                    direction="left"
+                    shaftWidth={2}
+                    underlayWidth={3.8}
+                    underlayOpacity={0.08}
+                    headSize={8}
+                    dashArray="10 8"
                   />
+                  <g data-testid="page6-platform-resource-cross">
+                    <path
+                      d={`M ${page6CrossCenterX - page6CrossHalf} ${page6CrossCenterY - page6CrossHalf} L ${page6CrossCenterX + page6CrossHalf} ${page6CrossCenterY + page6CrossHalf}`}
+                      fill="none"
+                      stroke="#22303d"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d={`M ${page6CrossCenterX + page6CrossHalf} ${page6CrossCenterY - page6CrossHalf} L ${page6CrossCenterX - page6CrossHalf} ${page6CrossCenterY + page6CrossHalf}`}
+                      fill="none"
+                      stroke="#22303d"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </g>
                 </g>
+              ) : null}
+
+              {page6SpineOpacity > 0.001 ? (
+                <StrokeArrow
+                  testId="page6-material-to-resource-arrow"
+                  d={verticalPath(
+                    page6OwnershipLaneX,
+                    page6MaterialArrowStartY,
+                    page6MaterialArrowEndY,
+                  )}
+                  stroke={assetStroke}
+                  opacity={page6SpineOpacity}
+                  tipX={page6OwnershipLaneX}
+                  tipY={page6MaterialArrowEndY}
+                  direction="down"
+                  shaftWidth={3}
+                  underlayWidth={5.8}
+                  underlayOpacity={0.1}
+                  headSize={9}
+                />
               ) : null}
 
               {page6MetaOpacity > 0.001 ? (
@@ -2493,10 +2726,9 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   operatorFill="rgba(104, 140, 114, 0.6)"
                   fill="rgba(255, 255, 255, 0.94)"
                   opacity={page6MetaOpacity}
-                  headerFontSize={13.8}
-                  noteFontSize={15}
-                  noteLineGap={15}
-                  dividerOffsetY={-8}
+                  headerFontSize={20}
+                  noteFontSize={20.8}
+                  dividerOffsetY={-14}
                   segments={[
                     {
                       width: PAGE6_PLATFORM_TABLE_BOX.width,
@@ -2507,44 +2739,56 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               ) : null}
 
-              {[
-                {box: PAGE6_RESOURCE_TOP_BOX, opacity: page6SpineOpacity * 0.16, strokeWidth: 2},
-                {box: PAGE6_RESOURCE_BOTTOM_BOX, opacity: page6SpineOpacity * 0.2, strokeWidth: 2},
-                {box: PAGE6_RESOURCE_BOX, opacity: page6SpineOpacity, strokeWidth: 2.8},
-              ].map(({box, opacity, strokeWidth}, index) => {
-                const centerX = boxCenterX(box);
-                const centerY = boxCenterY(box);
-                const isPrimary = box === PAGE6_RESOURCE_BOX;
-
-                return (
+              {page6MetaOpacity > 0.001 ? (
+                <>
                   <g
-                    key={`page6-resource-${index}`}
-                    data-testid="page6-resource-card"
-                    opacity={opacity}
-                    transform={`translate(${centerX} ${centerY}) scale(${page6NodeScale}) translate(${-centerX} ${-centerY})`}
+                    data-testid="page6-resource-shadow-1"
+                    opacity={page6MetaOpacity * 0.24}
                   >
                     <StageBox
-                      box={box}
-                      fill={neutralFill}
-                      stroke={nodeStroke}
-                      strokeWidth={strokeWidth}
+                      box={page6ResourceTopBox}
+                      fill="rgba(239, 243, 246, 0.96)"
+                      stroke="rgba(76, 90, 102, 0.18)"
+                      strokeWidth={2}
                     />
-                    {isPrimary ? (
-                      <text
-                        x={centerX}
-                        y={centerY + 3}
-                        fill="#22303d"
-                        fontSize="18"
-                        fontWeight="720"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        FMaterialResource
-                      </text>
-                    ) : null}
                   </g>
-                );
-              })}
+                  <g
+                    data-testid="page6-resource-shadow-2"
+                    opacity={page6MetaOpacity * 0.36}
+                  >
+                    <StageBox
+                      box={page6ResourceBottomBox}
+                      fill="rgba(244, 247, 249, 0.98)"
+                      stroke="rgba(76, 90, 102, 0.18)"
+                      strokeWidth={2.2}
+                    />
+                  </g>
+                </>
+              ) : null}
+
+              <g
+                data-testid="page6-resource-card"
+                opacity={page6SpineOpacity}
+                transform={`translate(${page6ResourceCenterX} ${page6ResourceCenterY}) scale(${page6NodeScale}) translate(${-page6ResourceCenterX} ${-page6ResourceCenterY})`}
+              >
+                <StageBox
+                  box={page6ResourceBox}
+                  fill={neutralFill}
+                  stroke={nodeStroke}
+                  strokeWidth={2.8}
+                />
+                <text
+                  x={page6ResourceCenterX}
+                  y={page6ResourceCenterY + 3}
+                  fill="#22303d"
+                  fontSize="23.5"
+                  fontWeight="720"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  FMaterialResource
+                </text>
+              </g>
 
               {page6MetaOpacity > 0.001 ? (
                 <DiagramInfoTable
@@ -2554,36 +2798,22 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   operatorFill="rgba(104, 140, 114, 0.6)"
                   fill="rgba(255, 255, 255, 0.92)"
                   opacity={page6MetaOpacity}
-                  headerFontSize={13.8}
-                  noteFontSize={14.8}
-                  noteLineGap={15}
+                  headerFontSize={19.6}
+                  noteFontSize={20.4}
+                  dividerOffsetY={-10}
+                  contentAlign="center"
                   segments={[
                     {
-                      width: 116,
+                      width: 168,
                       label: "FeatureLevel",
                       note: ["ES3_1", "SM5"],
                     },
                     {
-                      width: 116,
+                      width: 168,
                       label: "QualityLevel",
                       note: ["Low", "High"],
                     },
                   ]}
-                />
-              ) : null}
-
-              {page6MetaOpacity > 0.001 ? (
-                <path
-                  d={horizontalPath(
-                    page6ResourceLinkStartX,
-                    page6ResourceLinkEndX,
-                    page6ResourceCenterY,
-                  )}
-                  fill="none"
-                  stroke={wireStroke}
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  opacity={page6MetaOpacity * 0.6}
                 />
               ) : null}
 
@@ -2607,49 +2837,75 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               ) : null}
 
+              {page6MetaOpacity > 0.001 ? (
+                <>
+                  <g
+                    data-testid="page6-shadermap-shadow-1"
+                    opacity={page6MetaOpacity * 0.24}
+                  >
+                    <StageBox
+                      box={page6ShaderTopBox}
+                      fill="rgba(239, 243, 246, 0.96)"
+                      stroke="rgba(76, 90, 102, 0.18)"
+                      strokeWidth={2}
+                    />
+                  </g>
+                  <g
+                    data-testid="page6-shadermap-shadow-2"
+                    opacity={page6MetaOpacity * 0.36}
+                  >
+                    <StageBox
+                      box={page6ShaderBottomBox}
+                      fill="rgba(244, 247, 249, 0.98)"
+                      stroke="rgba(76, 90, 102, 0.18)"
+                      strokeWidth={2.2}
+                    />
+                  </g>
+                </>
+              ) : null}
+
               <g
+                data-testid="page6-shadermap-card"
                 opacity={page6SpineOpacity}
                 transform={`translate(${page6ShaderMapCenterX} ${page6ShaderMapCenterY}) scale(${page6NodeScale}) translate(${-page6ShaderMapCenterX} ${-page6ShaderMapCenterY})`}
               >
-                {[
-                  {box: PAGE6_SHADER_TOP_BOX, opacity: page6SpineOpacity * 0.16, strokeWidth: 2},
-                  {box: PAGE6_SHADER_BOTTOM_BOX, opacity: page6SpineOpacity * 0.2, strokeWidth: 2},
-                  {box: PAGE6_SHADERMAP_BOX, opacity: page6SpineOpacity, strokeWidth: 2.8},
-                ].map(({box, opacity, strokeWidth}, index) => {
-                  const centerX = boxCenterX(box);
-                  const centerY = boxCenterY(box);
-                  const isPrimary = box === PAGE6_SHADERMAP_BOX;
-
-                  return (
-                    <g
-                      key={`page6-shadermap-${index}`}
-                      data-testid="page6-shadermap-card"
-                      opacity={opacity}
-                      transform={`translate(${centerX} ${centerY}) scale(${page6NodeScale}) translate(${-centerX} ${-centerY})`}
-                    >
-                      <StageBox
-                        box={box}
-                        fill={neutralFill}
-                        stroke={nodeStroke}
-                        strokeWidth={strokeWidth}
-                      />
-                      {isPrimary ? (
-                        <text
-                          x={centerX}
-                          y={centerY + 2}
-                          fill="#22303d"
-                          fontSize="16.2"
-                          fontWeight="720"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          FMaterialShaderMap
-                        </text>
-                      ) : null}
-                    </g>
-                  );
-                })}
+                <StageBox
+                  box={page6ShaderMapBox}
+                  fill={neutralFill}
+                  stroke={nodeStroke}
+                  strokeWidth={2.8}
+                />
+                <text
+                  x={page6ShaderMapCenterX}
+                  y={page6ShaderMapCenterY + 2}
+                  fill="#22303d"
+                  fontSize="23.5"
+                  fontWeight="720"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  FMaterialShaderMap
+                </text>
               </g>
+
+              {page6SpineOpacity > 0.001 ? (
+                <g data-testid="page6-cooked-code-box" opacity={page6SpineOpacity}>
+                  <StageBox
+                    box={page6CookedBox}
+                    fill={focusFill}
+                    stroke={nodeStroke}
+                    strokeWidth={2.6}
+                  />
+                  <StackedLabel
+                    x={page6CookedCenterX}
+                    y={page6CookedCenterY}
+                    lines={["Cooked", "ShaderCode"]}
+                    fontSize={23.5}
+                    fontWeight={760}
+                    lineGap={24}
+                  />
+                </g>
+              ) : null}
 
               {page6MetaOpacity > 0.001 ? (
                 <DiagramInfoTable
@@ -2659,45 +2915,72 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                   operatorFill="rgba(76, 90, 102, 0.5)"
                   fill="rgba(255, 255, 255, 0.92)"
                   opacity={page6MetaOpacity}
-                  headerFontSize={13.2}
-                  noteFontSize={14.3}
-                  noteLineGap={15}
+                  headerFontSize={19.6}
+                  noteFontSize={20.4}
+                  dividerOffsetY={-10}
+                  contentAlign="center"
                   segments={[
                     {
-                      width: 98,
+                      width: 132,
                       label: "ShaderType",
                       note: ["BasePassPS", "DepthVS"],
                     },
                     {
-                      width: 98,
+                      width: 168,
                       label: "VertexFactory",
                       note: ["LocalVF", "SkinVF"],
                     },
                     {
-                      width: 104,
+                      width: 132,
                       label: "Permutation",
-                      note: ["Sky=1", "VT=0"],
+                      note: ["Fog=On", "Lightmap=Off"],
                     },
                   ]}
                 />
               ) : null}
 
               {page6MetaOpacity > 0.001 ? (
-                <path
-                  d={horizontalPath(
-                    page6ShaderTableLinkStartX,
-                    page6ShaderTableLinkEndX,
-                    page6ShaderMapCenterY,
+                <StrokeArrow
+                  testId="page6-shader-selector-attachment-link"
+                  d={verticalPath(
+                    page6ShaderArrowMidX,
+                    page6ShaderTableLinkStartY,
+                    page6ShaderTableLinkEndY,
                   )}
-                  fill="none"
                   stroke={wireStroke}
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  opacity={page6MetaOpacity * 0.6}
+                  opacity={page6MetaOpacity}
+                  tipX={page6ShaderArrowMidX}
+                  tipY={page6ShaderTableLinkEndY}
+                  direction="up"
+                  shaftWidth={2.2}
+                  underlayWidth={4}
+                  underlayOpacity={0.08}
+                  headSize={8}
+                  dashArray="10 8"
                 />
               ) : null}
 
-              {page6SpineOpacity > 0.001 ? (
+              {page6CookedBridgeOpacity > 0.001 ? (
+                <StrokeArrow
+                  testId="page6-shadermap-to-cooked-arrow"
+                  d={horizontalPath(
+                    page6ShaderArrowStartX,
+                    page6CookedArrowEndX,
+                    page6ShaderMapCenterY,
+                  )}
+                  stroke={wireStroke}
+                  opacity={page6CookedBridgeOpacity}
+                  tipX={page6CookedArrowEndX}
+                  tipY={page6ShaderMapCenterY}
+                  direction="right"
+                  shaftWidth={3}
+                  underlayWidth={5.6}
+                  underlayOpacity={0.1}
+                  headSize={9}
+                />
+              ) : null}
+
+              {page7LookupContentOpacity > 0.001 ? (
                 <StrokeArrow
                   testId="page6-shadermap-to-inline-arrow"
                   d={horizontalPath(
@@ -2706,7 +2989,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     page6ShaderMapCenterY,
                   )}
                   stroke={wireStroke}
-                  opacity={page6SpineOpacity}
+                  opacity={page7LookupContentOpacity}
                   tipX={page6ShaderArrowEndX}
                   tipY={page6ShaderMapCenterY}
                   direction="right"
@@ -2717,55 +3000,57 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 />
               ) : null}
 
-              <g
-                data-testid="page6-fshader-card"
-                opacity={page6SpineOpacity}
-                transform={`translate(${page6FShaderCenterX} ${page6FShaderCenterY}) scale(${page6NodeScale}) translate(${-page6FShaderCenterX} ${-page6FShaderCenterY})`}
-              >
-                <StageBox
-                  box={PAGE6_FSHADER_BOX}
-                  fill={neutralFill}
-                  stroke={nodeStroke}
-                  strokeWidth={2.8}
-                />
-                <text
-                  x={page6FShaderCenterX}
-                  y={page6FShaderTitleY}
-                  fill="#22303d"
-                  fontSize="17"
-                  fontWeight="760"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
+              {page7LookupContentOpacity > 0.001 ? (
+                <g
+                  data-testid="page6-fshader-card"
+                  opacity={page7LookupContentOpacity}
+                  transform={`translate(${page6FShaderCenterX} ${page6FShaderCenterY}) scale(${page6NodeScale}) translate(${-page6FShaderCenterX} ${-page6FShaderCenterY})`}
                 >
-                  FShader
-                </text>
-                <path
-                  d={horizontalPath(
-                    PAGE6_FSHADER_BOX.x + 20,
-                    boxRight(PAGE6_FSHADER_BOX) - 20,
-                    page6FShaderDividerY,
-                  )}
-                  fill="none"
-                  stroke="rgba(76, 90, 102, 0.16)"
-                  strokeWidth="1.1"
-                  strokeLinecap="round"
-                />
-                <ArrowLabelPill
-                  testId="page6-fshader-index-pill"
-                  x={page6FShaderIndexPillCenterX}
-                  y={page6FShaderIndexPillCenterY}
-                  width={page6FShaderIndexPillWidth}
-                  height={page6FShaderIndexPillHeight}
-                  label="ResourceIndex = i"
-                  stroke="rgba(76, 90, 102, 0.18)"
-                  fill="rgba(255, 255, 255, 0.82)"
-                  textFill="#4f6271"
-                  fontSize={12.6}
-                  fontWeight={730}
-                />
-              </g>
+                  <StageBox
+                    box={page6FShaderBox}
+                    fill={neutralFill}
+                    stroke={nodeStroke}
+                    strokeWidth={2.8}
+                  />
+                  <text
+                    x={page6FShaderCenterX}
+                    y={page6FShaderTitleY}
+                    fill="#22303d"
+                    fontSize="18.5"
+                    fontWeight="760"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    FShader
+                  </text>
+                  <path
+                    d={horizontalPath(
+                      page6FShaderBox.x + 20,
+                      boxRight(page6FShaderBox) - 20,
+                      page6FShaderDividerY,
+                    )}
+                    fill="none"
+                    stroke="rgba(76, 90, 102, 0.16)"
+                    strokeWidth="1.1"
+                    strokeLinecap="round"
+                  />
+                  <ArrowLabelPill
+                    testId="page6-fshader-index-pill"
+                    x={page6FShaderIndexPillCenterX}
+                    y={page6FShaderIndexPillCenterY}
+                    width={page6FShaderIndexPillWidth}
+                    height={page6FShaderIndexPillHeight}
+                    label="ResourceIndex = i"
+                    stroke="rgba(76, 90, 102, 0.18)"
+                    fill="rgba(255, 255, 255, 0.82)"
+                    textFill="#4f6271"
+                    fontSize={14.2}
+                    fontWeight={730}
+                  />
+                </g>
+              ) : null}
 
-              {page6SpineOpacity > 0.001 ? (
+              {page7LookupContentOpacity > 0.001 ? (
                 <>
                   <StrokeArrow
                     testId="page6-fshader-to-inline-arrow"
@@ -2775,7 +3060,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                       page6FShaderToInlineEndY,
                     )}
                     stroke={wireStroke}
-                    opacity={page6SpineOpacity}
+                    opacity={page7LookupContentOpacity}
                     tipX={page6FShaderToInlineX}
                     tipY={page6FShaderToInlineEndY}
                     direction="down"
@@ -2795,33 +3080,33 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     fill="rgba(255, 251, 246, 0.96)"
                     fontSize={12.8}
                     fontWeight={760}
-                    opacity={page6SpineOpacity}
+                    opacity={page7LookupContentOpacity}
                   />
                 </>
               ) : null}
 
-              {Math.max(page6ChainOpacity, page8SharedNodeOpacity) > 0.001 ? (
+              {Math.max(page7LookupContentOpacity, page8SharedNodeOpacity) > 0.001 ? (
                 <>
                   <g
                     data-testid="page6-inline-resource-box"
-                    opacity={Math.max(page6ChainOpacity, page8SharedNodeOpacity)}
-                    transform={`translate(${page6InlineResourceCenterX} ${page6InlineResourceCenterY}) scale(${mix(1, 1.02, settledPage78Progress)}) translate(${-page6InlineResourceCenterX} ${-page6InlineResourceCenterY})`}
+                    opacity={Math.max(page7LookupContentOpacity, page8SharedNodeOpacity)}
+                    transform={`translate(${page6InlineResourceCenterX} ${page6InlineResourceCenterY}) scale(${mix(1, 1.02, settledPage89Progress)}) translate(${-page6InlineResourceCenterX} ${-page6InlineResourceCenterY})`}
                   >
                     <StageBox
                       box={page6InlineResourceBaseBox}
                       fill={focusFill}
-                      stroke={mixRgba(nodeStrokeColor, accentStrokeColor, settledPage78Progress)}
+                      stroke={mixRgba(nodeStrokeColor, accentStrokeColor, settledPage89Progress)}
                         strokeWidth={3}
                       />
-                    {page6ChainOpacity > 0.001 ? (
+                    {page7LookupContentOpacity > 0.001 ? (
                       <TspanStackedLabel
                         x={page6InlineResourceCenterX}
-                        y={page6InlineResourceBaseBox.y + 25}
+                        y={page6InlineResourceBaseBox.y + 38}
                         lines={["FShaderMapResource_", "InlineCode"]}
-                        opacity={page6ChainOpacity}
-                        fontSize={15.8}
+                        opacity={page7LookupContentOpacity}
+                        fontSize={18}
                         fontWeight={760}
-                        lineGap={16}
+                        lineGap={19}
                       />
                     ) : null}
                     {page8SharedNodeOpacity > 0.001 ? (
@@ -2840,34 +3125,32 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     ) : null}
                   </g>
 
-                    {page6ChainOpacity > 0.001 ? (
+                    {page7LookupContentOpacity > 0.001 ? (
                       <>
                         <g
                           data-testid="page6-resource-code-box"
-                          opacity={page6ChainOpacity}
+                          opacity={page7LookupContentOpacity}
                         >
                           <StageBox
-                            box={PAGE6_RESOURCE_CODE_BOX}
+                            box={page6ResourceCodeBox}
                             fill={neutralFill}
                             stroke={nodeStroke}
                             strokeWidth={2.4}
                           />
-                        <text
+                        <TspanStackedLabel
                           x={page6ResourceCodeCenterX}
-                          y={PAGE6_RESOURCE_CODE_BOX.y + 21}
-                          fill="#22303d"
-                          fontSize="13.6"
-                          fontWeight="760"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          FShaderMapResourceCode
-                        </text>
+                          y={page6ResourceCodeBox.y + 28}
+                          lines={["ShaderMapResource", "Code"]}
+                          opacity={page7LookupContentOpacity}
+                          fontSize={15.4}
+                          fontWeight={760}
+                          lineGap={16}
+                        />
                           <path
                             d={horizontalPath(
-                              PAGE6_RESOURCE_CODE_BOX.x + 16,
-                              boxRight(PAGE6_RESOURCE_CODE_BOX) - 16,
-                              PAGE6_RESOURCE_CODE_BOX.y + 32,
+                              page6ResourceCodeBox.x + 18,
+                              boxRight(page6ResourceCodeBox) - 18,
+                              page6ResourceCodeBox.y + 50,
                             )}
                             fill="none"
                             stroke="rgba(76, 90, 102, 0.16)"
@@ -2878,29 +3161,29 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                             testId="page6-entries-pill"
                             x={page6ResourceCodeCenterX}
                             y={page6EntriesPillCenterY}
-                            width={PAGE6_RESOURCE_CODE_BOX.width - 32}
-                            height={30}
+                            width={page6ResourceCodeBox.width - 36}
+                            height={34}
                             label="ShaderEntries[i]"
                             stroke="rgba(76, 90, 102, 0.18)"
                             fill="rgba(255, 255, 255, 0.78)"
                             textFill="#22303d"
-                            fontSize={12.9}
+                            fontSize={14.4}
                             fontWeight={720}
-                            opacity={page6ChainOpacity}
+                            opacity={page7LookupContentOpacity}
                           />
                           <ArrowLabelPill
                             testId="page6-hashes-pill"
                             x={page6ResourceCodeCenterX}
                             y={page6HashesPillCenterY}
-                            width={PAGE6_RESOURCE_CODE_BOX.width - 32}
-                            height={28}
+                            width={page6ResourceCodeBox.width - 36}
+                            height={32}
                             label="ShaderHashes[i]"
                             stroke={apiStroke}
                             fill="rgba(255, 248, 242, 0.92)"
                             textFill={apiStroke}
-                            fontSize={12.4}
+                            fontSize={13.8}
                             fontWeight={760}
-                            opacity={page6ChainOpacity}
+                            opacity={page7LookupContentOpacity}
                           />
                         </g>
                         <StrokeArrow
@@ -2911,7 +3194,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                           page6EntriesPillCenterY,
                         )}
                         stroke={wireStroke}
-                        opacity={page6ChainOpacity}
+                        opacity={page7LookupContentOpacity}
                         tipX={page6EntriesToCookedEndX}
                         tipY={page6EntriesPillCenterY}
                         direction="right"
@@ -2945,21 +3228,16 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                     </g>
                   ) : null}
 
-                  {page6ChainOpacity > 0.001 ? (
-                    <g data-testid="page6-inline-code-box" opacity={page6ChainOpacity}>
-                      <StageBox
-                        box={PAGE6_INLINE_CODE_BOX}
-                        fill="rgba(255, 251, 246, 0.98)"
-                        stroke={nodeStroke}
-                        strokeWidth={1.8}
-                      />
-                      <StackedLabel
-                        x={page6InlineCodeCenterX}
-                        y={page6InlineCodeCenterY - 1}
-                        lines={["Cooked", "ShaderCode"]}
-                        fontSize={15.2}
-                        fontWeight={760}
-                        lineGap={18}
+                  {page7LookupContentOpacity > 0.001 ? (
+                    <g data-testid="page6-inline-code-box" opacity={0}>
+                      <rect
+                        x={page6InlineCodeBox.x}
+                        y={page6InlineCodeBox.y}
+                        width={page6InlineCodeBox.width}
+                        height={page6InlineCodeBox.height}
+                        rx={page6InlineCodeBox.radius}
+                        fill="none"
+                        stroke="none"
                       />
                     </g>
                   ) : null}
@@ -2975,8 +3253,8 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                         width={page6InlineArchiveBaseBox.width}
                         height={page6InlineArchiveBaseBox.height}
                         rx={page6InlineArchiveBaseBox.radius}
-                        fill={mixRgba(focusFillColor, focusFillColor, settledPage78Progress)}
-                        stroke={mixRgba(nodeStrokeColor, accentStrokeColor, settledPage78Progress)}
+                        fill={mixRgba(focusFillColor, focusFillColor, settledPage89Progress)}
+                        stroke={mixRgba(nodeStrokeColor, accentStrokeColor, settledPage89Progress)}
                         strokeWidth={2.8}
                       />
                       <g data-testid="page6-inline-archive-box" opacity={page8SourceOpacity}>
@@ -3091,7 +3369,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                         testId="page8-resource-index-lookup-arrow"
                         d={polylinePath([
                           {
-                            x: boxRight(PAGE6_RESOURCE_INDEX_BOX) + 12,
+                            x: boxRight(page6FShaderBox) + 12,
                             y: page6ResourceIndexCenterY,
                           },
                           {
