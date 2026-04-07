@@ -11,7 +11,8 @@ export type StoryStepId =
   | "page_05"
   | "page_06"
   | "page_07"
-  | "page_08";
+  | "page_08"
+  | "page_09";
 
 export type StoryStep = {
   id: StoryStepId;
