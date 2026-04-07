@@ -48,8 +48,31 @@ function findTextNodes(container: HTMLElement, label: string) {
   );
 }
 
+function findSvgTextNodesByContent(container: HTMLElement, label: string) {
+  return Array.from(container.querySelectorAll("text")).filter(
+    (node) => node.textContent === label,
+  );
+}
+
 function findBoxGroupByLabel(container: HTMLElement, label: string) {
   const start = findTextNodes(container, label)[0];
+  let current = start?.closest("g") ?? null;
+
+  while (current && !current.querySelector("rect")) {
+    current = current.parentElement?.closest("g") ?? null;
+  }
+
+  return current;
+}
+
+function findVisibleBoxGroupByLabel(
+  container: HTMLElement,
+  label: string,
+  minOpacity = 0.16,
+) {
+  const start = findTextNodes(container, label).find(
+    (node) => effectiveOpacity(node) > minOpacity,
+  );
   let current = start?.closest("g") ?? null;
 
   while (current && !current.querySelector("rect")) {
@@ -158,6 +181,22 @@ function parseSimplePathLength(group: Element | null | undefined) {
   const y2 = Number(match[4]);
 
   return Math.hypot(x2 - x1, y2 - y1);
+}
+
+function parseSimplePathPoints(group: Element | null | undefined) {
+  const d = group?.querySelector("path")?.getAttribute("d");
+  const match = d?.match(/M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)/);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    x1: Number(match[1]),
+    y1: Number(match[2]),
+    x2: Number(match[3]),
+    y2: Number(match[4]),
+  };
 }
 
 describe("MyComposition", () => {
@@ -373,13 +412,28 @@ describe("MyComposition", () => {
     mockFrame = 234;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
-    const resourceToMapArrow = container.querySelector(
-      '[data-testid="page6-resource-to-shadermap-arrow"]',
-    );
-    const resourceCards = container.querySelectorAll('[data-testid="page6-resource-card"]');
-    const uassetFrame = container.querySelector('[data-testid="page6-uasset-frame"]');
-    const materialGroup = findBoxGroupByLabel(container, "Material");
+    const materialGroup = findVisibleBoxGroupByLabel(container, "Material");
+    const resourceGroup = findVisibleBoxGroupByLabel(container, "FMaterialResource");
+    const shaderMapGroup = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap");
     const materialRect = materialGroup?.querySelector("rect");
+    const resourceRect = resourceGroup?.querySelector("rect");
+    const shaderMapRect = shaderMapGroup?.querySelector("rect");
+    const resourceToMapArrow = container.querySelector('[data-testid="page6-resource-to-shadermap-arrow"]');
+    const shaderMapToInlineArrow = container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]');
+    const uassetFrame = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const resourceCodeBox = container.querySelector('[data-testid="page6-resource-code-box"]');
+    const inlineResourceBox = container.querySelector('[data-testid="page6-inline-resource-box"]');
+    const inlineCodeBox = container.querySelector('[data-testid="page6-inline-code-box"]');
+    const platformTableRect = container
+      .querySelector('[data-testid="page6-platform-table"]')
+      ?.querySelector("rect");
+    const resourceTableRect = container
+      .querySelector('[data-testid="page6-resource-selector-table"]')
+      ?.querySelector("rect");
+    const shaderTableRect = container
+      .querySelector('[data-testid="page6-shadermap-selector-table"]')
+      ?.querySelector("rect");
+    const platformLink = container.querySelector('[data-testid="page6-material-platform-link"]');
     const uassetLeft = Number(uassetFrame?.getAttribute("x"));
     const uassetTop = Number(uassetFrame?.getAttribute("y"));
     const uassetRight = uassetLeft + Number(uassetFrame?.getAttribute("width"));
@@ -388,6 +442,19 @@ describe("MyComposition", () => {
     const materialTop = Number(materialRect?.getAttribute("y"));
     const materialRight = materialLeft + Number(materialRect?.getAttribute("width"));
     const materialBottom = materialTop + Number(materialRect?.getAttribute("height"));
+    const resourceLeft = Number(resourceRect?.getAttribute("x"));
+    const resourceTop = Number(resourceRect?.getAttribute("y"));
+    const shaderMapLeft = Number(shaderMapRect?.getAttribute("x"));
+    const shaderMapTop = Number(shaderMapRect?.getAttribute("y"));
+    const platformLeft = Number(platformTableRect?.getAttribute("x"));
+    const platformTop = Number(platformTableRect?.getAttribute("y"));
+    const platformRight = platformLeft + Number(platformTableRect?.getAttribute("width"));
+    const platformBottom = platformTop + Number(platformTableRect?.getAttribute("height"));
+    const resourceTableRight =
+      Number(resourceTableRect?.getAttribute("x")) + Number(resourceTableRect?.getAttribute("width"));
+    const shaderTableRight =
+      Number(shaderTableRect?.getAttribute("x")) + Number(shaderTableRect?.getAttribute("width"));
+    const platformCenterX = rectCenterX(platformTableRect);
     const stageScale = parseScale(stageGroup?.getAttribute("transform"));
     const stageAnchor = parseTrailingTranslate(stageGroup?.getAttribute("transform"));
 
@@ -399,12 +466,23 @@ describe("MyComposition", () => {
     expect(Math.abs((stageAnchor?.x ?? 0) + 616)).toBeLessThanOrEqual(5);
     expect(Math.abs((stageAnchor?.y ?? 0) + 306)).toBeLessThanOrEqual(5);
     expect(screen.getAllByText("Material").length).toBeGreaterThanOrEqual(1);
-    expect(resourceCards.length).toBe(3);
     expect(screen.getAllByText("FMaterialResource").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("FShaderMap")).toBeInTheDocument();
+    expect(screen.getByText("FMaterialShaderMap")).toBeInTheDocument();
     expect(screen.getByText("FShader")).toBeInTheDocument();
-    expect(container.querySelectorAll('[data-testid="page6-fshader-card"]').length).toBe(3);
+    expect(container.querySelectorAll('[data-testid="page6-fshader-card"]').length).toBe(1);
+    expect(screen.getByText("ResourceIndex = i")).toBeInTheDocument();
+    expect(findSvgTextNodesByContent(container, "FShaderMapResource_InlineCode").length).toBe(1);
+    expect(screen.getByText("FShaderMapResourceCode")).toBeInTheDocument();
+    expect(screen.getByText("ShaderEntries[i]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="page6-resource-index-box"]')).toBeNull();
     expect(container.querySelector('[data-testid="page6-fshader-to-inline-arrow"]')).not.toBeNull();
+    expect(screen.getByText("i")).toBeInTheDocument();
+    expect(container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page6-entries-to-cooked-arrow"]')).not.toBeNull();
+    expect(
+      findTextNodes(container, "Cooked").some((node) => effectiveOpacity(node) > 0.16),
+    ).toBe(true);
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("ShaderPlatform")).toBeInTheDocument();
     expect(screen.getByText("uasset")).toBeInTheDocument();
@@ -431,6 +509,9 @@ describe("MyComposition", () => {
     expect(
       container.querySelector('[data-testid="page6-platform-table"]'),
     ).not.toBeNull();
+    expect(resourceCodeBox).not.toBeNull();
+    expect(inlineResourceBox).not.toBeNull();
+    expect(inlineCodeBox).not.toBeNull();
     expect(
       container.querySelector('[data-testid="page6-resource-selector-table"]'),
     ).not.toBeNull();
@@ -439,12 +520,52 @@ describe("MyComposition", () => {
     ).not.toBeNull();
     expect(uassetFrame?.getAttribute("fill")).toBe("none");
     expect(materialGroup).not.toBeNull();
-    expect(materialLeft).toBeGreaterThanOrEqual(uassetLeft);
+    expect(resourceGroup).not.toBeNull();
+    expect(shaderMapGroup).not.toBeNull();
+    expect(materialLeft).toBeGreaterThanOrEqual(uassetLeft + 20);
     expect(materialTop).toBeGreaterThanOrEqual(uassetTop);
     expect(materialRight).toBeLessThanOrEqual(uassetRight);
     expect(materialBottom).toBeLessThanOrEqual(uassetBottom);
-    expect(parseSimplePathLength(resourceToMapArrow)).toBeGreaterThanOrEqual(40);
+    expect(Math.abs(rectCenterX(materialRect) - rectCenterX(resourceRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(rectCenterX(resourceRect) - rectCenterX(shaderMapRect))).toBeLessThanOrEqual(2);
+    expect(resourceTop).toBeGreaterThan(materialTop + 60);
+    expect(shaderMapTop).toBeGreaterThan(resourceTop + 60);
+    expect(platformLink?.getAttribute("stroke")).toBe("rgba(76, 90, 102, 0.72)");
+    expect(platformLeft).toBeGreaterThanOrEqual(uassetLeft + 8);
+    expect(platformTop).toBeGreaterThanOrEqual(uassetTop);
+    expect(platformRight).toBeLessThanOrEqual(uassetRight);
+    expect(platformBottom).toBeLessThanOrEqual(uassetBottom);
+    expect(platformRight).toBeLessThan(materialLeft - 16);
+    expect(resourceTableRight).toBeLessThan(resourceLeft - 16);
+    expect(shaderTableRight).toBeLessThan(shaderMapLeft - 16);
+    expect(container.querySelector('path[d="M 196 202 L 196 336"]')).toBeNull();
+    expect(parseSimplePathLength(resourceToMapArrow)).toBeGreaterThanOrEqual(20);
+    expect(parseSimplePathLength(shaderMapToInlineArrow)).toBeGreaterThanOrEqual(40);
     expect(screen.queryByText("PSO Cache")).not.toBeInTheDocument();
+  });
+
+  it("models page 06 InlineCode access as ShaderMap ownership plus direct FShader lookup by i", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(screen.getByText("FMaterialShaderMap")).toBeInTheDocument();
+    expect(screen.queryByText("FShaderMap")).not.toBeInTheDocument();
+    expect(container.querySelectorAll('[data-testid="page6-fshader-card"]').length).toBe(1);
+    expect(container.querySelector('[data-testid="page6-resource-index-box"]')).toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-shadermap-to-fshader-arrow"]'),
+    ).toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]'),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-fshader-to-inline-arrow"]'),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-entries-to-cooked-arrow"]'),
+    ).not.toBeNull();
+    expect(screen.getByText("ShaderEntries[i]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
   });
 
   it("adds horizontal row guides inside the page 06 selector tables", () => {
@@ -543,23 +664,100 @@ describe("MyComposition", () => {
     expect(sampledScales[2]).toBeGreaterThan(sampledScales[1]);
   });
 
-  it("keeps page 06 with readable arrow spans and de-emphasizes the old page 05 world", () => {
+  it("keeps page 06 with readable vertical and horizontal spans and de-emphasizes the old page 05 world", () => {
     mockFrame = 234;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const arrows = [
       container.querySelector('[data-testid="page6-material-to-resource-arrow"]'),
       container.querySelector('[data-testid="page6-resource-to-shadermap-arrow"]'),
-      container.querySelector('[data-testid="page6-shadermap-to-fshader-arrow"]'),
+      container.querySelector('[data-testid="page6-shadermap-to-inline-arrow"]'),
       container.querySelector('[data-testid="page6-fshader-to-inline-arrow"]'),
+      container.querySelector('[data-testid="page6-entries-to-cooked-arrow"]'),
     ];
     const worldDim = container.querySelector('[data-testid="page56-world-dim"]');
     const baseWorld = container.querySelector('[data-testid="page56-base-world"]');
 
     for (const length of arrows.map((node) => parseSimplePathLength(node))) {
-      expect(length ?? 0).toBeGreaterThanOrEqual(30);
+      expect(length ?? 0).toBeGreaterThanOrEqual(20);
     }
     expect(worldDim).toBeNull();
     expect(opacityOf(baseWorld)).toBeLessThanOrEqual(0.05);
+  });
+
+  it("keeps the page 06 inline storage nested with hash metadata at the bottom, FShader above, and cooked code on the right", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const inlineResourceRect = container
+      .querySelector('[data-testid="page6-inline-resource-box"]')
+      ?.querySelector("rect");
+    const resourceCodeRect = container
+      .querySelector('[data-testid="page6-resource-code-box"]')
+      ?.querySelector("rect");
+    const shaderCodeRect = container
+      .querySelector('[data-testid="page6-inline-code-box"]')
+      ?.querySelector("rect");
+    const cookedArrow = container.querySelector(
+      '[data-testid="page6-entries-to-cooked-arrow"]',
+    );
+    const fshaderArrow = container.querySelector(
+      '[data-testid="page6-fshader-to-inline-arrow"]',
+    );
+    const fshaderRect = container
+      .querySelector('[data-testid="page6-fshader-card"]')
+      ?.querySelector("rect");
+    const fshaderIndexPillRect = container
+      .querySelector('[data-testid="page6-fshader-index-pill"]')
+      ?.querySelector("rect");
+    const inlineMetrics = rectMetrics(inlineResourceRect);
+    const resourceMetrics = rectMetrics(resourceCodeRect);
+    const shaderMetrics = rectMetrics(shaderCodeRect);
+    const fshaderMetrics = rectMetrics(fshaderRect);
+    const fshaderIndexPillMetrics = rectMetrics(fshaderIndexPillRect);
+    const cookedArrowPoints = parseSimplePathPoints(cookedArrow);
+    const fshaderArrowPoints = parseSimplePathPoints(fshaderArrow);
+
+    expect(resourceMetrics.x).toBeGreaterThanOrEqual(inlineMetrics.x + 12);
+    expect(resourceMetrics.right).toBeLessThanOrEqual(inlineMetrics.right - 12);
+    expect(resourceMetrics.width).toBeGreaterThanOrEqual(286);
+    expect(inlineMetrics.width).toBeGreaterThanOrEqual(330);
+    expect(resourceMetrics.y).toBeGreaterThanOrEqual(inlineMetrics.y + 28);
+    expect(resourceMetrics.bottom).toBeLessThanOrEqual(inlineMetrics.bottom - 12);
+    expect(shaderMetrics.x).toBeGreaterThan(inlineMetrics.right + 16);
+    expect(shaderMetrics.x).toBeGreaterThan(resourceMetrics.right + 12);
+    expect(fshaderMetrics.bottom).toBeLessThan(inlineMetrics.y - 16);
+    expect(
+      Math.abs(rectCenterX(fshaderRect) - rectCenterX(inlineResourceRect)),
+    ).toBeLessThanOrEqual(24);
+    expect(fshaderIndexPillMetrics.x).toBeGreaterThanOrEqual(fshaderMetrics.x + 18);
+    expect(fshaderIndexPillMetrics.right).toBeLessThanOrEqual(fshaderMetrics.right - 18);
+    expect(fshaderIndexPillMetrics.y).toBeGreaterThanOrEqual(fshaderMetrics.y + 34);
+    expect(fshaderIndexPillMetrics.bottom).toBeLessThanOrEqual(fshaderMetrics.bottom - 12);
+    expect(Math.abs((cookedArrowPoints?.x1 ?? 0) - (resourceMetrics.right - 16))).toBeLessThanOrEqual(4);
+    expect(cookedArrowPoints?.x2).toBeGreaterThan(cookedArrowPoints?.x1 ?? Infinity);
+    expect(Math.abs((cookedArrowPoints?.y1 ?? 0) - (cookedArrowPoints?.y2 ?? 0))).toBeLessThanOrEqual(2);
+    expect(Math.abs((fshaderArrowPoints?.x1 ?? 0) - (fshaderArrowPoints?.x2 ?? 0))).toBeLessThanOrEqual(2);
+    expect(fshaderArrowPoints?.y2).toBeGreaterThan(fshaderArrowPoints?.y1 ?? Infinity);
+    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+  });
+
+  it("keeps page 06 selector tables on one readable presentation lane", () => {
+    mockFrame = 234;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const platformTableRect = container
+      .querySelector('[data-testid="page6-platform-table"]')
+      ?.querySelector("rect");
+    const resourceTableRect = container
+      .querySelector('[data-testid="page6-resource-selector-table"]')
+      ?.querySelector("rect");
+    const shaderTableRect = container
+      .querySelector('[data-testid="page6-shadermap-selector-table"]')
+      ?.querySelector("rect");
+
+    expect(Number(platformTableRect?.getAttribute("width"))).toBeGreaterThanOrEqual(232);
+    expect(Number(resourceTableRect?.getAttribute("width"))).toBeGreaterThanOrEqual(232);
+    expect(Number(shaderTableRect?.getAttribute("width"))).toBeGreaterThanOrEqual(296);
+    expect(Math.abs(rectCenterX(platformTableRect) - rectCenterX(resourceTableRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(rectCenterX(resourceTableRect) - rectCenterX(shaderTableRect))).toBeLessThanOrEqual(2);
   });
 
   it("keeps page 06 as one world by avoiding duplicate visible Material labels", () => {
@@ -576,7 +774,7 @@ describe("MyComposition", () => {
     mockFrame = 234;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceLabels = findTextNodes(container, "FMaterialResource");
-    const shaderMapLabel = findTextNodes(container, "FShaderMap")[0];
+    const shaderMapLabel = findTextNodes(container, "FMaterialShaderMap")[0];
     const shaderKeyLabels = [
       findTextNodes(container, "ShaderType")[0],
       findTextNodes(container, "VertexFactory")[0],
@@ -619,12 +817,15 @@ describe("MyComposition", () => {
     expect(vsHashArrow).not.toBeNull();
     expect(psHashArrow).not.toBeNull();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
     expect(screen.getByText("VS Hash")).toBeInTheDocument();
     expect(screen.getByText("PS Hash")).toBeInTheDocument();
     expect(screen.getByText("BlendState")).toBeInTheDocument();
     expect(screen.getByText("DepthStencilState")).toBeInTheDocument();
     expect(screen.getByText("RasterizerState")).toBeInTheDocument();
     expect(screen.getByText("RT Format")).toBeInTheDocument();
+    expect(strokePalette(vsHashArrow)).toBe("#c84c48");
+    expect(strokePalette(psHashArrow)).toBe("#c84c48");
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
   });
 
@@ -634,11 +835,24 @@ describe("MyComposition", () => {
     const sharedLibrary = container.querySelector('[data-testid="page8-shared-library-box"]');
     const materialBus = container.querySelector('[data-testid="page8-material-bus-arrow"]');
     const cacheLookup = container.querySelector('[data-testid="page8-cache-lookup-arrow"]');
+    const sharedResourceBox = container.querySelector('[data-testid="page8-shared-resource-box"]');
+    const shaderMapIndexBox = container.querySelector('[data-testid="page8-shadermap-index-box"]');
+    const resourceLookupArrow = container.querySelector(
+      '[data-testid="page8-resource-index-lookup-arrow"]',
+    );
 
     expect(sharedLibrary).not.toBeNull();
     expect(materialBus).not.toBeNull();
     expect(cacheLookup).not.toBeNull();
-    expect(screen.getByText("SharedCode")).toBeInTheDocument();
+    expect(sharedResourceBox).not.toBeNull();
+    expect(shaderMapIndexBox).not.toBeNull();
+    expect(resourceLookupArrow).not.toBeNull();
+    expect(findSvgTextNodesByContent(container, "FShaderMapResource_SharedCode").length).toBe(1);
+    expect(screen.getByText("ShaderMapIndex")).toBeInTheDocument();
+    expect(screen.getByText("ResourceIndex = i")).toBeInTheDocument();
+    expect(screen.getByText("ShaderEntries[GlobalIndex]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[GlobalIndex]")).toBeInTheDocument();
+    expect(screen.getAllByText("SharedCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Library")).toBeInTheDocument();
     expect(screen.getByText("ShaderArchive")).toBeInTheDocument();
     expect(screen.getByText("Material A")).toBeInTheDocument();
