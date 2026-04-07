@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-08 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then zoom into InlineCode, PSO cache hash indirection, and the necessity of SharedCode.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode.",
   steps: [
     {
       id: "page_01",
@@ -99,50 +99,66 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_06",
-      label: "InlineCode 内部结构",
+      label: "区分因素在哪一层",
       caption:
-        "从 Material 到 FMaterialResource、FShaderMap、FShader，再到 ShaderCode bytecode，把第五页那个问号真正放大开来看。",
+        "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：Platform 在 Material，FeatureLevel / QualityLevel 在 Resource，ShaderType / VertexFactory / Permutation 在 ShaderMap。",
       notes:
-        "第六页把第五页 Material -> Cooked ShaderCode 那一小段放大。4 个停留点：Material 为什么变成多个 FMaterialResource（FeatureLevel × QualityLevel）；每个 Resource 持有一个 FShaderMap；ShaderMap 里是一堆 FShader（VS/PS + permutation）；InlineCode 模式下 bytecode 跟着 ShaderMap 一起塞进 uasset。不提 Hash，不提问题，让观众先建立完整稳定的认知。",
+        "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左侧保留三张 selector 表：ShaderPlatform、FeatureLevel / QualityLevel、ShaderType / VertexFactory / Permutation；右侧保留 Material -> FMaterialResource -> FMaterialShaderMap 这一条主链。这里不展开 InlineCode 存储细节，只给一个很弱的后续锚点，让观众先建立“哪一层负责区分什么”的认知。",
       focusTarget: "InlineCode",
       timingHint:
-        "从第五页问号位置做局部放大，把原来的资产链条淡出成背景，再在放大画布里展开 Material、FMaterialResource、FShaderMap、FShader、ShaderCode 这一串。",
+        "从第五页问号位置放大以后，先让左侧两串结构成为主体：三张 selector 表和 Material / FMaterialResource / FMaterialShaderMap 一一对齐，右侧 InlineCode 只保留弱锚点，不展开细节。",
       intro:
-        "如果只停在 Cooked ShaderCode 这个名字上，观众还是不知道 UE 里究竟是谁在持有这些 code。",
+        "真正进入 InlineCode 之前，先把一个更基础的问题讲透：shader 到底是在 UE 的哪一层被区分开的。",
       manuscript:
-        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，能看到更具体的 UE 结构。一个 Material 在 cook 时会按 FeatureLevel × QualityLevel 展开成多个 FMaterialResource；每个 FMaterialResource 持有自己的 FShaderMap；ShaderMap 里是一堆 FShader 实例，每个对应一个具体的 VS 或 PS 加上 permutation。到了 InlineCode 模式，这些 FShader 的 bytecode 会跟着 ShaderMap 一起内联进 uasset。每个材质资产自己带着自己的全部 shader bytecode，简单直接。",
+        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，第一步先不要急着钻进 code 存储，而是先看区分因素落在哪一层。ShaderPlatform 决定的是目标图形平台，所以它在 Material 这一层就已经分开；FeatureLevel 和 QualityLevel 决定的是具体资源展开方式，所以它们落在 FMaterialResource 这一层；而 ShaderType、VertexFactory、Permutation 这些真正决定某个 shader 变体的组合键，则落在 FMaterialShaderMap 这一层。第六页的目标只有一个：让观众先建立“不同维度的区分发生在不同层级”这个空间认知，后面再去看运行时如何真正拿到 InlineCode。",
       focusColorKey: "ue",
     },
     {
       id: "page_07",
-      label: "PSO cache 为什么只存 Hash",
+      label: "InlineCode 如何拿到 code",
       caption:
-        "下方长出 PSO 结构表格，FShader 连线指向 Hash 字段，观众一眼看到 PSO 存的是 Hash 而不是 code。",
+        "把左侧的分层提示全部退场，只保留最小锚点，然后把 FShaderMapResource_InlineCode 放大成主角，顺着 ResourceIndex 看它如何命中 ShaderEntries[Index] 并拿到 ShaderCode。",
       notes:
-        "第七页延续第六页的放大画布，不换坐标系。下方长出一个 PSO 结构表格（VS Hash、PS Hash、BlendState、DepthStencilState、RasterizerState、RT Format），从第六页的 FShader 盒子拉出连线指向表格里的 Hash 字段。这里自然引出 FSHAHash 的概念。收尾点出问题：预编译时拿到 Hash，code 在哪？InlineCode 下 code 散落在各个 uasset 里。",
+        "第七页是拆页后的第二张。左侧三张 selector 表和阴影卡片全部清掉，只保留最小必要锚点：FMaterialShaderMap、FShader、ResourceIndex。腾出来的空间全部让给右侧，重点放大 FShaderMapResource_InlineCode，在其中展开 FShaderMapResourceCode、ShaderEntries[Index]、ShaderHashes[Index] 和 Cooked ShaderCode。强调主链是 Index 驱动拿 code，而 Hash 是旁路元数据。",
       focusTarget: "PSO cache",
       timingHint:
-        "保留第六页骨架，下方长出 PSO 结构表格和 FShader 到 Hash 的连线，让观众感受到这是同一张图上的新解释层。",
+        "延续第六页的主骨架，让左侧分层提示退场、右侧存储块接管舞台。FShaderMapResource_InlineCode 从弱锚点演化成主焦点，内部结构和 Cooked ShaderCode 在这一页真正展开。",
       intro:
-        "理解了 InlineCode 的归属之后，下一步就要解释一个常见误区：为什么 PSO cache 文件里看到的主要是 Hash。",
+        "分层归属看明白之后，下一步才有必要回答一个更细的问题：运行时最终是怎么沿着索引拿到 code 的。",
       manuscript:
-        "PSO cache 的职责不是替代 shader 存储层，而是记录一个 PSO 组合需要哪些 shader 和状态——本质上是 metadata。下方这个表格就是 PSO 的数据结构：VS Hash、PS Hash 加上 BlendState、DepthStencilState 这些管线状态描述。注意看连线——PSO 里存的就是 FShader 的 Hash，不是 ShaderCode 本身。这样 cache 文件更轻、更稳定，它只负责描述和索引。但问题来了：预编译时拿到 Hash，要去哪里反查真正的 code？InlineCode 模式下，没有一个全局的 Hash → Code 查找路径。",
+        "到了第七页，左边那些负责解释区分层级的辅助结构都先退场，只留下最小运行时锚点。真正要看的，是 FShader 手里先拿到一个局部 ResourceIndex，然后顺着这个 Index 进入 FShaderMapResource_InlineCode，再进一步进入 FShaderMapResourceCode。这里的 ShaderEntries[Index] 才是命中真正 Cooked ShaderCode 的主路径。ShaderHashes[Index] 也跟着存在，但它在这一页更像旁路元数据，不是运行时拿 code 的主链。也就是说，InlineCode 模式最关键的理解是：真正的 code lookup，本质上是 Index 驱动，而不是 Hash 驱动。",
       focusColorKey: "page_04",
     },
     {
       id: "page_08",
+      label: "PSO cache 为什么只存 Hash",
+      caption:
+        "在 InlineCode 旁边长出 PSO Cache 结构表，让 ShaderHashes[Index] 和 PSO 里的 VS/PS Hash 正面对上。",
+      notes:
+        "第八页延续第七页的放大画布，不换坐标系。下方长出一个 PSO 结构表格（VS Hash、PS Hash、BlendState、DepthStencilState、RasterizerState、RT Format），连线要从第七页的 ShaderHashes[Index] 那个位置长出来，而不是误导成从主 runtime chain 直接下去。这样能自然引出 FSHAHash 的概念，并在收尾点出问题：预编译时拿到 Hash，code 在哪？InlineCode 下 code 还是散落在各个 uasset 里。",
+      focusTarget: "PSO cache",
+      timingHint:
+        "保留第七页骨架，下方长出 PSO 结构表格和从 ShaderHashes[Index] 延伸出来的连线，让观众感受到这是同一张图上的新解释层。",
+      intro:
+        "理解了 InlineCode 的 lookup 之后，下一步就要解释一个常见误区：为什么 PSO cache 文件里看到的主要是 Hash。",
+      manuscript:
+        "PSO cache 的职责不是替代 shader 存储层，而是记录一个 PSO 组合需要哪些 shader 和状态，它本质上是 metadata。下方这个表格就是 PSO 的数据结构：VS Hash、PS Hash 加上 BlendState、DepthStencilState 这些管线状态描述。注意看连线，这里接的是 ShaderHashes[Index] 这一支，不是上面那条 ResourceIndex 驱动的运行时取 code 主链。也就是说，PSO 里存的就是 shader Hash，不是 ShaderCode 本身。这样 cache 文件更轻、更稳定，但问题也随之出现：预编译时拿到 Hash，要去哪里反查真正的 code？InlineCode 模式下，没有一个全局的 Hash -> Code 查找路径。",
+      focusColorKey: "page_04",
+    },
+    {
+      id: "page_09",
       label: "SharedCode 为什么成为必需",
       caption:
-        "去重和 PSO 反查两个问题同时逼出 SharedCode：多个材质汇聚到全局 SharedCode Library，PSO 的 Hash 也能连线反查到 code。",
+        "把 split 点从 InlineCode 改成 SharedCode：ShaderMapIndex 和 ResourceIndex 一起进入全局 SharedCode Library，PSO 的 Hash 也终于有了可反查的落点。",
       notes:
-        "第八页延续第七页结构。双驱动叙事：第一，左侧出现多个材质来源（Material A/B/C），同一个 FShader bytecode 在每个材质里各存一份，包体膨胀；第二，PSO 表格的 Hash 需要反查 code，InlineCode 下散落在各 uasset 里没有全局索引。SharedCode Library 同时解决两个问题：全局去重 + Hash → Code 反查成立。",
+        "第八页延续第七页结构。上面的 split 节点从 FShaderMapResource_InlineCode 改成 FShaderMapResource_SharedCode，并额外长出 ShaderMapIndex。此时主路径不再是直接去本地内联数组，而是 ShaderMapIndex + ResourceIndex 一起进入 SharedCode Library / ShaderArchive，命中 ShaderEntries[GlobalIndex] 和对应的 ShaderCode。左侧再出现多个材质来源（Material A/B/C），说明它们共同汇入同一个全局库。PSO 的 Hash 侧边分支也继续保留，说明 SharedCode 同时解决全局去重和 Hash -> Code 反查。",
       focusTarget: "SharedCode",
       timingHint:
-        "让第六页的 InlineCode blob 平滑演化成 SharedCode Library，同时从左侧接入多个材质来源，形成集中存储、全局索引的感觉。",
+        "让第六页的 InlineCode 存储块平滑演化成 SharedCode Library，同时把 ShaderMapIndex 补出来，再从左侧接入多个材质来源，形成集中存储、全局索引的感觉。",
       intro:
         "这时候 SharedCode 就不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       manuscript:
-        "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下存了 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，code 散落在各个 uasset 里，没有全局索引，PSO 预编译无法完成。SharedCode 同时解决两个问题：把所有 ShaderCode 统一收进 SharedCode Library（即 ShaderArchive），全局去重；同时 PSO 的 Hash 也能连线到这个 Library，全局 Hash → Code 反查成立。SharedCode 不是优化，是被去重和 PSO 预编译共同逼出来的基础设施。",
+        "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下就会存 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，InlineCode 下 code 散落在各个 uasset 里，没有全局索引，PSO 预编译无法闭环。到了 SharedCode 模式，split 点变成 FShaderMapResource_SharedCode，而且会额外给出 ShaderMapIndex。此时主路径变成 ShaderMapIndex + ResourceIndex 一起定位到 SharedCode Library，也就是 ShaderArchive，再从 ShaderEntries[GlobalIndex] 命中真正的 ShaderCode。这样多个 Material A/B/C 可以共享同一份全局 code，PSO 的 Hash 侧边分支也终于能落到一个全局 Hash -> Code 反查入口上。SharedCode 不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       focusColorKey: "shared",
     },
   ],
