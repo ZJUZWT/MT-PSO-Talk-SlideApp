@@ -115,6 +115,10 @@ function rectCenterX(rect: Element | null | undefined) {
   return Number(rect?.getAttribute("x")) + Number(rect?.getAttribute("width")) / 2;
 }
 
+function rectCenterY(rect: Element | null | undefined) {
+  return Number(rect?.getAttribute("y")) + Number(rect?.getAttribute("height")) / 2;
+}
+
 function textX(node: Element | null | undefined) {
   return Number(node?.getAttribute("x"));
 }
@@ -147,6 +151,25 @@ function parseScale(transform: string | null | undefined) {
   const match = transform?.match(/scale\(([-\d.]+)\)/);
 
   return match ? Number(match[1]) : null;
+}
+
+function projectPointThroughGroup(
+  group: Element | null | undefined,
+  point: {x: number; y: number},
+) {
+  const transform = group?.getAttribute("transform");
+  const leading = parseLeadingTranslate(transform);
+  const trailing = parseTrailingTranslate(transform);
+  const scale = parseScale(transform) ?? 1;
+
+  if (!leading || !trailing) {
+    return point;
+  }
+
+  return {
+    x: leading.x + scale * (point.x + trailing.x),
+    y: leading.y + scale * (point.y + trailing.y),
+  };
 }
 
 function strokeWidthSignature(group: Element | null | undefined) {
@@ -225,6 +248,15 @@ function parsePathPoints(path: Element | null | undefined) {
     x2: Number(match[3]),
     y2: Number(match[4]),
   };
+}
+
+function parsePolylineVertices(group: Element | null | undefined) {
+  const d = group?.querySelector("path")?.getAttribute("d") ?? "";
+
+  return Array.from(d.matchAll(/[ML] ([-\d.]+) ([-\d.]+)/g)).map((match) => ({
+    x: Number(match[1]),
+    y: Number(match[2]),
+  }));
 }
 
 function horizontalDividerY(group: Element | null | undefined, role: string, index = 0) {
@@ -936,23 +968,21 @@ describe("MyComposition", () => {
     expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).toBeNull();
     expect(container.querySelector('[data-testid="page6-cooked-code-box"]')).not.toBeNull();
     expect(screen.getByText("FShader")).toBeInTheDocument();
-    expect(screen.getByText("ResourceIndex = i")).toBeInTheDocument();
-    expect(screen.getByText("ShaderEntries[i]")).toBeInTheDocument();
-    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(screen.getByText("ResourceIndex")).toBeInTheDocument();
+    expect(screen.getByText("idx")).toBeInTheDocument();
+    expect(screen.getByText("ShaderEntries[idx]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[idx]")).toBeInTheDocument();
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("PSO Cache")).not.toBeInTheDocument();
   });
 
-  it("keeps the page 06 chain anchored on page 07 and expands InlineCode details into the shaderMap -> cooked span", () => {
+  it("compresses the page 07 left spine and reallocates the stage toward a larger ResourceCode payload", () => {
     mockFrame = 234;
     const {container: page6Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
     const page6MaterialRect = findVisibleBoxGroupByLabel(page6Container, "Material")?.querySelector("rect");
     const page6ShaderMapRect = findVisibleBoxGroupByLabel(page6Container, "FMaterialShaderMap")?.querySelector("rect");
-    const page6CookedRect = page6Container
-      .querySelector('[data-testid="page6-cooked-code-box"]')
-      ?.querySelector("rect");
 
     unmount();
     mockFrame = 270;
@@ -968,42 +998,30 @@ describe("MyComposition", () => {
     const resourceCodeRect = container
       .querySelector('[data-testid="page6-resource-code-box"]')
       ?.querySelector("rect");
-    const inlineCodeRect = container
-      .querySelector('[data-testid="page6-inline-code-box"]')
-      ?.querySelector("rect");
 
     expect(
-      Math.abs(
-        Number(page7MaterialRect?.getAttribute("x")) -
-          Number(page6MaterialRect?.getAttribute("x")),
-      ),
-    ).toBeLessThanOrEqual(8);
+      Number(page7MaterialRect?.getAttribute("x")),
+    ).toBeLessThan(Number(page6MaterialRect?.getAttribute("x")) - 80);
     expect(
-      Math.abs(
-        Number(page7ShaderMapRect?.getAttribute("x")) -
-          Number(page6ShaderMapRect?.getAttribute("x")),
-      ),
-    ).toBeLessThanOrEqual(8);
-    expect(
-      Math.abs(
-        Number(page7CookedRect?.getAttribute("x")) -
-          Number(page6CookedRect?.getAttribute("x")),
-      ),
-    ).toBeLessThanOrEqual(8);
+      Number(page7ShaderMapRect?.getAttribute("x")),
+    ).toBeLessThan(Number(page6ShaderMapRect?.getAttribute("x")) - 80);
     expect(Number(inlineResourceRect?.getAttribute("x"))).toBeGreaterThan(
       Number(page7ShaderMapRect?.getAttribute("x")) +
         Number(page7ShaderMapRect?.getAttribute("width")) +
-        12,
+        36,
     );
     expect(
+      Number(page7CookedRect?.getAttribute("x")),
+    ).toBeGreaterThan(
       Number(inlineResourceRect?.getAttribute("x")) +
-        Number(inlineResourceRect?.getAttribute("width")),
-    ).toBeLessThan(Number(page7CookedRect?.getAttribute("x")) - 12);
-    expect(Number(resourceCodeRect?.getAttribute("width"))).toBeGreaterThanOrEqual(180);
-    expect(Number(inlineCodeRect?.getAttribute("width"))).toBeGreaterThanOrEqual(180);
+        Number(inlineResourceRect?.getAttribute("width")) +
+        24,
+    );
+    expect(Number(resourceCodeRect?.getAttribute("width"))).toBeGreaterThanOrEqual(360);
+    expect(Number(resourceCodeRect?.getAttribute("height"))).toBeGreaterThanOrEqual(170);
   });
 
-  it("models page 07 InlineCode access as ShaderMap ownership plus direct FShader lookup by i", () => {
+  it("models page 07 InlineCode access as ShaderMap ownership plus direct FShader lookup by idx", () => {
     mockFrame = 270;
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
@@ -1026,8 +1044,73 @@ describe("MyComposition", () => {
     expect(
       container.querySelector('[data-testid="page6-entries-to-cooked-arrow"]'),
     ).not.toBeNull();
-    expect(screen.getByText("ShaderEntries[i]")).toBeInTheDocument();
-    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(screen.getByText("ResourceIndex")).toBeInTheDocument();
+    expect(screen.getByText("ShaderEntries[idx]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[idx]")).toBeInTheDocument();
+  });
+
+  it("starts page 07 InlineCode reveal with the lookup line before the receiver plane appears", () => {
+    mockFrame = 246;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const earlyLookupArrow = container.querySelector(
+      '[data-testid="page6-fshader-to-inline-arrow"]',
+    );
+    const earlyInlineBox = container.querySelector(
+      '[data-testid="page6-inline-resource-box"]',
+    );
+    const earlyResourceCodeBox = container.querySelector(
+      '[data-testid="page6-resource-code-box"]',
+    );
+
+    expect(earlyLookupArrow).not.toBeNull();
+    expect(effectiveOpacity(earlyLookupArrow)).toBeGreaterThan(0.05);
+    expect(Boolean(earlyInlineBox)).toBe(false);
+    expect(Boolean(earlyResourceCodeBox)).toBe(false);
+  });
+
+  it("reveals the outer page 07 InlineCode receiver before the inner payload is inserted", () => {
+    mockFrame = 248;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const midInlineBox = container.querySelector(
+      '[data-testid="page6-inline-resource-box"]',
+    );
+    const midResourceCodeBox = container.querySelector(
+      '[data-testid="page6-resource-code-box"]',
+    );
+
+    expect(midInlineBox).not.toBeNull();
+    expect(effectiveOpacity(midInlineBox)).toBeGreaterThan(0.08);
+    expect(Boolean(midResourceCodeBox)).toBe(false);
+  });
+
+  it("keeps the page 07 inner payload delayed until after the receiver plane has had time to settle", () => {
+    mockFrame = 252;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const lateInlineBox = container.querySelector(
+      '[data-testid="page6-inline-resource-box"]',
+    );
+    const lateResourceCodeBox = container.querySelector(
+      '[data-testid="page6-resource-code-box"]',
+    );
+
+    expect(lateInlineBox).not.toBeNull();
+    expect(effectiveOpacity(lateInlineBox)).toBeGreaterThan(0.12);
+    expect(Boolean(lateResourceCodeBox)).toBe(false);
+  });
+
+  it("finishes the page 07 InlineCode reveal by inserting the inner payload rows after the receiver plane", () => {
+    mockFrame = 258;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const lateResourceCodeBox = container.querySelector(
+      '[data-testid="page6-resource-code-box"]',
+    );
+    const lateEntriesPill = container.querySelector('[data-testid="page6-entries-pill"]');
+    const lateHashesPill = container.querySelector('[data-testid="page6-hashes-pill"]');
+
+    expect(lateResourceCodeBox).not.toBeNull();
+    expect(lateEntriesPill).not.toBeNull();
+    expect(lateHashesPill).not.toBeNull();
+    expect(effectiveOpacity(lateResourceCodeBox)).toBeGreaterThan(0.15);
   });
 
   it("adds horizontal row guides inside the page 06 selector tables", () => {
@@ -1128,6 +1211,110 @@ describe("MyComposition", () => {
     expect(sampledScales[2]).toBeGreaterThan(sampledScales[1]);
   });
 
+  it("shows the page 06 main chain before dashed guides and white boards appear", () => {
+    mockFrame = 210;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(container.querySelector('[data-testid="page6-resource-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-card"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page6-cooked-code-box"]')).not.toBeNull();
+    expect(findTextNodes(container, "Material").length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelector('[data-testid="page6-platform-resource-spine"]')).toBeNull();
+    expect(
+      container.querySelector('[data-testid="page6-shader-selector-attachment-link"]'),
+    ).toBeNull();
+    expect(container.querySelector('[data-testid="page6-platform-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).toBeNull();
+  });
+
+  it("shows the page 06 dashed guides before the white boards expand in", () => {
+    mockFrame = 216;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const dashedSpine = container.querySelector('[data-testid="page6-platform-resource-spine"]');
+    const dashedShaderLink = container.querySelector(
+      '[data-testid="page6-shader-selector-attachment-link"]',
+    );
+
+    expect(dashedSpine).not.toBeNull();
+    expect(effectiveOpacity(dashedSpine)).toBeGreaterThanOrEqual(0.15);
+    expect(dashedShaderLink).not.toBeNull();
+    expect(effectiveOpacity(dashedShaderLink)).toBeGreaterThanOrEqual(0.15);
+    expect(container.querySelector('[data-testid="page6-platform-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).toBeNull();
+  });
+
+  it("begins the page 06 white board reveal gently after the dashed guides appear", () => {
+    mockFrame = 222;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const platformTable = container.querySelector('[data-testid="page6-platform-table"]');
+    const resourceTable = container.querySelector(
+      '[data-testid="page6-resource-selector-table"]',
+    );
+    const shaderTable = container.querySelector(
+      '[data-testid="page6-shadermap-selector-table"]',
+    );
+
+    expect(platformTable).not.toBeNull();
+    expect(resourceTable).not.toBeNull();
+    expect(shaderTable).not.toBeNull();
+    expect(effectiveOpacity(platformTable)).toBeGreaterThan(0.02);
+    expect(effectiveOpacity(platformTable)).toBeLessThan(0.38);
+    expect(effectiveOpacity(resourceTable)).toBeGreaterThan(0.02);
+    expect(effectiveOpacity(resourceTable)).toBeLessThan(0.38);
+    expect(effectiveOpacity(shaderTable)).toBeGreaterThan(0.02);
+    expect(effectiveOpacity(shaderTable)).toBeLessThan(0.38);
+  });
+
+  it("continues expanding the page 06 white boards across later frames instead of finishing in a flash", () => {
+    mockFrame = 222;
+    const {container: earlyContainer, unmount} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+    const earlyPlatformOpacity = effectiveOpacity(
+      earlyContainer.querySelector('[data-testid="page6-platform-table"]'),
+    );
+    const earlyResourceOpacity = effectiveOpacity(
+      earlyContainer.querySelector('[data-testid="page6-resource-selector-table"]'),
+    );
+    const earlyShaderOpacity = effectiveOpacity(
+      earlyContainer.querySelector('[data-testid="page6-shadermap-selector-table"]'),
+    );
+    unmount();
+
+    mockFrame = 228;
+    const {container: lateContainer} = render(<MyComposition variantId="bus-clean" />);
+    const latePlatformOpacity = effectiveOpacity(
+      lateContainer.querySelector('[data-testid="page6-platform-table"]'),
+    );
+    const lateResourceOpacity = effectiveOpacity(
+      lateContainer.querySelector('[data-testid="page6-resource-selector-table"]'),
+    );
+    const lateShaderOpacity = effectiveOpacity(
+      lateContainer.querySelector('[data-testid="page6-shadermap-selector-table"]'),
+    );
+
+    expect(latePlatformOpacity).toBeGreaterThan(earlyPlatformOpacity + 0.12);
+    expect(lateResourceOpacity).toBeGreaterThan(earlyResourceOpacity + 0.12);
+    expect(lateShaderOpacity).toBeGreaterThan(earlyShaderOpacity + 0.12);
+  });
+
+  it("keeps the page 06 -> page 07 stage vertically anchored instead of drifting upward", () => {
+    const sampledFrames = [234, 252, 270];
+    const sampledAnchorYs = sampledFrames.map((frame) => {
+      mockFrame = frame;
+      const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
+      const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+      const trailingTranslate = parseTrailingTranslate(stageGroup?.getAttribute("transform"));
+      unmount();
+
+      return Math.abs(trailingTranslate?.y ?? 0);
+    });
+
+    expect(Math.max(...sampledAnchorYs) - Math.min(...sampledAnchorYs)).toBeLessThanOrEqual(4);
+  });
+
   it("keeps page 07 with readable vertical and horizontal spans and de-emphasizes the old page 05 world", () => {
     mockFrame = 270;
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -1146,6 +1333,101 @@ describe("MyComposition", () => {
     }
     expect(worldDim).toBeNull();
     expect(opacityOf(baseWorld)).toBeLessThanOrEqual(0.05);
+  });
+
+  it("treats the page 07 left ownership stack as a rigid translation of page 06 with unchanged card sizes", () => {
+    mockFrame = 234;
+    const {container: page6Container, unmount} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+    const page6MaterialRect = findVisibleBoxGroupByLabel(
+      page6Container,
+      "Material",
+    )?.querySelector("rect");
+    const page6ResourceRect = findVisibleBoxGroupByLabel(
+      page6Container,
+      "FMaterialResource",
+    )?.querySelector("rect");
+    const page6ShaderMapRect = findVisibleBoxGroupByLabel(
+      page6Container,
+      "FMaterialShaderMap",
+    )?.querySelector("rect");
+    unmount();
+
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const resourceShadowRects = Array.from(
+      container.querySelectorAll('[data-testid^="page6-resource-shadow-"] rect'),
+    );
+    const shaderShadowRects = Array.from(
+      container.querySelectorAll('[data-testid^="page6-shadermap-shadow-"] rect'),
+    );
+    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const resourceRect = findVisibleBoxGroupByLabel(
+      container,
+      "FMaterialResource",
+    )?.querySelector("rect");
+    const shaderMapRect = findVisibleBoxGroupByLabel(
+      container,
+      "FMaterialShaderMap",
+    )?.querySelector("rect");
+    const materialLabel = findTextNodes(container, "Material").find(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
+    const resourceLabel = findTextNodes(container, "FMaterialResource").find(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
+    const shaderMapLabel = findTextNodes(container, "FMaterialShaderMap").find(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
+
+    expect(container.querySelector('[data-testid="page6-platform-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).toBeNull();
+    expect(resourceShadowRects.length).toBe(0);
+    expect(shaderShadowRects.length).toBe(0);
+    expect(Number(materialRect?.getAttribute("width"))).toBe(
+      Number(page6MaterialRect?.getAttribute("width")),
+    );
+    expect(Number(resourceRect?.getAttribute("width"))).toBe(
+      Number(page6ResourceRect?.getAttribute("width")),
+    );
+    expect(Number(shaderMapRect?.getAttribute("width"))).toBe(
+      Number(page6ShaderMapRect?.getAttribute("width")),
+    );
+    expect(Number(materialRect?.getAttribute("height"))).toBe(
+      Number(page6MaterialRect?.getAttribute("height")),
+    );
+    expect(Number(resourceRect?.getAttribute("height"))).toBe(
+      Number(page6ResourceRect?.getAttribute("height")),
+    );
+    expect(Number(shaderMapRect?.getAttribute("height"))).toBe(
+      Number(page6ShaderMapRect?.getAttribute("height")),
+    );
+    expect(
+      Number(materialRect?.getAttribute("x")) - Number(page6MaterialRect?.getAttribute("x")),
+    ).toBe(
+      Number(resourceRect?.getAttribute("x")) - Number(page6ResourceRect?.getAttribute("x")),
+    );
+    expect(
+      Number(materialRect?.getAttribute("x")) - Number(page6MaterialRect?.getAttribute("x")),
+    ).toBe(
+      Number(shaderMapRect?.getAttribute("x")) - Number(page6ShaderMapRect?.getAttribute("x")),
+    );
+    expect(
+      Number(materialRect?.getAttribute("y")) - Number(page6MaterialRect?.getAttribute("y")),
+    ).toBe(
+      Number(resourceRect?.getAttribute("y")) - Number(page6ResourceRect?.getAttribute("y")),
+    );
+    expect(
+      Number(materialRect?.getAttribute("y")) - Number(page6MaterialRect?.getAttribute("y")),
+    ).toBe(
+      Number(shaderMapRect?.getAttribute("y")) - Number(page6ShaderMapRect?.getAttribute("y")),
+    );
+    expect(fontSizeOf(materialLabel)).toBe(fontSizeOf(resourceLabel));
+    expect(fontSizeOf(materialLabel)).toBe(fontSizeOf(shaderMapLabel));
+    expect(fontSizeOf(materialLabel)).toBe(23.5);
+    expect(materialRect?.getAttribute("data-tone")).toBe("asset");
   });
 
   it("keeps the page 07 inline details inserted between shaderMap and the anchored cooked-code box", () => {
@@ -1173,22 +1455,28 @@ describe("MyComposition", () => {
     const fshaderIndexPillRect = container
       .querySelector('[data-testid="page6-fshader-index-pill"]')
       ?.querySelector("rect");
+    const idxLabelRect = container
+      .querySelector('[data-testid="page6-index-label"]')
+      ?.querySelector("rect");
     const inlineMetrics = rectMetrics(inlineResourceRect);
     const resourceMetrics = rectMetrics(resourceCodeRect);
     const shaderMetrics = rectMetrics(shaderCodeRect);
     const fshaderMetrics = rectMetrics(fshaderRect);
     const fshaderIndexPillMetrics = rectMetrics(fshaderIndexPillRect);
+    const idxLabelMetrics = rectMetrics(idxLabelRect);
     const cookedArrowPoints = parseSimplePathPoints(cookedArrow);
     const fshaderArrowPoints = parseSimplePathPoints(fshaderArrow);
+    const fshaderArrowX = parseVerticalPathX(fshaderArrow);
 
     expect(resourceMetrics.x).toBeGreaterThanOrEqual(inlineMetrics.x + 12);
     expect(resourceMetrics.right).toBeLessThanOrEqual(inlineMetrics.right - 12);
-    expect(resourceMetrics.width).toBeGreaterThanOrEqual(150);
-    expect(inlineMetrics.width).toBeGreaterThanOrEqual(190);
+    expect(resourceMetrics.width).toBeGreaterThanOrEqual(360);
+    expect(resourceMetrics.height).toBeGreaterThanOrEqual(170);
+    expect(inlineMetrics.width).toBeGreaterThanOrEqual(500);
     expect(resourceMetrics.y).toBeGreaterThanOrEqual(inlineMetrics.y + 28);
     expect(resourceMetrics.bottom).toBeLessThanOrEqual(inlineMetrics.bottom - 12);
-    expect(inlineMetrics.x).toBeGreaterThan(rectMetrics(shaderMapRect).right + 12);
-    expect(shaderMetrics.x).toBeGreaterThan(inlineMetrics.right + 16);
+    expect(inlineMetrics.x).toBeGreaterThan(rectMetrics(shaderMapRect).right + 36);
+    expect(shaderMetrics.x).toBeGreaterThan(inlineMetrics.right + 24);
     expect(shaderMetrics.x).toBeGreaterThan(resourceMetrics.right + 12);
     expect(fshaderMetrics.bottom).toBeLessThan(inlineMetrics.y - 16);
     expect(
@@ -1198,12 +1486,104 @@ describe("MyComposition", () => {
     expect(fshaderIndexPillMetrics.right).toBeLessThanOrEqual(fshaderMetrics.right - 18);
     expect(fshaderIndexPillMetrics.y).toBeGreaterThanOrEqual(fshaderMetrics.y + 34);
     expect(fshaderIndexPillMetrics.bottom).toBeLessThanOrEqual(fshaderMetrics.bottom - 12);
+    expect(Math.abs(rectCenterX(idxLabelRect) - (fshaderArrowX ?? 0))).toBeGreaterThanOrEqual(14);
+    expect(idxLabelMetrics.y).toBeGreaterThanOrEqual(fshaderMetrics.bottom);
     expect(Math.abs((cookedArrowPoints?.x1 ?? 0) - (resourceMetrics.right - 16))).toBeLessThanOrEqual(4);
     expect(cookedArrowPoints?.x2).toBeGreaterThan(cookedArrowPoints?.x1 ?? Infinity);
     expect(Math.abs((cookedArrowPoints?.y1 ?? 0) - (cookedArrowPoints?.y2 ?? 0))).toBeLessThanOrEqual(2);
     expect(Math.abs((fshaderArrowPoints?.x1 ?? 0) - (fshaderArrowPoints?.x2 ?? 0))).toBeLessThanOrEqual(2);
     expect(fshaderArrowPoints?.y2).toBeGreaterThan(fshaderArrowPoints?.y1 ?? Infinity);
-    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[idx]")).toBeInTheDocument();
+  });
+
+  it("keeps the page 07 receiver and payload titles on one line for spacing control", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const inlineTitle = findSvgTextNodesByContent(
+      container,
+      "FShaderMapResource_InlineCode",
+    )[0];
+    const resourceCodeTitle = findSvgTextNodesByContent(
+      container,
+      "FShaderMapResourceCode",
+    )[0];
+
+    expect(inlineTitle).toBeTruthy();
+    expect(inlineTitle?.querySelectorAll("tspan").length).toBe(0);
+    expect(resourceCodeTitle).toBeTruthy();
+    expect(resourceCodeTitle?.querySelectorAll("tspan").length).toBe(0);
+  });
+
+  it("uses balanced, presentation-sized row typography inside the page 07 InlineCode payload", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const inlineRect = container
+      .querySelector('[data-testid="page6-inline-resource-box"]')
+      ?.querySelector("rect");
+    const resourceRect = container
+      .querySelector('[data-testid="page6-resource-code-box"]')
+      ?.querySelector("rect");
+    const inlineTitle = findSvgTextNodesByContent(
+      container,
+      "FShaderMapResource_InlineCode",
+    )[0];
+    const resourceTitle = findSvgTextNodesByContent(
+      container,
+      "FShaderMapResourceCode",
+    )[0];
+    const resourceDivider = container.querySelector(
+      '[data-testid="page6-resource-code-box"] path',
+    );
+    const resourceDividerPoints = parsePathPoints(resourceDivider);
+    const entriesRect = container
+      .querySelector('[data-testid="page6-entries-pill"]')
+      ?.querySelector("rect");
+    const entriesText = container
+      .querySelector('[data-testid="page6-entries-pill"]')
+      ?.querySelector("text");
+    const hashesRect = container
+      .querySelector('[data-testid="page6-hashes-pill"]')
+      ?.querySelector("rect");
+    const hashesText = container
+      .querySelector('[data-testid="page6-hashes-pill"]')
+      ?.querySelector("text");
+    const resourceMetrics = rectMetrics(resourceRect);
+    const inlineMetrics = rectMetrics(inlineRect);
+    const dividerY = resourceDividerPoints ? (resourceDividerPoints.y1 + resourceDividerPoints.y2) / 2 : NaN;
+
+    expect(fontSizeOf(inlineTitle)).toBeGreaterThanOrEqual(23);
+    expect(fontSizeOf(resourceTitle)).toBeGreaterThanOrEqual(21);
+    expect(fontSizeOf(entriesText)).toBe(fontSizeOf(hashesText));
+    expect(Number(entriesRect?.getAttribute("height"))).toBe(
+      Number(hashesRect?.getAttribute("height")),
+    );
+    expect(Math.abs((textY(resourceTitle) - resourceMetrics.y) - (dividerY - textY(resourceTitle)))).toBeLessThanOrEqual(4);
+    expect(resourceMetrics.y - inlineMetrics.y).toBeLessThanOrEqual(68);
+  });
+
+  it("balances the page 07 visible content with near-symmetric left and right breathing room inside uasset", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const uassetMetrics = rectMetrics(container.querySelector('[data-testid="page6-uasset-frame"]'));
+    const contentRects = [
+      findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect"),
+      findVisibleBoxGroupByLabel(container, "FMaterialResource")?.querySelector("rect"),
+      findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect"),
+      container.querySelector('[data-testid="page6-fshader-card"]')?.querySelector("rect"),
+      container.querySelector('[data-testid="page6-inline-resource-box"]')?.querySelector("rect"),
+      container.querySelector('[data-testid="page6-cooked-code-box"]')?.querySelector("rect"),
+    ]
+      .filter((node): node is Element => Boolean(node))
+      .map((node) => rectMetrics(node));
+
+    const contentLeft = Math.min(...contentRects.map((rect) => rect.x));
+    const contentRight = Math.max(...contentRects.map((rect) => rect.right));
+    const leftBreathingRoom = contentLeft - uassetMetrics.x;
+    const rightBreathingRoom = uassetMetrics.right - contentRight;
+
+    expect(Math.abs(leftBreathingRoom - rightBreathingRoom)).toBeLessThanOrEqual(8);
+    expect(leftBreathingRoom).toBeGreaterThanOrEqual(20);
+    expect(rightBreathingRoom).toBeGreaterThanOrEqual(20);
   });
 
   it("keeps page 06 platform and FL/QL tables on one lane while relocating shader selectors above the shaderMap -> cooked relation", () => {
@@ -1277,26 +1657,240 @@ describe("MyComposition", () => {
   });
 
   it("renders page 08 with PSO Cache table below the lookup slide showing Hash fields and state fields", () => {
+    mockFrame = 270;
+    const {container: page7Container} = render(<MyComposition variantId="bus-clean" />);
+    const page7UassetRect = page7Container.querySelector('[data-testid="page6-uasset-frame"]');
+    const page7FshaderRect = page7Container.querySelector('[data-testid="page6-fshader-card"] rect');
+    const page7InlineRect = page7Container.querySelector(
+      '[data-testid="page6-inline-resource-box"] rect',
+    );
+    cleanup();
+
     mockFrame = 306;
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const cacheBox = container.querySelector('[data-testid="page7-cache-box"]');
-    const vsHashArrow = container.querySelector('[data-testid="page7-fshader-to-vs-hash-arrow"]');
-    const psHashArrow = container.querySelector('[data-testid="page7-fshader-to-ps-hash-arrow"]');
+    const cacheBox = container.querySelector('[data-testid="page8-pso-box"]');
+    const materialProofBox = container.querySelector('[data-testid="page8-proof-material-box"]');
+    const materialProofArrow = container.querySelector('[data-testid="page8-material-to-code-arrow"]');
+    const psoVsHashArrow = container.querySelector('[data-testid="page8-vs-hash-reference-arrow"]');
+    const psoPsHashArrow = container.querySelector('[data-testid="page8-ps-hash-reference-arrow"]');
+    const badge1 = container.querySelector('[data-testid="page8-proof-badge-1"]');
+    const badge2 = container.querySelector('[data-testid="page8-proof-badge-2"]');
+    const badge2Circle = badge2?.querySelector("circle");
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const fshaderRect = container.querySelector('[data-testid="page6-fshader-card"] rect');
+    const inlineRect = container.querySelector('[data-testid="page6-inline-resource-box"] rect');
+    const resourceCodeRect = container.querySelector('[data-testid="page6-resource-code-box"] rect');
+    const hashesRect = container
+      .querySelector('[data-testid="page6-hashes-pill"]')
+      ?.querySelector("rect");
+    const entriesRect = container
+      .querySelector('[data-testid="page6-entries-pill"]')
+      ?.querySelector("rect");
+    const psoLabel = screen.getByText("PSO Cache");
+    const psoVsHashVertices = parsePolylineVertices(psoVsHashArrow);
+    const psoPsHashVertices = parsePolylineVertices(psoPsHashArrow);
+    const vsHashField = container.querySelector('[data-testid="page8-pso-field-vs-hash"]');
+    const psHashField = container.querySelector('[data-testid="page8-pso-field-ps-hash"]');
+    const psoBlendField = container.querySelector('[data-testid="page8-pso-field-blend"]');
+    const psoDepthField = container.querySelector('[data-testid="page8-pso-field-depth"]');
+    const psoRtField = container.querySelector('[data-testid="page8-pso-field-rt"]');
+    const psoEtcField = container.querySelector('[data-testid="page8-pso-field--"]');
 
     expect(cacheBox).not.toBeNull();
-    expect(vsHashArrow).not.toBeNull();
-    expect(psHashArrow).not.toBeNull();
+    expect(materialProofBox).not.toBeNull();
+    expect(materialProofArrow).not.toBeNull();
+    expect(psoVsHashArrow).not.toBeNull();
+    expect(psoPsHashArrow).not.toBeNull();
+    expect(badge1).not.toBeNull();
+    expect(badge2).not.toBeNull();
+    expect(resourceCodeRect).not.toBeNull();
+    expect(hashesRect).not.toBeNull();
+    expect(entriesRect).not.toBeNull();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
-    expect(screen.getByText("ShaderHashes[i]")).toBeInTheDocument();
+    expect(screen.getByText("ShaderHashes[idx]")).toBeInTheDocument();
     expect(screen.getByText("VS Hash")).toBeInTheDocument();
     expect(screen.getByText("PS Hash")).toBeInTheDocument();
-    expect(screen.getByText("BlendState")).toBeInTheDocument();
-    expect(screen.getByText("DepthStencilState")).toBeInTheDocument();
-    expect(screen.getByText("RasterizerState")).toBeInTheDocument();
-    expect(screen.getByText("RT Format")).toBeInTheDocument();
-    expect(strokePalette(vsHashArrow)).toBe("#c84c48");
-    expect(strokePalette(psHashArrow)).toBe("#c84c48");
+    expect(fontSizeOf(vsHashField)).toBeGreaterThanOrEqual(22);
+    expect(fontSizeOf(psoBlendField)).toBeGreaterThanOrEqual(20);
+    expect(psoBlendField?.textContent).toBe("Blend");
+    expect(psoDepthField?.textContent).toBe("Depth");
+    expect(psoRtField?.textContent).toBe("RT");
+    expect(psoEtcField?.textContent).toBe("...!");
+    expect(strokePalette(materialProofArrow)).toBe("#ff0000");
+    expect(strokePalette(psoVsHashArrow)).toBe("#ff0000");
+    expect(strokePalette(psoPsHashArrow)).toBe("#ff0000");
+    expect(rectMetrics(uassetRect).height).toBeLessThan(rectMetrics(page7UassetRect).height - 40);
+    expect(Math.abs(rectCenterX(fshaderRect) - rectCenterX(uassetRect))).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectCenterX(inlineRect) - rectCenterX(uassetRect))).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectCenterX(resourceCodeRect) - rectCenterX(uassetRect))).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectMetrics(fshaderRect).width - rectMetrics(page7FshaderRect).width)).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectMetrics(inlineRect).width - rectMetrics(page7InlineRect).width)).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectMetrics(inlineRect).height - rectMetrics(page7InlineRect).height)).toBeLessThanOrEqual(4);
+    expect(rectMetrics(hashesRect).x).toBeGreaterThan(rectMetrics(resourceCodeRect).x + 8);
+    expect(rectMetrics(hashesRect).right).toBeLessThan(rectMetrics(resourceCodeRect).right - 8);
+    expect(rectMetrics(hashesRect).y).toBeGreaterThan(rectMetrics(entriesRect).bottom);
+    expect(textX(psoLabel)).toBeGreaterThan(rectMetrics(cacheBox?.querySelector("rect")).x + 20);
+    expect(textX(psoLabel)).toBeLessThan(rectMetrics(cacheBox?.querySelector("rect")).x + 120);
+    expect(Math.abs(textY(psoLabel) - rectCenterY(cacheBox?.querySelector("rect")))).toBeLessThanOrEqual(2);
+    expect(Math.abs((textX(psHashField) - textX(vsHashField)) - (textX(psoBlendField) - textX(psHashField)))).toBeLessThanOrEqual(2);
+    expect(Math.abs((textX(psoDepthField) - textX(psoBlendField)) - (textX(psoRtField) - textX(psoDepthField)))).toBeLessThanOrEqual(2);
     expect(screen.getAllByText("ShaderCode").length).toBeGreaterThanOrEqual(1);
+    expect(psoVsHashVertices).toHaveLength(4);
+    expect(psoPsHashVertices).toHaveLength(4);
+    const projectedUassetBottom = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(uassetRect),
+      y: rectMetrics(uassetRect).bottom,
+    }).y;
+    const projectedHashBottom = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(hashesRect),
+      y: rectMetrics(hashesRect).bottom,
+    }).y;
+    expect(rectMetrics(cacheBox?.querySelector("rect")).y).toBeGreaterThan(projectedUassetBottom + 12);
+    expect(Math.abs((psoVsHashVertices[0]?.x ?? 0) - textX(vsHashField))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoPsHashVertices[0]?.x ?? 0) - textX(psHashField))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoVsHashVertices[0]?.y ?? 0) - rectMetrics(cacheBox?.querySelector("rect")).y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoPsHashVertices[0]?.y ?? 0) - rectMetrics(cacheBox?.querySelector("rect")).y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoVsHashVertices[1]?.x ?? 0) - (psoVsHashVertices[0]?.x ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoPsHashVertices[1]?.x ?? 0) - (psoPsHashVertices[0]?.x ?? 0))).toBeLessThanOrEqual(1);
+    expect((psoVsHashVertices[1]?.y ?? 0)).toBeLessThan((psoPsHashVertices[1]?.y ?? 0) - 12);
+    expect(Math.abs((psoVsHashVertices[1]?.y ?? 0) - (psoVsHashVertices[2]?.y ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoPsHashVertices[1]?.y ?? 0) - (psoPsHashVertices[2]?.y ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoVsHashVertices.at(-1)?.y ?? 0) - projectedHashBottom)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psoPsHashVertices.at(-1)?.y ?? 0) - projectedHashBottom)).toBeLessThanOrEqual(1);
+    expect(Number(badge2Circle?.getAttribute("cy"))).toBeGreaterThan(
+      projectedHashBottom + 12,
+    );
+    expect(Number(badge2Circle?.getAttribute("cy"))).toBeLessThan(
+      rectMetrics(cacheBox?.querySelector("rect")).y - 4,
+    );
+  });
+
+  it("keeps page 08 cooked shader code inside uasset while the external Material carries its own cooked cue", () => {
+    mockFrame = 306;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const proofMaterialRect = container.querySelector('[data-testid="page8-proof-material-box"] rect');
+    const proofCookedCueRect = container.querySelector('[data-testid="page8-proof-cooked-cue"] rect');
+    const cookedRect = container.querySelector('[data-testid="page6-cooked-code-box"] rect');
+    const projectedUassetTop = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(uassetRect),
+      y: rectMetrics(uassetRect).y,
+    }).y;
+    const projectedCookedCenter = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(cookedRect),
+      y: rectCenterY(cookedRect),
+    });
+
+    expect(proofMaterialRect).not.toBeNull();
+    expect(proofCookedCueRect).not.toBeNull();
+    expect(cookedRect).not.toBeNull();
+    expect(rectMetrics(proofMaterialRect).bottom).toBeLessThan(projectedUassetTop);
+    expect(Math.abs(rectCenterX(proofCookedCueRect) - projectedCookedCenter.x)).toBeLessThanOrEqual(2);
+    expect(rectMetrics(cookedRect).x).toBeGreaterThan(rectMetrics(uassetRect).x + 24);
+    expect(rectMetrics(cookedRect).right).toBeLessThan(rectMetrics(uassetRect).right - 24);
+    expect(rectMetrics(cookedRect).bottom).toBeLessThan(rectMetrics(uassetRect).bottom - 24);
+  });
+
+  it("routes page 08 VS/PS hash fields back to ShaderHashes[idx] as dashed branch references from the PSO Cache", () => {
+    mockFrame = 306;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const psoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
+    const vsRefArrow = container.querySelector('[data-testid="page8-vs-hash-reference-arrow"]');
+    const psRefArrow = container.querySelector('[data-testid="page8-ps-hash-reference-arrow"]');
+    const hashesRect = container.querySelector('[data-testid="page6-hashes-pill"] rect');
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const vsVertices = parsePolylineVertices(vsRefArrow);
+    const psVertices = parsePolylineVertices(psRefArrow);
+    const vsHashField = container.querySelector('[data-testid="page8-pso-field-vs-hash"]');
+    const psHashField = container.querySelector('[data-testid="page8-pso-field-ps-hash"]');
+    const projectedUassetBottom = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(uassetRect),
+      y: rectMetrics(uassetRect).bottom,
+    }).y;
+    const projectedVsAnchor = projectPointThroughGroup(stageGroup, {
+      x: rectMetrics(hashesRect).x + 78,
+      y: rectMetrics(hashesRect).bottom,
+    });
+    const projectedPsAnchor = projectPointThroughGroup(stageGroup, {
+      x: rectMetrics(hashesRect).right - 78,
+      y: rectMetrics(hashesRect).bottom,
+    });
+
+    expect(rectMetrics(psoRect).y).toBeGreaterThan(projectedUassetBottom + 12);
+    expect(vsRefArrow).not.toBeNull();
+    expect(psRefArrow).not.toBeNull();
+    expect(dashSignature(vsRefArrow)).toContain("10 8");
+    expect(dashSignature(psRefArrow)).toContain("10 8");
+    expect(vsVertices).toHaveLength(4);
+    expect(psVertices).toHaveLength(4);
+    expect(Math.abs((vsVertices[0]?.x ?? 0) - textX(vsHashField))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices[0]?.x ?? 0) - textX(psHashField))).toBeLessThanOrEqual(1);
+    expect(Math.abs((vsVertices[0]?.y ?? 0) - rectMetrics(psoRect).y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices[0]?.y ?? 0) - rectMetrics(psoRect).y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((vsVertices[1]?.x ?? 0) - (vsVertices[0]?.x ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices[1]?.x ?? 0) - (psVertices[0]?.x ?? 0))).toBeLessThanOrEqual(1);
+    expect((vsVertices[1]?.y ?? 0)).toBeLessThan((psVertices[1]?.y ?? 0) - 12);
+    expect(Math.abs((vsVertices[1]?.y ?? 0) - (vsVertices[2]?.y ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices[1]?.y ?? 0) - (psVertices[2]?.y ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((vsVertices.at(-1)?.y ?? 0) - projectedVsAnchor.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices.at(-1)?.y ?? 0) - projectedPsAnchor.y)).toBeLessThanOrEqual(1);
+    expect(Math.abs((vsVertices.at(-1)?.x ?? 0) - projectedVsAnchor.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs((psVertices.at(-1)?.x ?? 0) - projectedPsAnchor.x)).toBeLessThanOrEqual(1);
+  });
+
+  it("projects page 08 external Material -> Cooked arrow tip through the stage transform before drawing outside the stage group", () => {
+    mockFrame = 306;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const cookedRect = container.querySelector('[data-testid="page6-cooked-code-box"] rect');
+    const materialArrow = container.querySelector('[data-testid="page8-material-to-code-arrow"]');
+    const arrowPoints = parseSimplePathPoints(materialArrow);
+    const projectedCookedTop = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(cookedRect),
+      y: rectMetrics(cookedRect).y - 10,
+    });
+
+    expect(arrowPoints).not.toBeNull();
+    expect(Math.abs((arrowPoints?.x2 ?? 0) - projectedCookedTop.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs((arrowPoints?.y2 ?? 0) - projectedCookedTop.y)).toBeLessThanOrEqual(1);
+  });
+
+  it("keeps page 08 hash reference lines hidden until the PSO cache scale has essentially settled", () => {
+    mockFrame = 288;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(container.querySelector('[data-testid="page8-pso-box"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page8-vs-hash-reference-arrow"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page8-ps-hash-reference-arrow"]')).toBeNull();
+  });
+
+  it("keeps page 08 PSO Hash focus subordinate to the page 07 mainline by narrowing the cache and tucking VS/PS Hash under ShaderHashes[idx]", () => {
+    mockFrame = 306;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const psoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
+    const vsHashField = container.querySelector('[data-testid="page8-pso-field-vs-hash"]');
+    const psHashField = container.querySelector('[data-testid="page8-pso-field-ps-hash"]');
+    const blendField = container.querySelector('[data-testid="page8-pso-field-blend"]');
+    const depthField = container.querySelector('[data-testid="page8-pso-field-depth"]');
+    const rtField = container.querySelector('[data-testid="page8-pso-field-rt"]');
+    const etcField = container.querySelector('[data-testid="page8-pso-field--"]');
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const projectedUassetBottom = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(uassetRect),
+      y: rectMetrics(uassetRect).bottom,
+    }).y;
+
+    expect(rectMetrics(psoRect).width).toBeLessThanOrEqual(980);
+    expect(rectMetrics(psoRect).x - rectMetrics(uassetRect).x).toBeGreaterThanOrEqual(110);
+    expect(rectMetrics(uassetRect).right - rectMetrics(psoRect).right).toBeGreaterThanOrEqual(110);
+    expect(rectMetrics(psoRect).y - projectedUassetBottom).toBeGreaterThanOrEqual(18);
+    expect(Math.abs((textX(psHashField) - textX(vsHashField)) - (textX(blendField) - textX(psHashField)))).toBeLessThanOrEqual(2);
+    expect(Math.abs((textX(depthField) - textX(blendField)) - (textX(rtField) - textX(depthField)))).toBeLessThanOrEqual(2);
+    expect(Math.abs((textX(etcField) - textX(rtField)) - (textX(rtField) - textX(depthField)))).toBeLessThanOrEqual(2);
   });
 
   it("renders page 09 with a SharedCode Library fed by multiple materials and queried by hash", () => {

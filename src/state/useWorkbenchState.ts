@@ -11,11 +11,24 @@ type VariantOption = {
   label: string;
 };
 
-const VARIANT_OPTIONS: VariantOption[] = [
+export const DEFAULT_VARIANT_ID: VariantId = "bus-clean";
+export const DEFAULT_STEP_ID: StoryStepId = "page_01";
+
+export const VARIANT_OPTIONS: VariantOption[] = [
   {id: "bus-clean", label: "Bus Clean"},
   {id: "bus-wide", label: "Bus Wide"},
   {id: "shared-focus", label: "Shared Focus"},
 ];
+
+export function isVariantId(value: string | null | undefined): value is VariantId {
+  return VARIANT_OPTIONS.some((option) => option.id === value);
+}
+
+export function isStoryStepId(
+  value: string | null | undefined,
+): value is StoryStepId {
+  return masterStoryboard.steps.some((step) => step.id === value);
+}
 
 export type WorkbenchState = {
   variantId: VariantId;
@@ -32,13 +45,20 @@ export type WorkbenchState = {
   activeVariant: VariantOption;
 };
 
-export function useWorkbenchState(): WorkbenchState {
+type InitialWorkbenchSelection = {
+  variantId?: VariantId;
+  stepId?: StoryStepId;
+};
+
+export function useWorkbenchState(
+  initialSelection: InitialWorkbenchSelection = {},
+): WorkbenchState {
   const [selection, setSelection] = useState<{
     variantId: VariantId;
     stepId: StoryStepId;
   }>({
-    variantId: "bus-clean",
-    stepId: "page_01",
+    variantId: initialSelection.variantId ?? DEFAULT_VARIANT_ID,
+    stepId: initialSelection.stepId ?? DEFAULT_STEP_ID,
   });
   const supportedStepIds = masterStoryboard.steps.map((step) => step.id);
 

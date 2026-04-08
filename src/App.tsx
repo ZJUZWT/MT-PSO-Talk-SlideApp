@@ -1,10 +1,18 @@
 import type {CSSProperties} from "react";
 import {useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {CaptureClipboardButton} from "./components/CaptureClipboardButton";
 import {ControlBar} from "./components/ControlBar";
 import {NotesPanel} from "./components/NotesPanel";
 import {ProgressBubbles} from "./components/ProgressBubbles";
+import {ReviewHud} from "./components/ReviewHud";
 import {StageFrame} from "./components/StageFrame";
-import {useWorkbenchState} from "./state/useWorkbenchState";
+import {
+  DEFAULT_STEP_ID,
+  DEFAULT_VARIANT_ID,
+  isStoryStepId,
+  isVariantId,
+  useWorkbenchState,
+} from "./state/useWorkbenchState";
 
 const MOTION_PRESETS = [
   {id: "quarter", label: "0.25x", durationScale: 4},
@@ -25,6 +33,49 @@ const PANEL_LAYOUT = {
   stageColumnFr: "0.94fr",
 } as const;
 
+type InitialWorkbenchQuery = {
+  controlsCollapsed: boolean;
+  motionPresetId: MotionPresetId;
+  reviewMode: boolean;
+  stepId: typeof DEFAULT_STEP_ID;
+  variantId: typeof DEFAULT_VARIANT_ID;
+};
+
+function isMotionPresetId(value: string | null | undefined): value is MotionPresetId {
+  return MOTION_PRESETS.some((preset) => preset.id === value);
+}
+
+function parseBooleanFlag(value: string | null): boolean {
+  return value === "1" || value === "true";
+}
+
+function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
+  if (typeof window === "undefined") {
+    return {
+      controlsCollapsed: true,
+      motionPresetId: DEFAULT_MOTION_PRESET_ID,
+      reviewMode: false,
+      stepId: DEFAULT_STEP_ID,
+      variantId: DEFAULT_VARIANT_ID,
+    };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const stepParam = params.get("step");
+  const variantParam = params.get("variant");
+  const motionParam = params.get("motion");
+
+  return {
+    controlsCollapsed: !parseBooleanFlag(params.get("controls")),
+    motionPresetId: isMotionPresetId(motionParam)
+      ? motionParam
+      : DEFAULT_MOTION_PRESET_ID,
+    reviewMode: parseBooleanFlag(params.get("review")),
+    stepId: isStoryStepId(stepParam) ? stepParam : DEFAULT_STEP_ID,
+    variantId: isVariantId(variantParam) ? variantParam : DEFAULT_VARIANT_ID,
+  };
+}
+
 function shouldIgnoreKeyboardNavigation(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -38,14 +89,24 @@ function shouldIgnoreKeyboardNavigation(target: EventTarget | null): boolean {
 }
 
 export function App() {
-  const state = useWorkbenchState();
-  const [controlsCollapsed, setControlsCollapsed] = useState(true);
-  const [motionPresetId, setMotionPresetId] =
-    useState<MotionPresetId>(DEFAULT_MOTION_PRESET_ID);
+  const captureTargetRef = useRef<HTMLDivElement | null>(null);
+  const stageCaptureTargetRef = useRef<HTMLDivElement | null>(null);
+  const initialQueryState = useMemo(() => parseInitialWorkbenchQuery(), []);
+  const state = useWorkbenchState({
+    stepId: initialQueryState.stepId,
+    variantId: initialQueryState.variantId,
+  });
+  const [controlsCollapsed, setControlsCollapsed] = useState(
+    initialQueryState.controlsCollapsed,
+  );
+  const [motionPresetId, setMotionPresetId] = useState<MotionPresetId>(
+    initialQueryState.motionPresetId,
+  );
   const [stepTransition, setStepTransition] = useState<{
     direction: "forward" | "backward";
     outgoingStepId: typeof state.stepId;
   } | null>(null);
+  const [isReviewMode] = useState(initialQueryState.reviewMode);
   const settledStepIdRef = useRef(state.stepId);
   const latestTargetStepIdRef = useRef(state.stepId);
   const motionPreset = useMemo(
@@ -59,6 +120,44 @@ export function App() {
   );
   const railDurationScale = 1 / RAIL_SPEED_FACTOR;
   const stepTransitionMs = Math.round(notesBaseMs * motionPreset.durationScale);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams();
+
+    if (state.stepId !== DEFAULT_STEP_ID) {
+      params.set("step", state.stepId);
+    }
+
+    if (state.variantId !== DEFAULT_VARIANT_ID) {
+      params.set("variant", state.variantId);
+    }
+
+    if (motionPreset.id !== DEFAULT_MOTION_PRESET_ID) {
+      params.set("motion", motionPreset.id);
+    }
+
+    if (!controlsCollapsed) {
+      params.set("controls", "1");
+    }
+
+    if (isReviewMode) {
+      params.set("review", "1");
+    }
+
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState({}, "", nextUrl);
+  }, [
+    controlsCollapsed,
+    isReviewMode,
+    motionPreset.id,
+    state.stepId,
+    state.variantId,
+  ]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -141,6 +240,7 @@ export function App() {
   return (
     <div
       className="workbench-shell"
+      ref={captureTargetRef}
       data-motion-preset={motionPreset.id}
       style={
         {
@@ -174,8 +274,13 @@ export function App() {
         <StageFrame
           state={state}
           motionDurationScale={motionPreset.durationScale}
+          runtimeRef={stageCaptureTargetRef}
         />
       </main>
+      {isReviewMode ? (
+        <ReviewHud stageTargetRef={stageCaptureTargetRef} state={state} />
+      ) : null}
+      <CaptureClipboardButton stepId={state.stepId} targetRef={captureTargetRef} />
       <ProgressBubbles state={state} transition={stepTransition} />
     </div>
   );

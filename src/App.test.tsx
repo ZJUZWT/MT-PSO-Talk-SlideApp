@@ -6,10 +6,25 @@ import {
   waitFor,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {afterEach, describe, expect, it} from "vitest";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {App} from "./App";
 
+const {toBlobMock} = vi.hoisted(() => ({
+  toBlobMock: vi.fn(),
+}));
+
+vi.mock("html-to-image", () => ({
+  toBlob: toBlobMock,
+}));
+
+beforeEach(() => {
+  toBlobMock.mockReset();
+  window.history.replaceState({}, "", "/");
+});
+
 afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   cleanup();
 });
 
@@ -147,7 +162,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_06");
     expect(
       screen.getByRole("heading", {
-        name: "InlineCode 内部结构",
+        name: "区分因素在哪一层",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -164,11 +179,10 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_07");
     expect(
       screen.getByRole("heading", {
-        name: "PSO cache 为什么只存 Hash",
+        name: "InlineCode 如何拿到 code",
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/Hash/).length).toBeGreaterThan(0);
   });
 
   it("lets the user switch directly to page 08 from the controls", async () => {
@@ -179,6 +193,23 @@ describe("App", () => {
     await user.selectOptions(screen.getByLabelText("Step"), "page_08");
 
     expect(screen.getByLabelText("Step")).toHaveValue("page_08");
+    expect(
+      screen.getByRole("heading", {
+        name: "PSO cache 为什么只存 Hash",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Hash/).length).toBeGreaterThan(0);
+  });
+
+  it("lets the user switch directly to page 09 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_09");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_09");
     expect(
       screen.getByRole("heading", {
         name: "SharedCode 为什么成为必需",
@@ -226,7 +257,8 @@ describe("App", () => {
       "OpenGL",
       "Vulkan",
       "UE Asset Cook",
-      "InlineCode 内部结构",
+      "区分因素在哪一层",
+      "InlineCode 如何拿到 code",
       "PSO cache 为什么只存 Hash",
       "SharedCode 为什么成为必需",
     ]) {
@@ -239,10 +271,10 @@ describe("App", () => {
     }
   });
 
-  it("renders the progress rail with one current step and seven compact future steps", () => {
+  it("renders the progress rail with one current step and eight compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(8);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(9);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -281,6 +313,11 @@ describe("App", () => {
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_08"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_09"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
   });
@@ -342,6 +379,41 @@ describe("App", () => {
     });
   });
 
+  it("boots directly into review mode from query params and opens the requested page", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?step=page_08&controls=1&review=1&motion=half&variant=shared-focus",
+    );
+
+    render(<App />);
+
+    expect(screen.getByRole("button", {name: "Hide controls"})).toBeInTheDocument();
+    expect(screen.getByLabelText("Step")).toHaveValue("page_08");
+    expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+      "PSO cache 为什么只存 Hash",
+    );
+    expect(screen.getByLabelText("Review HUD")).toBeInTheDocument();
+    expect(document.querySelector(".workbench-shell")).toHaveAttribute(
+      "data-motion-preset",
+      "half",
+    );
+  });
+
+  it("lets the review HUD jump straight to another page without opening the main controls", async () => {
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/?review=1");
+
+    render(<App />);
+
+    await user.selectOptions(screen.getByLabelText("Review Step"), "page_08");
+
+    expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+      "PSO cache 为什么只存 Hash",
+    );
+    expect(screen.getByLabelText("Review Score")).toHaveTextContent("0.0 / 5.0");
+  });
+
   it("does not hijack arrow keys while a select is focused", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", {name: "Show controls"}));
@@ -355,5 +427,84 @@ describe("App", () => {
     expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
       "Input -> f(x) -> Output",
     );
+  });
+
+  it("captures the current workbench render from the floating action button and falls back to a PNG download", async () => {
+    const user = userEvent.setup();
+    const imageBlob = new Blob(["png"], {type: "image/png"});
+    const downloadClickMock = vi.fn();
+    toBlobMock.mockResolvedValue(imageBlob);
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: vi.fn(() => "blob:slideapp-test"),
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(downloadClickMock);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", {name: "复制当前页面截图"}));
+
+    await waitFor(() => {
+      expect(toBlobMock).toHaveBeenCalledWith(
+        document.querySelector(".workbench-shell"),
+        expect.objectContaining({
+          cacheBust: true,
+          pixelRatio: 2,
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(downloadClickMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.getByText("已下载 PNG")).toBeInTheDocument();
+  });
+
+  it("captures only the stage runtime from the review HUD button", async () => {
+    const user = userEvent.setup();
+    const imageBlob = new Blob(["png"], {type: "image/png"});
+    const downloadClickMock = vi.fn();
+    toBlobMock.mockResolvedValue(imageBlob);
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: vi.fn(() => "blob:slideapp-stage-test"),
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(downloadClickMock);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+    window.history.replaceState({}, "", "/?review=1");
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", {name: "复制当前舞台截图"}));
+
+    await waitFor(() => {
+      expect(toBlobMock).toHaveBeenCalledWith(
+        document.querySelector(".stage-runtime"),
+        expect.objectContaining({
+          cacheBust: true,
+          pixelRatio: 2,
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(downloadClickMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

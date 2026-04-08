@@ -1,3 +1,4 @@
+import type {RefObject} from "react";
 import {useEffect, useMemo, useRef, useState} from "react";
 import type {StoryStepId, VariantId} from "../storyboard-data/pso-workbench-types";
 import {SceneSvg} from "../remotion/Composition";
@@ -9,12 +10,14 @@ import {
 
 type RemotionStageProps = {
   motionDurationScale: number;
+  runtimeRef?: RefObject<HTMLDivElement | null>;
   stepId: StoryStepId;
   variantId: VariantId;
 };
 
 export function RemotionStage({
   motionDurationScale,
+  runtimeRef,
   stepId,
   variantId,
 }: RemotionStageProps) {
@@ -101,6 +104,7 @@ export function RemotionStage({
   return (
     <div
       className="stage-runtime"
+      ref={runtimeRef}
       data-current-frame={currentFrame}
       data-animating={isAnimating ? "true" : "false"}
       data-motion-scale={motionDurationScale}

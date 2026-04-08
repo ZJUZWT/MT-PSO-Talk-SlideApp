@@ -1,12 +1,18 @@
+import type {RefObject} from "react";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 import {RemotionStage} from "./RemotionStage";
 
 type StageFrameProps = {
   state: WorkbenchState;
   motionDurationScale: number;
+  runtimeRef?: RefObject<HTMLDivElement | null>;
 };
 
-export function StageFrame({state, motionDurationScale}: StageFrameProps) {
+export function StageFrame({
+  state,
+  motionDurationScale,
+  runtimeRef,
+}: StageFrameProps) {
   const shouldShowKicker = state.currentStep.focusTarget !== state.currentStep.label;
 
   return (
@@ -21,6 +27,7 @@ export function StageFrame({state, motionDurationScale}: StageFrameProps) {
 
       <RemotionStage
         motionDurationScale={motionDurationScale}
+        runtimeRef={runtimeRef}
         variantId={state.variantId}
         stepId={state.stepId}
       />
