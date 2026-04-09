@@ -26,16 +26,25 @@ const EMPTY_SCORES: ReviewScores = {
 };
 
 function formatReviewScore(scores: ReviewScores) {
-  const total = REVIEW_AXES.reduce((sum, axis) => sum + scores[axis.id], 0);
+  const baseAverage = REVIEW_AXES.reduce((sum, axis) => sum + scores[axis.id], 0) / REVIEW_AXES.length;
+  const blockerPenalty =
+    scores.blocker <= 1 ? 2.2 : scores.blocker === 2 ? 1.4 : scores.blocker === 3 ? 0.6 : 0;
+  const routingPenalty = scores.routing <= 1 ? 1.0 : scores.routing === 2 ? 0.5 : 0;
+  const focusPenalty = scores.focus <= 1 ? 0.8 : 0;
+  const penalized = Math.max(0, baseAverage - blockerPenalty - routingPenalty - focusPenalty);
 
-  return (total / REVIEW_AXES.length).toFixed(1);
+  return penalized.toFixed(1);
 }
 
 function resolveReviewVerdict(scores: ReviewScores) {
   const averageScore = Number(formatReviewScore(scores));
 
-  if (scores.blocker <= 2) {
-    return "先清 blocker";
+  if (scores.blocker <= 1) {
+    return "阻断项严重，必须先返工";
+  }
+
+  if (scores.blocker === 2 || scores.routing <= 2) {
+    return "优先清理硬伤";
   }
 
   if (averageScore < 4) {

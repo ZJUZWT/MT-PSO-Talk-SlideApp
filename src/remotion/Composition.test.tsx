@@ -21,6 +21,10 @@ vi.mock("remotion", () => ({
 
 import {MyComposition} from "./Composition";
 
+function normalizeText(value: string | null | undefined) {
+  return (value ?? "").replace(/\s+/g, "");
+}
+
 function opacityOf(node: Element | null) {
   return Number(node?.getAttribute("opacity") ?? "1");
 }
@@ -43,14 +47,18 @@ function effectiveOpacity(node: Element | null) {
 }
 
 function findTextNodes(container: HTMLElement, label: string) {
+  const normalizedLabel = normalizeText(label);
+
   return Array.from(container.querySelectorAll("text")).filter(
-    (node) => node.textContent === label,
+    (node) => normalizeText(node.textContent) === normalizedLabel,
   );
 }
 
 function findSvgTextNodesByContent(container: HTMLElement, label: string) {
+  const normalizedLabel = normalizeText(label);
+
   return Array.from(container.querySelectorAll("text")).filter(
-    (node) => node.textContent === label,
+    (node) => normalizeText(node.textContent) === normalizedLabel,
   );
 }
 
@@ -1893,35 +1901,170 @@ describe("MyComposition", () => {
     expect(Math.abs((textX(etcField) - textX(rtField)) - (textX(rtField) - textX(depthField)))).toBeLessThanOrEqual(2);
   });
 
-  it("renders page 09 with a SharedCode Library fed by multiple materials and queried by hash", () => {
+  it("renders page 09 as a SharedCode solution page with a lookup rail while keeping the PSO cache on the inherited bottom band", () => {
+    mockFrame = 306;
+    const {container: page8Container} = render(<MyComposition variantId="bus-clean" />);
+    const page8PsoRect = page8Container.querySelector('[data-testid="page8-pso-box"] rect');
+    cleanup();
+
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const sharedLibrary = container.querySelector('[data-testid="page8-shared-library-box"]');
+    const page9PsoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
+    const sharedLibrary = container.querySelector('[data-testid="page9-shared-library-box"]');
+    const shaderMapEntries = container.querySelector('[data-testid="page9-shadermapentries-pill"]');
+    const lookupFormula = container.querySelector('[data-testid="page9-lookup-formula"]');
+    const shaderHashes = container.querySelector('[data-testid="page9-shaderhashes-pill"]');
+    const shaderCode = container.querySelector('[data-testid="page9-shadercode-pill"]');
+    const shaderBlob = container.querySelector('[data-testid="page9-shaderblob-pill"]');
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const sharedLibraryRect = sharedLibrary?.querySelector("rect");
+    const shaderHashesRect = shaderHashes?.querySelector("rect");
+    const shaderCodeRect = shaderCode?.querySelector("rect");
+    const shaderBlobRect = shaderBlob?.querySelector("rect");
+    const legacyInlineResourceBox = container.querySelector(
+      '[data-testid="page6-inline-resource-box"]',
+    );
+    const fshaderCard = container.querySelector('[data-testid="page9-fshader-card"]');
+    const fshaderRect = fshaderCard?.querySelector("rect");
+    const sharedResourceBox = container.querySelector('[data-testid="page9-shared-resource-box"]');
+    const sharedResourceRect = sharedResourceBox?.querySelector("rect");
+    const shaderMapToSharedArrow = container.querySelector(
+      '[data-testid="page9-shadermap-to-sharedcode-arrow"]',
+    );
+    const fshaderLookupBranch = container.querySelector(
+      '[data-testid="page9-fshader-lookup-branch"]',
+    );
+    const shaderMapIndexLookupBranch = container.querySelector(
+      '[data-testid="page9-shadermapindex-lookup-branch"]',
+    );
+    const hashToLibraryIndexArrow = container.querySelector(
+      '[data-testid="page9-hash-to-libraryindex-arrow"]',
+    );
+    const libraryIndexToEntryArrow = container.querySelector(
+      '[data-testid="page9-libraryindex-to-shaderentry-arrow"]',
+    );
+    const entryToSliceArrow = container.querySelector(
+      '[data-testid="page9-shaderentry-to-codeslice-arrow"]',
+    );
     const materialBus = container.querySelector('[data-testid="page8-material-bus-arrow"]');
     const cacheLookup = container.querySelector('[data-testid="page8-cache-lookup-arrow"]');
-    const sharedResourceBox = container.querySelector('[data-testid="page8-shared-resource-box"]');
-    const shaderMapIndexBox = container.querySelector('[data-testid="page8-shadermap-index-box"]');
     const resourceLookupArrow = container.querySelector(
       '[data-testid="page8-resource-index-lookup-arrow"]',
     );
+    const fshaderBranchVertices = parsePolylineVertices(fshaderLookupBranch);
+    const shaderMapIndexBranchVertices = parsePolylineVertices(shaderMapIndexLookupBranch);
 
     expect(sharedLibrary).not.toBeNull();
-    expect(materialBus).not.toBeNull();
-    expect(cacheLookup).not.toBeNull();
-    expect(sharedResourceBox).not.toBeNull();
-    expect(shaderMapIndexBox).not.toBeNull();
-    expect(resourceLookupArrow).not.toBeNull();
-    expect(screen.getByText("ShaderMapIndex")).toBeInTheDocument();
-    expect(screen.getByText("ShaderEntries[GlobalIndex]")).toBeInTheDocument();
-    expect(screen.getByText("ShaderHashes[GlobalIndex]")).toBeInTheDocument();
-    expect(screen.getAllByText("SharedCode").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Library")).toBeInTheDocument();
-    expect(screen.getByText("ShaderArchive")).toBeInTheDocument();
+    expect(shaderMapEntries).not.toBeNull();
+    expect(lookupFormula).not.toBeNull();
+    expect(shaderHashes).not.toBeNull();
+    expect(shaderCode).not.toBeNull();
+    expect(shaderBlob).not.toBeNull();
+    expect(materialBus).toBeNull();
+    expect(cacheLookup).toBeNull();
+    expect(resourceLookupArrow).toBeNull();
+    expect(screen.getByText("SharedCode Library")).toBeInTheDocument();
+    expect(screen.getByText("FShader")).toBeInTheDocument();
+    expect(screen.getAllByText("ShaderMapIndex").length).toBeGreaterThanOrEqual(1);
+    expect(findTextNodes(container, "ShaderMapEntries").length).toBeGreaterThanOrEqual(1);
+    expect(findTextNodes(container, "ShaderIndicesOffset").length).toBeGreaterThanOrEqual(1);
+    expect(findTextNodes(container, "ShaderIndices").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("LibraryShaderIndex")).toBeInTheDocument();
+    expect(findTextNodes(container, "ShaderHashTable").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("ShaderEntries")).toBeInTheDocument();
+    expect(findTextNodes(container, "CookedShaderCode").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Material A")).toBeInTheDocument();
     expect(screen.getByText("Material B")).toBeInTheDocument();
     expect(screen.getByText("Material C")).toBeInTheDocument();
     expect(screen.getByText("PSO Cache")).toBeInTheDocument();
     expect(screen.getByText("VS Hash")).toBeInTheDocument();
+    expect(fshaderCard).not.toBeNull();
+    expect(sharedResourceBox).not.toBeNull();
+    expect(shaderMapToSharedArrow).not.toBeNull();
+    expect(fshaderLookupBranch).not.toBeNull();
+    expect(shaderMapIndexLookupBranch).not.toBeNull();
+    expect(hashToLibraryIndexArrow).not.toBeNull();
+    expect(libraryIndexToEntryArrow).not.toBeNull();
+    expect(entryToSliceArrow).not.toBeNull();
+    expect(legacyInlineResourceBox).toBeNull();
+    expect(uassetRect).not.toBeNull();
+    expect(Math.abs(rectMetrics(page9PsoRect).y - rectMetrics(page8PsoRect).y)).toBeLessThanOrEqual(2);
+    expect(rectMetrics(fshaderRect).bottom).toBeLessThan(rectMetrics(sharedResourceRect).y);
+    expect(rectMetrics(sharedLibraryRect).x - rectMetrics(sharedResourceRect).right).toBeGreaterThanOrEqual(70);
+    expect(rectMetrics(sharedLibraryRect).x - rectMetrics(uassetRect).right).toBeGreaterThanOrEqual(56);
+    expect(rectMetrics(sharedLibraryRect).bottom - rectMetrics(shaderBlobRect).bottom).toBeGreaterThanOrEqual(0);
+    expect(Math.abs(rectMetrics(shaderHashesRect).y - rectMetrics(shaderCodeRect).y)).toBeLessThanOrEqual(2);
+    expect(rectMetrics(shaderBlobRect).y - rectMetrics(shaderCodeRect).bottom).toBeGreaterThanOrEqual(8);
+    expect((fshaderBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(fshaderRect));
+    expect((fshaderBranchVertices[2]?.x ?? 0)).toBeGreaterThan(rectMetrics(sharedResourceRect).right + 20);
+    expect((shaderMapIndexBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(sharedResourceRect));
+  });
+
+  it("keeps page 09 diagram typography above the PPT readability floor", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const materialA = findTextNodes(container, "Material A")[0];
+    const globalLabel = findTextNodes(container, "GLOBAL")[0];
+    const fshaderTitle = findTextNodes(container, "FShader")[0];
+    const resourceIndex = findTextNodes(container, "ResourceIndex")[0];
+    const shaderMapIndexLabels = findTextNodes(container, "ShaderMapIndex");
+    const sharedCodeTitle = findTextNodes(container, "FShaderMapResource_SharedCode")[0];
+    const entriesLabel = findTextNodes(container, "ShaderMapEntries")[0];
+    const entriesOffset = findTextNodes(container, "ShaderIndicesOffset")[0];
+    const formulaNode = findTextNodes(container, "ShaderIndices")[0];
+    const libraryIndexNode = findTextNodes(container, "LibraryShaderIndex")[0];
+    const shaderHashesLabel = findTextNodes(container, "ShaderHashTable")[0];
+    const shaderCodeLabel = findTextNodes(container, "ShaderEntries")[0];
+    const offsetSize = findTextNodes(container, "Offset / Size")[0];
+    const shaderSlice = findTextNodes(container, "CookedShaderCode")[0];
+
+    expect(fontSizeOf(materialA)).toBeGreaterThanOrEqual(17);
+    expect(fontSizeOf(globalLabel)).toBeGreaterThanOrEqual(16);
+    expect(fontSizeOf(fshaderTitle)).toBeGreaterThanOrEqual(22);
+    expect(fontSizeOf(resourceIndex)).toBeGreaterThanOrEqual(15);
+    expect(Math.min(...shaderMapIndexLabels.map((node) => fontSizeOf(node)))).toBeGreaterThanOrEqual(15);
+    expect(fontSizeOf(sharedCodeTitle)).toBeGreaterThanOrEqual(18);
+    expect(fontSizeOf(entriesLabel)).toBeGreaterThanOrEqual(18);
+    expect(fontSizeOf(entriesOffset)).toBeGreaterThanOrEqual(15);
+    expect(fontSizeOf(formulaNode)).toBeGreaterThanOrEqual(16);
+    expect(fontSizeOf(libraryIndexNode)).toBeGreaterThanOrEqual(20);
+    expect(fontSizeOf(shaderHashesLabel)).toBeGreaterThanOrEqual(16.5);
+    expect(fontSizeOf(shaderCodeLabel)).toBeGreaterThanOrEqual(16);
+    expect(fontSizeOf(offsetSize)).toBeGreaterThanOrEqual(14);
+    expect(fontSizeOf(shaderSlice)).toBeGreaterThanOrEqual(15.5);
+  });
+
+  it("keeps FShader as a translated continuation from page 08 into page 09 with only a bounded width retargeting", () => {
+    mockFrame = 306;
+    const {container: page8Container, unmount} = render(<MyComposition variantId="bus-clean" />);
+    const page8FShaderCard = page8Container.querySelector('[data-testid="page6-fshader-card"]');
+    const page8FShaderRect = page8FShaderCard?.querySelector("rect");
+    const page8FShaderTitle = findTextNodes(page8Container, "FShader").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    const page8ResourceIndex = findTextNodes(page8Container, "ResourceIndex").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+
+    unmount();
+    mockFrame = 342;
+    const {container: page9Container} = render(<MyComposition variantId="bus-clean" />);
+    const page9FShaderCard = page9Container.querySelector('[data-testid="page9-fshader-card"]');
+    const page9FShaderRect = page9FShaderCard?.querySelector("rect");
+    const page9FShaderTitle = findTextNodes(page9Container, "FShader").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    const page9ResourceIndex = findTextNodes(page9Container, "ResourceIndex").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+
+    expect(page8FShaderCard).not.toBeNull();
+    expect(page9FShaderCard).not.toBeNull();
+    expect(Math.abs(rectMetrics(page8FShaderRect).width - rectMetrics(page9FShaderRect).width)).toBeLessThanOrEqual(14);
+    expect(Math.abs(rectMetrics(page8FShaderRect).height - rectMetrics(page9FShaderRect).height)).toBeLessThanOrEqual(4);
+    expect(Math.abs(fontSizeOf(page8FShaderTitle) - fontSizeOf(page9FShaderTitle))).toBeLessThanOrEqual(1);
+    expect(Math.abs(fontSizeOf(page8ResourceIndex) - fontSizeOf(page9ResourceIndex))).toBeLessThanOrEqual(1);
   });
 
   it("keeps pages 01-04 on the original spine and only shifts the runtime axis to the right for page 05", () => {

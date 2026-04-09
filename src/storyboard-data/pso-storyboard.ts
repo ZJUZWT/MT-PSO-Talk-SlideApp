@@ -149,16 +149,16 @@ export const masterStoryboard: Storyboard = {
       id: "page_09",
       label: "SharedCode 为什么成为必需",
       caption:
-        "把 split 点从 InlineCode 改成 SharedCode：ShaderMapIndex 和 ResourceIndex 一起进入全局 SharedCode Library，PSO 的 Hash 也终于有了可反查的落点。",
+        "SharedCode 的关键不是一句 GlobalIndex，而是两层索引：ShaderMapIndex + ResourceIndex 先得到 LibraryShaderIndex，再用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size 取出真正 code；PSO 的 Hash 也通过 ShaderHashTable 命中同一个 LibraryShaderIndex。",
       notes:
-        "第八页延续第七页结构。上面的 split 节点从 FShaderMapResource_InlineCode 改成 FShaderMapResource_SharedCode，并额外长出 ShaderMapIndex。此时主路径不再是直接去本地内联数组，而是 ShaderMapIndex + ResourceIndex 一起进入 SharedCode Library / ShaderArchive，命中 ShaderEntries[GlobalIndex] 和对应的 ShaderCode。左侧再出现多个材质来源（Material A/B/C），说明它们共同汇入同一个全局库。PSO 的 Hash 侧边分支也继续保留，说明 SharedCode 同时解决全局去重和 Hash -> Code 反查。",
+        "第八页延续第七页结构。split 节点从 FShaderMapResource_InlineCode 变成 FShaderMapResource_SharedCode，并新增 ShaderMapIndex。主路径变成：ShaderMapEntries[ShaderMapIndex] 先给出 ShaderIndicesOffset，再和 ResourceIndex 组合，查 ShaderIndices[ShaderIndicesOffset + ResourceIndex]，得到 LibraryShaderIndex。随后通过 ShaderEntries[LibraryShaderIndex] 里的 Offset/Size，在大二进制里切出 code。PSO 的 Hash 侧边分支则走 ShaderHashTable[Hash] 命中同一个 LibraryShaderIndex，再复用同一段下游流程。",
       focusTarget: "SharedCode",
       timingHint:
-        "让第六页的 InlineCode 存储块平滑演化成 SharedCode Library，同时把 ShaderMapIndex 补出来，再从左侧接入多个材质来源，形成集中存储、全局索引的感觉。",
+        "让第六页的 InlineCode 存储块平滑演化成 SharedCode Library，把 ShaderMapIndex / ResourceIndex 两条线都接入索引转换节点，再让 Hash 分支汇合到同一个 LibraryShaderIndex。",
       intro:
         "这时候 SharedCode 就不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       manuscript:
-        "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下就会存 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，InlineCode 下 code 散落在各个 uasset 里，没有全局索引，PSO 预编译无法闭环。到了 SharedCode 模式，split 点变成 FShaderMapResource_SharedCode，而且会额外给出 ShaderMapIndex。此时主路径变成 ShaderMapIndex + ResourceIndex 一起定位到 SharedCode Library，也就是 ShaderArchive，再从 ShaderEntries[GlobalIndex] 命中真正的 ShaderCode。这样多个 Material A/B/C 可以共享同一份全局 code，PSO 的 Hash 侧边分支也终于能落到一个全局 Hash -> Code 反查入口上。SharedCode 不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
+        "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下会存 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，InlineCode 下 code 散落在各个 uasset 里，没有全局接口。SharedCode 把这两件事同时收口。主路径先从 ShaderMapEntries[ShaderMapIndex] 拿到 ShaderIndicesOffset，再与 ResourceIndex 组合，查 ShaderIndices[ShaderIndicesOffset + ResourceIndex]，得到 LibraryShaderIndex。随后用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size，从 ShaderArchive 的大二进制切出 ShaderCode。PSO 侧边分支也不是直接拿 code，而是先走 ShaderHashTable[Hash] 命中同一个 LibraryShaderIndex，再复用上面的 Offset/Size 读取流程。这样 Hash 分支和运行时主链在 LibraryShaderIndex 汇合，SharedCode 才真正成为 PSO 预编译可闭环的基础设施。",
       focusColorKey: "shared",
     },
   ],
