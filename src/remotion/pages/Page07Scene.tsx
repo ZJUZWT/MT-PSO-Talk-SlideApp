@@ -56,9 +56,11 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     page6LookupPillHeight,
     page6LookupPillWidth,
     page6NodeScale,
+    page6OwnershipLaneX,
     page6ResourceCodeBox,
     page6ResourceCodeCenterX,
     page6ResourceCodeCenterY,
+    page6ResourceCenterY,
     page6ShaderArrowCurrentEndX,
     page6ShaderArrowStartX,
     page6ShaderMapBox,
@@ -105,6 +107,20 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     settledPage89Progress > 0.72 ? "page9-fshader-card" : "page6-fshader-card";
   const page9BoxSwitchProgress = clamp01((settledPage89Progress - 0.72) / 0.28);
   const page9CarryMorphProgress = easeInOutCubic(page9BoxSwitchProgress);
+  const page9LeftColumnEase = easeInOutCubic(
+    clamp01((settledPage89Progress - 0.02) / 0.32),
+  );
+  const page9LeftColumnScale = 1 - 0.18 * page9LeftColumnEase;
+  const page9LeftColumnShiftX = -24 * page9LeftColumnEase;
+  const projectLeftLanePoint = (x: number, y: number) => ({
+    x:
+      page6OwnershipLaneX +
+      page9LeftColumnShiftX +
+      page9LeftColumnScale * (x - page6OwnershipLaneX),
+    y:
+      page6ResourceCenterY +
+      page9LeftColumnScale * (y - page6ResourceCenterY),
+  });
   const page7SharedRenderBox = mixBox(
     page6InlineResourceBaseBox,
     PAGE9_SHARED_RESOURCE_BOX,
@@ -136,41 +152,87 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
       ? "page9-shadermap-to-sharedcode-arrow"
       : "page6-shadermap-to-inline-arrow";
   const page9SharedEntryX = page7SharedRenderBox.x;
-  const page9SharedEntryY = boxCenterY(page7SharedRenderBox);
+  const page9SharedEntryY = boxBottom(page7SharedRenderBox) - 14;
   const page9SharedEntryPreX = page9SharedEntryX - 8;
-  const page7BridgePath =
+  const page9LegacyBridgeStart = projectLeftLanePoint(
+    boxRight(page6ShaderMapBox),
+    page6ShaderMapCenterY,
+  );
+  const page9BottomBridgeStart = projectLeftLanePoint(
+    page6ShaderMapCenterX,
+    boxBottom(page6ShaderMapBox),
+  );
+  const page9LegacyBridgeOpacity =
     page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
-      ? polylinePath([
-          {x: page7ShaderMapBridgeStartX, y: page6ShaderMapCenterY},
-          {x: page7ShaderMapBridgeStartX + 10, y: page6ShaderMapCenterY},
-          {x: page9SharedEntryPreX, y: page9SharedEntryY},
-          {x: page9SharedEntryX, y: page9SharedEntryY},
-        ])
-      : polylinePath([
-          {x: page7ShaderMapBridgeStartX, y: page7ShaderMapBridgeStartY},
-          {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeStartY},
-          {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeEndY},
-          {x: page7ShaderMapBridgeEndX, y: page7ShaderMapBridgeEndY},
-        ]);
+      ? page7LookupBridgeOpacity * (1 - easeInOutCubic(clamp01((page9BoxSwitchProgress - 0.04) / 0.28)))
+      : 0;
+  const page9BottomBridgeOpacity =
+    page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
+      ? page7LookupBridgeOpacity * easeInOutCubic(clamp01((page9BoxSwitchProgress - 0.08) / 0.24))
+      : 0;
+  const page9LegacyBridgePath = polylinePath([
+    {x: page9LegacyBridgeStart.x, y: page9LegacyBridgeStart.y},
+    {x: page9LegacyBridgeStart.x + 12, y: page9LegacyBridgeStart.y},
+    {x: page9SharedEntryPreX, y: boxCenterY(page7SharedRenderBox)},
+    {x: page9SharedEntryX, y: boxCenterY(page7SharedRenderBox)},
+  ]);
+  const page9BottomBridgePath = polylinePath([
+    {x: page9BottomBridgeStart.x, y: page9BottomBridgeStart.y},
+    {x: page9BottomBridgeStart.x, y: page9SharedEntryY},
+    {x: page9SharedEntryPreX, y: page9SharedEntryY},
+    {x: page9SharedEntryX, y: page9SharedEntryY},
+  ]);
+  const page7BridgePath = polylinePath([
+    {x: page7ShaderMapBridgeStartX, y: page7ShaderMapBridgeStartY},
+    {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeStartY},
+    {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeEndY},
+    {x: page7ShaderMapBridgeEndX, y: page7ShaderMapBridgeEndY},
+  ]);
 
   return (
     <>
-      {page7LookupBridgeOpacity > 0.001 ? (
+      {page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" &&
+      page9LegacyBridgeOpacity > 0.001 ? (
+        <StrokeArrow
+          d={page9LegacyBridgePath}
+          stroke={wireStroke}
+          opacity={page9LegacyBridgeOpacity}
+          tipX={page9SharedEntryX}
+          tipY={boxCenterY(page7SharedRenderBox)}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.6}
+          underlayOpacity={0.1}
+          headSize={9}
+        />
+      ) : null}
+
+      {page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" &&
+      page9BottomBridgeOpacity > 0.001 ? (
+        <StrokeArrow
+          testId="page9-shadermap-to-sharedcode-arrow"
+          d={page9BottomBridgePath}
+          stroke={wireStroke}
+          opacity={page9BottomBridgeOpacity}
+          tipX={page9SharedEntryX}
+          tipY={page9SharedEntryY}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.6}
+          underlayOpacity={0.1}
+          headSize={9}
+        />
+      ) : null}
+
+      {page7BridgeTestId !== "page9-shadermap-to-sharedcode-arrow" &&
+      page7LookupBridgeOpacity > 0.001 ? (
         <StrokeArrow
           testId={page7BridgeTestId}
           d={page7BridgePath}
           stroke={wireStroke}
           opacity={page7LookupBridgeOpacity}
-          tipX={
-            page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
-              ? page9SharedEntryX
-              : page7ShaderMapBridgeEndX
-          }
-          tipY={
-            page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
-              ? page9SharedEntryY
-              : page7ShaderMapBridgeEndY
-          }
+          tipX={page7ShaderMapBridgeEndX}
+          tipY={page7ShaderMapBridgeEndY}
           direction="right"
           shaftWidth={3}
           underlayWidth={5.6}

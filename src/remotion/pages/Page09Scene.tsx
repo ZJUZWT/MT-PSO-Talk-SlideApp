@@ -90,7 +90,7 @@ export function Page09Scene({scene}: {scene: SceneModel}) {
   const libraryCenterX = boxCenterX(PAGE9_LIBRARY_BOX);
   const libraryCenterY = boxCenterY(PAGE9_LIBRARY_BOX);
   const fshaderPillCenterY = fshaderBox.y + fshaderBox.height * 0.75;
-  const sharedIndexPillCenterY = sharedBox.y + 26;
+  const sharedIndexPillCenterY = sharedBox.y + 76;
 
   const fshaderBranchStartX =
     boxCenterX(fshaderBox) + page6FShaderIndexPillWidth / 2 + 6;

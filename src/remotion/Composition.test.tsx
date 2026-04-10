@@ -2044,6 +2044,16 @@ describe("MyComposition", () => {
     ).toBeGreaterThanOrEqual(32);
   });
 
+  it("drops the page 09 SharedCode carry box onto a lower band so the left handoff can turn under ShaderMap", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+
+    expect(rectMetrics(sharedResourceRect).y).toBeGreaterThanOrEqual(368);
+  });
+
   it("keeps the page 09 VS/PS proof lane from scraping directly under the SharedCode carry box", () => {
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -2062,27 +2072,73 @@ describe("MyComposition", () => {
     expect((vsProofVertices[1]?.y ?? 0) - projectedSharedBottom).toBeGreaterThanOrEqual(18);
   });
 
-  it("routes the page 09 ShaderMap handoff into the SharedCode box through a clean horizontal lane", () => {
+  it("routes the page 09 ShaderMap handoff by dropping below ShaderMap before turning right into SharedCode", () => {
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const shaderMapRect = findVisibleBoxGroupByLabel(
+    const shaderMapGroup = findVisibleBoxGroupByLabel(
       container,
       "FMaterialShaderMap",
-    )?.querySelector("rect");
+    );
+    const shaderMapLaneGroup = shaderMapGroup?.parentElement;
+    const shaderMapRect = shaderMapGroup?.querySelector("rect");
     const sharedResourceRect = container
       .querySelector('[data-testid="page9-shared-resource-box"]')
       ?.querySelector("rect");
     const shaderMapToSharedVertices = parsePolylineVertices(
       container.querySelector('[data-testid="page9-shadermap-to-sharedcode-arrow"]'),
     );
+    const localShaderMapBottomCenter = projectPointThroughGroup(shaderMapGroup, {
+      x: rectCenterX(shaderMapRect),
+      y: rectMetrics(shaderMapRect).bottom,
+    });
+    const projectedShaderMapBottomCenter = projectPointThroughGroup(
+      shaderMapLaneGroup,
+      localShaderMapBottomCenter,
+    );
 
     expect(shaderMapToSharedVertices.length).toBeGreaterThanOrEqual(4);
-    expect(Math.abs((shaderMapToSharedVertices[0]?.y ?? 0) - rectCenterY(shaderMapRect))).toBeLessThanOrEqual(2);
-    expect(Math.abs((shaderMapToSharedVertices.at(-1)?.y ?? 0) - rectCenterY(sharedResourceRect))).toBeLessThanOrEqual(2);
-    expect(Math.abs((shaderMapToSharedVertices[0]?.y ?? 0) - (shaderMapToSharedVertices.at(-1)?.y ?? 0))).toBeLessThanOrEqual(2);
+    expect(Math.abs((shaderMapToSharedVertices[0]?.x ?? 0) - projectedShaderMapBottomCenter.x)).toBeLessThanOrEqual(18);
+    expect(Math.abs((shaderMapToSharedVertices[0]?.y ?? 0) - projectedShaderMapBottomCenter.y)).toBeLessThanOrEqual(2);
+    expect(Math.abs((shaderMapToSharedVertices[1]?.x ?? 0) - (shaderMapToSharedVertices[0]?.x ?? 0))).toBeLessThanOrEqual(2);
+    expect((shaderMapToSharedVertices[1]?.y ?? 0) - (shaderMapToSharedVertices[0]?.y ?? 0)).toBeGreaterThanOrEqual(14);
+    expect(Math.abs((shaderMapToSharedVertices[2]?.y ?? 0) - (shaderMapToSharedVertices[1]?.y ?? 0))).toBeLessThanOrEqual(2);
+    expect(Math.abs((shaderMapToSharedVertices.at(-1)?.y ?? 0) - (shaderMapToSharedVertices[1]?.y ?? 0))).toBeLessThanOrEqual(2);
     expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeLessThanOrEqual(
       rectMetrics(sharedResourceRect).x + 2,
     );
+  });
+
+  it("starts the page 09 ShaderMapIndex lookup branch from the ShaderMapIndex pill on a flat horizontal lane", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+    const shaderMapIndexLabel = findTextNodes(container, "ShaderMapIndex").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    const shaderMapIndexBranchVertices = parsePolylineVertices(
+      container.querySelector('[data-testid="page9-shadermapindex-lookup-branch"]'),
+    );
+
+    expect(shaderMapIndexBranchVertices.length).toBeGreaterThanOrEqual(2);
+    expect(Math.abs((shaderMapIndexBranchVertices[0]?.y ?? 0) - textY(shaderMapIndexLabel))).toBeLessThanOrEqual(3);
+    expect((shaderMapIndexBranchVertices[0]?.y ?? 0)).toBeGreaterThan(rectCenterY(sharedResourceRect) + 16);
+    expect(Math.abs((shaderMapIndexBranchVertices.at(-1)?.y ?? 0) - (shaderMapIndexBranchVertices[0]?.y ?? 0))).toBeLessThanOrEqual(2);
+  });
+
+  it("swaps the page 09 VS and PS proof endpoints so the two proof lines do not weave across the library floor", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const vsProofVertices = parsePolylineVertices(
+      container.querySelector('[data-testid="page9-vs-hash-proof-arrow"]'),
+    );
+    const psProofVertices = parsePolylineVertices(
+      container.querySelector('[data-testid="page9-ps-hash-proof-arrow"]'),
+    );
+
+    expect((vsProofVertices[0]?.x ?? 0)).toBeLessThan((psProofVertices[0]?.x ?? 0));
+    expect((vsProofVertices.at(-1)?.x ?? 0)).toBeGreaterThan((psProofVertices.at(-1)?.x ?? 0));
   });
 
   it("keeps page 09 diagram typography above the PPT readability floor", () => {

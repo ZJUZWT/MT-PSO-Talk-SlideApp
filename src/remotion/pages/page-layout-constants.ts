@@ -380,7 +380,7 @@ export const PAGE8_SHARED_RESOURCE_BOX: Box = {
 };
 export const PAGE9_SHARED_RESOURCE_BOX: Box = {
   x: 296,
-  y: 348,
+  y: 410,
   width: 220,
   height: 96,
   radius: 24,
