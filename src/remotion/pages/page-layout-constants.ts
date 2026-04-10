@@ -378,6 +378,13 @@ export const PAGE8_SHARED_RESOURCE_BOX: Box = {
   height: 92,
   radius: 22,
 };
+export const PAGE9_SHARED_RESOURCE_BOX: Box = {
+  x: 176,
+  y: 390,
+  width: 368,
+  height: 96,
+  radius: 24,
+};
 export const PAGE8_SHADERMAP_INDEX_BOX: Box = {
   x: 866,
   y: 508,

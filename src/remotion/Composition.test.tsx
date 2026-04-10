@@ -1504,6 +1504,24 @@ describe("MyComposition", () => {
     expect(screen.getByText("ShaderHashes[idx]")).toBeInTheDocument();
   });
 
+  it("keeps the page 07 ShaderMap handoff arrow on a flat outgoing channel", () => {
+    mockFrame = 270;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const shaderMapRect = findVisibleBoxGroupByLabel(
+      container,
+      "FMaterialShaderMap",
+    )?.querySelector("rect");
+    const shaderMapBridge = container.querySelector(
+      '[data-testid="page6-shadermap-to-inline-arrow"]',
+    );
+    const bridgeVertices = parsePolylineVertices(shaderMapBridge);
+
+    expect(bridgeVertices.length).toBeGreaterThanOrEqual(4);
+    expect(Math.abs((bridgeVertices[0]?.x ?? 0) - rectMetrics(shaderMapRect).right)).toBeLessThanOrEqual(2);
+    expect(Math.abs((bridgeVertices[0]?.y ?? 0) - rectCenterY(shaderMapRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs((bridgeVertices[0]?.y ?? 0) - (bridgeVertices[2]?.y ?? 0))).toBeLessThanOrEqual(2);
+  });
+
   it("keeps the page 07 receiver and payload titles on one line for spacing control", () => {
     mockFrame = 270;
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -1998,6 +2016,61 @@ describe("MyComposition", () => {
     expect((fshaderBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(fshaderRect));
     expect((fshaderBranchVertices[2]?.x ?? 0)).toBeGreaterThan(rectMetrics(sharedResourceRect).right + 20);
     expect((shaderMapIndexBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(sharedResourceRect));
+    expect(rectMetrics(sharedResourceRect).width).toBeGreaterThanOrEqual(360);
+  });
+
+  it("keeps the page 09 SharedCode carry box lifted clear of the inherited PSO band", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const page9PsoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+
+    expect(rectMetrics(page9PsoRect).y - rectMetrics(sharedResourceRect).bottom).toBeGreaterThanOrEqual(84);
+  });
+
+  it("keeps the page 09 VS/PS proof lane from scraping directly under the SharedCode carry box", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+    const vsProofVertices = parsePolylineVertices(
+      container.querySelector('[data-testid="page9-vs-hash-proof-arrow"]'),
+    );
+    const projectedSharedBottom = projectPointThroughGroup(stageGroup, {
+      x: rectCenterX(sharedResourceRect),
+      y: rectMetrics(sharedResourceRect).bottom,
+    }).y;
+
+    expect((vsProofVertices[1]?.y ?? 0) - projectedSharedBottom).toBeGreaterThanOrEqual(18);
+  });
+
+  it("routes the page 09 ShaderMap handoff into the SharedCode box from a dedicated top entry lane", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+    const shaderMapToSharedVertices = parsePolylineVertices(
+      container.querySelector('[data-testid="page9-shadermap-to-sharedcode-arrow"]'),
+    );
+
+    expect(shaderMapToSharedVertices.length).toBeGreaterThanOrEqual(4);
+    expect((shaderMapToSharedVertices.at(-1)?.y ?? 0)).toBeLessThanOrEqual(
+      rectMetrics(sharedResourceRect).y + 2,
+    );
+    expect((shaderMapToSharedVertices.at(-2)?.y ?? 0)).toBeLessThan(
+      rectMetrics(sharedResourceRect).y - 6,
+    );
+    expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeGreaterThan(
+      rectMetrics(sharedResourceRect).x + 56,
+    );
+    expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeLessThan(
+      rectMetrics(sharedResourceRect).right - 56,
+    );
   });
 
   it("keeps page 09 diagram typography above the PPT readability floor", () => {

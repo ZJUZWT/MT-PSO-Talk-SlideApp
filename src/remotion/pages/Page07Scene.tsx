@@ -18,7 +18,7 @@ import {
   StageBox,
   StrokeArrow,
 } from "../primitives/diagramPrimitives";
-import {PAGE9_FSHADER_BOX} from "./page-layout-constants";
+import {PAGE9_FSHADER_BOX, PAGE9_SHARED_RESOURCE_BOX} from "./page-layout-constants";
 
 export function Page07Scene({scene}: {scene: SceneModel}) {
   const {
@@ -105,33 +105,25 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     settledPage89Progress > 0.72 ? "page9-fshader-card" : "page6-fshader-card";
   const page9BoxSwitchProgress = clamp01((settledPage89Progress - 0.72) / 0.28);
   const page9CarryMorphProgress = easeInOutCubic(page9BoxSwitchProgress);
-  const page9SharedTargetBox = {
-    ...page6InlineResourceBaseBox,
-    x: mix(page6InlineResourceBaseBox.x - 34, page6InlineResourceBaseBox.x - 88, page9BoxSwitchProgress),
-    y: mix(page6InlineResourceBaseBox.y + 12, page6InlineResourceBaseBox.y + 102, page9BoxSwitchProgress),
-    width: mix(page6InlineResourceBaseBox.width + 42, page6InlineResourceBaseBox.width + 96, page9BoxSwitchProgress),
-    height: page6InlineResourceBaseBox.height + 8,
-    radius: page6InlineResourceBaseBox.radius + 3,
-  };
   const page7SharedRenderBox = mixBox(
     page6InlineResourceBaseBox,
-    page9SharedTargetBox,
+    PAGE9_SHARED_RESOURCE_BOX,
     page9CarryMorphProgress,
   );
   const page7SharedCenterX = boxCenterX(page7SharedRenderBox);
   const page7SharedCenterY = boxCenterY(page7SharedRenderBox);
-  const page7ShaderMapBridgeStartX = page6ShaderMapCenterX;
+  const page7ShaderMapBridgeStartX = boxRight(page6ShaderMapBox);
   const page7ShaderMapBridgeStartY = mix(
     page6ShaderMapCenterY,
     boxBottom(page6ShaderMapBox) + 4,
     page89MorphProgress,
   );
   const page7ShaderMapBridgeEndY = mix(
-    page6ShaderMapCenterY + 6,
+    page6ShaderMapCenterY,
     boxCenterY(page7SharedRenderBox),
     page9CarryMorphProgress,
   );
-  const page7ShaderMapBridgeStubX = page7ShaderMapBridgeStartX + 26;
+  const page7ShaderMapBridgeStubX = page7ShaderMapBridgeStartX + 20;
   const page7ShaderMapBridgeEndX = mix(
     page6ShaderArrowCurrentEndX,
     page7SharedRenderBox.x,
@@ -143,23 +135,44 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     settledPage89Progress > 0.72
       ? "page9-shadermap-to-sharedcode-arrow"
       : "page6-shadermap-to-inline-arrow";
+  const page9SharedEntryX = page7SharedRenderBox.x + page7SharedRenderBox.width * 0.68;
+  const page9SharedEntryY = page7SharedRenderBox.y;
+  const page9SharedEntryLaneY = page7SharedRenderBox.y - 14;
+  const page7BridgePath =
+    page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
+      ? polylinePath([
+          {x: page7ShaderMapBridgeStartX, y: page6ShaderMapCenterY},
+          {x: page7ShaderMapBridgeStubX, y: page6ShaderMapCenterY},
+          {x: page7ShaderMapBridgeStubX, y: page9SharedEntryLaneY},
+          {x: page9SharedEntryX, y: page9SharedEntryLaneY},
+          {x: page9SharedEntryX, y: page9SharedEntryY},
+        ])
+      : polylinePath([
+          {x: page7ShaderMapBridgeStartX, y: page7ShaderMapBridgeStartY},
+          {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeStartY},
+          {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeEndY},
+          {x: page7ShaderMapBridgeEndX, y: page7ShaderMapBridgeEndY},
+        ]);
 
   return (
     <>
       {page7LookupBridgeOpacity > 0.001 ? (
         <StrokeArrow
           testId={page7BridgeTestId}
-          d={polylinePath([
-            {x: page7ShaderMapBridgeStartX, y: page7ShaderMapBridgeStartY},
-            {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeStartY},
-            {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeEndY},
-            {x: page7ShaderMapBridgeEndX, y: page7ShaderMapBridgeEndY},
-          ])}
+          d={page7BridgePath}
           stroke={wireStroke}
           opacity={page7LookupBridgeOpacity}
-          tipX={page7ShaderMapBridgeEndX}
-          tipY={page7ShaderMapBridgeEndY}
-          direction="right"
+          tipX={
+            page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
+              ? page9SharedEntryX
+              : page7ShaderMapBridgeEndX
+          }
+          tipY={
+            page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
+              ? page9SharedEntryY
+              : page7ShaderMapBridgeEndY
+          }
+          direction={page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" ? "down" : "right"}
           shaftWidth={3}
           underlayWidth={5.6}
           underlayOpacity={0.1}

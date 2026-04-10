@@ -19,6 +19,7 @@ import {
   PAGE9_MATERIAL_A_BOX,
   PAGE9_MATERIAL_B_BOX,
   PAGE9_MATERIAL_C_BOX,
+  PAGE9_SHARED_RESOURCE_BOX,
   PAGE9_SHADERMAP_ENTRIES_BOX,
 } from "./page-layout-constants";
 import {
@@ -50,17 +51,9 @@ export function Page09Scene({scene}: {scene: SceneModel}) {
   const materialScale = 0.95 + easeInOutCubic(materialOpacity) * 0.05;
   const libraryScale = 0.965 + easeInOutCubic(page9LibraryOpacity) * 0.035;
   const fshaderBox = mixBox(page6FShaderBox, PAGE9_FSHADER_BOX, fshaderMorphProgress);
-  const sharedLiftedBox = {
-    ...page6InlineResourceBaseBox,
-    x: page6InlineResourceBaseBox.x - 88,
-    y: page6InlineResourceBaseBox.y + 102,
-    width: page6InlineResourceBaseBox.width + 96,
-    height: page6InlineResourceBaseBox.height + 8,
-    radius: page6InlineResourceBaseBox.radius + 3,
-  };
   const sharedBox = mixBox(
     page6InlineResourceBaseBox,
-    sharedLiftedBox,
+    PAGE9_SHARED_RESOURCE_BOX,
     settledPage89Progress,
   );
 
