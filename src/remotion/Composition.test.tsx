@@ -2031,6 +2031,19 @@ describe("MyComposition", () => {
     expect(rectMetrics(page9PsoRect).y - rectMetrics(sharedResourceRect).bottom).toBeGreaterThanOrEqual(84);
   });
 
+  it("keeps the page 09 SharedCode carry box inside the uasset frame with a visible right breathing margin", () => {
+    mockFrame = 342;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
+    const sharedResourceRect = container
+      .querySelector('[data-testid="page9-shared-resource-box"]')
+      ?.querySelector("rect");
+
+    expect(
+      rectMetrics(uassetRect).right - rectMetrics(sharedResourceRect).right,
+    ).toBeGreaterThanOrEqual(32);
+  });
+
   it("keeps the page 09 VS/PS proof lane from scraping directly under the SharedCode carry box", () => {
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
