@@ -135,16 +135,15 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     settledPage89Progress > 0.72
       ? "page9-shadermap-to-sharedcode-arrow"
       : "page6-shadermap-to-inline-arrow";
-  const page9SharedEntryX = page7SharedRenderBox.x + page7SharedRenderBox.width * 0.68;
-  const page9SharedEntryY = page7SharedRenderBox.y;
-  const page9SharedEntryLaneY = page7SharedRenderBox.y - 14;
+  const page9SharedEntryX = page7SharedRenderBox.x;
+  const page9SharedEntryY = boxCenterY(page7SharedRenderBox);
+  const page9SharedEntryPreX = page9SharedEntryX - 8;
   const page7BridgePath =
     page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
       ? polylinePath([
           {x: page7ShaderMapBridgeStartX, y: page6ShaderMapCenterY},
-          {x: page7ShaderMapBridgeStubX, y: page6ShaderMapCenterY},
-          {x: page7ShaderMapBridgeStubX, y: page9SharedEntryLaneY},
-          {x: page9SharedEntryX, y: page9SharedEntryLaneY},
+          {x: page7ShaderMapBridgeStartX + 10, y: page6ShaderMapCenterY},
+          {x: page9SharedEntryPreX, y: page9SharedEntryY},
           {x: page9SharedEntryX, y: page9SharedEntryY},
         ])
       : polylinePath([
@@ -172,7 +171,7 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
               ? page9SharedEntryY
               : page7ShaderMapBridgeEndY
           }
-          direction={page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" ? "down" : "right"}
+          direction="right"
           shaftWidth={3}
           underlayWidth={5.6}
           underlayOpacity={0.1}
@@ -297,21 +296,26 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
                 <g data-testid="page8-shared-resource-box" opacity={0} />
                 <text
                   x={page7SharedCenterX}
-                  y={page7SharedRenderBox.y + 38}
+                  y={page7SharedRenderBox.y + 34}
                   fill="#22303d"
-                  fontSize="20"
+                  fontSize="18.2"
                   fontWeight="730"
                   letterSpacing="-0.15px"
                   textAnchor="middle"
                   dominantBaseline="middle"
                   opacity={page7SharedLabelOpacity}
                 >
-                  FShaderMapResource_SharedCode
+                  <tspan x={page7SharedCenterX} dy="-8">
+                    FShaderMapResource_
+                  </tspan>
+                  <tspan x={page7SharedCenterX} dy="20">
+                    SharedCode
+                  </tspan>
                 </text>
                 {page9LeftCarryOpacity > 0.001 ? (
                   <ArrowLabelPill
                     x={page7SharedCenterX}
-                    y={page7SharedRenderBox.y + 74}
+                    y={page7SharedRenderBox.y + 76}
                     width={192}
                     height={28}
                     label="ShaderMapIndex"

@@ -2016,7 +2016,8 @@ describe("MyComposition", () => {
     expect((fshaderBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(fshaderRect));
     expect((fshaderBranchVertices[2]?.x ?? 0)).toBeGreaterThan(rectMetrics(sharedResourceRect).right + 20);
     expect((shaderMapIndexBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(sharedResourceRect));
-    expect(rectMetrics(sharedResourceRect).width).toBeGreaterThanOrEqual(360);
+    expect(rectMetrics(sharedResourceRect).width).toBeGreaterThanOrEqual(220);
+    expect(rectMetrics(sharedResourceRect).width).toBeLessThanOrEqual(280);
   });
 
   it("keeps the page 09 SharedCode carry box lifted clear of the inherited PSO band", () => {
@@ -2048,9 +2049,13 @@ describe("MyComposition", () => {
     expect((vsProofVertices[1]?.y ?? 0) - projectedSharedBottom).toBeGreaterThanOrEqual(18);
   });
 
-  it("routes the page 09 ShaderMap handoff into the SharedCode box from a dedicated top entry lane", () => {
+  it("routes the page 09 ShaderMap handoff into the SharedCode box through a clean horizontal lane", () => {
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const shaderMapRect = findVisibleBoxGroupByLabel(
+      container,
+      "FMaterialShaderMap",
+    )?.querySelector("rect");
     const sharedResourceRect = container
       .querySelector('[data-testid="page9-shared-resource-box"]')
       ?.querySelector("rect");
@@ -2059,17 +2064,11 @@ describe("MyComposition", () => {
     );
 
     expect(shaderMapToSharedVertices.length).toBeGreaterThanOrEqual(4);
-    expect((shaderMapToSharedVertices.at(-1)?.y ?? 0)).toBeLessThanOrEqual(
-      rectMetrics(sharedResourceRect).y + 2,
-    );
-    expect((shaderMapToSharedVertices.at(-2)?.y ?? 0)).toBeLessThan(
-      rectMetrics(sharedResourceRect).y - 6,
-    );
-    expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeGreaterThan(
-      rectMetrics(sharedResourceRect).x + 56,
-    );
-    expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeLessThan(
-      rectMetrics(sharedResourceRect).right - 56,
+    expect(Math.abs((shaderMapToSharedVertices[0]?.y ?? 0) - rectCenterY(shaderMapRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs((shaderMapToSharedVertices.at(-1)?.y ?? 0) - rectCenterY(sharedResourceRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs((shaderMapToSharedVertices[0]?.y ?? 0) - (shaderMapToSharedVertices.at(-1)?.y ?? 0))).toBeLessThanOrEqual(2);
+    expect((shaderMapToSharedVertices.at(-1)?.x ?? 0)).toBeLessThanOrEqual(
+      rectMetrics(sharedResourceRect).x + 2,
     );
   });
 
