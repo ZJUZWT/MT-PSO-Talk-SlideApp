@@ -1,5 +1,8 @@
 import {describe, expect, it, vi} from "vitest";
-import {tryWriteImageBlobToClipboard} from "./captureImage";
+import {
+  postImageBlobToEndpoint,
+  tryWriteImageBlobToClipboard,
+} from "./captureImage";
 
 class ClipboardItemMock {
   readonly payload: Record<string, Blob>;
@@ -43,5 +46,32 @@ describe("captureImage", () => {
         ClipboardItemCtor: undefined,
       }),
     ).resolves.toBe(false);
+  });
+
+  it("posts a PNG blob to an automation endpoint with capture metadata", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ok: true});
+    const blob = new Blob(["png"], {type: "image/png"});
+
+    await expect(
+      postImageBlobToEndpoint(blob, {
+        fetchImpl: fetchMock,
+        postUrl: "http://127.0.0.1:9999/capture",
+        scope: "page",
+        sourceUrl: "http://127.0.0.1:4173/?step=page_09",
+        targetId: "workbench-shell",
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("scope=page"),
+      expect.objectContaining({
+        body: blob,
+        headers: expect.objectContaining({
+          "Content-Type": "image/png",
+          "X-Slide-Capture-Target": "workbench-shell",
+        }),
+        method: "POST",
+      }),
+    );
   });
 });

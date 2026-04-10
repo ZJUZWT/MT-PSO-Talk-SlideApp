@@ -1,10 +1,18 @@
 import type {RefObject} from "react";
 import {useMemo, useState} from "react";
+import {
+  GEOMETRY_METRIC_META,
+  GEOMETRY_SCORE_META,
+  buildGeometryReviewArtifact,
+  formatGeometryMetricValue,
+} from "../harness/slide-geometry/review/geometryReviewArtifact";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 import {CaptureClipboardButton} from "./CaptureClipboardButton";
 
 type ReviewHudProps = {
+  sketchReviewArtifact?: ReturnType<typeof buildGeometryReviewArtifact> | null;
   stageTargetRef: RefObject<HTMLDivElement | null>;
+  reviewUrl: string;
   state: WorkbenchState;
 };
 
@@ -54,7 +62,12 @@ function resolveReviewVerdict(scores: ReviewScores) {
   return "可以归档";
 }
 
-export function ReviewHud({stageTargetRef, state}: ReviewHudProps) {
+export function ReviewHud({
+  sketchReviewArtifact,
+  stageTargetRef,
+  reviewUrl,
+  state,
+}: ReviewHudProps) {
   const [scoresByStep, setScoresByStep] = useState<
     Partial<Record<WorkbenchState["stepId"], ReviewScores>>
   >({});
@@ -120,43 +133,128 @@ export function ReviewHud({stageTargetRef, state}: ReviewHudProps) {
         variant="inline"
       />
 
-      <div className="review-score-grid">
-        {REVIEW_AXES.map((axis) => (
-          <label key={axis.id} className="review-score-field">
-            <span className="review-score-label">{axis.label}</span>
-            <select
-              className="review-score-select"
-              aria-label={axis.label}
-              value={activeScores[axis.id]}
-              onChange={(event) => {
-                const nextValue = Number(event.target.value);
+      <label className="review-hud-field">
+        <span className="review-hud-label">Review URL</span>
+        <input
+          aria-label="Review URL"
+          className="review-hud-url"
+          readOnly
+          type="text"
+          value={reviewUrl}
+        />
+      </label>
 
-                setScoresByStep((current) => ({
-                  ...current,
-                  [state.stepId]: {
-                    ...(current[state.stepId] ?? EMPTY_SCORES),
-                    [axis.id]: nextValue,
-                  },
-                }));
-              }}
-            >
-              {[0, 1, 2, 3, 4, 5].map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
+      {sketchReviewArtifact ? (
+        <>
+          <section className="review-detail-panel" aria-label="Sketch review facts">
+            <p className="review-hud-summary-copy">Fact-bound sketch review</p>
+            <div className="review-detail-grid">
+              {sketchReviewArtifact.facts.map((fact) => (
+                <div key={fact.label} className="review-detail-card">
+                  <span className="review-score-label">{fact.label}</span>
+                  <span className="review-detail-value">{fact.value}</span>
+                </div>
               ))}
-            </select>
-          </label>
-        ))}
-      </div>
+            </div>
+          </section>
 
-      <div className="review-hud-summary">
-        <p className="review-hud-summary-copy">Rendered self-check</p>
-        <output className="review-hud-score" aria-label="Review Score">
-          {reviewScore} / 5.0
-        </output>
-        <p className="review-hud-verdict">{reviewVerdict}</p>
-      </div>
+          <section className="review-detail-panel" aria-label="Sketch review metrics">
+            <p className="review-hud-summary-copy">Measured geometry</p>
+            <div className="review-detail-grid">
+              {GEOMETRY_METRIC_META.map((metric) => (
+                <div key={metric.id} className="review-detail-card">
+                  <span className="review-score-label">{metric.label}</span>
+                  <span className="review-detail-value">
+                    {formatGeometryMetricValue(
+                      metric.id,
+                      sketchReviewArtifact.metrics[metric.id],
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="review-detail-panel" aria-label="Sketch review scores">
+            <p className="review-hud-summary-copy">Mechanical score bands</p>
+            <div className="review-detail-grid">
+              <div className="review-detail-card">
+                <span className="review-score-label">Blockers open</span>
+                <span className="review-detail-value">
+                  {sketchReviewArtifact.scores.blockerOpen ? "Yes" : "No"}
+                </span>
+              </div>
+              {GEOMETRY_SCORE_META.map((score) => (
+                <div key={score.id} className="review-detail-card">
+                  <span className="review-score-label">{score.label}</span>
+                  <span className="review-detail-value">
+                    {sketchReviewArtifact.scores[score.id]} / 10
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="review-hud-summary">
+            <p className="review-hud-summary-copy">Mechanical floor</p>
+            <output className="review-hud-score" aria-label="Mechanical Score">
+              {sketchReviewArtifact.mechanicalScore.toFixed(1)} / 10.0
+            </output>
+            <p className="review-hud-verdict">{sketchReviewArtifact.verdict}</p>
+          </div>
+
+          <section className="review-detail-panel" aria-label="Top next fixes">
+            <p className="review-hud-summary-copy">Top next fixes</p>
+            <ol className="review-fix-list">
+              {sketchReviewArtifact.topFixes.map((fix) => (
+                <li key={fix} className="review-fix-item">
+                  {fix}
+                </li>
+              ))}
+            </ol>
+          </section>
+        </>
+      ) : (
+        <>
+          <div className="review-score-grid">
+            {REVIEW_AXES.map((axis) => (
+              <label key={axis.id} className="review-score-field">
+                <span className="review-score-label">{axis.label}</span>
+                <select
+                  className="review-score-select"
+                  aria-label={axis.label}
+                  value={activeScores[axis.id]}
+                  onChange={(event) => {
+                    const nextValue = Number(event.target.value);
+
+                    setScoresByStep((current) => ({
+                      ...current,
+                      [state.stepId]: {
+                        ...(current[state.stepId] ?? EMPTY_SCORES),
+                        [axis.id]: nextValue,
+                      },
+                    }));
+                  }}
+                >
+                  {[0, 1, 2, 3, 4, 5].map((value) => (
+                    <option key={value} value={value}>
+                      {value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+          </div>
+
+          <div className="review-hud-summary">
+            <p className="review-hud-summary-copy">Rendered self-check</p>
+            <output className="review-hud-score" aria-label="Review Score">
+              {reviewScore} / 5.0
+            </output>
+            <p className="review-hud-verdict">{reviewVerdict}</p>
+          </div>
+        </>
+      )}
     </aside>
   );
 }

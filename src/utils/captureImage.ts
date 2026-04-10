@@ -13,6 +13,13 @@ type WriteClipboardDeps = {
   ClipboardItemCtor?: ClipboardItemConstructorLike | undefined;
 };
 
+export type CaptureScope = "page" | "stage";
+
+export type FetchLike = (
+  input: string,
+  init?: RequestInit,
+) => Promise<{ok: boolean}>;
+
 export async function tryWriteImageBlobToClipboard(
   blob: Blob,
   deps: WriteClipboardDeps = {},
@@ -53,6 +60,64 @@ type CaptureElementOptions = {
   backgroundColor?: string;
 };
 
+type PostImageBlobOptions = {
+  fetchImpl?: FetchLike;
+  postUrl: string;
+  scope: CaptureScope;
+  sourceUrl: string;
+  targetId: string;
+};
+
+export async function captureElementToBlob(
+  element: HTMLElement,
+  backgroundColor = "#fcf9f3",
+) {
+  const imageBlob = await toBlob(element, {
+    cacheBust: true,
+    backgroundColor,
+    pixelRatio: Math.max(2, window.devicePixelRatio || 1),
+    filter: (node) => {
+      return !(
+        node instanceof HTMLElement && node.dataset.captureIgnore === "true"
+      );
+    },
+  });
+
+  if (!imageBlob) {
+    throw new Error("Capture returned no image data");
+  }
+
+  return imageBlob;
+}
+
+export async function postImageBlobToEndpoint(
+  blob: Blob,
+  {
+    fetchImpl = (input, init) => fetch(input, init),
+    postUrl,
+    scope,
+    sourceUrl,
+    targetId,
+  }: PostImageBlobOptions,
+) {
+  const endpoint = new URL(postUrl);
+  endpoint.searchParams.set("scope", scope);
+  endpoint.searchParams.set("sourceUrl", sourceUrl);
+
+  const response = await fetchImpl(endpoint.toString(), {
+    body: blob,
+    headers: {
+      "Content-Type": blob.type || "image/png",
+      "X-Slide-Capture-Target": targetId,
+    },
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Capture post failed for ${scope}`);
+  }
+}
+
 export async function captureElementToClipboardOrDownload({
   element,
   fileName,
@@ -61,20 +126,7 @@ export async function captureElementToClipboardOrDownload({
   let imageBlob: Blob | null = null;
 
   try {
-    imageBlob = await toBlob(element, {
-      cacheBust: true,
-      backgroundColor,
-      pixelRatio: Math.max(2, window.devicePixelRatio || 1),
-      filter: (node) => {
-        return !(
-          node instanceof HTMLElement && node.dataset.captureIgnore === "true"
-        );
-      },
-    });
-
-    if (!imageBlob) {
-      throw new Error("Capture returned no image data");
-    }
+    imageBlob = await captureElementToBlob(element, backgroundColor);
 
     if (await tryWriteImageBlobToClipboard(imageBlob)) {
       return "copied";

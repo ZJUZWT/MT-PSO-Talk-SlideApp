@@ -400,6 +400,69 @@ describe("App", () => {
     );
   });
 
+  it("boots directly into sketch mode and exposes the latest sketch review url", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page09-r1&review=1",
+    );
+
+    render(<App />);
+
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-stage-mode",
+      "sketch",
+    );
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-sketch-id",
+      "page09-r1",
+    );
+
+    const reviewUrl = screen.getByLabelText("Review URL") as HTMLInputElement;
+    expect(reviewUrl.value).toContain("mode=sketch");
+    expect(reviewUrl.value).toContain("sketch=page09-r1");
+    expect(screen.getByText("Geometry Sketch")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Show SharedCode as the new receiver plane for shared lookup."),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a stage-only capture surface when requested by query param", () => {
+    window.history.replaceState({}, "", "/?step=page_09&surface=stage");
+
+    render(<App />);
+
+    expect(document.querySelector(".capture-stage-shell")).toBeInTheDocument();
+    expect(document.querySelector(".stage-runtime")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Speaker notes")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Workbench controls")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Review HUD")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {name: "复制当前页面截图"}),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a fact-bound sketch review instead of manual self-scoring", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page09-r1&review=1",
+    );
+
+    render(<App />);
+
+    expect(screen.getByText("Fact-bound sketch review")).toBeInTheDocument();
+    expect(screen.getByText("Top next fixes")).toBeInTheDocument();
+    expect(screen.getByText("Minimum node gap")).toBeInTheDocument();
+    expect(screen.getByText("0px")).toBeInTheDocument();
+    expect(screen.getByText("Primary line clarity")).toBeInTheDocument();
+    expect(screen.getByLabelText("Mechanical Score")).toHaveTextContent(
+      "3.4 / 10.0",
+    );
+    expect(screen.getByText("Remove layout overlaps before critic pass")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Blocker")).not.toBeInTheDocument();
+  });
+
   it("lets the review HUD jump straight to another page without opening the main controls", async () => {
     const user = userEvent.setup();
     window.history.replaceState({}, "", "/?review=1");
@@ -505,6 +568,117 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(downloadClickMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("captures only the sketch stage runtime while in sketch mode", async () => {
+    const user = userEvent.setup();
+    const imageBlob = new Blob(["png"], {type: "image/png"});
+    const downloadClickMock = vi.fn();
+    toBlobMock.mockResolvedValue(imageBlob);
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: vi.fn(() => "blob:slideapp-sketch-test"),
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: vi.fn(),
+    });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(downloadClickMock);
+    Object.defineProperty(globalThis.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page09-r1&review=1",
+    );
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", {name: "复制当前舞台截图"}));
+
+    await waitFor(() => {
+      expect(toBlobMock).toHaveBeenCalledWith(
+        document.querySelector('.stage-runtime[data-stage-mode="sketch"]'),
+        expect.objectContaining({
+          cacheBust: true,
+          pixelRatio: 2,
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(downloadClickMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("auto-exports the full workbench shell to a capture endpoint when requested by query params", async () => {
+    const imageBlob = new Blob(["png"], {type: "image/png"});
+    const fetchMock = vi.fn().mockResolvedValue({ok: true});
+    toBlobMock.mockResolvedValue(imageBlob);
+    vi.stubGlobal("fetch", fetchMock);
+    window.history.replaceState(
+      {},
+      "",
+      "/?capture=1&captureScope=page&captureTransport=post&capturePostUrl=http://127.0.0.1:9999/capture",
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(toBlobMock).toHaveBeenCalledWith(
+        document.querySelector(".workbench-shell"),
+        expect.objectContaining({
+          cacheBust: true,
+          pixelRatio: 2,
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("scope=page"),
+        expect.objectContaining({
+          body: imageBlob,
+          method: "POST",
+        }),
+      );
+    });
+  });
+
+  it("auto-exports the sketch stage runtime to a capture endpoint when requested by query params", async () => {
+    const imageBlob = new Blob(["png"], {type: "image/png"});
+    const fetchMock = vi.fn().mockResolvedValue({ok: true});
+    toBlobMock.mockResolvedValue(imageBlob);
+    vi.stubGlobal("fetch", fetchMock);
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page09-r1&review=1&capture=1&captureScope=stage&captureTransport=post&capturePostUrl=http://127.0.0.1:9999/capture",
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(toBlobMock).toHaveBeenCalledWith(
+        document.querySelector('.stage-runtime[data-stage-mode="sketch"]'),
+        expect.objectContaining({
+          cacheBust: true,
+          pixelRatio: 2,
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("scope=stage"),
+        expect.objectContaining({
+          body: imageBlob,
+          method: "POST",
+        }),
+      );
     });
   });
 });
