@@ -1081,11 +1081,11 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const page9LookupOpacity = clamp01((settledPage89Progress - 0.24) / 0.18);
   const page9ProofOpacity = clamp01((settledPage89Progress - 0.42) / 0.18);
   const page9VsHashLibraryTargetGlobal = projectPage6StagePoint(
-    PAGE9_HASHES_BOX.x + 92,
+    boxRight(PAGE9_HASHES_BOX) - 92,
     boxBottom(PAGE9_HASHES_BOX),
   );
   const page9PsHashLibraryTargetGlobal = projectPage6StagePoint(
-    boxRight(PAGE9_HASHES_BOX) - 92,
+    PAGE9_HASHES_BOX.x + 92,
     boxBottom(PAGE9_HASHES_BOX),
   );
   const page8HashFocusOpacity =

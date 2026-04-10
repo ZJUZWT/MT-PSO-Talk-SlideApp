@@ -2127,7 +2127,7 @@ describe("MyComposition", () => {
     expect(Math.abs((shaderMapIndexBranchVertices.at(-1)?.y ?? 0) - (shaderMapIndexBranchVertices[0]?.y ?? 0))).toBeLessThanOrEqual(2);
   });
 
-  it("swaps the page 09 VS and PS proof endpoints so the two proof lines do not weave across the library floor", () => {
+  it("keeps the page 09 VS and PS proof endpoints aligned to their own left-right order on the hash table floor", () => {
     mockFrame = 342;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const vsProofVertices = parsePolylineVertices(
@@ -2138,7 +2138,7 @@ describe("MyComposition", () => {
     );
 
     expect((vsProofVertices[0]?.x ?? 0)).toBeLessThan((psProofVertices[0]?.x ?? 0));
-    expect((vsProofVertices.at(-1)?.x ?? 0)).toBeGreaterThan((psProofVertices.at(-1)?.x ?? 0));
+    expect((vsProofVertices.at(-1)?.x ?? 0)).toBeLessThan((psProofVertices.at(-1)?.x ?? 0));
   });
 
   it("keeps page 09 diagram typography above the PPT readability floor", () => {
