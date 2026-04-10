@@ -2139,6 +2139,7 @@ describe("MyComposition", () => {
 
     expect((vsProofVertices[0]?.x ?? 0)).toBeLessThan((psProofVertices[0]?.x ?? 0));
     expect((vsProofVertices.at(-1)?.x ?? 0)).toBeLessThan((psProofVertices.at(-1)?.x ?? 0));
+    expect((psProofVertices.at(-1)?.x ?? 0) - (vsProofVertices.at(-1)?.x ?? 0)).toBeGreaterThanOrEqual(40);
   });
 
   it("keeps page 09 diagram typography above the PPT readability floor", () => {
