@@ -98,6 +98,7 @@ import {
   PAGE_07_FRAME,
   PAGE_08_FRAME,
   PAGE_09_FRAME,
+  PAGE_10_FRAME,
   VIEWBOX,
 } from "../pages/page-layout-constants";
 
@@ -128,6 +129,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const page67Progress = resolveSegmentProgress(frame, PAGE_06_FRAME, PAGE_07_FRAME);
   const page78Progress = resolveSegmentProgress(frame, PAGE_07_FRAME, PAGE_08_FRAME);
   const page89Progress = resolveSegmentProgress(frame, PAGE_08_FRAME, PAGE_09_FRAME);
+  const page910Progress = resolveSegmentProgress(frame, PAGE_09_FRAME, PAGE_10_FRAME);
   const page56LinearProgress = resolveLinearSegmentProgress(
     frame,
     PAGE_05_FRAME,
@@ -146,6 +148,8 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const settledPage67Progress = frame <= PAGE_06_FRAME ? 0 : frame >= PAGE_07_FRAME ? 1 : page67Progress;
   const settledPage78Progress = frame <= PAGE_07_FRAME ? 0 : frame >= PAGE_08_FRAME ? 1 : page78Progress;
   const settledPage89Progress = frame <= PAGE_08_FRAME ? 0 : frame >= PAGE_09_FRAME ? 1 : page89Progress;
+  const settledPage910Progress =
+    frame <= PAGE_09_FRAME ? 0 : frame >= PAGE_10_FRAME ? 1 : page910Progress;
   const theme = VARIANT_THEME[variantId];
 
   const neutralFill = "rgba(255, 251, 246, 0.98)";
@@ -1102,6 +1106,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
 
 
   return {
+    frame,
     PAGE5_SPINE_SHIFT,
     page12Progress,
     page23Progress,
@@ -1111,6 +1116,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
     page67Progress,
     page78Progress,
     page89Progress,
+    page910Progress,
     page56LinearProgress,
     page67LinearProgress,
     settledPage12Progress,
@@ -1121,6 +1127,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
     settledPage67Progress,
     settledPage78Progress,
     settledPage89Progress,
+    settledPage910Progress,
     theme,
     neutralFill,
     focusFill,

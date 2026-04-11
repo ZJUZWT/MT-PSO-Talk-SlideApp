@@ -10,6 +10,7 @@ export type SketchContract = {
 };
 
 export type SketchNodeTone = "default" | "receiver" | "muted";
+export type SketchNodeShape = "roundedRect" | "circle";
 
 export type SketchNode = {
   id: string;
@@ -20,6 +21,14 @@ export type SketchNode = {
   width: number;
   height: number;
   tone?: SketchNodeTone;
+  shape?: SketchNodeShape;
+  renderStyle?: "default" | "outline" | "textOnly";
+  textRotationDeg?: number;
+  labelLines?: string[];
+  fontSizeOverride?: number;
+  fontWeightOverride?: number;
+  textStrokeWidth?: number;
+  textColorOverride?: string;
 };
 
 export type SketchPoint = {
@@ -36,6 +45,13 @@ export type SketchEdge = {
   waypoints?: SketchPoint[];
   tone?: SketchEdgeTone;
   dashed?: boolean;
+  label?: string;
+  labelPoint?: SketchPoint;
+  opacity?: number;
+  colorOverride?: string;
+  strokeWidthOverride?: number;
+  arrowStart?: boolean;
+  arrowEnd?: boolean;
 };
 
 export type GeometrySketchDefinition = {
@@ -45,4 +61,13 @@ export type GeometrySketchDefinition = {
   contract: SketchContract;
   nodes: SketchNode[];
   edges: SketchEdge[];
+  referenceImage?: {
+    src: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    opacity?: number;
+    preserveAspectRatio?: string;
+  };
 };

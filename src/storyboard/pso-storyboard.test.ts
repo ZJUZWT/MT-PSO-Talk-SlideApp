@@ -13,10 +13,15 @@ describe("masterStoryboard", () => {
       "page_07",
       "page_08",
       "page_09",
+      "page_10",
+      "page_11",
+      "page_12",
+      "page_13",
+      "page_14",
     ]);
   });
 
-  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the split UE shader-code zoom narrative", () => {
+  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the loop chapter after SharedCode", () => {
     const page01 = masterStoryboard.steps[0];
     const page02 = masterStoryboard.steps[1];
     const page03 = masterStoryboard.steps[2];
@@ -26,6 +31,11 @@ describe("masterStoryboard", () => {
     const page07 = masterStoryboard.steps[6];
     const page08 = masterStoryboard.steps[7];
     const page09 = masterStoryboard.steps[8];
+    const page10 = masterStoryboard.steps[9];
+    const page11 = masterStoryboard.steps[10];
+    const page12 = masterStoryboard.steps[11];
+    const page13 = masterStoryboard.steps[12];
+    const page14 = masterStoryboard.steps[13];
 
     expect(page01?.label).toBe("Input -> f(x) -> Output");
     expect(page01?.caption).toContain("最小骨架");
@@ -79,5 +89,24 @@ describe("masterStoryboard", () => {
     expect(page09?.manuscript).toContain("ShaderArchive");
     expect(page09?.manuscript).toContain("去重");
     expect(page09?.manuscript).toContain("PSO");
+    expect(page10?.label).toBe("Cook 产物如何走向运行时");
+    expect(page10?.manuscript).toContain(".shaderbytecode");
+    expect(page10?.manuscript).toContain(".scl.csv");
+    expect(page10?.manuscript).toContain("手机");
+    expect(page11?.label).toBe("Cook 文件开始连到运行时");
+    expect(page11?.manuscript).toContain(".shaderbytecode");
+    expect(page11?.manuscript).toContain(".scl.csv");
+    expect(page11?.manuscript).toContain("运行时");
+    expect(page12?.label).toBe("运行时开始回传 PSO 记录");
+    expect(page12?.manuscript).toContain(".rec.upipelinecache");
+    expect(page12?.manuscript).toContain("回传");
+    expect(page13?.label).toBe("稳定产物如何在电脑侧展开");
+    expect(page13?.manuscript).toContain("stablepc.csv");
+    expect(page13?.manuscript).toContain("stable.upipelinecache");
+    expect(page13?.manuscript).toContain("expand");
+    expect(page14?.label).toBe("PSO 收集、构建、使用闭环");
+    expect(page14?.manuscript).toContain("闭环");
+    expect(page14?.manuscript).toContain("资产");
+    expect(page14?.manuscript).toContain("手机");
   });
 });

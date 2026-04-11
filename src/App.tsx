@@ -4,6 +4,7 @@ import {
   isGeometrySketchId,
   resolveGeometrySketch,
 } from "./harness/slide-geometry/registry/sketchRegistry";
+import {collectBrowserGeometryTextProbe} from "./harness/slide-geometry/review/browserGeometryTextProbe";
 import {buildGeometryReviewArtifact} from "./harness/slide-geometry/review/geometryReviewArtifact";
 import {CaptureClipboardButton} from "./components/CaptureClipboardButton";
 import {ControlBar} from "./components/ControlBar";
@@ -53,6 +54,8 @@ type InitialWorkbenchQuery = {
   controlsCollapsed: boolean;
   mode: "story" | "sketch";
   motionPresetId: MotionPresetId;
+  probeNodeId: string | null;
+  probeType: "geometry-text" | null;
   reviewMode: boolean;
   sketchId: string | null;
   surface: "workbench" | "stage";
@@ -93,6 +96,8 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
       controlsCollapsed: true,
       mode: "story",
       motionPresetId: DEFAULT_MOTION_PRESET_ID,
+      probeNodeId: null,
+      probeType: null,
       reviewMode: false,
       sketchId: null,
       surface: "workbench",
@@ -122,6 +127,8 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
     motionPresetId: isMotionPresetId(motionParam)
       ? motionParam
       : DEFAULT_MOTION_PRESET_ID,
+    probeNodeId: params.get("probeNodeId"),
+    probeType: params.get("probe") === "geometry-text" ? "geometry-text" : null,
     reviewMode: parseBooleanFlag(params.get("review")),
     sketchId: initialSketch?.id ?? null,
     surface: params.get("surface") === "stage" ? "stage" : "workbench",
@@ -149,6 +156,8 @@ export function App() {
   const captureRequestHandledRef = useRef(false);
   const stageCaptureTargetRef = useRef<HTMLDivElement | null>(null);
   const initialQueryState = useMemo(() => parseInitialWorkbenchQuery(), []);
+  const [isReviewMode] = useState(initialQueryState.reviewMode);
+  const [geometryTextProbePayload, setGeometryTextProbePayload] = useState("");
   const stageMode = initialQueryState.mode;
   const sketchDefinition = useMemo(
     () =>
@@ -159,8 +168,10 @@ export function App() {
   );
   const sketchReviewArtifact = useMemo(
     () =>
-      sketchDefinition ? buildGeometryReviewArtifact(sketchDefinition) : null,
-    [sketchDefinition],
+      isReviewMode && sketchDefinition
+        ? buildGeometryReviewArtifact(sketchDefinition)
+        : null,
+    [isReviewMode, sketchDefinition],
   );
   const state = useWorkbenchState({
     stepId: initialQueryState.stepId,
@@ -176,7 +187,6 @@ export function App() {
     direction: "forward" | "backward";
     outgoingStepId: typeof state.stepId;
   } | null>(null);
-  const [isReviewMode] = useState(initialQueryState.reviewMode);
   const captureEnabled = initialQueryState.captureEnabled;
   const capturePostUrl = initialQueryState.capturePostUrl;
   const captureScope = initialQueryState.captureScope;
@@ -254,6 +264,54 @@ export function App() {
 
   const reviewUrl =
     typeof window === "undefined" ? "" : window.location.href;
+
+  useEffect(() => {
+    if (initialQueryState.probeType !== "geometry-text" || !sketchDefinition) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const measureProbe = async () => {
+      const fontDocument = document as Document & {
+        fonts?: {
+          ready?: Promise<unknown>;
+        };
+      };
+      if (fontDocument.fonts?.ready) {
+        await fontDocument.fonts.ready;
+      }
+
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+      });
+
+      const root = stageCaptureTargetRef.current ?? captureTargetRef.current;
+      if (!root || cancelled) {
+        return;
+      }
+
+      const probe = collectBrowserGeometryTextProbe({
+        probeNodeId: initialQueryState.probeNodeId ?? undefined,
+        root,
+        sketch: sketchDefinition,
+      });
+
+      if (!cancelled) {
+        setGeometryTextProbePayload(JSON.stringify(probe));
+      }
+    };
+
+    void measureProbe();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    initialQueryState.probeNodeId,
+    initialQueryState.probeType,
+    sketchDefinition,
+  ]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -439,6 +497,14 @@ export function App() {
     >
       <div className="workbench-glow workbench-glow-left" />
       <div className="workbench-glow workbench-glow-right" />
+      {initialQueryState.probeType === "geometry-text" ? (
+        <pre
+          data-geometry-text-probe={geometryTextProbePayload ? "ready" : "pending"}
+          style={{display: "none"}}
+        >
+          {geometryTextProbePayload}
+        </pre>
+      ) : null}
       <ControlBar
         state={state}
         collapsed={controlsCollapsed}

@@ -12,6 +12,7 @@ import {Page06Scene} from "./pages/Page06Scene";
 import {Page07Scene} from "./pages/Page07Scene";
 import {Page08Scene} from "./pages/Page08Scene";
 import {Page09Scene} from "./pages/Page09Scene";
+import {Page10Scene} from "./pages/Page10Scene";
 import {VIEWBOX} from "./pages/page-layout-constants";
 
 type SceneSvgProps = {
@@ -32,10 +33,17 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     page6StageCenterY,
     page6StageOpacity,
     page6StageScale,
+    settledPage910Progress,
     zoomFocusX,
     zoomFocusY,
     zoomScale,
   } = scene;
+  const page910LegacyFade =
+    settledPage910Progress <= 0
+      ? 1
+      : settledPage910Progress >= 0.28
+        ? 0
+        : 1 - settledPage910Progress / 0.28;
   return (
     <AbsoluteFill
       style={{
@@ -72,7 +80,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
               {page6StageOpacity > 0.001 ? (
                 <g
                   data-testid="page6-stage-group"
-                  opacity={page6StageOpacity}
+                  opacity={page6StageOpacity * page910LegacyFade}
                   transform={`translate(${cameraViewportCenterX} ${cameraViewportCenterY}) scale(${page6StageScale}) translate(${-page6StageCenterX} ${-page6StageCenterY})`}
                 >
                   <Page06Scene scene={scene} />
@@ -81,7 +89,10 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 </g>
               ) : null}
 
-              <Page08Scene scene={scene} />
+              <g opacity={page910LegacyFade}>
+                <Page08Scene scene={scene} />
+              </g>
+              <Page10Scene scene={scene} />
           </g>
         </svg>
       </div>

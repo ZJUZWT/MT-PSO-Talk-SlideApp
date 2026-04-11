@@ -1,6 +1,19 @@
 import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
-import type {GeometryMetrics} from "./geometryMetrics";
-import {collectGeometryMetrics} from "./geometryMetrics";
+import {
+  collectGeometryTextOverflows,
+  resolveGeometryContainerIds,
+  resolveGeometryTextLayout,
+  resolveGeometryTextPadding,
+  shouldAuditGeometryNodeTypography,
+} from "../render/geometryText";
+import type {
+  GeometryMetrics,
+  NodeDirectionalClearance,
+} from "./geometryMetrics";
+import {
+  collectGeometryMetrics,
+  collectNodeDirectionalClearances,
+} from "./geometryMetrics";
 import type {GeometryMetricScores} from "./geometryScorePolicy";
 import {scoreGeometryMetrics} from "./geometryScorePolicy";
 
@@ -9,9 +22,42 @@ export type GeometryReviewFact = {
   value: string;
 };
 
+export type GeometryNodeTextMetric = {
+  nodeId: string;
+  label: string;
+  renderedFontPx: number;
+  renderedFontPt: number;
+  lineCount: number;
+  overflowPx: number;
+  topPaddingPx: number;
+  rightPaddingPx: number;
+  bottomPaddingPx: number;
+  leftPaddingPx: number;
+  tightestPaddingPx: number;
+};
+
+export type GeometryEdgeAnchorMetric = {
+  edgeId: string;
+  fromNodeId?: string;
+  fromLabel?: string;
+  fromSide: string;
+  fromOffsetPx: number;
+  fromOffsetAbsPx: number;
+  fromIsCorner: boolean;
+  toNodeId?: string;
+  toLabel?: string;
+  toSide: string;
+  toOffsetPx: number;
+  toOffsetAbsPx: number;
+  toIsCorner: boolean;
+};
+
 export type GeometryReviewArtifact = {
   facts: GeometryReviewFact[];
   metrics: GeometryMetrics;
+  nodeDirectionalClearances: NodeDirectionalClearance[];
+  nodeTextMetrics: GeometryNodeTextMetric[];
+  edgeAnchorMetrics: GeometryEdgeAnchorMetric[];
   scores: GeometryMetricScores;
   mechanicalScore: number;
   verdict: string;
@@ -24,10 +70,27 @@ export const GEOMETRY_METRIC_META: Array<{
 }> = [
   {id: "overlapCount", label: "Overlaps"},
   {id: "crossingCount", label: "Crossings"},
+  {id: "nodePierceCount", label: "Node piercings"},
+  {id: "badEndpointCount", label: "Bad endpoint anchors"},
   {id: "primaryLineBendCount", label: "Primary line bends"},
   {id: "avoidableBendCount", label: "Avoidable bends"},
+  {id: "textOverflowCount", label: "Overflowing labels"},
+  {id: "maxTextOverflowPx", label: "Maximum label overflow"},
+  {id: "minRenderedFontPx", label: "Minimum rendered font"},
   {id: "minNodeGap", label: "Minimum node gap"},
   {id: "minMargin", label: "Minimum outer margin"},
+  {id: "topMargin", label: "Top margin"},
+  {id: "rightMargin", label: "Right margin"},
+  {id: "bottomMargin", label: "Bottom margin"},
+  {id: "leftMargin", label: "Left margin"},
+  {id: "minSideClearance", label: "Minimum side clearance"},
+  {id: "crampedNodeCount", label: "Cramped node count"},
+  {id: "minInternalPadding", label: "Minimum internal padding"},
+  {id: "minInternalTopPadding", label: "Minimum internal top padding"},
+  {id: "minInternalRightPadding", label: "Minimum internal right padding"},
+  {id: "minInternalBottomPadding", label: "Minimum internal bottom padding"},
+  {id: "minInternalLeftPadding", label: "Minimum internal left padding"},
+  {id: "crampedInternalNodeCount", label: "Cramped internal node count"},
   {id: "leftRightMassDelta", label: "Left-right mass delta"},
 ];
 
@@ -35,6 +98,7 @@ export const GEOMETRY_SCORE_META: Array<{
   id: keyof Omit<GeometryMetricScores, "blockerOpen">;
   label: string;
 }> = [
+  {id: "stageLayout", label: "Stage layout"},
   {id: "layoutDensity", label: "Layout density"},
   {id: "balance", label: "Balance"},
   {id: "lineStraightness", label: "Line straightness"},
@@ -50,7 +114,21 @@ export function formatGeometryMetricValue(
   metricId: keyof GeometryMetrics,
   value: number,
 ) {
-  if (metricId === "minNodeGap" || metricId === "minMargin") {
+  if (
+    metricId === "minNodeGap" ||
+    metricId === "minMargin" ||
+    metricId === "topMargin" ||
+    metricId === "rightMargin" ||
+    metricId === "bottomMargin" ||
+    metricId === "leftMargin" ||
+    metricId === "maxTextOverflowPx" ||
+    metricId === "minRenderedFontPx" ||
+    metricId === "minInternalPadding" ||
+    metricId === "minInternalTopPadding" ||
+    metricId === "minInternalRightPadding" ||
+    metricId === "minInternalBottomPadding" ||
+    metricId === "minInternalLeftPadding"
+  ) {
     return `${Math.round(value)}px`;
   }
 
@@ -63,13 +141,14 @@ export function formatGeometryMetricValue(
 
 function resolveMechanicalScore(scores: GeometryMetricScores) {
   const total =
+    scores.stageLayout +
     scores.layoutDensity +
     scores.balance +
     scores.lineStraightness +
     scores.crossingRisk +
     scores.primaryLineClarity;
 
-  return Number((total / 5).toFixed(1));
+  return Number((total / 6).toFixed(1));
 }
 
 function resolveVerdict(
@@ -77,8 +156,16 @@ function resolveVerdict(
   scores: GeometryMetricScores,
 ) {
   if (scores.blockerOpen) {
+    if (metrics.textOverflowCount > 0) {
+      return "Fit overflowing labels before critic pass";
+    }
+
     if (metrics.overlapCount > 0) {
       return "Remove layout overlaps before critic pass";
+    }
+
+    if (metrics.nodePierceCount > 0) {
+      return "Stop lines from piercing node bodies before critic pass";
     }
 
     return "Remove line crossings before critic pass";
@@ -86,6 +173,10 @@ function resolveVerdict(
 
   if (scores.lineStraightness < 6 || scores.primaryLineClarity < 6) {
     return "Clean the primary route before critic pass";
+  }
+
+  if (scores.stageLayout < 7) {
+    return "Reframe the stage before critic pass";
   }
 
   if (scores.layoutDensity < 7) {
@@ -103,8 +194,45 @@ function buildTopFixes(
   sketch: GeometrySketchDefinition,
   metrics: GeometryMetrics,
   scores: GeometryMetricScores,
+  edgeAnchorMetrics: GeometryEdgeAnchorMetric[],
 ) {
+  const textOverflows = collectGeometryTextOverflows(sketch);
   const fixes: string[] = [];
+  const anchorIssues = edgeAnchorMetrics
+    .flatMap((metric) => [
+      {
+        edgeId: metric.edgeId,
+        endpoint: "from",
+        nodeId: metric.fromNodeId,
+        side: metric.fromSide,
+        offsetAbsPx: metric.fromOffsetAbsPx,
+        isCorner: metric.fromIsCorner,
+      },
+      {
+        edgeId: metric.edgeId,
+        endpoint: "to",
+        nodeId: metric.toNodeId,
+        side: metric.toSide,
+        offsetAbsPx: metric.toOffsetAbsPx,
+        isCorner: metric.toIsCorner,
+      },
+    ])
+    .filter(
+      (issue) =>
+        issue.nodeId &&
+        (issue.isCorner || issue.offsetAbsPx > 12),
+    )
+    .sort((left, right) => right.offsetAbsPx - left.offsetAbsPx);
+
+  if (metrics.textOverflowCount > 0) {
+    const labels = textOverflows
+      .slice(0, 2)
+      .map((overflow) => overflow.label)
+      .join(", ");
+    fixes.push(
+      `Fit ${metrics.textOverflowCount} overflowing label${metrics.textOverflowCount === 1 ? "" : "s"} before judging aesthetics; current blockers include ${labels}.`,
+    );
+  }
 
   if (metrics.overlapCount > 0) {
     fixes.push(
@@ -115,6 +243,31 @@ function buildTopFixes(
   if (metrics.crossingCount > 0) {
     fixes.push(
       `Eliminate ${metrics.crossingCount} line crossing${metrics.crossingCount === 1 ? "" : "s"} so the route reads in one glance.`,
+    );
+  }
+
+  if (metrics.nodePierceCount > 0) {
+    fixes.push(
+      `Repair ${metrics.nodePierceCount} line-to-node piercing${metrics.nodePierceCount === 1 ? "" : "s"}; some segments currently enter through a node body instead of landing cleanly on its boundary.`,
+    );
+  }
+
+  if (metrics.badEndpointCount > 0) {
+    fixes.push(
+      `Clean ${metrics.badEndpointCount} bad endpoint anchor${metrics.badEndpointCount === 1 ? "" : "s"} so lines approach nodes from a believable side instead of stabbing through them.`,
+    );
+  }
+
+  if (anchorIssues.length > 0) {
+    const labels = anchorIssues
+      .slice(0, 2)
+      .map(
+        (issue) =>
+          `${issue.edgeId}:${issue.endpoint}->${issue.nodeId} ${issue.side} ${Math.round(issue.offsetAbsPx)}px`,
+      )
+      .join(", ");
+    fixes.push(
+      `Recenter edge anchors so exits and arrivals feel averaged instead of corner-stabbed; current worst anchors are ${labels}.`,
     );
   }
 
@@ -130,6 +283,12 @@ function buildTopFixes(
     );
   }
 
+  if (metrics.minInternalPadding < 10) {
+    fixes.push(
+      `Open the text breathing room inside nodes: the tightest internal padding is ${Math.round(metrics.minInternalPadding)}px, so some labels still sit too close to their box edge.`,
+    );
+  }
+
   if (metrics.minMargin < 40) {
     fixes.push(
       `Pull the composition inward: the minimum outer margin is ${Math.round(metrics.minMargin)}px, below the 40px safety floor.`,
@@ -142,10 +301,26 @@ function buildTopFixes(
     );
   }
 
+  if (scores.stageLayout < 7) {
+    fixes.push(
+      `Reframe the stage envelope: top ${Math.round(metrics.topMargin)}px, right ${Math.round(metrics.rightMargin)}px, bottom ${Math.round(metrics.bottomMargin)}px, left ${Math.round(metrics.leftMargin)}px.`,
+    );
+  }
+
+  if (metrics.crampedNodeCount > 0) {
+    fixes.push(
+      `Open the cramped local pockets: ${metrics.crampedNodeCount} node${metrics.crampedNodeCount === 1 ? "" : "s"} currently have a tightest side clearance below 48px.`,
+    );
+  }
+
   if (fixes.length < 3) {
     fixes.push(
       `${sketch.contract.keepStable.replace(/\.$/, "")} while cleaning the route.`,
     );
+  }
+
+  if (fixes.length < 3) {
+    fixes.push(sketch.contract.newChange.replace(/\.$/, ""));
   }
 
   if (fixes.length < 3) {
@@ -155,23 +330,235 @@ function buildTopFixes(
   return fixes.slice(0, 3);
 }
 
+const ANCHOR_EPSILON = 0.001;
+
+function pointTouchesNode(
+  point: {x: number; y: number},
+  node: GeometrySketchDefinition["nodes"][number],
+) {
+  return (
+    point.x >= node.x - ANCHOR_EPSILON &&
+    point.x <= node.x + node.width + ANCHOR_EPSILON &&
+    point.y >= node.y - ANCHOR_EPSILON &&
+    point.y <= node.y + node.height + ANCHOR_EPSILON
+  );
+}
+
+function classifyAnchor(
+  node: GeometrySketchDefinition["nodes"][number],
+  point: {x: number; y: number},
+) {
+  const left = node.x;
+  const right = node.x + node.width;
+  const top = node.y;
+  const bottom = node.y + node.height;
+  const centerX = node.x + node.width / 2;
+  const centerY = node.y + node.height / 2;
+  const hitsLeft = Math.abs(point.x - left) <= ANCHOR_EPSILON;
+  const hitsRight = Math.abs(point.x - right) <= ANCHOR_EPSILON;
+  const hitsTop = Math.abs(point.y - top) <= ANCHOR_EPSILON;
+  const hitsBottom = Math.abs(point.y - bottom) <= ANCHOR_EPSILON;
+  const dx = Number((point.x - centerX).toFixed(1));
+  const dy = Number((point.y - centerY).toFixed(1));
+
+  if (
+    Math.abs(dx) <= ANCHOR_EPSILON &&
+    Math.abs(dy) <= ANCHOR_EPSILON &&
+    node.width <= 24 &&
+    node.height <= 24
+  ) {
+    return {
+      side: "junction-center",
+      offsetPx: 0,
+      offsetAbsPx: 0,
+      isCorner: false,
+    };
+  }
+
+  if ((hitsLeft || hitsRight) && (hitsTop || hitsBottom)) {
+    const horizontalSide = hitsRight ? "right" : "left";
+    const verticalSide = hitsTop ? "top" : "bottom";
+    const offsetPx = Math.abs(dy) <= Math.abs(dx) ? dy : dx;
+
+    return {
+      side: `${verticalSide}-${horizontalSide}-corner`,
+      offsetPx,
+      offsetAbsPx: Math.abs(offsetPx),
+      isCorner: true,
+    };
+  }
+
+  if (hitsLeft || hitsRight) {
+    return {
+      side: hitsRight ? "right" : "left",
+      offsetPx: dy,
+      offsetAbsPx: Math.abs(dy),
+      isCorner: false,
+    };
+  }
+
+  if (hitsTop || hitsBottom) {
+    return {
+      side: hitsTop ? "top" : "bottom",
+      offsetPx: dx,
+      offsetAbsPx: Math.abs(dx),
+      isCorner: false,
+    };
+  }
+
+  return {
+    side: "interior",
+    offsetPx: Math.abs(dx) >= Math.abs(dy) ? dx : dy,
+    offsetAbsPx: Math.max(Math.abs(dx), Math.abs(dy)),
+    isCorner: false,
+  };
+}
+
+function buildEdgeAnchorMetrics(
+  sketch: GeometrySketchDefinition,
+): GeometryEdgeAnchorMetric[] {
+  const nodesByArea = [...sketch.nodes].sort(
+    (left, right) =>
+      left.width * left.height - right.width * right.height,
+  );
+
+  return sketch.edges.map((edge) => {
+    const fromNode = nodesByArea.find((node) => pointTouchesNode(edge.from, node));
+    const toNode = nodesByArea.find((node) => pointTouchesNode(edge.to, node));
+    const fromAnchor = fromNode
+      ? classifyAnchor(fromNode, edge.from)
+      : {side: "unattached", offsetPx: 0, offsetAbsPx: 0, isCorner: false};
+    const toAnchor = toNode
+      ? classifyAnchor(toNode, edge.to)
+      : {side: "unattached", offsetPx: 0, offsetAbsPx: 0, isCorner: false};
+
+    return {
+      edgeId: edge.id,
+      fromNodeId: fromNode?.id,
+      fromLabel: fromNode?.label,
+      fromSide: fromAnchor.side,
+      fromOffsetPx: fromAnchor.offsetPx,
+      fromOffsetAbsPx: fromAnchor.offsetAbsPx,
+      fromIsCorner: fromAnchor.isCorner,
+      toNodeId: toNode?.id,
+      toLabel: toNode?.label,
+      toSide: toAnchor.side,
+      toOffsetPx: toAnchor.offsetPx,
+      toOffsetAbsPx: toAnchor.offsetAbsPx,
+      toIsCorner: toAnchor.isCorner,
+    };
+  });
+}
+
 export function buildGeometryReviewArtifact(
   sketch: GeometrySketchDefinition,
 ): GeometryReviewArtifact {
+  const textOverflows = collectGeometryTextOverflows(sketch);
   const metrics = collectGeometryMetrics(sketch);
+  const nodeDirectionalClearances = collectNodeDirectionalClearances(sketch);
+  const containerIds = resolveGeometryContainerIds(sketch);
+  const nodeTextMetrics = sketch.nodes
+    .filter(shouldAuditGeometryNodeTypography)
+    .map((node) => {
+      const textLayout = resolveGeometryTextLayout(node, containerIds.has(node.id));
+      const padding = resolveGeometryTextPadding(node, containerIds.has(node.id));
+
+      return {
+        nodeId: node.id,
+        label: node.label,
+        renderedFontPx: Number(textLayout.fontSize.toFixed(1)),
+        renderedFontPt: Number(((textLayout.fontSize * 72) / 96).toFixed(1)),
+        lineCount: textLayout.lines.length,
+        overflowPx: textLayout.overflowPx,
+        topPaddingPx: padding.top,
+        rightPaddingPx: padding.right,
+        bottomPaddingPx: padding.bottom,
+        leftPaddingPx: padding.left,
+        tightestPaddingPx: padding.tightest,
+      };
+    })
+    .sort((left, right) => left.renderedFontPx - right.renderedFontPx);
+  const edgeAnchorMetrics = buildEdgeAnchorMetrics(sketch);
+  const worstAnchors = edgeAnchorMetrics
+    .flatMap((metric) => [
+      {
+        edgeId: metric.edgeId,
+        endpoint: "from",
+        nodeId: metric.fromNodeId,
+        side: metric.fromSide,
+        offsetAbsPx: metric.fromOffsetAbsPx,
+        isCorner: metric.fromIsCorner,
+      },
+      {
+        edgeId: metric.edgeId,
+        endpoint: "to",
+        nodeId: metric.toNodeId,
+        side: metric.toSide,
+        offsetAbsPx: metric.toOffsetAbsPx,
+        isCorner: metric.toIsCorner,
+      },
+    ])
+    .filter((anchor) => anchor.nodeId && (anchor.isCorner || anchor.offsetAbsPx > 0))
+    .sort((left, right) => right.offsetAbsPx - left.offsetAbsPx)
+    .slice(0, 3)
+    .map(
+      (anchor) =>
+        `${anchor.edgeId}:${anchor.endpoint}->${anchor.nodeId} ${anchor.side} ${Math.round(anchor.offsetAbsPx)}px`,
+    );
   const scores = scoreGeometryMetrics(metrics);
+  const crampedNodes = nodeDirectionalClearances
+    .filter((clearance) => clearance.tightest < 48)
+    .sort((left, right) => left.tightest - right.tightest)
+    .slice(0, 3)
+    .map((clearance) => `${clearance.nodeId}:${Math.round(clearance.tightest)}px`);
 
   return {
     facts: [
       {label: "Receiver plane", value: sketch.contract.receiverPlane},
       {label: "Primary line", value: sketch.contract.primaryLine},
+      {
+        label: "Overflow labels",
+        value:
+          textOverflows.length > 0
+            ? textOverflows.map((overflow) => overflow.label).join(", ")
+            : "None",
+      },
+      {
+        label: "Minimum rendered font",
+        value: `${Math.round(metrics.minRenderedFontPx)}px (~${Math.round(
+          (metrics.minRenderedFontPx * 72) / 96,
+        )}pt)`,
+      },
+      {
+        label: "Minimum internal padding",
+        value: `${Math.round(metrics.minInternalPadding)}px (T ${Math.round(
+          metrics.minInternalTopPadding,
+        )} / R ${Math.round(metrics.minInternalRightPadding)} / B ${Math.round(
+          metrics.minInternalBottomPadding,
+        )} / L ${Math.round(metrics.minInternalLeftPadding)} px)`,
+      },
+      {
+        label: "Directional margins",
+        value: `T ${Math.round(metrics.topMargin)} / R ${Math.round(metrics.rightMargin)} / B ${Math.round(metrics.bottomMargin)} / L ${Math.round(metrics.leftMargin)} px`,
+      },
+      {
+        label: "Cramped nodes",
+        value: crampedNodes.length > 0 ? crampedNodes.join(", ") : "None",
+      },
+      {
+        label: "Worst anchor offsets",
+        value: worstAnchors.length > 0 ? worstAnchors.join(", ") : "None",
+      },
       {label: "Node count", value: `${sketch.nodes.length}`},
       {label: "Edge count", value: `${sketch.edges.length}`},
     ],
     metrics,
+    nodeDirectionalClearances,
+    nodeTextMetrics,
+    edgeAnchorMetrics,
     scores,
     mechanicalScore: resolveMechanicalScore(scores),
     verdict: resolveVerdict(metrics, scores),
-    topFixes: buildTopFixes(sketch, metrics, scores),
+    topFixes: buildTopFixes(sketch, metrics, scores, edgeAnchorMetrics),
   };
 }

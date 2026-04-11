@@ -2177,6 +2177,28 @@ describe("MyComposition", () => {
     expect(fontSizeOf(shaderSlice)).toBeGreaterThanOrEqual(15.5);
   });
 
+  it("renders page 10 as a computer-to-runtime cook bridge with two UE5 cook outputs", () => {
+    mockFrame = 414;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "cook").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, ".shaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "UE5 formats").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Runtime").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
+    expect(container.querySelector('[data-testid="page10-answer-badge"]')).toBeNull();
+  });
+
+  it("shows a transient answer badge during the page 09 to page 10 transition", () => {
+    mockFrame = 390;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(container.querySelector('[data-testid="page10-answer-badge"]')).not.toBeNull();
+  });
+
   it("keeps FShader as a translated continuation from page 08 into page 09 with only a bounded width retargeting", () => {
     mockFrame = 306;
     const {container: page8Container, unmount} = render(<MyComposition variantId="bus-clean" />);

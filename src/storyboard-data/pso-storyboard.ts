@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-14 then turn that SharedCode answer into a cook/runtime/stable loop across computer, runtime device, and assets.",
   steps: [
     {
       id: "page_01",
@@ -159,6 +159,86 @@ export const masterStoryboard: Storyboard = {
         "这时候 SharedCode 就不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       manuscript:
         "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下会存 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，InlineCode 下 code 散落在各个 uasset 里，没有全局接口。SharedCode 把这两件事同时收口。主路径先从 ShaderMapEntries[ShaderMapIndex] 拿到 ShaderIndicesOffset，再与 ResourceIndex 组合，查 ShaderIndices[ShaderIndicesOffset + ResourceIndex]，得到 LibraryShaderIndex。随后用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size，从 ShaderArchive 的大二进制切出 ShaderCode。PSO 侧边分支也不是直接拿 code，而是先走 ShaderHashTable[Hash] 命中同一个 LibraryShaderIndex，再复用上面的 Offset/Size 读取流程。这样 Hash 分支和运行时主链在 LibraryShaderIndex 汇合，SharedCode 才真正成为 PSO 预编译可闭环的基础设施。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_10",
+      label: "Cook 产物如何走向运行时",
+      caption:
+        "先短暂回到第五页，再把问号弹成感叹号：Material 经过 cook 产出 `.shaderbytecode` 与 `.scl.csv`，而旧的 VertexData -> GPU -> Pixels 语义则收拢成右侧运行时设备框。",
+      notes:
+        "这一页不是从第九页继续加节点，而是先回答前面第五页遗留的问题。先闪回到 UE Asset Cook 那一页，再把问号收成一个中心点，最后变成感叹号，整页重组为新的电脑-运行时双极结构。左侧是电脑和 cook，右侧是手机化的运行时框，中间只有两份 UE5 cook 产物。",
+      focusTarget: "Cook Outputs",
+      timingHint:
+        "先让第五页语义短暂回来，再把问号做一次有弹性的 answer beat，最后只保留电脑、cook、两份文件和运行时设备框。",
+      intro:
+        "SharedCode 回答的是全局 code 如何被组织；接下来要回答的是，这些 cook 结果到底怎样真正走向运行时。",
+      manuscript:
+        "第十页先故意回到第五页，让观众重新看到 UE Asset Cook 那个旧问题。然后原来的问号被收紧、上冲，最后变成一个感叹号，表示答案开始明确了。Material 经过 cook，不再只模糊地指向某个 Cooked ShaderCode，而是明确落成两份 UE5 产物：`.shaderbytecode` 和 `.scl.csv`。与此同时，前面讲过的 VertexData -> GPU -> Pixels 不再作为单独链条留在画面里，而是被压缩进右侧那个手机化的运行时设备框，表示它们现在已经进入包体侧的真实运行语义。",
+      focusColorKey: "ue",
+    },
+    {
+      id: "page_11",
+      label: "Cook 文件开始连到运行时",
+      caption:
+        "电脑侧先缩小，运行时侧放大，让 `.shaderbytecode` 与 `.scl.csv` 真正接进设备上的运行时框。",
+      notes:
+        "第十一页延续第十页的双极结构，不再重新解释电脑侧。重点是让两份 cook 文件明确跨过去连到运行时，让观众看到这一页真正新增的是『文件如何落到设备侧』。",
+      focusTarget: "Runtime Frame",
+      timingHint:
+        "保留两极结构，放大右侧运行时框，让两份文件的连接关系成为唯一新增动作。",
+      intro:
+        "答案不只是在电脑侧生成文件，还要继续问一句：这些文件什么时候才真正变成设备侧的运行基础？",
+      manuscript:
+        "第十一页不再把电脑和 cook 当作主角，而是让运行时侧放大。`.shaderbytecode` 和 `.scl.csv` 这两份文件终于真正接到设备上的运行时框里，说明 cook 结果已经不只是构建机上的静态产物，而是开始参与包体侧的运行组织。",
+      focusColorKey: "ue",
+    },
+    {
+      id: "page_12",
+      label: "运行时开始回传 PSO 记录",
+      caption:
+        "从手机侧第一次长出回传腿：运行时把 `.rec.upipelinecache` 送回去，闭环的下半圈开始出现。",
+      notes:
+        "这一页只强调一件新增动作：设备运行时不再只是接收端，它也会把收集到的 `.rec.upipelinecache` 往回送。电脑侧可以存在，但要缩小到让观众知道它只是即将接收的目的地。",
+      focusTarget: ".rec.upipelinecache",
+      timingHint:
+        "让右侧先完成一次高亮，再从它身上长出第一条回传路径，不要同时加第二条新解释。",
+      intro:
+        "只有把运行时收集的信息送回电脑侧，这条链才开始具备真正的闭环意味。",
+      manuscript:
+        "到了第十二页，设备侧终于不只是终点，而是开始产生回传。运行时收集到的结果会形成 `.rec.upipelinecache`，它不是静止待在手机里，而是要沿着一条回程路径送回电脑侧。也正是从这一页开始，我们不再把这套系统理解成单向分发，而是把它理解成一个真正会回流的闭环。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_13",
+      label: "稳定产物如何在电脑侧展开",
+      caption:
+        "电脑与 cook 再次放大，新增 `expand` 路径，把回传记录扩展成 `stablepc.csv` 与 `stable.upipelinecache`。",
+      notes:
+        "第十三页把视觉重心重新拉回电脑侧。这里新增的不是又一份普通文件，而是 expand 语义：运行时回来的记录被重新整理，最终产出稳定可复用的 stable 文件。",
+      focusTarget: "Stable Outputs",
+      timingHint:
+        "让电脑和 cook 成为主角，同时把 expand 路径做成清楚的分叉，不要和第十页的 cook 输出混成一种语义。",
+      intro:
+        "运行时回来的记录如果不继续加工，就还只是一次收集结果；真正让闭环成立的是电脑侧的再次整理。",
+      manuscript:
+        "第十三页把重心重新交给电脑侧。`.rec.upipelinecache` 回来以后，不是原样躺着，而是进入一次 expand 过程。这个过程会继续产出 `stablepc.csv` 和 `stable.upipelinecache`。也就是说，电脑侧在这里做的不只是接收，而是把运行时收集结果整理成稳定、可持续复用的产物。",
+      focusColorKey: "ue",
+    },
+    {
+      id: "page_14",
+      label: "PSO 收集、构建、使用闭环",
+      caption:
+        "最后把资产、电脑、手机一起放上来：收集、构建、再使用，三者连成真正的 PSO 闭环。",
+      notes:
+        "第十四页不再只盯着单一文件，而是把三类角色一起摆上来。电脑不能再像第十三页那样独占舞台，手机和资产都要重新放大，让观众一眼看出这是一个完整循环。",
+      focusTarget: "Closed Loop",
+      timingHint:
+        "把前面各页已经建立的局部关系收成总图，但保持一页一个主焦点的节奏，不要一次塞进过多细节。",
+      intro:
+        "当前面那些局部动作都串起来之后，最后一页才真正回答：这到底为什么是一个闭环系统。",
+      manuscript:
+        "最后一页把资产、电脑、手机一起放回舞台。资产负责触发和承接使用侧需求，电脑侧负责构建与稳定化，手机侧负责运行和收集。这样一来，PSO 的收集、构建、使用就不再是几段孤立流程，而是一个真正闭合起来的闭环。",
       focusColorKey: "shared",
     },
   ],

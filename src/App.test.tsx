@@ -219,6 +219,23 @@ describe("App", () => {
     expect(screen.getAllByText(/SharedCode/).length).toBeGreaterThan(0);
   });
 
+  it("lets the user switch directly to page 10 from the controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_10");
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_10");
+    expect(
+      screen.getByRole("heading", {
+        name: "Cook 产物如何走向运行时",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/shaderbytecode/i).length).toBeGreaterThan(0);
+  });
+
   it("moves between storyboard steps with arrow keys", async () => {
     render(<App />);
 
@@ -261,6 +278,11 @@ describe("App", () => {
       "InlineCode 如何拿到 code",
       "PSO cache 为什么只存 Hash",
       "SharedCode 为什么成为必需",
+      "Cook 产物如何走向运行时",
+      "Cook 文件开始连到运行时",
+      "运行时开始回传 PSO 记录",
+      "稳定产物如何在电脑侧展开",
+      "PSO 收集、构建、使用闭环",
     ]) {
       fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
       await waitFor(() => {
@@ -271,10 +293,10 @@ describe("App", () => {
     }
   });
 
-  it("renders the progress rail with one current step and eight compact future steps", () => {
+  it("renders the progress rail with one current step and thirteen compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(9);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(14);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -318,6 +340,31 @@ describe("App", () => {
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_09"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_10"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_11"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_12"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_13"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_14"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
   });
@@ -427,6 +474,30 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("boots directly into the page 11 sketch mode and exposes its review url", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page11-r1&review=1",
+    );
+
+    render(<App />);
+
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-stage-mode",
+      "sketch",
+    );
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-sketch-id",
+      "page11-r1",
+    );
+
+    const reviewUrl = screen.getByLabelText("Review URL") as HTMLInputElement;
+    expect(reviewUrl.value).toContain("mode=sketch");
+    expect(reviewUrl.value).toContain("sketch=page11-r1");
+    expect(screen.getByText("Geometry Sketch")).toBeInTheDocument();
+  });
+
   it("renders a stage-only capture surface when requested by query param", () => {
     window.history.replaceState({}, "", "/?step=page_09&surface=stage");
 
@@ -456,10 +527,12 @@ describe("App", () => {
     expect(screen.getByText("Minimum node gap")).toBeInTheDocument();
     expect(screen.getByText("0px")).toBeInTheDocument();
     expect(screen.getByText("Primary line clarity")).toBeInTheDocument();
-    expect(screen.getByLabelText("Mechanical Score")).toHaveTextContent(
-      "3.4 / 10.0",
-    );
-    expect(screen.getByText("Remove layout overlaps before critic pass")).toBeInTheDocument();
+    expect(
+      Number.parseFloat(
+        screen.getByLabelText("Mechanical Score").textContent ?? "0",
+      ),
+    ).toBeGreaterThanOrEqual(7);
+    expect(screen.getByText("Open the layout before critic pass")).toBeInTheDocument();
     expect(screen.queryByLabelText("Blocker")).not.toBeInTheDocument();
   });
 
@@ -679,6 +752,59 @@ describe("App", () => {
           method: "POST",
         }),
       );
+    });
+  });
+
+  it("emits a browser text probe payload when requested by query params", async () => {
+    Object.defineProperty(document, "fonts", {
+      configurable: true,
+      value: {
+        ready: Promise.resolve(),
+      },
+    });
+    Object.defineProperty(SVGElement.prototype, "getBBox", {
+      configurable: true,
+      value: function getBBox(this: SVGElement) {
+        if (this.textContent === "stable.") {
+          return {
+            x: 869.6,
+            y: 330.8,
+            width: 176.8,
+            height: 22.1,
+          };
+        }
+
+        if (this.textContent === "upipelinecache") {
+          return {
+            x: 872.7,
+            y: 362.2,
+            width: 170.5,
+            height: 22.1,
+          };
+        }
+
+        return {
+          x: 0,
+          y: 0,
+          width: 0,
+          height: 0,
+        };
+      },
+    });
+    window.history.replaceState(
+      {},
+      "",
+      "/?mode=sketch&sketch=page14-contract-r1&probe=geometry-text&probeNodeId=stable-upipe",
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      const probe = document.querySelector('[data-geometry-text-probe="ready"]');
+
+      expect(probe).not.toBeNull();
+      expect(probe?.textContent).toContain('"nodeId":"stable-upipe"');
+      expect(probe?.textContent).toContain('"rightPaddingPx":13.6');
     });
   });
 });
