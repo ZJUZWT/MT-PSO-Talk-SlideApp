@@ -140,7 +140,7 @@ select {
 
 .control-bar {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -208,6 +208,56 @@ select {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.control-debug-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.control-text-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 252, 248, 0.92);
+  color: var(--ink);
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.control-text-input:focus {
+  border-color: rgba(198, 111, 76, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 0 0 3px rgba(198, 111, 76, 0.12);
+}
+
+.control-step-button {
+  min-width: 3.25rem;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 252, 248, 0.92);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+}
+
+.control-step-button:hover {
+  border-color: rgba(198, 111, 76, 0.28);
+  background: rgba(255, 248, 241, 0.98);
+}
+
+.control-card-caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
 }
 
 .workbench-main {

@@ -7,10 +7,14 @@ import {
   shouldAuditGeometryNodeTypography,
 } from "../render/geometryText";
 import type {
+  GeometryEdgeAnchorMetric,
+  GeometryEdgeRouteMetric,
   GeometryMetrics,
   NodeDirectionalClearance,
 } from "./geometryMetrics";
 import {
+  collectEdgeAnchorMetrics,
+  collectEdgeRouteMetrics,
   collectGeometryMetrics,
   collectNodeDirectionalClearances,
 } from "./geometryMetrics";
@@ -36,28 +40,13 @@ export type GeometryNodeTextMetric = {
   tightestPaddingPx: number;
 };
 
-export type GeometryEdgeAnchorMetric = {
-  edgeId: string;
-  fromNodeId?: string;
-  fromLabel?: string;
-  fromSide: string;
-  fromOffsetPx: number;
-  fromOffsetAbsPx: number;
-  fromIsCorner: boolean;
-  toNodeId?: string;
-  toLabel?: string;
-  toSide: string;
-  toOffsetPx: number;
-  toOffsetAbsPx: number;
-  toIsCorner: boolean;
-};
-
 export type GeometryReviewArtifact = {
   facts: GeometryReviewFact[];
   metrics: GeometryMetrics;
   nodeDirectionalClearances: NodeDirectionalClearance[];
   nodeTextMetrics: GeometryNodeTextMetric[];
   edgeAnchorMetrics: GeometryEdgeAnchorMetric[];
+  edgeRouteMetrics: GeometryEdgeRouteMetric[];
   scores: GeometryMetricScores;
   mechanicalScore: number;
   verdict: string;
@@ -74,6 +63,13 @@ export const GEOMETRY_METRIC_META: Array<{
   {id: "badEndpointCount", label: "Bad endpoint anchors"},
   {id: "primaryLineBendCount", label: "Primary line bends"},
   {id: "avoidableBendCount", label: "Avoidable bends"},
+  {id: "edgeOverlapCount", label: "Edge overlaps"},
+  {id: "hookTurnCount", label: "Hook turns"},
+  {id: "shortSegmentCount", label: "Short segments"},
+  {id: "detourEdgeCount", label: "Detour edges"},
+  {id: "maxDetourRatio", label: "Maximum detour ratio"},
+  {id: "offCenterAnchorCount", label: "Off-center anchors"},
+  {id: "cornerAnchorCount", label: "Corner anchors"},
   {id: "textOverflowCount", label: "Overflowing labels"},
   {id: "maxTextOverflowPx", label: "Maximum label overflow"},
   {id: "minRenderedFontPx", label: "Minimum rendered font"},
@@ -132,7 +128,7 @@ export function formatGeometryMetricValue(
     return `${Math.round(value)}px`;
   }
 
-  if (metricId === "leftRightMassDelta") {
+  if (metricId === "leftRightMassDelta" || metricId === "maxDetourRatio") {
     return clampPercentage(value);
   }
 
@@ -195,6 +191,7 @@ function buildTopFixes(
   metrics: GeometryMetrics,
   scores: GeometryMetricScores,
   edgeAnchorMetrics: GeometryEdgeAnchorMetric[],
+  edgeRouteMetrics: GeometryEdgeRouteMetric[],
 ) {
   const textOverflows = collectGeometryTextOverflows(sketch);
   const fixes: string[] = [];
@@ -223,6 +220,28 @@ function buildTopFixes(
         (issue.isCorner || issue.offsetAbsPx > 12),
     )
     .sort((left, right) => right.offsetAbsPx - left.offsetAbsPx);
+  const routeIssues = edgeRouteMetrics
+    .filter(
+      (metric) =>
+        metric.hookTurnCount > 0 ||
+        metric.detourRatio > 0.12 ||
+        metric.shortSegmentCount > 0 ||
+        metric.overlapCount > 0,
+    )
+    .sort((leftMetric, rightMetric) => {
+      const leftPenalty =
+        leftMetric.hookTurnCount * 4 +
+        leftMetric.overlapCount * 4 +
+        leftMetric.shortSegmentCount * 2 +
+        leftMetric.detourRatio * 10;
+      const rightPenalty =
+        rightMetric.hookTurnCount * 4 +
+        rightMetric.overlapCount * 4 +
+        rightMetric.shortSegmentCount * 2 +
+        rightMetric.detourRatio * 10;
+
+      return rightPenalty - leftPenalty;
+    });
 
   if (metrics.textOverflowCount > 0) {
     const labels = textOverflows
@@ -243,6 +262,12 @@ function buildTopFixes(
   if (metrics.crossingCount > 0) {
     fixes.push(
       `Eliminate ${metrics.crossingCount} line crossing${metrics.crossingCount === 1 ? "" : "s"} so the route reads in one glance.`,
+    );
+  }
+
+  if (metrics.edgeOverlapCount > 0) {
+    fixes.push(
+      `Separate ${metrics.edgeOverlapCount} overlapping line lane${metrics.edgeOverlapCount === 1 ? "" : "s"}; lines should not ride on the same channel unless the contract explicitly declares a shared carrier.`,
     );
   }
 
@@ -268,6 +293,21 @@ function buildTopFixes(
       .join(", ");
     fixes.push(
       `Recenter edge anchors so exits and arrivals feel averaged instead of corner-stabbed; current worst anchors are ${labels}.`,
+    );
+  }
+
+  if (routeIssues.length > 0) {
+    const labels = routeIssues
+      .slice(0, 2)
+      .map(
+        (metric) =>
+          `${metric.edgeId} (hooks ${metric.hookTurnCount}, detour ${Math.round(
+            metric.detourRatio * 100,
+          )}%, short ${metric.shortSegmentCount})`,
+      )
+      .join(", ");
+    fixes.push(
+      `Remove awkward route twists and redundant detours; current worst edges are ${labels}.`,
     );
   }
 
@@ -330,126 +370,6 @@ function buildTopFixes(
   return fixes.slice(0, 3);
 }
 
-const ANCHOR_EPSILON = 0.001;
-
-function pointTouchesNode(
-  point: {x: number; y: number},
-  node: GeometrySketchDefinition["nodes"][number],
-) {
-  return (
-    point.x >= node.x - ANCHOR_EPSILON &&
-    point.x <= node.x + node.width + ANCHOR_EPSILON &&
-    point.y >= node.y - ANCHOR_EPSILON &&
-    point.y <= node.y + node.height + ANCHOR_EPSILON
-  );
-}
-
-function classifyAnchor(
-  node: GeometrySketchDefinition["nodes"][number],
-  point: {x: number; y: number},
-) {
-  const left = node.x;
-  const right = node.x + node.width;
-  const top = node.y;
-  const bottom = node.y + node.height;
-  const centerX = node.x + node.width / 2;
-  const centerY = node.y + node.height / 2;
-  const hitsLeft = Math.abs(point.x - left) <= ANCHOR_EPSILON;
-  const hitsRight = Math.abs(point.x - right) <= ANCHOR_EPSILON;
-  const hitsTop = Math.abs(point.y - top) <= ANCHOR_EPSILON;
-  const hitsBottom = Math.abs(point.y - bottom) <= ANCHOR_EPSILON;
-  const dx = Number((point.x - centerX).toFixed(1));
-  const dy = Number((point.y - centerY).toFixed(1));
-
-  if (
-    Math.abs(dx) <= ANCHOR_EPSILON &&
-    Math.abs(dy) <= ANCHOR_EPSILON &&
-    node.width <= 24 &&
-    node.height <= 24
-  ) {
-    return {
-      side: "junction-center",
-      offsetPx: 0,
-      offsetAbsPx: 0,
-      isCorner: false,
-    };
-  }
-
-  if ((hitsLeft || hitsRight) && (hitsTop || hitsBottom)) {
-    const horizontalSide = hitsRight ? "right" : "left";
-    const verticalSide = hitsTop ? "top" : "bottom";
-    const offsetPx = Math.abs(dy) <= Math.abs(dx) ? dy : dx;
-
-    return {
-      side: `${verticalSide}-${horizontalSide}-corner`,
-      offsetPx,
-      offsetAbsPx: Math.abs(offsetPx),
-      isCorner: true,
-    };
-  }
-
-  if (hitsLeft || hitsRight) {
-    return {
-      side: hitsRight ? "right" : "left",
-      offsetPx: dy,
-      offsetAbsPx: Math.abs(dy),
-      isCorner: false,
-    };
-  }
-
-  if (hitsTop || hitsBottom) {
-    return {
-      side: hitsTop ? "top" : "bottom",
-      offsetPx: dx,
-      offsetAbsPx: Math.abs(dx),
-      isCorner: false,
-    };
-  }
-
-  return {
-    side: "interior",
-    offsetPx: Math.abs(dx) >= Math.abs(dy) ? dx : dy,
-    offsetAbsPx: Math.max(Math.abs(dx), Math.abs(dy)),
-    isCorner: false,
-  };
-}
-
-function buildEdgeAnchorMetrics(
-  sketch: GeometrySketchDefinition,
-): GeometryEdgeAnchorMetric[] {
-  const nodesByArea = [...sketch.nodes].sort(
-    (left, right) =>
-      left.width * left.height - right.width * right.height,
-  );
-
-  return sketch.edges.map((edge) => {
-    const fromNode = nodesByArea.find((node) => pointTouchesNode(edge.from, node));
-    const toNode = nodesByArea.find((node) => pointTouchesNode(edge.to, node));
-    const fromAnchor = fromNode
-      ? classifyAnchor(fromNode, edge.from)
-      : {side: "unattached", offsetPx: 0, offsetAbsPx: 0, isCorner: false};
-    const toAnchor = toNode
-      ? classifyAnchor(toNode, edge.to)
-      : {side: "unattached", offsetPx: 0, offsetAbsPx: 0, isCorner: false};
-
-    return {
-      edgeId: edge.id,
-      fromNodeId: fromNode?.id,
-      fromLabel: fromNode?.label,
-      fromSide: fromAnchor.side,
-      fromOffsetPx: fromAnchor.offsetPx,
-      fromOffsetAbsPx: fromAnchor.offsetAbsPx,
-      fromIsCorner: fromAnchor.isCorner,
-      toNodeId: toNode?.id,
-      toLabel: toNode?.label,
-      toSide: toAnchor.side,
-      toOffsetPx: toAnchor.offsetPx,
-      toOffsetAbsPx: toAnchor.offsetAbsPx,
-      toIsCorner: toAnchor.isCorner,
-    };
-  });
-}
-
 export function buildGeometryReviewArtifact(
   sketch: GeometrySketchDefinition,
 ): GeometryReviewArtifact {
@@ -478,7 +398,8 @@ export function buildGeometryReviewArtifact(
       };
     })
     .sort((left, right) => left.renderedFontPx - right.renderedFontPx);
-  const edgeAnchorMetrics = buildEdgeAnchorMetrics(sketch);
+  const edgeAnchorMetrics = collectEdgeAnchorMetrics(sketch);
+  const edgeRouteMetrics = collectEdgeRouteMetrics(sketch);
   const worstAnchors = edgeAnchorMetrics
     .flatMap((metric) => [
       {
@@ -504,6 +425,35 @@ export function buildGeometryReviewArtifact(
     .map(
       (anchor) =>
         `${anchor.edgeId}:${anchor.endpoint}->${anchor.nodeId} ${anchor.side} ${Math.round(anchor.offsetAbsPx)}px`,
+    );
+  const worstRouteIssues = edgeRouteMetrics
+    .filter(
+      (metric) =>
+        metric.hookTurnCount > 0 ||
+        metric.detourRatio > 0.12 ||
+        metric.shortSegmentCount > 0 ||
+        metric.overlapCount > 0,
+    )
+    .sort((leftMetric, rightMetric) => {
+      const leftPenalty =
+        leftMetric.hookTurnCount * 4 +
+        leftMetric.overlapCount * 4 +
+        leftMetric.shortSegmentCount * 2 +
+        leftMetric.detourRatio * 10;
+      const rightPenalty =
+        rightMetric.hookTurnCount * 4 +
+        rightMetric.overlapCount * 4 +
+        rightMetric.shortSegmentCount * 2 +
+        rightMetric.detourRatio * 10;
+
+      return rightPenalty - leftPenalty;
+    })
+    .slice(0, 3)
+    .map(
+      (metric) =>
+        `${metric.edgeId}: hooks ${metric.hookTurnCount}, detour ${Math.round(
+          metric.detourRatio * 100,
+        )}%, short ${metric.shortSegmentCount}`,
     );
   const scores = scoreGeometryMetrics(metrics);
   const crampedNodes = nodeDirectionalClearances
@@ -549,6 +499,10 @@ export function buildGeometryReviewArtifact(
         label: "Worst anchor offsets",
         value: worstAnchors.length > 0 ? worstAnchors.join(", ") : "None",
       },
+      {
+        label: "Worst route weirdness",
+        value: worstRouteIssues.length > 0 ? worstRouteIssues.join(", ") : "None",
+      },
       {label: "Node count", value: `${sketch.nodes.length}`},
       {label: "Edge count", value: `${sketch.edges.length}`},
     ],
@@ -556,9 +510,16 @@ export function buildGeometryReviewArtifact(
     nodeDirectionalClearances,
     nodeTextMetrics,
     edgeAnchorMetrics,
+    edgeRouteMetrics,
     scores,
     mechanicalScore: resolveMechanicalScore(scores),
     verdict: resolveVerdict(metrics, scores),
-    topFixes: buildTopFixes(sketch, metrics, scores, edgeAnchorMetrics),
+    topFixes: buildTopFixes(
+      sketch,
+      metrics,
+      scores,
+      edgeAnchorMetrics,
+      edgeRouteMetrics,
+    ),
   };
 }

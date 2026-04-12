@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-14 then turn that SharedCode answer into a cook/runtime/stable loop across computer, runtime device, and assets.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-15 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, delay the computer/phone loop by one full page, and compress the final stable build plus handoff into page 15.",
   steps: [
     {
       id: "page_01",
@@ -163,82 +163,98 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_10",
-      label: "Cook 产物如何走向运行时",
+      label: "先回到第 5 页，再回答 ShaderLibrary",
       caption:
-        "先短暂回到第五页，再把问号弹成感叹号：Material 经过 cook 产出 `.shaderbytecode` 与 `.scl.csv`，而旧的 VertexData -> GPU -> Pixels 语义则收拢成右侧运行时设备框。",
+        "这一页只做回调：先回退到第五页的旧问题，重播 `? -> !`，再把 `Material / CookedShaderCode` 收成 `ShaderLibrary`，不提前展开后面的电脑 / 手机舞台。",
       notes:
-        "这一页不是从第九页继续加节点，而是先回答前面第五页遗留的问题。先闪回到 UE Asset Cook 那一页，再把问号收成一个中心点，最后变成感叹号，整页重组为新的电脑-运行时双极结构。左侧是电脑和 cook，右侧是手机化的运行时框，中间只有两份 UE5 cook 产物。",
-      focusTarget: "Cook Outputs",
+        "第十页先不要急着露出整个 loop template。观众需要先从 SharedCode 回拉到第五页，重新看到那个 cook 问号；然后问号变成感叹号，`Material` 和 `CookedShaderCode` 再被收成一个新的 `ShaderLibrary`。电脑、手机、`.ushaderbytecode`、`.scl.csv` 和闭环路径都整体后移一页。",
+      focusTarget: "ShaderLibrary",
       timingHint:
-        "先让第五页语义短暂回来，再把问号做一次有弹性的 answer beat，最后只保留电脑、cook、两份文件和运行时设备框。",
+        "先收缩成问号，再恢复第五页，然后做一次有弹性的 `? -> !` answer beat，最后把 `Material / CookedShaderCode` 收成 `ShaderLibrary`。",
       intro:
-        "SharedCode 回答的是全局 code 如何被组织；接下来要回答的是，这些 cook 结果到底怎样真正走向运行时。",
+        "SharedCode 回答的是全局 code 如何被组织；接下来先别急着讲运行端的全景，而是先回到第五页，把那个旧问题正式回答成 `ShaderLibrary`。",
       manuscript:
-        "第十页先故意回到第五页，让观众重新看到 UE Asset Cook 那个旧问题。然后原来的问号被收紧、上冲，最后变成一个感叹号，表示答案开始明确了。Material 经过 cook，不再只模糊地指向某个 Cooked ShaderCode，而是明确落成两份 UE5 产物：`.shaderbytecode` 和 `.scl.csv`。与此同时，前面讲过的 VertexData -> GPU -> Pixels 不再作为单独链条留在画面里，而是被压缩进右侧那个手机化的运行时设备框，表示它们现在已经进入包体侧的真实运行语义。",
+        "第十页先故意回到第五页，让观众重新看到 UE Asset Cook 那个旧问题。过渡先收缩成一个问号，然后第五页的结构重新恢复出来。接着问号被收紧、上冲，最后变成一个感叹号，表示答案开始明确了。再往后，原来的 `Material` 和 `CookedShaderCode` 不再维持成两段，而是被收成一个新的 `ShaderLibrary`。也就是说，这一页的目标不是提前展开后面那套新舞台，而是先把第五页那个旧问题正式回答掉，让后面整章整体延后一页再开始。",
       focusColorKey: "ue",
     },
     {
       id: "page_11",
-      label: "Cook 文件开始连到运行时",
+      label: "电脑和手机的基础舞台先落位",
       caption:
-        "电脑侧先缩小，运行时侧放大，让 `.shaderbytecode` 与 `.scl.csv` 真正接进设备上的运行时框。",
+        "这一页才把新的母版正式展开：左边是 `Computer`，右边是 `Phone`，而第十页的 `ShaderLibrary` 开始落成中间那条 `.ushaderbytecode`。",
       notes:
-        "第十一页延续第十页的双极结构，不再重新解释电脑侧。重点是让两份 cook 文件明确跨过去连到运行时，让观众看到这一页真正新增的是『文件如何落到设备侧』。",
-      focusTarget: "Runtime Frame",
+        "第十一页才让电脑 / 手机双极布局整体落位。这里先不要出现 `cook` 分叉，也不要出现 `.scl.csv`，只是把新的空间母版建立起来，让观众看见后面几页会在什么舞台上继续讲。",
+      focusTarget: "Base Stage",
       timingHint:
-        "保留两极结构，放大右侧运行时框，让两份文件的连接关系成为唯一新增动作。",
+        "让 callback 页退场，再把 `Computer`、`Phone` 和 `.ushaderbytecode` 平稳拉出，建立后续所有叙事的固定底板。",
       intro:
-        "答案不只是在电脑侧生成文件，还要继续问一句：这些文件什么时候才真正变成设备侧的运行基础？",
+        "第十页已经把旧问题回答成 `ShaderLibrary`，现在才开始真正展开新章节的母版。",
       manuscript:
-        "第十一页不再把电脑和 cook 当作主角，而是让运行时侧放大。`.shaderbytecode` 和 `.scl.csv` 这两份文件终于真正接到设备上的运行时框里，说明 cook 结果已经不只是构建机上的静态产物，而是开始参与包体侧的运行组织。",
+        "第十一页先把新的母版真正摆出来。左边是 `Computer`，右边是 `Phone`，而第十页里刚刚被回答出来的 `ShaderLibrary`，这时候开始落成中间那条 `.ushaderbytecode`。这一页的任务不是继续加信息，而是让观众先记住新的空间锚点：之后的 cook、回流和 stable 化，都会在这套 `Computer / Phone` 的固定舞台里展开。",
       focusColorKey: "ue",
     },
     {
       id: "page_12",
-      label: "运行时开始回传 PSO 记录",
+      label: "首次 Cook 再分出第二份 .scl.csv",
       caption:
-        "从手机侧第一次长出回传腿：运行时把 `.rec.upipelinecache` 送回去，闭环的下半圈开始出现。",
+        "基础舞台已经就位之后，这一页才把首次 `cook` 讲清：电脑侧分叉，补出第二份 `.scl.csv`。",
       notes:
-        "这一页只强调一件新增动作：设备运行时不再只是接收端，它也会把收集到的 `.rec.upipelinecache` 往回送。电脑侧可以存在，但要缩小到让观众知道它只是即将接收的目的地。",
-      focusTarget: ".rec.upipelinecache",
+        "第十二页先不要让文件去碰 `Phone`。这一页只做一件事，就是把电脑侧 `cook` 的分叉补全，让观众从“先有 `.ushaderbytecode`”进入“原来还会再分出一份 `.scl.csv`”。",
+      focusTarget: "Cook Split",
       timingHint:
-        "让右侧先完成一次高亮，再从它身上长出第一条回传路径，不要同时加第二条新解释。",
+        "保持第十一页的舞台不动，只在电脑侧长出 `cook` 主线和 `.scl.csv`，避免把后面的运行时线抢到这一页来讲。",
       intro:
-        "只有把运行时收集的信息送回电脑侧，这条链才开始具备真正的闭环意味。",
+        "基础舞台已经建立好了，接下来先把首次 cook 的完整输出关系补齐。",
       manuscript:
-        "到了第十二页，设备侧终于不只是终点，而是开始产生回传。运行时收集到的结果会形成 `.rec.upipelinecache`，它不是静止待在手机里，而是要沿着一条回程路径送回电脑侧。也正是从这一页开始，我们不再把这套系统理解成单向分发，而是把它理解成一个真正会回流的闭环。",
+        "到了第十二页，新的信息仍然先留在电脑侧。`cook` 这条主线现在才被明确画出来，并且在电脑侧分出第二份产物：除了已经出现的 `.ushaderbytecode` 之外，还要补出 `.scl.csv`。这样观众会先记住：首次 cook 不是一个模糊的大黑盒，而是会把不同职责的文件拆成两支。",
       focusColorKey: "shared",
     },
     {
       id: "page_13",
-      label: "稳定产物如何在电脑侧展开",
+      label: "手机先吃进 .ushaderbytecode",
       caption:
-        "电脑与 cook 再次放大，新增 `expand` 路径，把回传记录扩展成 `stablepc.csv` 与 `stable.upipelinecache`。",
+        "两份文件关系讲清之后，这一页才第一次把 `.ushaderbytecode` 真正接到手机运行时。",
       notes:
-        "第十三页把视觉重心重新拉回电脑侧。这里新增的不是又一份普通文件，而是 expand 语义：运行时回来的记录被重新整理，最终产出稳定可复用的 stable 文件。",
-      focusTarget: "Stable Outputs",
+        "第十三页让 `Phone` 成为主角，但仍然不要出现回流或 stable。这里只新增第一条真正进入运行端的线路，让 `.ushaderbytecode` 先跨过去。",
+      focusTarget: ".ushaderbytecode",
       timingHint:
-        "让电脑和 cook 成为主角，同时把 expand 路径做成清楚的分叉，不要和第十页的 cook 输出混成一种语义。",
+        "先放大 `Phone`，再只长出 `.ushaderbytecode -> Phone` 这一条线，避免这页信息过载。",
       intro:
-        "运行时回来的记录如果不继续加工，就还只是一次收集结果；真正让闭环成立的是电脑侧的再次整理。",
+        "电脑侧的首次 cook 已经拆清楚了，下一步再回答哪一份最先进入运行端。",
       manuscript:
-        "第十三页把重心重新交给电脑侧。`.rec.upipelinecache` 回来以后，不是原样躺着，而是进入一次 expand 过程。这个过程会继续产出 `stablepc.csv` 和 `stable.upipelinecache`。也就是说，电脑侧在这里做的不只是接收，而是把运行时收集结果整理成稳定、可持续复用的产物。",
+        "第十三页先把 `Phone` 放大。新增的只有一条真正跨过去的落地线：`.ushaderbytecode` 现在明确进入手机运行时。也就是说，到了这一页，`Phone` 不再只是一个未来终点，而是第一次真正吃进 shader 相关产物，整章的运行端语义才开始落地。",
       focusColorKey: "ue",
     },
     {
       id: "page_14",
-      label: "PSO 收集、构建、使用闭环",
+      label: "手机开始回传 .rec.upipelinecache",
       caption:
-        "最后把资产、电脑、手机一起放上来：收集、构建、再使用，三者连成真正的 PSO 闭环。",
+        "保持手机放大，再从它身上长出回传腿：运行时开始把 `.rec.upipelinecache` 往电脑侧送。",
       notes:
-        "第十四页不再只盯着单一文件，而是把三类角色一起摆上来。电脑不能再像第十三页那样独占舞台，手机和资产都要重新放大，让观众一眼看出这是一个完整循环。",
+        "第十四页不要急着生成 stable 产物，而是先把闭环真正补上一半。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
+      focusTarget: ".rec.upipelinecache",
+      timingHint:
+        "保持手机侧高亮，新增 `Phone -> rec -> Computer` 这一圈回传路径，让观众第一次读到真正的回流。",
+      intro:
+        "手机先吃进 bytecode 之后，接下来最重要的问题就是：运行时会不会把自己的收集结果送回来。",
+      manuscript:
+        "第十四页继续让手机侧保持主角，但语义发生了变化。`Phone` 不再只是接收 `.ushaderbytecode`，它还会在运行时把收集到的结果整理成 `.rec.upipelinecache`，并沿着回程路径送回电脑侧。到这里，PSO 这套流程终于不再是单向分发，而是第一次出现完整的回流半圈。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_15",
+      label: "电脑 expand，stable 再回到手机，闭环完成",
+      caption:
+        "最后把电脑侧的 `expand`、`stablepc.csv`、`stable.upipelinecache` 和回到手机的那一条线压进同一页，让收集、构建、再使用真正闭合。",
+      notes:
+        "因为整章整体后移一页，第十五页要把原来分开的“电脑侧 expand”与“stable 回到手机”压缩到同一拍里。先看电脑侧把 `.rec.upipelinecache` 和 `.scl.csv` 整理成 `stablepc.csv` 与 `stable.upipelinecache`，再看到 `stable.upipelinecache` 回到手机。",
       focusTarget: "Closed Loop",
       timingHint:
-        "把前面各页已经建立的局部关系收成总图，但保持一页一个主焦点的节奏，不要一次塞进过多细节。",
+        "先让电脑侧 `expand` 和 stable band 长出来，再在同一页后半拍把 `stable.upipelinecache -> 手机` 那一笔补上。",
       intro:
-        "当前面那些局部动作都串起来之后，最后一页才真正回答：这到底为什么是一个闭环系统。",
+        "只有当电脑把回流记录整理成 stable 产物，并且 stable 结果也真正回到手机侧，这套收集、构建、使用流程才算闭合完成。",
       manuscript:
-        "最后一页把资产、电脑、手机一起放回舞台。资产负责触发和承接使用侧需求，电脑侧负责构建与稳定化，手机侧负责运行和收集。这样一来，PSO 的收集、构建、使用就不再是几段孤立流程，而是一个真正闭合起来的闭环。",
+        "到了第十五页，电脑侧终于承担起整理工作。手机送回来的 `.rec.upipelinecache` 会先进入 `expand` 过程，与前面已经出现过的 `.scl.csv` 一起整理出 `stablepc.csv` 和 `stable.upipelinecache`。然后这份 `stable.upipelinecache` 不会停在电脑侧，而是会再次回到手机继续使用。这样一来，手机负责运行与收集，电脑负责整理与稳定化，而稳定结果又重新喂回手机。PSO 的收集、构建、使用，到这里才真正形成一个闭合的完整流程。",
       focusColorKey: "shared",
     },
   ],

@@ -68,6 +68,7 @@ describe("App", () => {
 
     expect(document.querySelectorAll(".control-select-shell")).toHaveLength(4);
     expect(document.querySelectorAll(".control-select-icon")).toHaveLength(4);
+    expect(screen.getByLabelText("Debug Frame")).toBeInTheDocument();
   });
 
   it("dedicates the right panel to the runtime canvas without an extra inner card", () => {
@@ -229,11 +230,87 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_10");
     expect(
       screen.getByRole("heading", {
-        name: "Cook 产物如何走向运行时",
+        name: "先回到第 5 页，再回答 ShaderLibrary",
         level: 1,
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText(/shaderbytecode/i).length).toBeGreaterThan(0);
+  });
+
+  it("boots directly into a locked debug frame from query params", () => {
+    window.history.replaceState(
+      {},
+      "",
+      "/?step=page_10&controls=1&debugFrame=498",
+    );
+
+    render(<App />);
+
+    expect(screen.getByLabelText("Step")).toHaveValue("page_10");
+    expect(screen.getByLabelText("Debug Frame")).toHaveValue(498);
+    expect(screen.getByText("Current page base frame 474 / max 791")).toBeInTheDocument();
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-current-frame",
+      "498",
+    );
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-debug-frame",
+      "498",
+    );
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-animating",
+      "false",
+    );
+    expect(window.location.search).toContain("debugFrame=498");
+  });
+
+  it("lets the user edit and step the locked debug frame from controls", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_10");
+
+    const debugFrameInput = screen.getByLabelText("Debug Frame");
+
+    fireEvent.change(debugFrameInput, {target: {value: "498"}});
+    await waitFor(() => {
+      expect(debugFrameInput).toHaveValue(498);
+      expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+        "data-current-frame",
+        "498",
+      );
+      expect(window.location.search).toContain("debugFrame=498");
+    });
+
+    await user.click(screen.getByRole("button", {name: "Next frame"}));
+    await waitFor(() => {
+      expect(debugFrameInput).toHaveValue(499);
+      expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+        "data-current-frame",
+        "499",
+      );
+      expect(window.location.search).toContain("debugFrame=499");
+    });
+
+    await user.click(screen.getByRole("button", {name: "Previous frame"}));
+    await waitFor(() => {
+      expect(debugFrameInput).toHaveValue(498);
+      expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+        "data-current-frame",
+        "498",
+      );
+      expect(window.location.search).toContain("debugFrame=498");
+    });
+
+    fireEvent.change(debugFrameInput, {target: {value: ""}});
+    await waitFor(() => {
+      expect(debugFrameInput).toHaveValue(null);
+      expect(document.querySelector(".stage-runtime")).not.toHaveAttribute(
+        "data-debug-frame",
+      );
+      expect(window.location.search).not.toContain("debugFrame=");
+    });
   });
 
   it("moves between storyboard steps with arrow keys", async () => {
@@ -278,11 +355,12 @@ describe("App", () => {
       "InlineCode 如何拿到 code",
       "PSO cache 为什么只存 Hash",
       "SharedCode 为什么成为必需",
-      "Cook 产物如何走向运行时",
-      "Cook 文件开始连到运行时",
-      "运行时开始回传 PSO 记录",
-      "稳定产物如何在电脑侧展开",
-      "PSO 收集、构建、使用闭环",
+      "先回到第 5 页，再回答 ShaderLibrary",
+      "电脑和手机的基础舞台先落位",
+      "首次 Cook 再分出第二份 .scl.csv",
+      "手机先吃进 .ushaderbytecode",
+      "手机开始回传 .rec.upipelinecache",
+      "电脑 expand，stable 再回到手机，闭环完成",
     ]) {
       fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
       await waitFor(() => {
@@ -293,10 +371,10 @@ describe("App", () => {
     }
   });
 
-  it("renders the progress rail with one current step and thirteen compact future steps", () => {
+  it("renders the progress rail with one current step and fourteen compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(14);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(15);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
@@ -767,18 +845,18 @@ describe("App", () => {
       value: function getBBox(this: SVGElement) {
         if (this.textContent === "stable.") {
           return {
-            x: 869.6,
-            y: 330.8,
-            width: 176.8,
+            x: 875.1,
+            y: 341.7,
+            width: 95.8,
             height: 22.1,
           };
         }
 
         if (this.textContent === "upipelinecache") {
           return {
-            x: 872.7,
-            y: 362.2,
-            width: 170.5,
+            x: 811.9,
+            y: 389,
+            width: 222.2,
             height: 22.1,
           };
         }
@@ -794,7 +872,7 @@ describe("App", () => {
     window.history.replaceState(
       {},
       "",
-      "/?mode=sketch&sketch=page14-contract-r1&probe=geometry-text&probeNodeId=stable-upipe",
+      "/?mode=sketch&sketch=page15-r1&probe=geometry-text&probeNodeId=stable-upipe",
     );
 
     render(<App />);
@@ -804,7 +882,7 @@ describe("App", () => {
 
       expect(probe).not.toBeNull();
       expect(probe?.textContent).toContain('"nodeId":"stable-upipe"');
-      expect(probe?.textContent).toContain('"rightPaddingPx":13.6');
+      expect(probe?.textContent).toContain('"rightPaddingPx":11.9');
     });
   });
 });

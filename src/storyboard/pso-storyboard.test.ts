@@ -18,6 +18,7 @@ describe("masterStoryboard", () => {
       "page_12",
       "page_13",
       "page_14",
+      "page_15",
     ]);
   });
 
@@ -36,6 +37,7 @@ describe("masterStoryboard", () => {
     const page12 = masterStoryboard.steps[11];
     const page13 = masterStoryboard.steps[12];
     const page14 = masterStoryboard.steps[13];
+    const page15 = masterStoryboard.steps[14];
 
     expect(page01?.label).toBe("Input -> f(x) -> Output");
     expect(page01?.caption).toContain("最小骨架");
@@ -89,24 +91,34 @@ describe("masterStoryboard", () => {
     expect(page09?.manuscript).toContain("ShaderArchive");
     expect(page09?.manuscript).toContain("去重");
     expect(page09?.manuscript).toContain("PSO");
-    expect(page10?.label).toBe("Cook 产物如何走向运行时");
-    expect(page10?.manuscript).toContain(".shaderbytecode");
-    expect(page10?.manuscript).toContain(".scl.csv");
-    expect(page10?.manuscript).toContain("手机");
-    expect(page11?.label).toBe("Cook 文件开始连到运行时");
-    expect(page11?.manuscript).toContain(".shaderbytecode");
-    expect(page11?.manuscript).toContain(".scl.csv");
-    expect(page11?.manuscript).toContain("运行时");
-    expect(page12?.label).toBe("运行时开始回传 PSO 记录");
-    expect(page12?.manuscript).toContain(".rec.upipelinecache");
-    expect(page12?.manuscript).toContain("回传");
-    expect(page13?.label).toBe("稳定产物如何在电脑侧展开");
-    expect(page13?.manuscript).toContain("stablepc.csv");
-    expect(page13?.manuscript).toContain("stable.upipelinecache");
-    expect(page13?.manuscript).toContain("expand");
-    expect(page14?.label).toBe("PSO 收集、构建、使用闭环");
-    expect(page14?.manuscript).toContain("闭环");
-    expect(page14?.manuscript).toContain("资产");
-    expect(page14?.manuscript).toContain("手机");
+    expect(page10?.label).toBe("先回到第 5 页，再回答 ShaderLibrary");
+    expect(page10?.manuscript).toContain("第五页");
+    expect(page10?.manuscript).toContain("ShaderLibrary");
+    expect(page10?.manuscript).not.toContain(".ushaderbytecode");
+    expect(page10?.manuscript).not.toContain(".scl.csv");
+    expect(page10?.manuscript).not.toContain("手机");
+    expect(page11?.label).toBe("电脑和手机的基础舞台先落位");
+    expect(page11?.manuscript).toContain("Computer");
+    expect(page11?.manuscript).toContain("Phone");
+    expect(page11?.manuscript).toContain(".ushaderbytecode");
+    expect(page11?.manuscript).not.toContain(".scl.csv");
+    expect(page12?.label).toBe("首次 Cook 再分出第二份 .scl.csv");
+    expect(page11?.manuscript).toContain(".ushaderbytecode");
+    expect(page12?.manuscript).toContain(".scl.csv");
+    expect(page12?.manuscript).toContain("cook");
+    expect(page13?.label).toBe("手机先吃进 .ushaderbytecode");
+    expect(page13?.manuscript).toContain(".ushaderbytecode");
+    expect(page13?.manuscript).toContain("手机");
+    expect(page13?.manuscript).not.toContain(".rec.upipelinecache");
+    expect(page14?.label).toBe("手机开始回传 .rec.upipelinecache");
+    expect(page14?.manuscript).toContain(".rec.upipelinecache");
+    expect(page14?.manuscript).toContain("回程");
+    expect(page14?.manuscript).not.toContain("stablepc.csv");
+    expect(page15?.label).toBe("电脑 expand，stable 再回到手机，闭环完成");
+    expect(page15?.manuscript).toContain("stable.upipelinecache");
+    expect(page15?.manuscript).toContain("闭合");
+    expect(page15?.manuscript).toContain("expand");
+    expect(page15?.manuscript).toContain("stablepc.csv");
+    expect(page15?.manuscript).toContain("手机");
   });
 });

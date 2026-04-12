@@ -130,12 +130,45 @@ function scoreBalance(metrics: GeometryMetrics) {
 }
 
 function scoreLineStraightness(metrics: GeometryMetrics) {
-  return clampScore(
+  let score =
     10 -
-      metrics.primaryLineBendCount * 2 -
-      metrics.avoidableBendCount * 3 -
-      metrics.badEndpointCount * 2,
-  );
+    metrics.primaryLineBendCount * 2 -
+    metrics.avoidableBendCount * 3 -
+    metrics.badEndpointCount * 2 -
+    metrics.hookTurnCount * 2 -
+    metrics.edgeOverlapCount * 2;
+
+  if (metrics.shortSegmentCount >= 3) {
+    score -= 2;
+  } else if (metrics.shortSegmentCount > 0) {
+    score -= 1;
+  }
+
+  if (metrics.detourEdgeCount >= 2) {
+    score -= 2;
+  } else if (metrics.detourEdgeCount > 0) {
+    score -= 1;
+  }
+
+  if (metrics.maxDetourRatio > 0.35) {
+    score -= 2;
+  } else if (metrics.maxDetourRatio > 0.18) {
+    score -= 1;
+  }
+
+  if (metrics.cornerAnchorCount >= 2) {
+    score -= 2;
+  } else if (metrics.cornerAnchorCount > 0) {
+    score -= 1;
+  }
+
+  if (metrics.offCenterAnchorCount >= 4) {
+    score -= 2;
+  } else if (metrics.offCenterAnchorCount >= 2) {
+    score -= 1;
+  }
+
+  return clampScore(score);
 }
 
 function scoreCrossingRisk(metrics: GeometryMetrics) {
@@ -144,6 +177,9 @@ function scoreCrossingRisk(metrics: GeometryMetrics) {
   }
   if (metrics.crossingCount > 0 || metrics.nodePierceCount > 0) {
     return 4;
+  }
+  if (metrics.edgeOverlapCount > 0) {
+    return 6;
   }
   return 9;
 }
@@ -160,6 +196,18 @@ function scorePrimaryLineClarity(
   }
 
   if (metrics.primaryLineBendCount > 1) {
+    score -= 1;
+  }
+
+  if (metrics.hookTurnCount > 0) {
+    score -= 1;
+  }
+
+  if (metrics.maxDetourRatio > 0.18) {
+    score -= 1;
+  }
+
+  if (metrics.offCenterAnchorCount >= 3) {
     score -= 1;
   }
 

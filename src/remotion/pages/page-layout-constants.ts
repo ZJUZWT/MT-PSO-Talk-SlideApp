@@ -17,6 +17,7 @@ export const PAGE_11_FRAME = resolveRemotionStepFrame("page_11");
 export const PAGE_12_FRAME = resolveRemotionStepFrame("page_12");
 export const PAGE_13_FRAME = resolveRemotionStepFrame("page_13");
 export const PAGE_14_FRAME = resolveRemotionStepFrame("page_14");
+export const PAGE_15_FRAME = resolveRemotionStepFrame("page_15");
 
 export const PAGE2_LEFT_BOX: Box = {x: 210, y: 316, width: 150, height: 88, radius: 20};
 export const PAGE2_CENTER_BOX: Box = {x: 480, y: 304, width: 320, height: 112, radius: 24};

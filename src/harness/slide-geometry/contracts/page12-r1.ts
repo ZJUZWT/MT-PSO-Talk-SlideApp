@@ -1,86 +1,33 @@
-import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
+import {buildLoopSketch} from "./page-loop-shared";
 
-function cx(box: {x: number; width: number}) {
-  return box.x + box.width / 2;
-}
-
-function cy(box: {y: number; height: number}) {
-  return box.y + box.height / 2;
-}
-
-function right(box: {x: number; width: number}) {
-  return box.x + box.width;
-}
-
-const COMPUTER = {x: 90, y: 304, width: 166, height: 90};
-const REC = {x: 446, y: 90, width: 388, height: 82};
-const RUNTIME = {x: 906, y: 180, width: 236, height: 176};
-
-export const page12R1Sketch: GeometrySketchDefinition = {
+export const page12R1Sketch = buildLoopSketch({
   id: "page12-r1",
-  label: "Runtime return sketch",
+  label: "Bytecode landing sketch",
   stepId: "page_12",
   contract: {
-    pageGoal: "Show page12 as the first return leg where runtime emits a recorded upipelinecache artifact back toward the computer side.",
-    receiverPlane: ".rec.upipelinecache return leg",
-    primaryLine: "runtime frame -> .rec.upipelinecache -> computer side",
-    keepStable: "Keep computer visible on the left and runtime visible on the right while introducing only one return artifact.",
-    newChange: "Lift the recorded cache file onto an upper band so the viewer immediately reads it as a return path.",
-    doNot: "Do not re-expand cook outputs or add the stable outputs yet.",
+    pageGoal:
+      "Show page12 as the first runtime landing page where .ushaderbytecode visibly enters Phone while the cook split remains visible in the background.",
+    receiverPlane: "Phone runtime landing",
+    primaryLine: ".ushaderbytecode -> Phone",
+    keepStable:
+      "Keep the page11 cook split visible so page12 reads as one added downstream handoff.",
+    newChange:
+      "Promote the bytecode handoff into Phone and make the phone side the emphasized receiver.",
+    doNot:
+      "Do not reveal rec.upipelinecache or the stable expand band yet.",
   },
-  nodes: [
-    {
-      id: "computer",
-      label: "Computer",
-      x: COMPUTER.x,
-      y: COMPUTER.y,
-      width: COMPUTER.width,
-      height: COMPUTER.height,
-      tone: "muted",
-    },
-    {
-      id: "return-leg",
-      label: ".rec.upipelinecache",
-      x: REC.x,
-      y: REC.y,
-      width: REC.width,
-      height: REC.height,
-      tone: "receiver",
-    },
-    {
-      id: "runtime",
-      label: "Runtime Frame",
-      x: RUNTIME.x,
-      y: RUNTIME.y,
-      width: RUNTIME.width,
-      height: RUNTIME.height,
-      tone: "default",
-    },
+  visibleNodeIds: ["computer", "phone", "a", "bytecode", "scl"],
+  visibleEdgeIds: [
+    "computer-to-a",
+    "a-to-bytecode",
+    "a-to-scl",
+    "bytecode-to-phone",
   ],
-  edges: [
-    {
-      id: "runtime-to-rec",
-      from: {x: cx(RUNTIME), y: RUNTIME.y - 8},
-      to: {x: cx(REC), y: bottom(REC) + 8},
-      waypoints: [
-        {x: cx(RUNTIME), y: cy(REC) + 28},
-        {x: cx(REC), y: cy(REC) + 28},
-      ],
-      tone: "primary",
-    },
-    {
-      id: "rec-to-computer",
-      from: {x: REC.x - 8, y: cy(REC)},
-      to: {x: right(COMPUTER) + 8, y: cy(COMPUTER)},
-      waypoints: [
-        {x: COMPUTER.x + 240, y: cy(REC)},
-        {x: COMPUTER.x + 240, y: cy(COMPUTER)},
-      ],
-      tone: "primary",
-    },
-  ],
-};
-
-function bottom(box: {y: number; height: number}) {
-  return box.y + box.height;
-}
+  nodeOverrides: {
+    computer: {tone: "muted"},
+    phone: {tone: "receiver"},
+  },
+  edgeOverrides: {
+    "bytecode-to-phone": {strokeWidthOverride: 6.4},
+  },
+});

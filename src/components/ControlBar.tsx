@@ -1,11 +1,16 @@
 import type {ChangeEvent, ReactNode} from "react";
+import {resolveRemotionStepFrame} from "../remotion/embed";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 
 type ControlBarProps = {
   state: WorkbenchState;
   collapsed: boolean;
+  debugFrame: number | null;
+  maxDebugFrame: number;
   motionPresetId: string;
   motionOptions: Array<{id: string; label: string}>;
+  onDebugFrameChange: (debugFrame: number | null) => void;
+  onDebugFrameStep: (delta: number) => void;
   onMotionPresetChange: (motionPresetId: string) => void;
   onToggleCollapsed: () => void;
 };
@@ -57,11 +62,17 @@ function SelectField({
 export function ControlBar({
   state,
   collapsed,
+  debugFrame,
+  maxDebugFrame,
   motionPresetId,
   motionOptions,
+  onDebugFrameChange,
+  onDebugFrameStep,
   onMotionPresetChange,
   onToggleCollapsed,
 }: ControlBarProps) {
+  const currentStepBaseFrame = resolveRemotionStepFrame(state.stepId);
+
   const handleVariantChange = (event: ChangeEvent<HTMLSelectElement>) => {
     state.setVariantId(event.target.value as WorkbenchState["variantId"]);
   };
@@ -74,8 +85,27 @@ export function ControlBar({
     onMotionPresetChange(event.target.value);
   };
 
+  const handleDebugFrameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value.trim();
+
+    if (nextValue === "") {
+      onDebugFrameChange(null);
+      return;
+    }
+
+    const parsed = Number.parseInt(nextValue, 10);
+
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return;
+    }
+
+    onDebugFrameChange(Math.min(parsed, maxDebugFrame));
+  };
+
   const activeMotionLabel =
     motionOptions.find((option) => option.id === motionPresetId)?.label ?? "1x";
+  const activeFrameSummary =
+    debugFrame === null ? "" : ` · Frame ${debugFrame}`;
 
   return (
     <section
@@ -95,6 +125,7 @@ export function ControlBar({
         </button>
         <p className="control-summary" aria-live="polite">
           {state.activeVariant.label} · {state.currentStep.label} · {state.aspectRatio} · Motion {activeMotionLabel}
+          {activeFrameSummary}
         </p>
       </div>
 
@@ -151,6 +182,42 @@ export function ControlBar({
               </option>
             ))}
           </SelectField>
+
+          <div className="control-card">
+            <label htmlFor="debug-frame">Debug Frame</label>
+            <div className="control-debug-row">
+              <input
+                id="debug-frame"
+                aria-label="Debug Frame"
+                className="control-text-input"
+                type="number"
+                min="0"
+                max={String(maxDebugFrame)}
+                placeholder={String(currentStepBaseFrame)}
+                value={debugFrame === null ? "" : String(debugFrame)}
+                onChange={handleDebugFrameChange}
+              />
+              <button
+                type="button"
+                className="control-step-button"
+                aria-label="Previous frame"
+                onClick={() => onDebugFrameStep(-1)}
+              >
+                -1
+              </button>
+              <button
+                type="button"
+                className="control-step-button"
+                aria-label="Next frame"
+                onClick={() => onDebugFrameStep(1)}
+              >
+                +1
+              </button>
+            </div>
+            <p className="control-card-caption">
+              Current page base frame {currentStepBaseFrame} / max {maxDebugFrame}
+            </p>
+          </div>
         </div>
       ) : null}
     </section>

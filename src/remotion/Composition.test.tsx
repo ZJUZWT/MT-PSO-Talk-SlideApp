@@ -20,6 +20,7 @@ vi.mock("remotion", () => ({
 }));
 
 import {MyComposition} from "./Composition";
+import {computeSceneModel} from "./model/computeSceneModel";
 
 function normalizeText(value: string | null | undefined) {
   return (value ?? "").replace(/\s+/g, "");
@@ -127,6 +128,13 @@ function rectCenterY(rect: Element | null | undefined) {
   return Number(rect?.getAttribute("y")) + Number(rect?.getAttribute("height")) / 2;
 }
 
+function boxCenter(box: {x: number; y: number; width: number; height: number}) {
+  return {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2,
+  };
+}
+
 function textX(node: Element | null | undefined) {
   return Number(node?.getAttribute("x"));
 }
@@ -153,6 +161,35 @@ function rectMetrics(rect: Element | null | undefined) {
     right: x + width,
     bottom: y + height,
   };
+}
+
+function maxRectBottom(group: Element | null | undefined) {
+  return Math.max(
+    ...Array.from(group?.querySelectorAll("rect") ?? []).map(
+      (rect) => rectMetrics(rect).bottom,
+    ),
+  );
+}
+
+function minRectTop(group: Element | null | undefined) {
+  return Math.min(
+    ...Array.from(group?.querySelectorAll("rect") ?? []).map(
+      (rect) => rectMetrics(rect).y,
+    ),
+  );
+}
+
+function findRectByBox(container: HTMLElement, box: {x: number; y: number; width: number; height: number}, tolerance = 2) {
+  return Array.from(container.querySelectorAll("rect")).find((rect) => {
+    const metrics = rectMetrics(rect);
+
+    return (
+      Math.abs(metrics.x - box.x) <= tolerance &&
+      Math.abs(metrics.y - box.y) <= tolerance &&
+      Math.abs(metrics.width - box.width) <= tolerance &&
+      Math.abs(metrics.height - box.height) <= tolerance
+    );
+  }) ?? null;
 }
 
 function parseScale(transform: string | null | undefined) {
@@ -2177,26 +2214,366 @@ describe("MyComposition", () => {
     expect(fontSizeOf(shaderSlice)).toBeGreaterThanOrEqual(15.5);
   });
 
-  it("renders page 10 as a computer-to-runtime cook bridge with two UE5 cook outputs", () => {
-    mockFrame = 414;
+  it("renders page 10 as a page-5 callback that settles on ShaderLibrary before the loop chapter starts", () => {
+    mockFrame = 474;
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const scene = computeSceneModel(474, "bus-clean");
+    const visibleMaterial = findSvgTextNodesByContent(container, "Material").filter(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    const visibleCooked = findSvgTextNodesByContent(container, "Cooked").filter(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    const shaderLibraryTarget = container.querySelector(
+      '[data-testid="page10-callback-shaderlibrary-target"]',
+    );
+    const shaderRect = shaderLibraryTarget?.querySelector("rect");
+    const vertexCarrierRect = findRectByBox(container, scene.leftBox);
+    const gpuCarrierRect = findRectByBox(container, scene.centerBox);
+    const pixelsCarrierRect = findRectByBox(container, scene.rightBox);
+    const shaderCenter = projectPointThroughGroup(shaderLibraryTarget, {
+      x: rectCenterX(shaderRect),
+      y: rectCenterY(shaderRect),
+    });
+    const cookedTargetCenter = boxCenter(scene.sharedUpperRightBox);
 
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "cook").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, ".shaderbytecode").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "UE5 formats").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Runtime").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
-    expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "ShaderLibrary").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Binary").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "GPU").length).toBeGreaterThanOrEqual(1);
+    expect(vertexCarrierRect).not.toBeNull();
+    expect(gpuCarrierRect).not.toBeNull();
+    expect(pixelsCarrierRect).not.toBeNull();
+    expect(Math.abs(shaderCenter.x - cookedTargetCenter.x)).toBeLessThanOrEqual(8);
+    expect(Math.abs(shaderCenter.y - cookedTargetCenter.y)).toBeLessThanOrEqual(8);
+    expect(visibleMaterial.length).toBe(0);
+    expect(visibleCooked.length).toBe(0);
+    expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "UE5 formats").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBe(0);
     expect(container.querySelector('[data-testid="page10-answer-badge"]')).toBeNull();
   });
 
   it("shows a transient answer badge during the page 09 to page 10 transition", () => {
-    mockFrame = 390;
+    mockFrame = 432;
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page10-answer-badge"]')).not.toBeNull();
+  });
+
+  it("shrinks the legacy page-09 world before the page-10 callback settles", () => {
+    mockFrame = 372;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const legacyWorld = container.querySelector('[data-testid="page910-legacy-world"]');
+    const legacyScale = parseScale(legacyWorld?.getAttribute("transform"));
+
+    expect(legacyWorld).not.toBeNull();
+    expect(legacyScale).not.toBeNull();
+    expect(legacyScale ?? 1).toBeLessThan(0.94);
+  });
+
+  it("pulls Material and CookedShaderCode into ShaderLibrary during the page-10 merge", () => {
+    mockFrame = 444;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const scene = computeSceneModel(444, "bus-clean");
+    const materialSource = container.querySelector(
+      '[data-testid="page10-callback-material-merge-source"]',
+    );
+    const cookedSource = container.querySelector(
+      '[data-testid="page10-callback-cooked-merge-source"]',
+    );
+    const materialLink = container.querySelector('[data-testid="page10-callback-material-link"]');
+    const shaderLibraryTarget = container.querySelector(
+      '[data-testid="page10-callback-shaderlibrary-target"]',
+    );
+    const materialRect = materialSource?.querySelector("rect");
+    const cookedRect = cookedSource?.querySelector("rect");
+    const shaderRect = shaderLibraryTarget?.querySelector("rect");
+    const materialCenter = projectPointThroughGroup(materialSource, {
+      x: rectCenterX(materialRect),
+      y: rectCenterY(materialRect),
+    });
+    const cookedCenter = projectPointThroughGroup(cookedSource, {
+      x: rectCenterX(cookedRect),
+      y: rectCenterY(cookedRect),
+    });
+    const shaderCenter = projectPointThroughGroup(shaderLibraryTarget, {
+      x: rectCenterX(shaderRect),
+      y: rectCenterY(shaderRect),
+    });
+    const materialMergeScale = parseScale(materialSource?.getAttribute("transform"));
+    const cookedMergeScale = parseScale(cookedSource?.getAttribute("transform"));
+    const materialLinkPoints = parseSimplePathPoints(materialLink);
+    const movedMaterialRight = materialCenter.x + (scene.sharedUpperLeftBox.width * (materialMergeScale ?? 1)) / 2;
+
+    expect(materialSource).not.toBeNull();
+    expect(cookedSource).not.toBeNull();
+    expect(materialLink).not.toBeNull();
+    expect(shaderLibraryTarget).not.toBeNull();
+    expect(effectiveOpacity(materialSource)).toBeGreaterThan(0.16);
+    expect(effectiveOpacity(cookedSource)).toBeGreaterThan(0.16);
+    expect(effectiveOpacity(shaderLibraryTarget)).toBeGreaterThan(0.4);
+    expect(materialMergeScale ?? 1).toBeLessThan(0.96);
+    expect(cookedMergeScale ?? 1).toBeLessThan(0.96);
+    expect(Math.abs((materialLinkPoints?.x1 ?? 0) - (movedMaterialRight + 10))).toBeLessThanOrEqual(12);
+    expect(Math.abs(materialCenter.x - shaderCenter.x)).toBeLessThanOrEqual(140);
+    expect(Math.abs(cookedCenter.x - shaderCenter.x)).toBeLessThanOrEqual(140);
+    expect(Math.abs(materialCenter.y - shaderCenter.y)).toBeLessThanOrEqual(70);
+    expect(Math.abs(cookedCenter.y - shaderCenter.y)).toBeLessThanOrEqual(70);
+  });
+
+  it("fades the old Material source link as the page-10 merge nearly finishes", () => {
+    mockFrame = 444;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const materialSource = container.querySelector(
+      '[data-testid="page10-callback-material-merge-source"]',
+    );
+    const materialLink = container.querySelector('[data-testid="page10-callback-material-link"]');
+    const materialLinkPath = materialLink?.querySelector("path");
+
+    expect(materialSource).not.toBeNull();
+    expect(materialLink).not.toBeNull();
+    expect(materialLinkPath).not.toBeNull();
+    expect(effectiveOpacity(materialSource)).toBeGreaterThan(0.5);
+    expect(effectiveOpacity(materialLinkPath)).toBeLessThan(0.35);
+  });
+
+  it("starts page 11 by morphing ShaderLibrary into .ushaderbytecode on the same traveling node", () => {
+    mockFrame = 498;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const bytecodeGroup = findVisibleBoxGroupByLabel(container, ".ushaderbytecode");
+    const bytecodeRect = bytecodeGroup?.querySelector("rect");
+
+    expect(bytecodeGroup).not.toBeNull();
+    expect(rectCenterY(bytecodeRect)).toBeLessThan(500);
+    expect(Number(bytecodeRect?.getAttribute("width"))).toBeLessThan(280);
+    expect(findSvgTextNodesByContent(container, "ShaderLibrary").filter(
+      (node) => effectiveOpacity(node) > 0.2,
+    ).length).toBe(0);
+  });
+
+  it("keeps ShaderLibrary visible through the first page-11 frames instead of blinking out", () => {
+    mockFrame = 480;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const shaderBridge = container.querySelector(
+      '[data-testid="page10-callback-shaderlibrary-target"]',
+    );
+
+    expect(shaderBridge).not.toBeNull();
+    expect(effectiveOpacity(shaderBridge)).toBeGreaterThan(0.98);
+  });
+
+  it("bridges the three runtime nodes into the phone with matching node and edge motion", () => {
+    mockFrame = 498;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const scene = computeSceneModel(498, "bus-clean");
+    const leftBridge = container.querySelector('[data-testid="page10-runtime-bridge-left"]');
+    const centerBridge = container.querySelector('[data-testid="page10-runtime-bridge-center"]');
+    const rightBridge = container.querySelector('[data-testid="page10-runtime-bridge-right"]');
+    const leftRect = leftBridge?.querySelector("rect");
+    const centerRect = centerBridge?.querySelector("rect");
+    const rightRect = rightBridge?.querySelector("rect");
+
+    expect(leftBridge).not.toBeNull();
+    expect(centerBridge).not.toBeNull();
+    expect(rightBridge).not.toBeNull();
+    expect(container.querySelector('[data-testid="page10-runtime-bridge-link-left"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="page10-runtime-bridge-link-right"]')).not.toBeNull();
+    expect(effectiveOpacity(leftBridge)).toBeGreaterThan(0.98);
+    expect(effectiveOpacity(centerBridge)).toBeGreaterThan(0.98);
+    expect(effectiveOpacity(rightBridge)).toBeGreaterThan(0.98);
+    expect(rectCenterX(leftRect)).toBeGreaterThan(scene.leftCenterX + 10);
+    expect(rectCenterY(leftRect)).toBeLessThan(scene.axisY);
+    expect(rectCenterX(centerRect)).toBeGreaterThan(scene.centerCenterX + 4);
+    expect(rectCenterY(centerRect)).toBeLessThan(scene.centerTextY);
+    expect(rectCenterX(rightRect)).toBeGreaterThan(scene.rightCenterX);
+    expect(rectCenterY(rightRect)).toBeLessThanOrEqual(scene.axisY + 4);
+  });
+
+  it("fades in the device shell while keeping page-11 continuity on the shared bridge carriers", () => {
+    mockFrame = 498;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const phoneShell = container.querySelector('[data-testid="page10-phone-shell"]');
+    const phoneRuntime = container.querySelector('[data-testid="page10-phone-runtime"]');
+    const bridgeLeft = container.querySelector('[data-testid="page10-runtime-bridge-left"]');
+    const bridgeCenter = container.querySelector('[data-testid="page10-runtime-bridge-center"]');
+    const bridgeRight = container.querySelector('[data-testid="page10-runtime-bridge-right"]');
+    const bytecodeGroup = findVisibleBoxGroupByLabel(container, ".ushaderbytecode");
+
+    expect(phoneShell).not.toBeNull();
+    expect(phoneRuntime).not.toBeNull();
+    expect(bridgeLeft).not.toBeNull();
+    expect(bridgeCenter).not.toBeNull();
+    expect(bridgeRight).not.toBeNull();
+    expect(bytecodeGroup).not.toBeNull();
+    expect(effectiveOpacity(phoneShell)).toBeGreaterThan(0.001);
+    expect(effectiveOpacity(phoneShell)).toBeLessThan(0.8);
+    expect(effectiveOpacity(phoneRuntime)).toBe(0);
+    expect(effectiveOpacity(bridgeLeft)).toBeGreaterThan(0.98);
+    expect(effectiveOpacity(bridgeCenter)).toBeGreaterThan(0.98);
+    expect(effectiveOpacity(bridgeRight)).toBeGreaterThan(0.98);
+    expect(effectiveOpacity(bytecodeGroup)).toBeGreaterThan(0.98);
+  });
+
+  it("reveals the computer-phone base stage on page 11 before the cook split begins", () => {
+    mockFrame = 546;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const bridgeCenter = container.querySelector('[data-testid="page10-runtime-bridge-center"]');
+    const bridgeLeftLink = container.querySelector('[data-testid="page10-runtime-bridge-link-left"]');
+    const bridgeRightLink = container.querySelector('[data-testid="page10-runtime-bridge-link-right"]');
+    const bytecodeGroup = findVisibleBoxGroupByLabel(container, ".ushaderbytecode");
+    const computerRect = findRectByBox(container, {
+      x: 82,
+      y: 291,
+      width: 202,
+      height: 110,
+    });
+    const computerGroup = computerRect?.closest("g");
+    const phoneRect = Array.from(
+      container.querySelectorAll('[data-testid="page10-phone-shell"] rect'),
+    ).find(
+      (rect) =>
+        Number(rect.getAttribute("width")) === 188 &&
+        Number(rect.getAttribute("height")) === 412,
+    );
+    const phoneShell = container.querySelector('[data-testid="page10-phone-shell"]');
+    const leftVertices = parsePolylineVertices(bridgeLeftLink);
+    const rightVertices = parsePolylineVertices(bridgeRightLink);
+    const leftSpan = Math.abs((leftVertices.at(-1)?.y ?? 0) - (leftVertices[0]?.y ?? 0));
+    const rightSpan = Math.abs((rightVertices.at(-1)?.y ?? 0) - (rightVertices[0]?.y ?? 0));
+    const computerCenterY = (minRectTop(computerGroup) + maxRectBottom(computerGroup)) / 2;
+    const phoneCenterY = (minRectTop(phoneShell) + maxRectBottom(phoneShell)) / 2;
+
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "GPU").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "cook").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBe(0);
+    expect(bytecodeGroup).not.toBeNull();
+    expect(bridgeCenter).not.toBeNull();
+    expect(effectiveOpacity(bridgeCenter)).toBeGreaterThan(0.98);
+    expect(computerRect).not.toBeNull();
+    expect(computerGroup).not.toBeNull();
+    expect(phoneRect).not.toBeNull();
+    expect(phoneShell).not.toBeNull();
+    expect(Math.abs(computerCenterY - phoneCenterY)).toBeLessThanOrEqual(2);
+    expect(Math.abs(computerCenterY - 360)).toBeLessThanOrEqual(2);
+    expect(Math.abs(phoneCenterY - 360)).toBeLessThanOrEqual(2);
+    expect(leftVertices.length).toBeGreaterThanOrEqual(2);
+    expect(rightVertices.length).toBeGreaterThanOrEqual(2);
+    expect((leftVertices.at(-1)?.y ?? 0) - (leftVertices[0]?.y ?? 0)).toBeGreaterThan(0);
+    expect((rightVertices.at(-1)?.y ?? 0) - (rightVertices[0]?.y ?? 0)).toBeGreaterThan(0);
+    expect(leftSpan).toBeGreaterThanOrEqual(40);
+    expect(rightSpan).toBeGreaterThanOrEqual(40);
+  });
+
+  it("reveals the cook split on page 12 and the bytecode landing on page 13", () => {
+    mockFrame = 600;
+    const {container: page12Container, unmount} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    expect(findSvgTextNodesByContent(page12Container, "cook").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page12Container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page12Container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(page12Container, "Phone").length).toBe(0);
+    expect(findSvgTextNodesByContent(page12Container, "rec.upipelinecache").length).toBe(0);
+
+    unmount();
+    mockFrame = 654;
+    const {container: page13Container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(page13Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page13Container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(page13Container, "Phone").length).toBe(0);
+    expect(findSvgTextNodesByContent(page13Container, "rec.upipelinecache").length).toBe(0);
+  });
+
+  it("reveals rec on page 14, then settles the completed stable loop on page 15", () => {
+    mockFrame = 708;
+    const {container: page14Container, unmount} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    expect(findSvgTextNodesByContent(page14Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(page14Container, "Phone").length).toBe(0);
+    expect(findSvgTextNodesByContent(page14Container, "stablepc.csv").length).toBe(0);
+
+    unmount();
+    mockFrame = 762;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "stable.").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
+    expect(
+      Array.from(container.querySelectorAll("text")).filter(
+        (node) => node.textContent?.trim() === "+",
+      ).length,
+    ).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps the page 15 stable return path outside the stable.upipelinecache text lane", () => {
+    mockFrame = 762;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const stableLabel = findSvgTextNodesByContent(container, "stable.").find(
+      (node) => effectiveOpacity(node) > 0.2,
+    );
+    let stableGroup = stableLabel?.closest("g") ?? null;
+
+    while (stableGroup && !stableGroup.querySelector("rect")) {
+      stableGroup = stableGroup.parentElement?.closest("g") ?? null;
+    }
+
+    const stableRect = stableGroup?.querySelector("rect");
+    const stableMetrics = rectMetrics(stableRect);
+    const stableToPhoneArrow = container.querySelector(
+      '[data-testid="page15-stable-to-phone-arrow"]',
+    );
+    const stableToPhoneVertices = parsePolylineVertices(stableToPhoneArrow);
+    const topmostStableToPhoneY = Math.min(
+      ...stableToPhoneVertices.map((vertex) => vertex.y),
+    );
+    const rightmostStableToPhoneX = Math.max(
+      ...stableToPhoneVertices.map((vertex) => vertex.x),
+    );
+
+    expect(stableRect).not.toBeNull();
+    expect(stableToPhoneArrow).not.toBeNull();
+    expect(stableToPhoneVertices.length).toBeGreaterThanOrEqual(2);
+    expect(topmostStableToPhoneY).toBeGreaterThanOrEqual(stableMetrics.bottom + 6);
+    expect(rightmostStableToPhoneX).toBeGreaterThanOrEqual(stableMetrics.right + 20);
+  });
+
+  it("keeps the page 14 phone-to-rec return path lifted above the phone roof before turning left", () => {
+    mockFrame = 708;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const phoneRect = Array.from(container.querySelectorAll("rect")).find((rect) => {
+      const metrics = rectMetrics(rect);
+
+      return metrics.x > 980 && metrics.width >= 180 && metrics.height >= 380;
+    });
+    const phoneMetrics = rectMetrics(phoneRect);
+    const phoneToRecArrow = container.querySelector('[data-testid="page14-phone-to-rec-arrow"]');
+    const phoneToRecVertices = parsePolylineVertices(phoneToRecArrow);
+    const topmostPhoneToRecY = Math.min(...phoneToRecVertices.map((vertex) => vertex.y));
+
+    expect(phoneRect).not.toBeNull();
+    expect(phoneToRecArrow).not.toBeNull();
+    expect(phoneToRecVertices.length).toBeGreaterThanOrEqual(3);
+    expect(topmostPhoneToRecY).toBeLessThanOrEqual(phoneMetrics.y - 20);
   });
 
   it("keeps FShader as a translated continuation from page 08 into page 09 with only a bounded width retargeting", () => {

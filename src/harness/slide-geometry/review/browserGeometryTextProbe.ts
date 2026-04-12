@@ -164,6 +164,12 @@ function shouldMeasureNode(
   return !containerIds.has(node.id) || node.label.trim().length > 0;
 }
 
+function isMeasurableTextElement(
+  element: SVGTextElement,
+): element is SVGTextElement & SVGGraphicsElement {
+  return typeof (element as SVGGraphicsElement).getBBox === "function";
+}
+
 export function collectBrowserGeometryTextProbe({
   root,
   sketch,
@@ -186,9 +192,7 @@ export function collectBrowserGeometryTextProbe({
 
       const textElements = Array.from(
         nodeElement.querySelectorAll("text"),
-      ).filter((element): element is SVGGraphicsElement =>
-        typeof (element as SVGGraphicsElement).getBBox === "function",
-      );
+      ).filter(isMeasurableTextElement);
 
       if (textElements.length === 0) {
         return [];

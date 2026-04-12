@@ -13,6 +13,7 @@ import {Page07Scene} from "./pages/Page07Scene";
 import {Page08Scene} from "./pages/Page08Scene";
 import {Page09Scene} from "./pages/Page09Scene";
 import {Page10Scene} from "./pages/Page10Scene";
+import {easeInOutCubic, mix, resolveWindowProgress} from "./geometry/geometry";
 import {VIEWBOX} from "./pages/page-layout-constants";
 
 type SceneSvgProps = {
@@ -44,6 +45,13 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
       : settledPage910Progress >= 0.28
         ? 0
         : 1 - settledPage910Progress / 0.28;
+  const page910LegacyShrinkProgress = resolveWindowProgress(
+    settledPage910Progress,
+    0,
+    0.08,
+    easeInOutCubic,
+  );
+  const page910LegacyScale = mix(1, 0.84, page910LegacyShrinkProgress);
   return (
     <AbsoluteFill
       style={{
@@ -77,20 +85,25 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
               <Page05Scene scene={scene} />
             </g>
 
-              {page6StageOpacity > 0.001 ? (
-                <g
-                  data-testid="page6-stage-group"
-                  opacity={page6StageOpacity * page910LegacyFade}
-                  transform={`translate(${cameraViewportCenterX} ${cameraViewportCenterY}) scale(${page6StageScale}) translate(${-page6StageCenterX} ${-page6StageCenterY})`}
-                >
-                  <Page06Scene scene={scene} />
-                  <Page07Scene scene={scene} />
-                  <Page09Scene scene={scene} />
-                </g>
-              ) : null}
+              <g
+                data-testid="page910-legacy-world"
+                transform={`translate(${cameraViewportCenterX} ${cameraViewportCenterY}) scale(${page910LegacyScale}) translate(${-cameraViewportCenterX} ${-cameraViewportCenterY})`}
+              >
+                {page6StageOpacity > 0.001 ? (
+                  <g
+                    data-testid="page6-stage-group"
+                    opacity={page6StageOpacity * page910LegacyFade}
+                    transform={`translate(${cameraViewportCenterX} ${cameraViewportCenterY}) scale(${page6StageScale}) translate(${-page6StageCenterX} ${-page6StageCenterY})`}
+                  >
+                    <Page06Scene scene={scene} />
+                    <Page07Scene scene={scene} />
+                    <Page09Scene scene={scene} />
+                  </g>
+                ) : null}
 
-              <g opacity={page910LegacyFade}>
-                <Page08Scene scene={scene} />
+                <g opacity={page910LegacyFade}>
+                  <Page08Scene scene={scene} />
+                </g>
               </g>
               <Page10Scene scene={scene} />
           </g>

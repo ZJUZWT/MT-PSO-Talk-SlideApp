@@ -99,6 +99,11 @@ import {
   PAGE_08_FRAME,
   PAGE_09_FRAME,
   PAGE_10_FRAME,
+  PAGE_11_FRAME,
+  PAGE_12_FRAME,
+  PAGE_13_FRAME,
+  PAGE_14_FRAME,
+  PAGE_15_FRAME,
   VIEWBOX,
 } from "../pages/page-layout-constants";
 
@@ -130,6 +135,11 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const page78Progress = resolveSegmentProgress(frame, PAGE_07_FRAME, PAGE_08_FRAME);
   const page89Progress = resolveSegmentProgress(frame, PAGE_08_FRAME, PAGE_09_FRAME);
   const page910Progress = resolveSegmentProgress(frame, PAGE_09_FRAME, PAGE_10_FRAME);
+  const page1011Progress = resolveSegmentProgress(frame, PAGE_10_FRAME, PAGE_11_FRAME);
+  const page1112Progress = resolveSegmentProgress(frame, PAGE_11_FRAME, PAGE_12_FRAME);
+  const page1213Progress = resolveSegmentProgress(frame, PAGE_12_FRAME, PAGE_13_FRAME);
+  const page1314Progress = resolveSegmentProgress(frame, PAGE_13_FRAME, PAGE_14_FRAME);
+  const page1415Progress = resolveSegmentProgress(frame, PAGE_14_FRAME, PAGE_15_FRAME);
   const page56LinearProgress = resolveLinearSegmentProgress(
     frame,
     PAGE_05_FRAME,
@@ -150,6 +160,16 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const settledPage89Progress = frame <= PAGE_08_FRAME ? 0 : frame >= PAGE_09_FRAME ? 1 : page89Progress;
   const settledPage910Progress =
     frame <= PAGE_09_FRAME ? 0 : frame >= PAGE_10_FRAME ? 1 : page910Progress;
+  const settledPage1011Progress =
+    frame <= PAGE_10_FRAME ? 0 : frame >= PAGE_11_FRAME ? 1 : page1011Progress;
+  const settledPage1112Progress =
+    frame <= PAGE_11_FRAME ? 0 : frame >= PAGE_12_FRAME ? 1 : page1112Progress;
+  const settledPage1213Progress =
+    frame <= PAGE_12_FRAME ? 0 : frame >= PAGE_13_FRAME ? 1 : page1213Progress;
+  const settledPage1314Progress =
+    frame <= PAGE_13_FRAME ? 0 : frame >= PAGE_14_FRAME ? 1 : page1314Progress;
+  const settledPage1415Progress =
+    frame <= PAGE_14_FRAME ? 0 : frame >= PAGE_15_FRAME ? 1 : page1415Progress;
   const theme = VARIANT_THEME[variantId];
 
   const neutralFill = "rgba(255, 251, 246, 0.98)";
@@ -1117,6 +1137,11 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
     page78Progress,
     page89Progress,
     page910Progress,
+    page1011Progress,
+    page1112Progress,
+    page1213Progress,
+    page1314Progress,
+    page1415Progress,
     page56LinearProgress,
     page67LinearProgress,
     settledPage12Progress,
@@ -1128,6 +1153,11 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
     settledPage78Progress,
     settledPage89Progress,
     settledPage910Progress,
+    settledPage1011Progress,
+    settledPage1112Progress,
+    settledPage1213Progress,
+    settledPage1314Progress,
+    settledPage1415Progress,
     theme,
     neutralFill,
     focusFill,

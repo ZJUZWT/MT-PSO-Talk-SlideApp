@@ -36,7 +36,7 @@ export const page10R1Sketch: GeometrySketchDefinition = {
       "Show page10 as one clean cook-split bridge where the computer side emits two aligned cook outputs that both enter the phone-side runtime.",
     receiverPlane: "Phone / Runtime",
     primaryLine:
-      "Computer(Material) --cook--> split -> .shaderbytecode + .scl.csv -> Phone(Runtime)",
+      "Computer(Material) --cook--> split -> .ushaderbytecode + .scl.csv -> Phone(Runtime)",
     keepStable:
       "Keep the page as one left-to-right bridge with computer on the left and phone on the right.",
     newChange:
@@ -75,7 +75,7 @@ export const page10R1Sketch: GeometrySketchDefinition = {
     },
     {
       id: "shaderbytecode",
-      label: ".shaderbytecode",
+      label: ".ushaderbytecode",
       x: BYTECODE.x,
       y: BYTECODE.y,
       width: BYTECODE.width,

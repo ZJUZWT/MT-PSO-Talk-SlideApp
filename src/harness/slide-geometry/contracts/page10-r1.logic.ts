@@ -40,7 +40,7 @@ export const page10R1LogicContract: SlideLogicContract = {
     "Model page10 as one cook-split bridge where cook is an edge label, the split happens at an empty junction, and Runtime is a container that owns the runtime pipeline.",
   mermaid: `flowchart LR
     material["Material"] -->|"cook"| cook_split((" "))
-    cook_split --> shaderbytecode[".shaderbytecode"]
+    cook_split --> shaderbytecode[".ushaderbytecode"]
     cook_split --> scl_csv[".scl.csv"]
 
     shaderbytecode --> runtime
@@ -53,7 +53,7 @@ export const page10R1LogicContract: SlideLogicContract = {
     {id: "material", kind: "node", label: "Material"},
     {id: "cook", kind: "edge-label", label: "cook"},
     {id: "cook-split", kind: "junction", label: "cook split"},
-    {id: "shaderbytecode", kind: "node", label: ".shaderbytecode"},
+    {id: "shaderbytecode", kind: "node", label: ".ushaderbytecode"},
     {id: "scl-csv", kind: "node", label: ".scl.csv"},
     {
       id: "runtime",

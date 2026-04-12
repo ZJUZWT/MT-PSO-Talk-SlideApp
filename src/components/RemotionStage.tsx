@@ -9,6 +9,7 @@ import {
 } from "../storyboard-data/playbackTimeline";
 
 type RemotionStageProps = {
+  debugFrame?: number | null;
   motionDurationScale: number;
   runtimeRef?: RefObject<HTMLDivElement | null>;
   stepId: StoryStepId;
@@ -16,13 +17,14 @@ type RemotionStageProps = {
 };
 
 export function RemotionStage({
+  debugFrame = null,
   motionDurationScale,
   runtimeRef,
   stepId,
   variantId,
 }: RemotionStageProps) {
   const animationHandleRef = useRef<number | null>(null);
-  const initialFrame = resolveRemotionStepFrame(stepId);
+  const initialFrame = debugFrame ?? resolveRemotionStepFrame(stepId);
   const lastAppliedFrameRef = useRef<number>(initialFrame);
   const [currentFrame, setCurrentFrame] = useState(initialFrame);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -52,6 +54,15 @@ export function RemotionStage({
       lastAppliedFrameRef.current = frame;
       setCurrentFrame(frame);
     };
+
+    if (debugFrame !== null) {
+      stopAnimation();
+      lastAppliedFrameRef.current = debugFrame;
+      setCurrentFrame(debugFrame);
+      setIsAnimating(false);
+
+      return stopAnimation;
+    }
 
     stopAnimation();
     const fromFrame = lastAppliedFrameRef.current;
@@ -96,6 +107,7 @@ export function RemotionStage({
 
     return stopAnimation;
   }, [
+    debugFrame,
     effectiveDurationMs,
     targetFrame,
     variantId,
@@ -106,6 +118,7 @@ export function RemotionStage({
       className="stage-runtime"
       ref={runtimeRef}
       data-current-frame={currentFrame}
+      data-debug-frame={debugFrame !== null ? String(debugFrame) : undefined}
       data-animating={isAnimating ? "true" : "false"}
       data-motion-scale={motionDurationScale}
     >

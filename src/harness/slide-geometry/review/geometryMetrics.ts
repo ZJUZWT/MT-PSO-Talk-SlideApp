@@ -20,6 +20,13 @@ export type GeometryMetrics = {
   badEndpointCount: number;
   primaryLineBendCount: number;
   avoidableBendCount: number;
+  edgeOverlapCount: number;
+  hookTurnCount: number;
+  shortSegmentCount: number;
+  detourEdgeCount: number;
+  maxDetourRatio: number;
+  offCenterAnchorCount: number;
+  cornerAnchorCount: number;
   textOverflowCount: number;
   maxTextOverflowPx: number;
   minRenderedFontPx: number;
@@ -60,6 +67,41 @@ export type NodeInternalPadding = {
   tightest: number;
 };
 
+export type GeometryEdgeAnchorMetric = {
+  edgeId: string;
+  fromNodeId?: string;
+  fromLabel?: string;
+  fromSide: string;
+  fromOffsetPx: number;
+  fromOffsetAbsPx: number;
+  fromCenterRatio: number;
+  fromIsCorner: boolean;
+  toNodeId?: string;
+  toLabel?: string;
+  toSide: string;
+  toOffsetPx: number;
+  toOffsetAbsPx: number;
+  toCenterRatio: number;
+  toIsCorner: boolean;
+};
+
+export type GeometryEdgeRouteMetric = {
+  edgeId: string;
+  bendCount: number;
+  avoidableBend: boolean;
+  crossingCount: number;
+  overlapCount: number;
+  nodePierceCount: number;
+  badEndpointCount: number;
+  shortSegmentCount: number;
+  minSegmentLength: number;
+  hookTurnCount: number;
+  detourRatio: number;
+  nonOrthogonalSegmentCount: number;
+  routeLength: number;
+  idealLength: number;
+};
+
 type Rect = {
   left: number;
   right: number;
@@ -89,8 +131,19 @@ function toRect(node: SketchNode): Rect {
 }
 
 function isPointJunction(node: SketchNode) {
+  const normalizedLabel = node.label.trim();
+
   if (
-    node.label.trim().length === 0 &&
+    node.shape === "circle" &&
+    node.width <= 40 &&
+    node.height <= 40 &&
+    (normalizedLabel.length === 0 || normalizedLabel === "+" || normalizedLabel === "×")
+  ) {
+    return true;
+  }
+
+  if (
+    normalizedLabel.length === 0 &&
     node.shape === "circle" &&
     node.width <= 20 &&
     node.height <= 20
@@ -99,7 +152,7 @@ function isPointJunction(node: SketchNode) {
   }
 
   return (
-    node.label.trim().length === 0 &&
+    normalizedLabel.length === 0 &&
     node.width <= 12 &&
     node.height <= 12
   );
@@ -180,6 +233,52 @@ function toSegments(edge: SketchEdge): Segment[] {
   return segments;
 }
 
+function segmentLength(segment: Segment) {
+  return Math.hypot(segment.to.x - segment.from.x, segment.to.y - segment.from.y);
+}
+
+function segmentOverlapLength(a: Segment, b: Segment) {
+  if (a.orientation !== b.orientation || a.orientation === "other") {
+    return 0;
+  }
+
+  if (a.orientation === "horizontal") {
+    if (Math.abs(a.from.y - b.from.y) > EPSILON) {
+      return 0;
+    }
+
+    const overlapStart = Math.max(
+      Math.min(a.from.x, a.to.x),
+      Math.min(b.from.x, b.to.x),
+    );
+    const overlapEnd = Math.min(
+      Math.max(a.from.x, a.to.x),
+      Math.max(b.from.x, b.to.x),
+    );
+
+    return Math.max(0, overlapEnd - overlapStart);
+  }
+
+  if (Math.abs(a.from.x - b.from.x) > EPSILON) {
+    return 0;
+  }
+
+  const overlapStart = Math.max(
+    Math.min(a.from.y, a.to.y),
+    Math.min(b.from.y, b.to.y),
+  );
+  const overlapEnd = Math.min(
+    Math.max(a.from.y, a.to.y),
+    Math.max(b.from.y, b.to.y),
+  );
+
+  return Math.max(0, overlapEnd - overlapStart);
+}
+
+function segmentOverlaps(a: Segment, b: Segment) {
+  return segmentOverlapLength(a, b) > EPSILON;
+}
+
 function segmentCrosses(a: Segment, b: Segment) {
   const sharedEndpoints = [
     [a.from, b.from],
@@ -243,6 +342,46 @@ function isAvoidableBend(edge: SketchEdge) {
     edge.waypoints?.length &&
       (edge.from.x === edge.to.x || edge.from.y === edge.to.y),
   );
+}
+
+function routeLength(edge: SketchEdge) {
+  return toSegments(edge).reduce((sum, segment) => sum + segmentLength(segment), 0);
+}
+
+function idealRouteLength(edge: SketchEdge) {
+  const dx = Math.abs(edge.to.x - edge.from.x);
+  const dy = Math.abs(edge.to.y - edge.from.y);
+  const orthShortest = dx + dy;
+  const straightShortest = Math.hypot(dx, dy);
+  const hasOnlyOrthogonalSegments = toSegments(edge).every(
+    (segment) => segment.orientation !== "other",
+  );
+
+  return hasOnlyOrthogonalSegments ? orthShortest : straightShortest;
+}
+
+function hookTurnCount(edge: SketchEdge) {
+  const segments = toSegments(edge).filter((segment) => segment.orientation !== "other");
+  let hooks = 0;
+
+  for (let index = 0; index < segments.length - 2; index += 1) {
+    const first = segments[index]!;
+    const second = segments[index + 1]!;
+    const third = segments[index + 2]!;
+    const isHook =
+      first.orientation === third.orientation &&
+      first.orientation !== second.orientation;
+
+    if (!isHook) {
+      continue;
+    }
+
+    if (segmentLength(second) < 48) {
+      hooks += 1;
+    }
+  }
+
+  return hooks;
 }
 
 function pointEquals(a: SketchPoint, b: SketchPoint) {
@@ -359,6 +498,238 @@ function segmentHasBadEndpointAnchor(segment: Segment, rect: Rect) {
   }
 
   return segmentPiercesRect(segment, rect);
+}
+
+const ANCHOR_EPSILON = 0.001;
+
+function pointTouchesNode(
+  point: {x: number; y: number},
+  node: GeometrySketchDefinition["nodes"][number],
+) {
+  return (
+    point.x >= node.x - ANCHOR_EPSILON &&
+    point.x <= node.x + node.width + ANCHOR_EPSILON &&
+    point.y >= node.y - ANCHOR_EPSILON &&
+    point.y <= node.y + node.height + ANCHOR_EPSILON
+  );
+}
+
+function classifyAnchor(
+  node: GeometrySketchDefinition["nodes"][number],
+  point: {x: number; y: number},
+) {
+  const left = node.x;
+  const right = node.x + node.width;
+  const top = node.y;
+  const bottom = node.y + node.height;
+  const centerX = node.x + node.width / 2;
+  const centerY = node.y + node.height / 2;
+  const hitsLeft = Math.abs(point.x - left) <= ANCHOR_EPSILON;
+  const hitsRight = Math.abs(point.x - right) <= ANCHOR_EPSILON;
+  const hitsTop = Math.abs(point.y - top) <= ANCHOR_EPSILON;
+  const hitsBottom = Math.abs(point.y - bottom) <= ANCHOR_EPSILON;
+  const dx = Number((point.x - centerX).toFixed(1));
+  const dy = Number((point.y - centerY).toFixed(1));
+
+  if (
+    Math.abs(dx) <= ANCHOR_EPSILON &&
+    Math.abs(dy) <= ANCHOR_EPSILON &&
+    node.width <= 24 &&
+    node.height <= 24
+  ) {
+    return {
+      side: "junction-center",
+      offsetPx: 0,
+      offsetAbsPx: 0,
+      centerRatio: 0,
+      isCorner: false,
+    };
+  }
+
+  if ((hitsLeft || hitsRight) && (hitsTop || hitsBottom)) {
+    const offsetPx = Math.abs(dy) <= Math.abs(dx) ? dy : dx;
+
+    return {
+      side: `${hitsTop ? "top" : "bottom"}-${hitsRight ? "right" : "left"}-corner`,
+      offsetPx,
+      offsetAbsPx: Math.abs(offsetPx),
+      centerRatio: 1,
+      isCorner: true,
+    };
+  }
+
+  if (hitsLeft || hitsRight) {
+    const halfSpan = Math.max(node.height / 2, 1);
+
+    return {
+      side: hitsRight ? "right" : "left",
+      offsetPx: dy,
+      offsetAbsPx: Math.abs(dy),
+      centerRatio: Number((Math.abs(dy) / halfSpan).toFixed(3)),
+      isCorner: false,
+    };
+  }
+
+  if (hitsTop || hitsBottom) {
+    const halfSpan = Math.max(node.width / 2, 1);
+
+    return {
+      side: hitsTop ? "top" : "bottom",
+      offsetPx: dx,
+      offsetAbsPx: Math.abs(dx),
+      centerRatio: Number((Math.abs(dx) / halfSpan).toFixed(3)),
+      isCorner: false,
+    };
+  }
+
+  return {
+    side: "interior",
+    offsetPx: Math.abs(dx) >= Math.abs(dy) ? dx : dy,
+    offsetAbsPx: Math.max(Math.abs(dx), Math.abs(dy)),
+    centerRatio: 1,
+    isCorner: false,
+  };
+}
+
+export function collectEdgeAnchorMetrics(
+  sketch: GeometrySketchDefinition,
+): GeometryEdgeAnchorMetric[] {
+  const nodesByArea = [...sketch.nodes].sort(
+    (leftNode, rightNode) => leftNode.width * leftNode.height - rightNode.width * rightNode.height,
+  );
+
+  return sketch.edges.map((edge) => {
+    const fromNode = nodesByArea.find((node) => pointTouchesNode(edge.from, node));
+    const toNode = nodesByArea.find((node) => pointTouchesNode(edge.to, node));
+    const fromAnchor = fromNode
+      ? classifyAnchor(fromNode, edge.from)
+      : {
+          side: "unattached",
+          offsetPx: 0,
+          offsetAbsPx: 0,
+          centerRatio: 0,
+          isCorner: false,
+        };
+    const toAnchor = toNode
+      ? classifyAnchor(toNode, edge.to)
+      : {
+          side: "unattached",
+          offsetPx: 0,
+          offsetAbsPx: 0,
+          centerRatio: 0,
+          isCorner: false,
+        };
+
+    return {
+      edgeId: edge.id,
+      fromNodeId: fromNode?.id,
+      fromLabel: fromNode?.label,
+      fromSide: fromAnchor.side,
+      fromOffsetPx: fromAnchor.offsetPx,
+      fromOffsetAbsPx: fromAnchor.offsetAbsPx,
+      fromCenterRatio: fromAnchor.centerRatio,
+      fromIsCorner: fromAnchor.isCorner,
+      toNodeId: toNode?.id,
+      toLabel: toNode?.label,
+      toSide: toAnchor.side,
+      toOffsetPx: toAnchor.offsetPx,
+      toOffsetAbsPx: toAnchor.offsetAbsPx,
+      toCenterRatio: toAnchor.centerRatio,
+      toIsCorner: toAnchor.isCorner,
+    };
+  });
+}
+
+export function collectEdgeRouteMetrics(
+  sketch: GeometrySketchDefinition,
+): GeometryEdgeRouteMetric[] {
+  const containerIds = resolveGeometryContainerIds(sketch);
+  const pierceRects = sketch.nodes
+    .filter((node) => !containerIds.has(node.id) && !isPointJunction(node))
+    .map(toRect);
+  const edgeSegments = sketch.edges.map((edge) => ({
+    edge,
+    segments: toSegments(edge),
+  }));
+  const metricByEdgeId = new Map<string, GeometryEdgeRouteMetric>();
+
+  for (const {edge, segments} of edgeSegments) {
+    const lengths = segments.map(segmentLength).filter((length) => length > EPSILON);
+    const actualRouteLength = routeLength(edge);
+    const shortestRouteLength = idealRouteLength(edge);
+
+    metricByEdgeId.set(edge.id, {
+      edgeId: edge.id,
+      bendCount: bendCount(edge),
+      avoidableBend: isAvoidableBend(edge),
+      crossingCount: 0,
+      overlapCount: 0,
+      nodePierceCount: 0,
+      badEndpointCount: 0,
+      shortSegmentCount: lengths.filter((length) => length < 36).length,
+      minSegmentLength:
+        lengths.length > 0 ? Number(Math.min(...lengths).toFixed(1)) : 0,
+      hookTurnCount: hookTurnCount(edge),
+      detourRatio:
+        shortestRouteLength > EPSILON
+          ? Number(
+              Math.max(0, (actualRouteLength - shortestRouteLength) / shortestRouteLength).toFixed(3),
+            )
+          : 0,
+      nonOrthogonalSegmentCount: segments.filter(
+        (segment) => segment.orientation === "other",
+      ).length,
+      routeLength: Number(actualRouteLength.toFixed(1)),
+      idealLength: Number(shortestRouteLength.toFixed(1)),
+    });
+  }
+
+  for (let i = 0; i < edgeSegments.length; i += 1) {
+    for (let j = i + 1; j < edgeSegments.length; j += 1) {
+      for (const leftSegment of edgeSegments[i]!.segments) {
+        for (const rightSegment of edgeSegments[j]!.segments) {
+          if (segmentCrosses(leftSegment, rightSegment)) {
+            metricByEdgeId.get(edgeSegments[i]!.edge.id)!.crossingCount += 1;
+            metricByEdgeId.get(edgeSegments[j]!.edge.id)!.crossingCount += 1;
+          }
+
+          if (segmentOverlaps(leftSegment, rightSegment)) {
+            metricByEdgeId.get(edgeSegments[i]!.edge.id)!.overlapCount += 1;
+            metricByEdgeId.get(edgeSegments[j]!.edge.id)!.overlapCount += 1;
+          }
+        }
+      }
+    }
+  }
+
+  for (const {edge, segments} of edgeSegments) {
+    const routeMetric = metricByEdgeId.get(edge.id)!;
+
+    for (const rect of pierceRects) {
+      for (const segment of segments) {
+        if (segmentPiercesRect(segment, rect)) {
+          routeMetric.nodePierceCount += 1;
+        }
+      }
+
+      const firstSegment = segments[0];
+      const lastSegment = segments[segments.length - 1];
+
+      if (firstSegment && segmentHasBadEndpointAnchor(firstSegment, rect)) {
+        routeMetric.badEndpointCount += 1;
+      }
+
+      if (
+        lastSegment &&
+        lastSegment !== firstSegment &&
+        segmentHasBadEndpointAnchor(lastSegment, rect)
+      ) {
+        routeMetric.badEndpointCount += 1;
+      }
+    }
+  }
+
+  return sketch.edges.map((edge) => metricByEdgeId.get(edge.id)!);
 }
 
 function minMargin(nodes: SketchNode[]) {
@@ -547,6 +918,8 @@ export function collectGeometryMetrics(
   const pierceRects = sketch.nodes
     .filter((node) => !containerIds.has(node.id) && !isPointJunction(node))
     .map(toRect);
+  const edgeRouteMetrics = collectEdgeRouteMetrics(sketch);
+  const edgeAnchorMetrics = collectEdgeAnchorMetrics(sketch);
   const nodeMap = new Map(sketch.nodes.map((node) => [node.id, node]));
   let overlapCount = 0;
   let minNodeGap = Number.POSITIVE_INFINITY;
@@ -564,61 +937,68 @@ export function collectGeometryMetrics(
       minNodeGap = Math.min(minNodeGap, gap);
     }
   }
-
-  let crossingCount = 0;
-  let nodePierceCount = 0;
-  let badEndpointCount = 0;
-  const edgeSegments = sketch.edges.map((edge) => ({
-    edge,
-    segments: toSegments(edge),
-  }));
-
-  for (let i = 0; i < edgeSegments.length; i += 1) {
-    for (let j = i + 1; j < edgeSegments.length; j += 1) {
-      for (const a of edgeSegments[i]!.segments) {
-        for (const b of edgeSegments[j]!.segments) {
-          if (segmentCrosses(a, b)) {
-            crossingCount += 1;
-          }
-        }
-      }
-    }
-  }
-
-  for (const {segments} of edgeSegments) {
-    for (let rectIndex = 0; rectIndex < pierceRects.length; rectIndex += 1) {
-      const rect = pierceRects[rectIndex]!;
-
-      for (const segment of segments) {
-        if (segmentPiercesRect(segment, rect)) {
-          nodePierceCount += 1;
-        }
-      }
-
-      const firstSegment = segments[0];
-      const lastSegment = segments[segments.length - 1];
-      if (firstSegment && segmentHasBadEndpointAnchor(firstSegment, rect)) {
-        badEndpointCount += 1;
-      }
-      if (
-        lastSegment &&
-        lastSegment !== firstSegment &&
-        segmentHasBadEndpointAnchor(lastSegment, rect)
-      ) {
-        badEndpointCount += 1;
-      }
-    }
-  }
-
   const primaryEdges = sketch.edges.filter((edge) => edge.tone === "primary");
+  const primaryEdgeIds = new Set(primaryEdges.map((edge) => edge.id));
+  const primaryRouteMetrics = edgeRouteMetrics.filter((metric) =>
+    primaryEdgeIds.has(metric.edgeId),
+  );
+  const primaryAnchorMetrics = edgeAnchorMetrics.filter((metric) =>
+    primaryEdgeIds.has(metric.edgeId),
+  );
+  const centeredAnchorIssues = primaryAnchorMetrics.flatMap((metric) => [
+    metric.fromNodeId &&
+    metric.fromSide !== "junction-center" &&
+    metric.fromSide !== "unattached" &&
+    metric.fromCenterRatio > 0.35
+      ? 1
+      : 0,
+    metric.toNodeId &&
+    metric.toSide !== "junction-center" &&
+    metric.toSide !== "unattached" &&
+    metric.toCenterRatio > 0.35
+      ? 1
+      : 0,
+  ]);
+  const cornerAnchorIssues = primaryAnchorMetrics.flatMap((metric) => [
+    metric.fromIsCorner ? 1 : 0,
+    metric.toIsCorner ? 1 : 0,
+  ]);
 
   return {
     overlapCount,
-    crossingCount,
-    nodePierceCount,
-    badEndpointCount,
+    crossingCount: edgeRouteMetrics.reduce(
+      (sum, metric) => sum + metric.crossingCount,
+      0,
+    ) / 2,
+    nodePierceCount: edgeRouteMetrics.reduce(
+      (sum, metric) => sum + metric.nodePierceCount,
+      0,
+    ),
+    badEndpointCount: edgeRouteMetrics.reduce(
+      (sum, metric) => sum + metric.badEndpointCount,
+      0,
+    ),
     primaryLineBendCount: primaryEdges.reduce((sum, edge) => sum + bendCount(edge), 0),
     avoidableBendCount: primaryEdges.filter(isAvoidableBend).length,
+    edgeOverlapCount:
+      edgeRouteMetrics.reduce((sum, metric) => sum + metric.overlapCount, 0) / 2,
+    hookTurnCount: primaryRouteMetrics.reduce(
+      (sum, metric) => sum + metric.hookTurnCount,
+      0,
+    ),
+    shortSegmentCount: primaryRouteMetrics.reduce(
+      (sum, metric) => sum + metric.shortSegmentCount,
+      0,
+    ),
+    detourEdgeCount: primaryRouteMetrics.filter(
+      (metric) => metric.detourRatio > 0.12,
+    ).length,
+    maxDetourRatio:
+      primaryRouteMetrics.length > 0
+        ? Math.max(...primaryRouteMetrics.map((metric) => metric.detourRatio))
+        : 0,
+    offCenterAnchorCount: centeredAnchorIssues.reduce((sum, issue) => sum + issue, 0),
+    cornerAnchorCount: cornerAnchorIssues.reduce((sum, issue) => sum + issue, 0),
     textOverflowCount: textOverflows.length,
     maxTextOverflowPx: textOverflows.reduce(
       (max, overflow) => Math.max(max, overflow.overflowPx),

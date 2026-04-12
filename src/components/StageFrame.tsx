@@ -5,6 +5,7 @@ import type {WorkbenchState} from "../state/useWorkbenchState";
 import {RemotionStage} from "./RemotionStage";
 
 type StageFrameProps = {
+  debugFrame?: number | null;
   state: WorkbenchState;
   motionDurationScale: number;
   runtimeRef?: RefObject<HTMLDivElement | null>;
@@ -13,6 +14,7 @@ type StageFrameProps = {
 };
 
 export function StageFrame({
+  debugFrame = null,
   state,
   motionDurationScale,
   runtimeRef,
@@ -31,6 +33,7 @@ export function StageFrame({
     </div>
   ) : (
     <RemotionStage
+      debugFrame={debugFrame}
       motionDurationScale={motionDurationScale}
       runtimeRef={runtimeRef}
       variantId={state.variantId}

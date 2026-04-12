@@ -1,6 +1,8 @@
 import {describe, expect, it} from "vitest";
 import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
 import {
+  collectEdgeAnchorMetrics,
+  collectEdgeRouteMetrics,
   collectGeometryMetrics,
   collectNodeInternalPaddings,
   collectNodeDirectionalClearances,
@@ -57,6 +59,13 @@ describe("geometryMetrics", () => {
     expect(metrics.badEndpointCount).toBe(0);
     expect(metrics.primaryLineBendCount).toBe(0);
     expect(metrics.avoidableBendCount).toBe(0);
+    expect(metrics.edgeOverlapCount).toBe(0);
+    expect(metrics.hookTurnCount).toBe(0);
+    expect(metrics.shortSegmentCount).toBe(0);
+    expect(metrics.detourEdgeCount).toBe(0);
+    expect(metrics.maxDetourRatio).toBe(0);
+    expect(metrics.offCenterAnchorCount).toBe(0);
+    expect(metrics.cornerAnchorCount).toBe(0);
     expect(metrics.minNodeGap).toBeGreaterThan(0);
     expect(metrics.minMargin).toBeGreaterThan(0);
     expect(metrics.topMargin).toBe(60);
@@ -269,6 +278,43 @@ describe("geometryMetrics", () => {
     expect(metrics.badEndpointCount).toBe(0);
   });
 
+  it("ignores compact circled-plus merge junctions in piercing metrics", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [
+          {
+            id: "merge",
+            label: "+",
+            x: 420,
+            y: 240,
+            width: 36,
+            height: 36,
+            shape: "circle",
+          },
+          {id: "left", label: "Left", x: 220, y: 210, width: 140, height: 58},
+          {id: "right", label: "Right", x: 520, y: 210, width: 180, height: 80},
+        ],
+        edges: [
+          {
+            id: "left-to-merge",
+            from: {x: 360, y: 239},
+            to: {x: 420, y: 258},
+            tone: "primary",
+          },
+          {
+            id: "merge-to-right",
+            from: {x: 456, y: 258},
+            to: {x: 520, y: 258},
+            tone: "primary",
+          },
+        ],
+      }),
+    );
+
+    expect(metrics.nodePierceCount).toBe(0);
+    expect(metrics.badEndpointCount).toBe(0);
+  });
+
   it("counts primary bends and avoidable bends separately", () => {
     const metrics = collectGeometryMetrics(
       makeSketch({
@@ -293,6 +339,84 @@ describe("geometryMetrics", () => {
 
     expect(metrics.primaryLineBendCount).toBe(1);
     expect(metrics.avoidableBendCount).toBe(1);
+  });
+
+  it("detects overlapping edge lanes, short hooks, and detours on a routed edge", () => {
+    const sketch = makeSketch({
+      nodes: [
+        {id: "left", label: "Left", x: 120, y: 300, width: 140, height: 80},
+        {id: "right", label: "Right", x: 760, y: 300, width: 180, height: 100},
+      ],
+      edges: [
+        {
+          id: "hooked-primary",
+          from: {x: 260, y: 340},
+          to: {x: 760, y: 350},
+          waypoints: [
+            {x: 420, y: 340},
+            {x: 420, y: 420},
+            {x: 450, y: 420},
+            {x: 450, y: 360},
+            {x: 760, y: 360},
+          ],
+          tone: "primary",
+        },
+        {
+          id: "overlapping-support",
+          from: {x: 420, y: 340},
+          to: {x: 420, y: 420},
+          tone: "support",
+        },
+      ],
+    });
+    const metrics = collectGeometryMetrics(sketch);
+    const routeMetrics = collectEdgeRouteMetrics(sketch);
+    const hookedPrimary = routeMetrics.find((metric) => metric.edgeId === "hooked-primary");
+
+    expect(metrics.edgeOverlapCount).toBeGreaterThan(0);
+    expect(metrics.hookTurnCount).toBeGreaterThan(0);
+    expect(metrics.shortSegmentCount).toBeGreaterThan(0);
+    expect(metrics.detourEdgeCount).toBeGreaterThan(0);
+    expect(metrics.maxDetourRatio).toBeGreaterThan(0.1);
+    expect(hookedPrimary).toMatchObject({
+      hookTurnCount: expect.any(Number),
+      detourRatio: expect.any(Number),
+      shortSegmentCount: expect.any(Number),
+    });
+    expect(hookedPrimary?.hookTurnCount).toBeGreaterThan(0);
+  });
+
+  it("tracks off-center and corner anchor penalties separately from hard piercing", () => {
+    const sketch = makeSketch({
+      nodes: [
+        {id: "left", label: "Left", x: 120, y: 220, width: 160, height: 100},
+        {id: "right", label: "Right", x: 560, y: 220, width: 200, height: 120},
+      ],
+      edges: [
+        {
+          id: "off-center",
+          from: {x: 280, y: 248},
+          to: {x: 560, y: 268},
+          tone: "primary",
+        },
+        {
+          id: "corner-stabbed",
+          from: {x: 280, y: 220},
+          to: {x: 560, y: 220},
+          tone: "primary",
+        },
+      ],
+    });
+    const metrics = collectGeometryMetrics(sketch);
+    const anchorMetrics = collectEdgeAnchorMetrics(sketch);
+    const offCenter = anchorMetrics.find((metric) => metric.edgeId === "off-center");
+    const cornerStabbed = anchorMetrics.find((metric) => metric.edgeId === "corner-stabbed");
+
+    expect(metrics.offCenterAnchorCount).toBeGreaterThan(0);
+    expect(metrics.cornerAnchorCount).toBeGreaterThan(0);
+    expect(offCenter?.fromCenterRatio).toBeGreaterThan(0.35);
+    expect(cornerStabbed?.fromIsCorner).toBe(true);
+    expect(cornerStabbed?.toIsCorner).toBe(true);
   });
 
   it("detects label overflow inside a node", () => {
@@ -515,6 +639,13 @@ describe("geometryScorePolicy", () => {
       badEndpointCount: 0,
       primaryLineBendCount: 2,
       avoidableBendCount: 0,
+      edgeOverlapCount: 0,
+      hookTurnCount: 1,
+      shortSegmentCount: 1,
+      detourEdgeCount: 1,
+      maxDetourRatio: 0.22,
+      offCenterAnchorCount: 2,
+      cornerAnchorCount: 0,
       textOverflowCount: 0,
       maxTextOverflowPx: 0,
       minRenderedFontPx: 26,
@@ -566,6 +697,13 @@ describe("geometryScorePolicy", () => {
       badEndpointCount: 0,
       primaryLineBendCount: 0,
       avoidableBendCount: 0,
+      edgeOverlapCount: 0,
+      hookTurnCount: 0,
+      shortSegmentCount: 0,
+      detourEdgeCount: 0,
+      maxDetourRatio: 0,
+      offCenterAnchorCount: 0,
+      cornerAnchorCount: 0,
       textOverflowCount: 0,
       maxTextOverflowPx: 0,
       minRenderedFontPx: 28,

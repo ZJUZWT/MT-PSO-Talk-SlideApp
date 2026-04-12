@@ -12,6 +12,7 @@ import {NotesPanel} from "./components/NotesPanel";
 import {ProgressBubbles} from "./components/ProgressBubbles";
 import {ReviewHud} from "./components/ReviewHud";
 import {StageFrame} from "./components/StageFrame";
+import {REMOTION_PLAYER_CONFIG, resolveRemotionStepFrame} from "./remotion/embed";
 import {
   captureElementToBlob,
   postImageBlobToEndpoint,
@@ -52,6 +53,7 @@ type InitialWorkbenchQuery = {
   captureTransport: "post" | null;
   captureWidth: number;
   controlsCollapsed: boolean;
+  debugFrame: number | null;
   mode: "story" | "sketch";
   motionPresetId: MotionPresetId;
   probeNodeId: string | null;
@@ -80,6 +82,21 @@ function parsePositiveInt(
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function parseDebugFrame(value: string | null): number | null {
+  if (value === null || value.trim() === "") {
+    return null;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  const maxFrame = REMOTION_PLAYER_CONFIG.durationInFrames - 1;
+
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return null;
+  }
+
+  return Math.min(parsed, maxFrame);
+}
+
 function parseCaptureScope(value: string | null): CaptureScope {
   return value === "stage" ? "stage" : "page";
 }
@@ -94,6 +111,7 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
       captureTransport: null,
       captureWidth: 1280,
       controlsCollapsed: true,
+      debugFrame: null,
       mode: "story",
       motionPresetId: DEFAULT_MOTION_PRESET_ID,
       probeNodeId: null,
@@ -123,6 +141,7 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
     captureTransport: params.get("captureTransport") === "post" ? "post" : null,
     captureWidth: parsePositiveInt(params.get("captureWidth"), 1280),
     controlsCollapsed: !parseBooleanFlag(params.get("controls")),
+    debugFrame: parseDebugFrame(params.get("debugFrame")),
     mode: sketchMode ? "sketch" : "story",
     motionPresetId: isMotionPresetId(motionParam)
       ? motionParam
@@ -180,6 +199,9 @@ export function App() {
   const [controlsCollapsed, setControlsCollapsed] = useState(
     initialQueryState.controlsCollapsed,
   );
+  const [debugFrame, setDebugFrame] = useState<number | null>(
+    initialQueryState.debugFrame,
+  );
   const [motionPresetId, setMotionPresetId] = useState<MotionPresetId>(
     initialQueryState.motionPresetId,
   );
@@ -236,6 +258,10 @@ export function App() {
       params.set("controls", "1");
     }
 
+    if (debugFrame !== null) {
+      params.set("debugFrame", String(debugFrame));
+    }
+
     if (isReviewMode) {
       params.set("review", "1");
     }
@@ -251,6 +277,7 @@ export function App() {
     window.history.replaceState({}, "", nextUrl);
   }, [
     controlsCollapsed,
+    debugFrame,
     isReviewMode,
     motionPreset.id,
     captureSurface,
@@ -472,6 +499,7 @@ export function App() {
           runtimeRef={stageCaptureTargetRef}
           runtimeOnly
           sketchDefinition={sketchDefinition}
+          debugFrame={debugFrame}
         />
       </div>
     );
@@ -510,8 +538,23 @@ export function App() {
         collapsed={controlsCollapsed}
         motionPresetId={motionPreset.id}
         motionOptions={MOTION_PRESETS.map(({id, label}) => ({id, label}))}
+        debugFrame={debugFrame}
+        maxDebugFrame={REMOTION_PLAYER_CONFIG.durationInFrames - 1}
         onMotionPresetChange={(nextPresetId) => {
           setMotionPresetId(nextPresetId as MotionPresetId);
+        }}
+        onDebugFrameChange={(nextFrame) => {
+          setDebugFrame(nextFrame);
+        }}
+        onDebugFrameStep={(delta) => {
+          setDebugFrame((current) => {
+            const baseFrame =
+              current ?? resolveRemotionStepFrame(state.stepId);
+            const maxFrame = REMOTION_PLAYER_CONFIG.durationInFrames - 1;
+            const nextFrame = Math.max(0, Math.min(maxFrame, baseFrame + delta));
+
+            return nextFrame;
+          });
         }}
         onToggleCollapsed={() => {
           setControlsCollapsed((current) => !current);
@@ -524,6 +567,7 @@ export function App() {
           motionDurationScale={motionPreset.durationScale}
           runtimeRef={stageCaptureTargetRef}
           sketchDefinition={sketchDefinition}
+          debugFrame={debugFrame}
         />
       </main>
       {isReviewMode ? (
