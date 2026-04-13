@@ -19,10 +19,13 @@ describe("masterStoryboard", () => {
       "page_13",
       "page_14",
       "page_15",
+      "page_16",
+      "page_17",
+      "page_18",
     ]);
   });
 
-  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the loop chapter after SharedCode", () => {
+  it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the placeholder-expanded loop chapter after SharedCode", () => {
     const page01 = masterStoryboard.steps[0];
     const page02 = masterStoryboard.steps[1];
     const page03 = masterStoryboard.steps[2];
@@ -38,6 +41,9 @@ describe("masterStoryboard", () => {
     const page13 = masterStoryboard.steps[12];
     const page14 = masterStoryboard.steps[13];
     const page15 = masterStoryboard.steps[14];
+    const page16 = masterStoryboard.steps[15];
+    const page17 = masterStoryboard.steps[16];
+    const page18 = masterStoryboard.steps[17];
 
     expect(page01?.label).toBe("Input -> f(x) -> Output");
     expect(page01?.caption).toContain("最小骨架");
@@ -110,15 +116,34 @@ describe("masterStoryboard", () => {
     expect(page13?.manuscript).toContain(".ushaderbytecode");
     expect(page13?.manuscript).toContain("手机");
     expect(page13?.manuscript).not.toContain(".rec.upipelinecache");
-    expect(page14?.label).toBe("手机开始回传 .rec.upipelinecache");
+    expect(page14?.label).toBe("运行时如何收集 PSO");
+    expect(page14?.manuscript).toContain(".ushaderbytecode");
     expect(page14?.manuscript).toContain(".rec.upipelinecache");
-    expect(page14?.manuscript).toContain("回程");
+    expect(page14?.manuscript).toContain("OpenGL");
+    expect(page14?.manuscript).toContain("Metal");
     expect(page14?.manuscript).not.toContain("stablepc.csv");
-    expect(page15?.label).toBe("电脑 expand，stable 再回到手机，闭环完成");
-    expect(page15?.manuscript).toContain("stable.upipelinecache");
-    expect(page15?.manuscript).toContain("闭合");
-    expect(page15?.manuscript).toContain("expand");
-    expect(page15?.manuscript).toContain("stablepc.csv");
-    expect(page15?.manuscript).toContain("手机");
+    expect(page15?.label).toBe("手机开始回传 .rec.upipelinecache");
+    expect(page14?.manuscript).toContain(".rec.upipelinecache");
+    expect(page15?.manuscript).toContain("回程");
+    expect(page15?.manuscript).not.toContain("stablepc.csv");
+    expect(page16?.label).toBe("expand / build 在做什么");
+    expect(page16?.manuscript).toContain("rec.upipelinecache");
+    expect(page16?.manuscript).toContain("scl.csv");
+    expect(page16?.manuscript).toContain("stablepc.csv");
+    expect(page16?.manuscript).toContain("stable.upipelinecache");
+    expect(page16?.manuscript).toContain("expand");
+    expect(page16?.manuscript).toContain("build");
+    expect(page17?.label).toBe("电脑 expand，stable 再回到手机，闭环完成");
+    expect(page17?.manuscript).toContain("stable.upipelinecache");
+    expect(page17?.manuscript).toContain("闭合");
+    expect(page17?.manuscript).toContain("expand");
+    expect(page17?.manuscript).toContain("stablepc.csv");
+    expect(page17?.manuscript).toContain("手机");
+    expect(page18?.label).toBe("预编译怎么发生");
+    expect(page18?.manuscript).toContain("stable.upipelinecache");
+    expect(page18?.manuscript).toContain("预编译");
+    expect(page18?.manuscript).toContain("OpenGL");
+    expect(page18?.manuscript).toContain("Metal");
+    expect(page18?.manuscript).toContain("编译");
   });
 });

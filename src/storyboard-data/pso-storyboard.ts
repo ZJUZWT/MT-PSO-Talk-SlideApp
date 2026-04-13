@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-15 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, delay the computer/phone loop by one full page, and compress the final stable build plus handoff into page 15.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-18 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, insert three explanatory placeholder pages for runtime collection, expand/build, and precompile, and shift the old return/stable loop beats back to pages 15 and 17.",
   steps: [
     {
       id: "page_01",
@@ -227,34 +227,82 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_14",
+      label: "运行时如何收集 PSO",
+      caption:
+        "这一页先停一下，不改主拓扑，只解释手机侧运行时到底记录了什么，以及为什么不同图形 API 会看到不同数量级的记录。",
+      notes:
+        "第十四页是插入式说明页，不去抢第十三页和后续回流页的拓扑职责。画面重点放在两件事：`Phone` 不只是吃进 `.ushaderbytecode`，它还会把 Draw、ShaderHash、State 这些运行时观察收成 `.rec.upipelinecache`；同时用 `OpenGL` 对比 `Metal` / 现代显式 API，解释为什么显式 API 往往会暴露更多管线状态组合。",
+      focusTarget: "Runtime Collection",
+      timingHint:
+        "先把第十三页作为背景记忆板轻轻缩退，再把这张说明页整体浮上来。退出时先收回说明页，再恢复主线继续进入真正的回传页。",
+      intro:
+        "在真正把回流线画出来之前，先补一句观众此时最容易追问的问题：手机侧到底在收集什么。",
+      manuscript:
+        "第十四页不急着把 `.rec.upipelinecache` 直接送回电脑，而是先停下来解释：`Phone` 在吃进 `.ushaderbytecode` 之后，并不是只负责运行，它还会把每次 draw 时实际命中的 `ShaderHash`、相关 `State` 以及运行时观察，逐步整理成 `.rec.upipelinecache`。这一页还顺带解释为什么不同 API 看到的记录数量会不同：`OpenGL` 有更多状态是隐式或由驱动代管的，所以 PSO-like record 往往更少；`Metal` 以及其他更现代、更显式的图形 API，会把更多管线组合明确暴露出来，因此更容易看到更多组合记录。也就是说，`.rec.upipelinecache` 的出现不是凭空多出一份文件，而是运行时观测被沉淀下来的结果。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_15",
       label: "手机开始回传 .rec.upipelinecache",
       caption:
         "保持手机放大，再从它身上长出回传腿：运行时开始把 `.rec.upipelinecache` 往电脑侧送。",
       notes:
-        "第十四页不要急着生成 stable 产物，而是先把闭环真正补上一半。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
+        "这一页不要急着生成 stable 产物，而是先把闭环真正补上一半。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
       focusTarget: ".rec.upipelinecache",
       timingHint:
         "保持手机侧高亮，新增 `Phone -> rec -> Computer` 这一圈回传路径，让观众第一次读到真正的回流。",
       intro:
         "手机先吃进 bytecode 之后，接下来最重要的问题就是：运行时会不会把自己的收集结果送回来。",
       manuscript:
-        "第十四页继续让手机侧保持主角，但语义发生了变化。`Phone` 不再只是接收 `.ushaderbytecode`，它还会在运行时把收集到的结果整理成 `.rec.upipelinecache`，并沿着回程路径送回电脑侧。到这里，PSO 这套流程终于不再是单向分发，而是第一次出现完整的回流半圈。",
+        "第十五页继续让手机侧保持主角，但语义发生了变化。`Phone` 不再只是接收 `.ushaderbytecode`，它还会在运行时把收集到的结果整理成 `.rec.upipelinecache`，并沿着回程路径送回电脑侧。到这里，PSO 这套流程终于不再是单向分发，而是第一次出现完整的回流半圈。",
       focusColorKey: "shared",
     },
     {
-      id: "page_15",
+      id: "page_16",
+      label: "expand / build 在做什么",
+      caption:
+        "这一页继续插入说明，不改主拓扑，只把电脑侧接下来那两个动作和四份文件各自承载的语义讲清楚。",
+      notes:
+        "第十六页还是占位说明页。核心不是再画一遍回流线，而是把 `rec.upipelinecache`、`scl.csv`、`stablepc.csv`、`stable.upipelinecache` 的职责拆开，并点明 `expand` 是把 Hash 归一成 StableKey，`build` 是把稳定键和状态重新装配成稳定记录。",
+      focusTarget: "Expand / Build",
+      timingHint:
+        "沿用占位插页的统一进入退出语法，让回传页缩成背景板，再把四张文件卡和 `expand / build` 关系浮上来，最后退出到闭环页。",
+      intro:
+        "手机把回流记录送回电脑之后，下一个问题通常不是『然后呢』，而是『电脑侧到底在加工什么』。",
+      manuscript:
+        "第十六页先不把 stable 闭环直接做完，而是把电脑侧的加工过程拆给观众看。`rec.upipelinecache` 里主要是运行时收集到的 `ShaderHash + State`；`scl.csv` 提供的是 `ShaderStableKey <-> ShaderHash` 的对应关系；`expand` 这一步就是利用这份对应关系，把回流来的 Hash 归一到稳定键视角；随后 `build` 会把 `ShaderStableKey + State` 重新装配成 `stablepc.csv` 这种更稳定的记录形态；最后再继续生成 `stable.upipelinecache`，作为后续编译和加载更直接可用的稳定产物。换句话说，电脑侧并不是魔法黑盒，而是在把运行时的散乱观察，逐步收束成稳定、可复用的构建输入。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_17",
       label: "电脑 expand，stable 再回到手机，闭环完成",
       caption:
         "最后把电脑侧的 `expand`、`stablepc.csv`、`stable.upipelinecache` 和回到手机的那一条线压进同一页，让收集、构建、再使用真正闭合。",
       notes:
-        "因为整章整体后移一页，第十五页要把原来分开的“电脑侧 expand”与“stable 回到手机”压缩到同一拍里。先看电脑侧把 `.rec.upipelinecache` 和 `.scl.csv` 整理成 `stablepc.csv` 与 `stable.upipelinecache`，再看到 `stable.upipelinecache` 回到手机。",
+        "因为占位插页把旧主线继续顺延，这一页要把原来分开的“电脑侧 expand”与“stable 回到手机”压缩到同一拍里。先看电脑侧把 `.rec.upipelinecache` 和 `.scl.csv` 整理成 `stablepc.csv` 与 `stable.upipelinecache`，再看到 `stable.upipelinecache` 回到手机。",
       focusTarget: "Closed Loop",
       timingHint:
         "先让电脑侧 `expand` 和 stable band 长出来，再在同一页后半拍把 `stable.upipelinecache -> 手机` 那一笔补上。",
       intro:
         "只有当电脑把回流记录整理成 stable 产物，并且 stable 结果也真正回到手机侧，这套收集、构建、使用流程才算闭合完成。",
       manuscript:
-        "到了第十五页，电脑侧终于承担起整理工作。手机送回来的 `.rec.upipelinecache` 会先进入 `expand` 过程，与前面已经出现过的 `.scl.csv` 一起整理出 `stablepc.csv` 和 `stable.upipelinecache`。然后这份 `stable.upipelinecache` 不会停在电脑侧，而是会再次回到手机继续使用。这样一来，手机负责运行与收集，电脑负责整理与稳定化，而稳定结果又重新喂回手机。PSO 的收集、构建、使用，到这里才真正形成一个闭合的完整流程。",
+        "到了第十七页，电脑侧终于承担起整理工作。手机送回来的 `.rec.upipelinecache` 会先进入 `expand` 过程，与前面已经出现过的 `.scl.csv` 一起整理出 `stablepc.csv` 和 `stable.upipelinecache`。然后这份 `stable.upipelinecache` 不会停在电脑侧，而是会再次回到手机继续使用。这样一来，手机负责运行与收集，电脑负责整理与稳定化，而稳定结果又重新喂回手机。PSO 的收集、构建、使用，到这里才真正形成一个闭合的完整流程。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_18",
+      label: "预编译怎么发生",
+      caption:
+        "闭环做完之后，最后再补一张说明页：预编译吃的是稳定化后的缓存形态，但不同图形 API 仍然会在编译次数上拉开差距。",
+      notes:
+        "第十八页作为最后一张占位说明页，重点不是再讲闭环，而是解释 `stable.upipelinecache` 进入预编译之后发生什么，以及为什么 `OpenGL` 和 `Metal` 在 compile-count 上常常不同。",
+      focusTarget: "Precompile",
+      timingHint:
+        "让闭环页缩退成背景，单独浮出预编译说明板。停留时突出 `stable.upipelinecache -> precompile`，同时在右侧给出 `OpenGL / Metal` 编译次数差异的解释。",
+      intro:
+        "闭环已经成立，但观众往往还会继续追问：既然已经稳定化了，后面的预编译又是怎么发生的。",
+      manuscript:
+        "第十八页专门回答预编译。输入侧吃进来的已经不是原始运行时观察，而是稳定化后的 `stable.upipelinecache`。接下来，系统会沿着 `StableKey / State -> build pipeline -> 预编译` 这条链，把这些稳定记录转成真正要提前准备的管线对象。这里还要顺带补一句经常被忽略的现实差异：即使都从 `stable.upipelinecache` 出发，`OpenGL` 通常仍然只会落到更少的 compile target，因为它保留了更多隐式状态和驱动侧处理；`Metal` 这类显式 API 则往往会暴露更多明确组合，因此预编译阶段看到的编译次数也会更多。也就是说，稳定缓存解决的是输入组织问题，但不同 API 的显式程度，依旧会决定最终预编译的工作量。",
       focusColorKey: "shared",
     },
   ],

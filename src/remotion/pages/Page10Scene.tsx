@@ -1,3 +1,4 @@
+import type {ReactNode} from "react";
 import {
   easeInOutCubic,
   easeOutQuint,
@@ -65,6 +66,27 @@ const PHONE_PIXELS_BRIDGE_BOX = {
 const SPLIT_CENTER = {x: 330, y: 580};
 const PAGE15_EXPAND_MERGE_CENTER = {x: 330, y: 346};
 const PAGE15_MERGE_CENTER = {x: 690, y: 346};
+const LOOP_PAGE11_FRAME = 546;
+const LOOP_PAGE12_FRAME = 600;
+const LOOP_PAGE13_FRAME = 654;
+const LOOP_PAGE14_FRAME = 708;
+const LOOP_PAGE15_FRAME = 762;
+const LOOP_PAGE16_FRAME = 816;
+const LOOP_PAGE17_FRAME = 870;
+const LOOP_PAGE18_FRAME = 924;
+const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
+const PLACEHOLDER_PAGE14_LEFT = {x: 212, y: 224, width: 332, height: 176, radius: 24};
+const PLACEHOLDER_PAGE14_RIGHT = {x: 742, y: 224, width: 260, height: 176, radius: 24};
+const PLACEHOLDER_PAGE14_FOOTER = {x: 212, y: 458, width: 790, height: 86, radius: 24};
+const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};
+const PLACEHOLDER_PAGE16_CARD_2 = {x: 500, y: 220, width: 250, height: 124, radius: 22};
+const PLACEHOLDER_PAGE16_CARD_3 = {x: 190, y: 382, width: 250, height: 124, radius: 22};
+const PLACEHOLDER_PAGE16_CARD_4 = {x: 500, y: 382, width: 320, height: 124, radius: 22};
+const PLACEHOLDER_PAGE16_FOOTER = {x: 860, y: 220, width: 190, height: 286, radius: 22};
+const PLACEHOLDER_PAGE18_LEFT = {x: 186, y: 228, width: 246, height: 214, radius: 24};
+const PLACEHOLDER_PAGE18_CENTER = {x: 492, y: 228, width: 298, height: 214, radius: 24};
+const PLACEHOLDER_PAGE18_RIGHT = {x: 850, y: 228, width: 220, height: 214, radius: 24};
+const PLACEHOLDER_PAGE18_FOOTER = {x: 240, y: 488, width: 780, height: 74, radius: 24};
 
 function centerX(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -80,6 +102,18 @@ function right(box: {x: number; width: number}) {
 
 function bottom(box: {y: number; height: number}) {
   return box.y + box.height;
+}
+
+function settledSegmentProgress(frame: number, fromFrame: number, toFrame: number) {
+  if (frame <= fromFrame) {
+    return 0;
+  }
+
+  if (frame >= toFrame) {
+    return 1;
+  }
+
+  return (frame - fromFrame) / Math.max(1, toFrame - fromFrame);
 }
 
 function mixPoint(
@@ -246,6 +280,15 @@ function ComputerDevice({
       opacity={opacity}
       transform={`translate(${centerX(COMPUTER_BOX)} ${centerY(COMPUTER_BOX)}) scale(${scale}) translate(${-centerX(COMPUTER_BOX)} ${-centerY(COMPUTER_BOX)})`}
     >
+      <rect
+        x={COMPUTER_BOX.x + 30}
+        y={COMPUTER_BOX.y}
+        width={COMPUTER_BOX.width}
+        height={COMPUTER_BOX.height}
+        rx={COMPUTER_BOX.radius}
+        fill="rgba(255, 255, 255, 0)"
+        stroke="none"
+      />
       <rect
         x={COMPUTER_BOX.x + 20}
         y={bottom(COMPUTER_BOX) + 14}
@@ -474,13 +517,293 @@ function ArtifactNode({
   );
 }
 
+function PlaceholderBoardShell({
+  scene,
+  opacity,
+  children,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  children: ReactNode;
+}) {
+  const eased = easeInOutCubic(opacity);
+  const boardScale = mix(0.94, 1, easeOutQuint(opacity));
+
+  return (
+    <g opacity={opacity}>
+      <rect
+        x="0"
+        y="0"
+        width="1280"
+        height="720"
+        fill="rgba(247, 242, 234, 0.64)"
+      />
+      <g
+        transform={`translate(${centerX(PLACEHOLDER_BOARD)} ${centerY(PLACEHOLDER_BOARD)}) scale(${boardScale}) translate(${-centerX(PLACEHOLDER_BOARD)} ${-centerY(PLACEHOLDER_BOARD)})`}
+      >
+        <StageBox
+          box={PLACEHOLDER_BOARD}
+          fill="rgba(255, 252, 247, 0.98)"
+          stroke={scene.nodeStroke}
+          strokeWidth={3.2}
+        />
+        <rect
+          x={PLACEHOLDER_BOARD.x + 26}
+          y={PLACEHOLDER_BOARD.y + 26}
+          width={PLACEHOLDER_BOARD.width - 52}
+          height="78"
+          rx="24"
+          fill="rgba(248, 236, 226, 0.92)"
+          opacity={mix(0.92, 1, eased)}
+        />
+        {children}
+      </g>
+    </g>
+  );
+}
+
+function PlaceholderCard({
+  scene,
+  box,
+  title,
+  lines,
+  opacity,
+  accent = false,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title: string;
+  lines: string[];
+  opacity: number;
+  accent?: boolean;
+}) {
+  return (
+    <g opacity={opacity}>
+      <StageBox
+        box={box}
+        fill={accent ? scene.focusFill : "rgba(255, 251, 246, 0.98)"}
+        stroke={accent ? scene.apiStroke : scene.nodeStroke}
+        strokeWidth={accent ? 3.1 : 2.8}
+      />
+      <text
+        x={centerX(box)}
+        y={box.y + 36}
+        fill={accent ? scene.apiStroke : "#22303d"}
+        fontSize="24"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {title}
+      </text>
+      <StackedLabel
+        x={centerX(box)}
+        y={centerY(box) + 22}
+        lines={lines}
+        fontSize={21}
+        fontWeight={700}
+        lineGap={25}
+      />
+    </g>
+  );
+}
+
+function Page14Placeholder({
+  scene,
+  opacity,
+}: {
+  scene: SceneModel;
+  opacity: number;
+}) {
+  return (
+    <PlaceholderBoardShell scene={scene} opacity={opacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y={PLACEHOLDER_BOARD.y + 64}
+        fill={scene.apiStroke}
+        fontSize="34"
+        fontWeight="800"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        Phone 如何收集 PSO
+      </text>
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE14_LEFT}
+        title="OpenGL"
+        lines={["更多状态由驱动代管", "PSO-like 记录通常更少"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE14_RIGHT}
+        title="Metal"
+        lines={["更多状态显式暴露", "组合数量通常更多"]}
+        opacity={opacity}
+        accent
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE14_FOOTER}
+        title="Runtime Observation"
+        lines={[
+          "Phone 会把 Draw 命中的 ShaderHash 与 State 观察沉淀成运行时记录",
+          "这一页先解释收集语义，不直接展开回传文件拓扑",
+        ]}
+        opacity={opacity}
+      />
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page16Placeholder({
+  scene,
+  opacity,
+}: {
+  scene: SceneModel;
+  opacity: number;
+}) {
+  return (
+    <PlaceholderBoardShell scene={scene} opacity={opacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y={PLACEHOLDER_BOARD.y + 64}
+        fill={scene.apiStroke}
+        fontSize="34"
+        fontWeight="800"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        Expand / Build 在做什么
+      </text>
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE16_CARD_1}
+        title="rec.upipelinecache"
+        lines={["运行时命中的", "ShaderHash + State"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE16_CARD_2}
+        title=".scl.csv"
+        lines={["提供 StableKey", "<-> ShaderHash 对照"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE16_CARD_3}
+        title="stablepc.csv"
+        lines={["把回流记录整理成", "StableKey + State"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE16_CARD_4}
+        title="stable.upipelinecache"
+        lines={["Build 之后更适合", "后续编译与加载"]}
+        opacity={opacity}
+        accent
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE16_FOOTER}
+        title="Expand / Build"
+        lines={["expand: Hash -> StableKey", "build: StableKey + State -> stable cache"]}
+        opacity={opacity}
+      />
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page18Placeholder({
+  scene,
+  opacity,
+}: {
+  scene: SceneModel;
+  opacity: number;
+}) {
+  return (
+    <PlaceholderBoardShell scene={scene} opacity={opacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y={PLACEHOLDER_BOARD.y + 64}
+        fill={scene.apiStroke}
+        fontSize="34"
+        fontWeight="800"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        预编译如何发生
+      </text>
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE18_LEFT}
+        title="OpenGL"
+        lines={["隐式状态更多", "compile target 通常更少"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE18_CENTER}
+        title="stable.upipelinecache"
+        lines={["StableKey / State", "进入预编译输入"]}
+        opacity={opacity}
+        accent
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE18_RIGHT}
+        title="Metal"
+        lines={["显式组合更多", "compile count 通常更高"]}
+        opacity={opacity}
+      />
+      <PlaceholderCard
+        scene={scene}
+        box={PLACEHOLDER_PAGE18_FOOTER}
+        title="Precompile"
+        lines={["稳定缓存解决输入组织问题", "不同 API 的显式程度仍决定最终工作量"]}
+        opacity={opacity}
+      />
+    </PlaceholderBoardShell>
+  );
+}
+
 export function Page10Scene({scene}: {scene: SceneModel}) {
+  const frame = scene.frame;
   const introProgress = scene.settledPage910Progress ?? 0;
   const page11Reveal = scene.settledPage1011Progress ?? 0;
   const page12Reveal = scene.settledPage1112Progress ?? 0;
   const page13Reveal = scene.settledPage1213Progress ?? 0;
-  const page14Reveal = scene.settledPage1314Progress ?? 0;
-  const page15Reveal = scene.settledPage1415Progress ?? 0;
+  const page14PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE13_FRAME,
+    LOOP_PAGE14_FRAME,
+  );
+  const page15Reveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE14_FRAME,
+    LOOP_PAGE15_FRAME,
+  );
+  const page16PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE15_FRAME,
+    LOOP_PAGE16_FRAME,
+  );
+  const page17Reveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE16_FRAME,
+    LOOP_PAGE17_FRAME,
+  );
+  const page18PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE17_FRAME,
+    LOOP_PAGE18_FRAME,
+  );
+  const page14PlaceholderFocus = page14PlaceholderReveal * (1 - page15Reveal);
+  const page16PlaceholderFocus = page16PlaceholderReveal * (1 - page17Reveal);
+  const page18PlaceholderFocus = page18PlaceholderReveal;
 
   const callbackExit = resolveWindowProgress(page11Reveal, 0.1, 0.34, easeInOutCubic);
   const callbackOpacity = 1 - callbackExit;
@@ -517,8 +840,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     (1 - resolveWindowProgress(introProgress, 0.84, 0.92, easeInOutCubic));
   const deviceReveal = resolveWindowProgress(page11Reveal, 0.12, 0.42, easeInOutCubic);
   const stageContentReveal = page11Reveal > 0.001 ? 1 : 0;
-  const stableBuildReveal = resolveWindowProgress(page15Reveal, 0.08, 0.56, easeInOutCubic);
-  const stableReturnReveal = resolveWindowProgress(page15Reveal, 0.5, 0.9, easeInOutCubic);
+  const stableBuildReveal = resolveWindowProgress(page17Reveal, 0.08, 0.56, easeInOutCubic);
+  const stableReturnReveal = resolveWindowProgress(page17Reveal, 0.5, 0.9, easeInOutCubic);
   const answerScale = mix(
     0.88,
     1.16,
@@ -664,33 +987,48 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
 
   const page11Focus = page11Reveal * (1 - page12Reveal);
   const page12Focus = page12Reveal * (1 - page13Reveal);
-  const page13Focus = page13Reveal * (1 - page14Reveal);
-  const page14Focus = page14Reveal * (1 - page15Reveal);
-  const page15Focus = page15Reveal;
+  const page13Focus = page13Reveal * (1 - page14PlaceholderReveal);
+  const page15Focus = page15Reveal * (1 - page16PlaceholderReveal);
+  const page17Focus = page17Reveal * (1 - page18PlaceholderReveal);
+  const placeholderFocus = Math.max(
+    page14PlaceholderFocus,
+    page16PlaceholderFocus,
+    page18PlaceholderFocus,
+  );
+  const placeholderStageScale = mix(1, 0.86, easeInOutCubic(placeholderFocus));
+  const placeholderStageOpacity = mix(1, 0.22, easeInOutCubic(placeholderFocus));
+  const placeholderStageTransform = `translate(640 360) scale(${placeholderStageScale}) translate(-640 -360)`;
 
   const computerScalePhase12 = mix(1, 1.08, easeInOutCubic(page12Reveal));
   const computerScalePhase13 = mix(computerScalePhase12, 0.94, easeInOutCubic(page13Reveal));
-  const computerScalePhase14 = mix(computerScalePhase13, 0.92, easeInOutCubic(page14Reveal));
-  const computerScale = mix(computerScalePhase14, 1.08, easeInOutCubic(stableBuildReveal));
+  const computerScalePhase15 = mix(computerScalePhase13, 0.92, easeInOutCubic(page15Reveal));
+  const computerScale = mix(computerScalePhase15, 1.08, easeInOutCubic(stableBuildReveal));
 
   const phoneScalePhase12 = mix(1, 0.92, easeInOutCubic(page12Reveal));
   const phoneScalePhase13 = mix(phoneScalePhase12, 1.08, easeInOutCubic(page13Reveal));
-  const phoneScalePhase14 = mix(phoneScalePhase13, 1.12, easeInOutCubic(page14Reveal));
-  const phoneScale = mix(phoneScalePhase14, 1.1, easeInOutCubic(stableReturnReveal));
+  const phoneScalePhase15 = mix(phoneScalePhase13, 1.12, easeInOutCubic(page15Reveal));
+  const phoneScale = mix(phoneScalePhase15, 1.1, easeInOutCubic(stableReturnReveal));
 
   const baseNodeOpacity = stageContentReveal;
   const bytecodeBaseOpacity = 0;
-  const page15ContextFade = mix(1, 0.74, easeInOutCubic(page15Reveal));
-  const sclNodeOpacity = stageContentReveal * page12Reveal * page15ContextFade;
-  const cookEdgeOpacity = stageContentReveal * page12Reveal * page15ContextFade;
+  const stableContextFade = mix(1, 0.74, easeInOutCubic(page17Reveal));
+  const sclNodeOpacity = stageContentReveal * page12Reveal * stableContextFade;
+  const cookEdgeOpacity = stageContentReveal * page12Reveal * stableContextFade;
   const bytecodeToPhoneOpacity =
     stageContentReveal *
     page13Reveal *
-    mix(1, 0.82, easeInOutCubic(page15Reveal));
+    mix(1, 0.82, easeInOutCubic(page17Reveal));
   const recOpacity =
     stageContentReveal *
-    page14Reveal *
-    mix(1, 0.92, easeInOutCubic(page15Reveal));
+    page15Reveal *
+    mix(1, 0.92, easeInOutCubic(page17Reveal));
+  const recGeometryVisible =
+    stageContentReveal > 0.001 &&
+    (page14PlaceholderReveal > 0.001 || page15Reveal > 0.001);
+  const recGeometryOpacity =
+    page15Reveal > 0.001
+      ? recOpacity
+      : stageContentReveal * page14PlaceholderFocus * 0.001;
   const stableOpacity = stageContentReveal * stableBuildReveal;
   const stableToPhoneOpacity = stageContentReveal * stableReturnReveal;
   const showDeviceLabels = false;
@@ -965,7 +1303,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
       ) : null}
 
       {stageContentReveal > 0.001 ? (
-        <g>
+        <g opacity={placeholderStageOpacity} transform={placeholderStageTransform}>
           <ComputerDevice
             scene={scene}
             opacity={deviceReveal}
@@ -977,7 +1315,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
             opacity={deviceReveal}
             scale={phoneScale}
             landingFocus={page13Focus}
-            stableFocus={page15Focus}
+            stableFocus={page17Focus}
             showDeviceLabel={showDeviceLabels}
             showVertexLabel={false}
             showPixelsLabel={false}
@@ -1188,15 +1526,17 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
             />
           ) : null}
 
-          {recOpacity > 0.001 ? (
+          {recGeometryVisible ? (
             <>
-              <ArtifactNode
-                box={REC_BOX}
-                scene={scene}
-                opacity={recOpacity}
-                label="rec.upipelinecache"
-                emphasized={page14Focus > 0.2}
-              />
+              {recOpacity > 0.001 ? (
+                <ArtifactNode
+                  box={REC_BOX}
+                  scene={scene}
+                  opacity={recOpacity}
+                  label="rec.upipelinecache"
+                  emphasized={page15Focus > 0.2}
+                />
+              ) : null}
               <StrokeArrow
                 testId="page14-phone-to-rec-arrow"
                 d={roundedPolylinePath([
@@ -1205,11 +1545,11 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   {x: right(REC_BOX) + 12, y: centerY(REC_BOX)},
                 ])}
                 stroke={scene.apiStroke}
-                opacity={recOpacity}
+                opacity={recGeometryOpacity}
                 tipX={right(REC_BOX) + 12}
                 tipY={centerY(REC_BOX)}
                 direction="left"
-                shaftWidth={emphasizeWidth(3.2, page14Focus)}
+                shaftWidth={emphasizeWidth(3.2, page15Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1220,11 +1560,11 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   {x: centerX(COMPUTER_BOX), y: COMPUTER_BOX.y - 8},
                 ])}
                 stroke={scene.apiStroke}
-                opacity={recOpacity}
+                opacity={recGeometryOpacity}
                 tipX={centerX(COMPUTER_BOX)}
                 tipY={COMPUTER_BOX.y - 8}
                 direction="down"
-                shaftWidth={emphasizeWidth(3.2, page14Focus)}
+                shaftWidth={emphasizeWidth(3.2, page15Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1238,14 +1578,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 scene={scene}
                 opacity={stableOpacity}
                 label="stablepc.csv"
-                emphasized={page15Focus > 0.2}
+                emphasized={page17Focus > 0.2}
               />
               <ArtifactNode
                 box={STABLE_UPIPE_BOX}
                 scene={scene}
                 opacity={stableOpacity}
                 lines={["stable.", "upipelinecache"]}
-                emphasized={page15Focus > 0.2}
+                emphasized={page17Focus > 0.2}
               />
               <g opacity={stableOpacity}>
                 <circle
@@ -1298,7 +1638,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={PAGE15_EXPAND_MERGE_CENTER.x - 18}
                 tipY={PAGE15_EXPAND_MERGE_CENTER.y}
                 direction="right"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1326,7 +1666,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={STABLE_PC_BOX.x - 10}
                 tipY={centerY(STABLE_PC_BOX)}
                 direction="right"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1341,7 +1681,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={PAGE15_EXPAND_MERGE_CENTER.x}
                 tipY={PAGE15_EXPAND_MERGE_CENTER.y + 18}
                 direction="up"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1355,7 +1695,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={PAGE15_MERGE_CENTER.x - 20}
                 tipY={PAGE15_MERGE_CENTER.y}
                 direction="right"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1371,7 +1711,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={PAGE15_MERGE_CENTER.x}
                 tipY={PAGE15_MERGE_CENTER.y + 18}
                 direction="up"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1386,7 +1726,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 tipX={STABLE_UPIPE_BOX.x - 10}
                 tipY={centerY(STABLE_UPIPE_BOX)}
                 direction="right"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                shaftWidth={emphasizeWidth(3.2, page17Focus)}
                 underlayWidth={5.8}
                 headSize={9}
               />
@@ -1397,20 +1737,31 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
             <StrokeArrow
               testId="page15-stable-to-phone-arrow"
               d={roundedPolylinePath([
-                {x: right(STABLE_UPIPE_BOX) + 10, y: centerY(STABLE_UPIPE_BOX)},
-                {x: PHONE_BOX.x - 10, y: centerY(STABLE_UPIPE_BOX)},
+                {x: right(STABLE_UPIPE_BOX) - 18, y: bottom(STABLE_UPIPE_BOX) + 18},
+                {x: right(STABLE_UPIPE_BOX) + 22, y: bottom(STABLE_UPIPE_BOX) + 18},
+                {x: PHONE_BOX.x - 10, y: bottom(STABLE_UPIPE_BOX) + 18},
               ])}
               stroke={scene.apiStroke}
               opacity={stableToPhoneOpacity}
               tipX={PHONE_BOX.x - 10}
-              tipY={centerY(STABLE_UPIPE_BOX)}
+              tipY={bottom(STABLE_UPIPE_BOX) + 18}
               direction="right"
-              shaftWidth={emphasizeWidth(3.2, page15Focus)}
+              shaftWidth={emphasizeWidth(3.2, page17Focus)}
               underlayWidth={5.8}
               headSize={9}
             />
           ) : null}
         </g>
+      ) : null}
+
+      {page14PlaceholderFocus > 0.001 ? (
+        <Page14Placeholder scene={scene} opacity={page14PlaceholderFocus} />
+      ) : null}
+      {page16PlaceholderFocus > 0.001 ? (
+        <Page16Placeholder scene={scene} opacity={page16PlaceholderFocus} />
+      ) : null}
+      {page18PlaceholderFocus > 0.001 ? (
+        <Page18Placeholder scene={scene} opacity={page18PlaceholderFocus} />
       ) : null}
     </>
   );
