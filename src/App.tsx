@@ -65,6 +65,8 @@ type InitialWorkbenchQuery = {
   variantId: typeof DEFAULT_VARIANT_ID;
 };
 
+type StepNavigationMode = "animate" | "instant";
+
 function isMotionPresetId(value: string | null | undefined): value is MotionPresetId {
   return MOTION_PRESETS.some((preset) => preset.id === value);
 }
@@ -205,6 +207,8 @@ export function App() {
   const [motionPresetId, setMotionPresetId] = useState<MotionPresetId>(
     initialQueryState.motionPresetId,
   );
+  const [stepNavigationMode, setStepNavigationMode] =
+    useState<StepNavigationMode>("animate");
   const [stepTransition, setStepTransition] = useState<{
     direction: "forward" | "backward";
     outgoingStepId: typeof state.stepId;
@@ -229,6 +233,18 @@ export function App() {
   );
   const railDurationScale = 1 / RAIL_SPEED_FACTOR;
   const stepTransitionMs = Math.round(notesBaseMs * motionPreset.durationScale);
+
+  const navigateToStep = (
+    stepId: typeof state.stepId,
+    navigationMode: StepNavigationMode,
+  ) => {
+    if (stepId === state.stepId) {
+      return;
+    }
+
+    setStepNavigationMode(navigationMode);
+    state.setStepId(stepId);
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -375,11 +391,13 @@ export function App() {
 
       if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
         event.preventDefault();
+        setStepNavigationMode("animate");
         state.goToPreviousStep();
       }
 
       if (event.key === "ArrowRight" || event.key === "ArrowDown") {
         event.preventDefault();
+        setStepNavigationMode("animate");
         state.goToNextStep();
       }
     };
@@ -404,6 +422,13 @@ export function App() {
       return;
     }
 
+    if (stepNavigationMode === "instant") {
+      settledStepIdRef.current = state.stepId;
+      setStepTransition(null);
+      setStepNavigationMode("animate");
+      return;
+    }
+
     const previousIndex = state.steps.findIndex((step) => step.id === settledStepId);
     const currentIndex = state.steps.findIndex((step) => step.id === state.stepId);
 
@@ -420,7 +445,7 @@ export function App() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [state.stepId, state.steps, stepTransitionMs]);
+  }, [captureSurface, state.stepId, state.steps, stepNavigationMode, stepTransitionMs]);
 
   useEffect(() => {
     if (!captureEnabled || captureTransport !== "post" || !capturePostUrl) {
@@ -495,6 +520,7 @@ export function App() {
       >
         <StageFrame
           state={state}
+          jumpToStepInstant={stepNavigationMode === "instant"}
           motionDurationScale={motionPreset.durationScale}
           runtimeRef={stageCaptureTargetRef}
           runtimeOnly
@@ -564,6 +590,7 @@ export function App() {
         <NotesPanel state={state} transition={stepTransition} />
         <StageFrame
           state={state}
+          jumpToStepInstant={stepNavigationMode === "instant"}
           motionDurationScale={motionPreset.durationScale}
           runtimeRef={stageCaptureTargetRef}
           sketchDefinition={sketchDefinition}
@@ -579,7 +606,13 @@ export function App() {
         />
       ) : null}
       <CaptureClipboardButton stepId={state.stepId} targetRef={captureTargetRef} />
-      <ProgressBubbles state={state} transition={stepTransition} />
+      <ProgressBubbles
+        state={state}
+        transition={stepTransition}
+        onStepJump={(stepId) => {
+          navigateToStep(stepId, "instant");
+        }}
+      />
     </div>
   );
 }

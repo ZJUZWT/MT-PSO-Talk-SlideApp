@@ -6,6 +6,7 @@ import {RemotionStage} from "./RemotionStage";
 
 type StageFrameProps = {
   debugFrame?: number | null;
+  jumpToStepInstant?: boolean;
   state: WorkbenchState;
   motionDurationScale: number;
   runtimeRef?: RefObject<HTMLDivElement | null>;
@@ -15,6 +16,7 @@ type StageFrameProps = {
 
 export function StageFrame({
   debugFrame = null,
+  jumpToStepInstant = false,
   state,
   motionDurationScale,
   runtimeRef,
@@ -34,6 +36,7 @@ export function StageFrame({
   ) : (
     <RemotionStage
       debugFrame={debugFrame}
+      jumpToStepInstant={jumpToStepInstant}
       motionDurationScale={motionDurationScale}
       runtimeRef={runtimeRef}
       variantId={state.variantId}

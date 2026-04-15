@@ -3,6 +3,7 @@ import type {WorkbenchState} from "../state/useWorkbenchState";
 
 type ProgressBubblesProps = {
   state: WorkbenchState;
+  onStepJump?: (stepId: WorkbenchState["stepId"]) => void;
   transition: {
     direction: "forward" | "backward";
     outgoingStepId: WorkbenchState["stepId"];
@@ -21,7 +22,11 @@ function resolveBubbleHeight(sizeMode: string) {
   return sizeMode === "compact" || sizeMode === "collapsing" ? 28 : 74;
 }
 
-export function ProgressBubbles({state, transition}: ProgressBubblesProps) {
+export function ProgressBubbles({
+  state,
+  onStepJump,
+  transition,
+}: ProgressBubblesProps) {
   const stepIndex = state.steps.findIndex((entry) => entry.id === state.stepId);
 
   return (
@@ -79,6 +84,11 @@ export function ProgressBubbles({state, transition}: ProgressBubblesProps) {
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`Go to step ${index + 1}: ${step.label}`}
                 onClick={() => {
+                  if (onStepJump) {
+                    onStepJump(step.id);
+                    return;
+                  }
+
                   state.setStepId(step.id);
                 }}
               >

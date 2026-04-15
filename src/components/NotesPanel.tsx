@@ -9,6 +9,81 @@ type NotesPanelProps = {
   } | null;
 };
 
+type SessionInfo = {
+  id: string;
+  label: string;
+  stepIndex: number;
+  stepCount: number;
+};
+
+function resolveSessionInfo(
+  stepId: WorkbenchState["stepId"],
+  sessions: WorkbenchState["sessions"],
+): SessionInfo {
+  for (const segment of sessions) {
+    const index = segment.stepIds.indexOf(stepId);
+
+    if (index !== -1) {
+      return {
+        id: segment.id,
+        label: segment.label,
+        stepIndex: index + 1,
+        stepCount: segment.stepIds.length,
+      };
+    }
+  }
+
+  return {
+    id: "s-unknown",
+    label: "Session · 未分类",
+    stepIndex: 1,
+    stepCount: 1,
+  };
+}
+
+function pickFirstClause(text: string) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  const firstSentence = normalized.split(/[。！？!?]/)[0]?.trim() ?? "";
+  if (firstSentence.length > 0 && firstSentence.length <= 80) {
+    return firstSentence;
+  }
+
+  return normalized.slice(0, 80).trim();
+}
+
+function resolveKeyPoints(step: WorkbenchState["currentStep"]) {
+  if (step.keyPoints && step.keyPoints.length > 0) {
+    return step.keyPoints.slice(0, 4);
+  }
+
+  const candidates = [step.caption, step.intro, step.notes]
+    .filter((entry): entry is string => Boolean(entry))
+    .map((entry) => pickFirstClause(entry))
+    .filter((entry) => entry.length > 0);
+
+  return [...new Set(candidates)].slice(0, 3);
+}
+
+function resolveApiItems(step: WorkbenchState["currentStep"]) {
+  if (step.apiList && step.apiList.length > 0) {
+    return step.apiList;
+  }
+
+  if (step.apiHighlights && step.apiHighlights.length > 0) {
+    return step.apiHighlights.map((label, index) => ({
+      id: index + 1,
+      label,
+    }));
+  }
+
+  return [];
+}
+
 function resolveCodeTone(
   focusColorKey: WorkbenchState["currentStep"]["focusColorKey"],
   line: string,
@@ -78,10 +153,15 @@ function ApiListPanel({
 
 function NotesCard({
   step,
+  sessionInfo,
 }: {
   step: WorkbenchState["currentStep"];
+  sessionInfo: SessionInfo;
 }) {
   const codeLines = step.codeSample?.split("\n") ?? [];
+  const keyPoints = resolveKeyPoints(step);
+  const apiItems = resolveApiItems(step);
+  const relatedLinks = step.relatedLinks ?? [];
 
   return (
     <article className="notes-card">
@@ -89,42 +169,62 @@ function NotesCard({
         <div className="notes-focus-pill">{step.focusTarget}</div>
       </div>
 
+      <section className="notes-session" aria-label="当前 Session">
+        <p className="notes-section-label">当前 Session</p>
+        <p className="notes-session-title">{sessionInfo.label}</p>
+        <p className="notes-session-copy">
+          本节第 {sessionInfo.stepIndex} / {sessionInfo.stepCount} 页
+        </p>
+      </section>
+
       <div className="notes-heading-block">
-        <h2 className="notes-title">{step.label}</h2>
         <p className="notes-caption">{step.caption}</p>
       </div>
 
-      {step.intro ? <p className="notes-intro">{step.intro}</p> : null}
-
-      {step.apiList?.length ? (
-        <ApiListPanel
-          title={step.apiListTitle ?? "Graphics API"}
-          items={step.apiList}
-        />
-      ) : null}
-
-      {step.manuscript ? (
+      {keyPoints.length > 0 ? (
         <section className="notes-section">
-          <p className="notes-section-label">Manuscript</p>
-          <p className="notes-section-copy">{step.manuscript}</p>
+          <p className="notes-section-label">本页重点</p>
+          <ul className="notes-point-list">
+            {keyPoints.map((point) => (
+              <li key={`${step.id}-${point}`} className="notes-point-item">
+                {point}
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 
+      {apiItems.length > 0 ? (
+        <ApiListPanel
+          title={step.apiListTitle ?? "涉及 API / 文件"}
+          items={apiItems}
+        />
+      ) : null}
+
       <section className="notes-section">
-        <p className="notes-section-label">Speaker cue</p>
-        <p className="notes-section-copy">{step.notes}</p>
+        <p className="notes-section-label">讲解目标</p>
+        <p className="notes-section-copy">{step.timingHint}</p>
       </section>
 
-      <section className="notes-meta-grid" aria-label="Step metadata">
-        <div className="notes-meta-item">
-          <p className="notes-section-label">Focus</p>
-          <p className="notes-meta-copy">{step.focusTarget}</p>
-        </div>
-        <div className="notes-meta-item">
-          <p className="notes-section-label">Timing</p>
-          <p className="notes-meta-copy">{step.timingHint}</p>
-        </div>
-      </section>
+      {relatedLinks.length > 0 ? (
+        <section className="notes-section" aria-label="相关链接">
+          <p className="notes-section-label">相关链接</p>
+          <ul className="notes-link-list">
+            {relatedLinks.map((link) => (
+              <li key={`${step.id}-${link.url}`} className="notes-link-item">
+                <a
+                  className="notes-link-anchor"
+                  href={link.url}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {codeLines.length > 0 ? (
         <section className="notes-code-panel" aria-label="Code sample">
@@ -169,6 +269,10 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
   const outgoingStep = transition
     ? state.steps.find((step) => step.id === transition.outgoingStepId) ?? null
     : null;
+  const currentSessionInfo = resolveSessionInfo(state.currentStep.id, state.sessions);
+  const outgoingSessionInfo = outgoingStep
+    ? resolveSessionInfo(outgoingStep.id, state.sessions)
+    : null;
   const currentStackRole = transition ? "back" : "front";
   const outgoingStackRole = transition ? "front" : "back";
 
@@ -187,7 +291,7 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           data-stack-role={currentStackRole}
           data-fade="off"
         >
-          <NotesCard step={state.currentStep} />
+          <NotesCard step={state.currentStep} sessionInfo={currentSessionInfo} />
         </div>
 
         <div
@@ -200,7 +304,11 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           data-fade="off"
           aria-hidden="true"
         >
-          {outgoingStep ? <NotesCard step={outgoingStep} /> : <NotesCardGhost />}
+          {outgoingStep && outgoingSessionInfo ? (
+            <NotesCard step={outgoingStep} sessionInfo={outgoingSessionInfo} />
+          ) : (
+            <NotesCardGhost />
+          )}
         </div>
       </div>
     </section>

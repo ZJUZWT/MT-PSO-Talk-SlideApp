@@ -371,6 +371,26 @@ describe("App", () => {
     }
   });
 
+  it("jumps directly when clicking progress bubbles without opening transition motion", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", {name: /Go to step 3:/}));
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
+    });
+    expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
+      "data-motion-direction",
+      "idle",
+    );
+    expect(document.querySelector(".stage-runtime")).toHaveAttribute(
+      "data-animating",
+      "false",
+    );
+  });
+
   it("renders the progress rail with one current step and fourteen compact future steps", () => {
     render(<App />);
 

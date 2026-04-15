@@ -21,13 +21,33 @@ export type StoryStepId =
   | "page_15"
   | "page_16"
   | "page_17"
-  | "page_18";
+  | "page_18"
+  | "page_19"
+  | "page_20"
+  | "page_21"
+  | "page_22"
+  | "page_23"
+  | "page_24";
+
+export type StorySession = {
+  id: string;
+  label: string;
+  stepIds: StoryStepId[];
+};
+
+export type StoryLink = {
+  label: string;
+  url: string;
+};
 
 export type StoryStep = {
   id: StoryStepId;
   label: string;
   caption: string;
   notes: string;
+  keyPoints?: string[];
+  apiHighlights?: string[];
+  relatedLinks?: StoryLink[];
   focusTarget: string;
   timingHint: string;
   intro?: string;
@@ -43,5 +63,6 @@ export type Storyboard = {
   storyId: string;
   title: string;
   summary: string;
+  sessions?: StorySession[];
   steps: StoryStep[];
 };

@@ -10,6 +10,7 @@ import {
 
 type RemotionStageProps = {
   debugFrame?: number | null;
+  jumpToStepInstant?: boolean;
   motionDurationScale: number;
   runtimeRef?: RefObject<HTMLDivElement | null>;
   stepId: StoryStepId;
@@ -18,6 +19,7 @@ type RemotionStageProps = {
 
 export function RemotionStage({
   debugFrame = null,
+  jumpToStepInstant = false,
   motionDurationScale,
   runtimeRef,
   stepId,
@@ -59,6 +61,15 @@ export function RemotionStage({
       stopAnimation();
       lastAppliedFrameRef.current = debugFrame;
       setCurrentFrame(debugFrame);
+      setIsAnimating(false);
+
+      return stopAnimation;
+    }
+
+    if (jumpToStepInstant) {
+      stopAnimation();
+      lastAppliedFrameRef.current = targetFrame;
+      setCurrentFrame(targetFrame);
       setIsAnimating(false);
 
       return stopAnimation;
@@ -109,6 +120,7 @@ export function RemotionStage({
   }, [
     debugFrame,
     effectiveDurationMs,
+    jumpToStepInstant,
     targetFrame,
     variantId,
   ]);

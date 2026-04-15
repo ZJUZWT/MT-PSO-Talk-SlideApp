@@ -2248,7 +2248,7 @@ describe("MyComposition", () => {
     expect(visibleMaterial.length).toBe(0);
     expect(visibleCooked.length).toBe(0);
     expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBe(0);
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "UE5 formats").length).toBe(0);
@@ -2447,7 +2447,7 @@ describe("MyComposition", () => {
     const computerCenterY = (minRectTop(computerGroup) + maxRectBottom(computerGroup)) / 2;
     const phoneCenterY = (minRectTop(phoneShell) + maxRectBottom(phoneShell)) / 2;
 
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
@@ -2503,53 +2503,102 @@ describe("MyComposition", () => {
     );
 
     expect(findSvgTextNodesByContent(page14Container, "Phone如何收集PSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "OpenGL").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "Metal").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "rec.upipelinecache").length).toBe(0);
+    expect(findSvgTextNodesByContent(page14Container, "Draw").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "BSS").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "OpenGL: BSS").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(page14Container, "Vulkan / Metal: BSS + State").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, ".rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page14Container, "stablepc.csv").length).toBe(0);
+    expect(page14Container.querySelector('[data-testid="page14-draw-to-pso-arrow"]')).not.toBeNull();
+    expect(page14Container.querySelector('[data-testid="page14-pso-to-rec-arrow"]')).not.toBeNull();
 
     unmount();
-    mockFrame = 762;
+    mockFrame = 798;
     const {container: page15Container, unmount: unmount15} = render(
       <MyComposition variantId="bus-clean" />,
     );
 
+    expect(findSvgTextNodesByContent(page15Container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page15Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, "stablepc.csv").length).toBe(0);
 
     unmount15();
-    mockFrame = 816;
+    mockFrame = 852;
     const {container: page16Container, unmount: unmount16} = render(
       <MyComposition variantId="bus-clean" />,
     );
 
-    expect(findSvgTextNodesByContent(page16Container, "Expand/Build在做什么").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, "expand").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page16Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page16Container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page16Container, "stable.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, "H_old").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, "K1").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, "K2").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, "stable.upipelinecache").length).toBe(0);
 
     unmount16();
-    mockFrame = 870;
+    mockFrame = 942;
     const {container: page17Container, unmount: unmount17} = render(
       <MyComposition variantId="bus-clean" />,
     );
 
-    expect(findSvgTextNodesByContent(page17Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "build").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "stable.").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page17Container, "expand").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "K1").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "K2").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "H_a").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "H_b").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page17Container, "expand").length).toBe(0);
 
     unmount17();
-    mockFrame = 924;
-    const {container} = render(<MyComposition variantId="bus-clean" />);
+    mockFrame = 1032;
+    const {container, unmount: unmount18} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findSvgTextNodesByContent(container, "预编译如何发生").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "OpenGL").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Metal").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "预编译如何发生").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "stable.").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
+
+    unmount18();
+    mockFrame = 1086;
+    const {container: page19Container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(page19Container, "Precompile").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "OpenGL").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Metal").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(
+        page19Container,
+        "预编译后本地存放: Metal 多自动缓存, OpenGL 常需手动管理 Program Binary",
+      ).length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
-  it("settles the old stable loop on page 17 after the inserted placeholder pages", () => {
-    mockFrame = 870;
+  it("restores page 13 before page 15 starts growing the rec return route", () => {
+    mockFrame = 726;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(container, "Phone如何收集PSO").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Draw").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "PSO").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
+    expect(container.querySelector('[data-testid="page10-phone-shell"]')).not.toBeNull();
+  });
+
+  it("settles the old stable loop on page 18 after the inserted placeholder pages", () => {
+    mockFrame = 1032;
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
@@ -2557,7 +2606,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "stable.").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(
       Array.from(container.querySelectorAll("text")).filter(
@@ -2566,8 +2615,8 @@ describe("MyComposition", () => {
     ).toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps the page 17 stable return path outside the stable.upipelinecache text lane", () => {
-    mockFrame = 870;
+  it("keeps the page 18 stable return path outside the stable.upipelinecache text lane", () => {
+    mockFrame = 1032;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stableLabel = findSvgTextNodesByContent(container, "stable.").find(
       (node) => effectiveOpacity(node) > 0.2,
@@ -2596,25 +2645,6 @@ describe("MyComposition", () => {
     expect(stableToPhoneVertices.length).toBeGreaterThanOrEqual(2);
     expect(topmostStableToPhoneY).toBeGreaterThanOrEqual(stableMetrics.bottom + 6);
     expect(rightmostStableToPhoneX).toBeGreaterThanOrEqual(stableMetrics.right + 20);
-  });
-
-  it("keeps the page 14 phone-to-rec return path lifted above the phone roof before turning left", () => {
-    mockFrame = 708;
-    const {container} = render(<MyComposition variantId="bus-clean" />);
-    const phoneRect = Array.from(container.querySelectorAll("rect")).find((rect) => {
-      const metrics = rectMetrics(rect);
-
-      return metrics.x > 980 && metrics.width >= 180 && metrics.height >= 380;
-    });
-    const phoneMetrics = rectMetrics(phoneRect);
-    const phoneToRecArrow = container.querySelector('[data-testid="page14-phone-to-rec-arrow"]');
-    const phoneToRecVertices = parsePolylineVertices(phoneToRecArrow);
-    const topmostPhoneToRecY = Math.min(...phoneToRecVertices.map((vertex) => vertex.y));
-
-    expect(phoneRect).not.toBeNull();
-    expect(phoneToRecArrow).not.toBeNull();
-    expect(phoneToRecVertices.length).toBeGreaterThanOrEqual(3);
-    expect(topmostPhoneToRecY).toBeLessThanOrEqual(phoneMetrics.y - 20);
   });
 
   it("keeps FShader as a translated continuation from page 08 into page 09 with only a bounded width retargeting", () => {

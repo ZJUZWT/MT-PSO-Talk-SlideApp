@@ -379,9 +379,37 @@ select {
   gap: 10px;
 }
 
+.notes-session {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(198, 111, 76, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 252, 246, 0.94) 0%,
+    rgba(250, 245, 236, 0.92) 100%
+  );
+}
+
+.notes-session-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.03rem;
+  font-weight: 760;
+  line-height: 1.38;
+}
+
+.notes-session-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .notes-title {
   margin: 0;
-  max-width: 11ch;
+  max-width: 16ch;
   font-size: clamp(1.9rem, 3.8vw, 3rem);
   line-height: 0.96;
   letter-spacing: -0.05em;
@@ -492,6 +520,59 @@ select {
   margin: 0;
   color: var(--ink);
   line-height: 1.7;
+}
+
+.notes-point-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes-point-item {
+  position: relative;
+  margin: 0;
+  padding-left: 14px;
+  color: var(--ink);
+  font-size: 0.99rem;
+  line-height: 1.58;
+}
+
+.notes-point-item::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.notes-link-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes-link-item {
+  margin: 0;
+}
+
+.notes-link-anchor {
+  color: var(--accent-strong);
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.4;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.notes-link-anchor:hover {
+  text-decoration-color: var(--accent-strong);
 }
 
 .notes-meta-grid {

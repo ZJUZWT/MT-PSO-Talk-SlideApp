@@ -216,6 +216,12 @@ export function ReviewHud({
         </>
       ) : (
         <>
+          <section className="review-detail-panel" aria-label="Story review notice">
+            <p className="review-hud-summary-copy">
+              Story page review is still manual here. The formal continuity and module-structure audit has not been automated yet.
+            </p>
+          </section>
+
           <div className="review-score-grid">
             {REVIEW_AXES.map((axis) => (
               <label key={axis.id} className="review-score-field">
@@ -247,7 +253,7 @@ export function ReviewHud({
           </div>
 
           <div className="review-hud-summary">
-            <p className="review-hud-summary-copy">Rendered self-check</p>
+            <p className="review-hud-summary-copy">Rendered self-check / manual only</p>
             <output className="review-hud-score" aria-label="Review Score">
               {reviewScore} / 5.0
             </output>

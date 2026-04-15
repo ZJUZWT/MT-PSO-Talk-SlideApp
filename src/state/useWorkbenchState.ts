@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {masterStoryboard} from "../storyboard-data/pso-storyboard";
 import type {
+  StorySession,
   StoryStep,
   StoryStepId,
   VariantId,
@@ -38,6 +39,7 @@ export type WorkbenchState = {
   goToPreviousStep: () => void;
   goToNextStep: () => void;
   aspectRatio: "16:9";
+  sessions: StorySession[];
   steps: StoryStep[];
   currentStep: StoryStep;
   supportedStepIds: StoryStepId[];
@@ -61,6 +63,7 @@ export function useWorkbenchState(
     stepId: initialSelection.stepId ?? DEFAULT_STEP_ID,
   });
   const supportedStepIds = masterStoryboard.steps.map((step) => step.id);
+  const sessions = masterStoryboard.sessions ?? [];
 
   const currentStep =
     masterStoryboard.steps.find((step) => step.id === selection.stepId) ??
@@ -113,6 +116,7 @@ export function useWorkbenchState(
       goToRelativeStep(1);
     },
     aspectRatio: "16:9",
+    sessions,
     steps: masterStoryboard.steps,
     currentStep,
     supportedStepIds,

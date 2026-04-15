@@ -16,20 +16,20 @@ const PIXEL_CELL_SIZE = 12;
 const PIXEL_STEP = 16;
 const PIXEL_COLORS = [
   "#d16e4a",
-  "#ddb38f",
-  "#8d9ab0",
-  "#f0d8c6",
-  "#e6bf9f",
+  "#e39b66",
+  "#7698df",
+  "#f1c79f",
+  "#e7b487",
   "#d16e4a",
-  "#d7c1af",
-  "#8d9ab0",
-  "#d7c1af",
-  "#f0d8c6",
+  "#93ace8",
+  "#6f8fd8",
+  "#e9b98f",
+  "#f2cfb1",
   "#d16e4a",
-  "#ddb38f",
-  "#8d9ab0",
-  "#d7c1af",
-  "#e6bf9f",
+  "#e6ab78",
+  "#82a2e3",
+  "#f0c59e",
+  "#eab78e",
   "#d16e4a",
 ] as const;
 
@@ -746,6 +746,7 @@ export function StrokeArrow({
   d,
   stroke,
   opacity,
+  headOpacity,
   tipX,
   tipY,
   direction,
@@ -759,6 +760,7 @@ export function StrokeArrow({
   d: string;
   stroke: string;
   opacity: number;
+  headOpacity?: number;
   tipX: number;
   tipY: number;
   direction: "right" | "down" | "left" | "up";
@@ -785,7 +787,7 @@ export function StrokeArrow({
         tipY={tipY}
         direction={direction}
         stroke={stroke}
-        opacity={opacity}
+        opacity={headOpacity ?? opacity}
         size={headSize}
         strokeWidth={shaftWidth}
       />

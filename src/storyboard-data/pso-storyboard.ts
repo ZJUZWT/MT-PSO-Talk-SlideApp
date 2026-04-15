@@ -4,12 +4,43 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-18 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, insert three explanatory placeholder pages for runtime collection, expand/build, and precompile, and shift the old return/stable loop beats back to pages 15 and 17.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, insert explanatory placeholder pages for runtime collection, expand, build, and split precompile into two pages. Pages 21-24 reserve practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences.",
+  sessions: [
+    {
+      id: "s1-foundation",
+      label: "Session 1 · 抽象模型到图形 API",
+      stepIds: ["page_01", "page_02", "page_03", "page_04"],
+    },
+    {
+      id: "s2-ue-shader",
+      label: "Session 2 · UE Shader 资产与 SharedCode",
+      stepIds: ["page_05", "page_06", "page_07", "page_08", "page_09", "page_10"],
+    },
+    {
+      id: "s3-runtime-loop",
+      label: "Session 3 · 运行时收集与回传闭环",
+      stepIds: ["page_11", "page_12", "page_13", "page_14", "page_15"],
+    },
+    {
+      id: "s4-stable-precompile",
+      label: "Session 4 · Expand / Build / 预编译",
+      stepIds: ["page_16", "page_17", "page_18", "page_19", "page_20"],
+    },
+    {
+      id: "s5-optimization-notes",
+      label: "Session 5 · 预留优化方向",
+      stepIds: ["page_21", "page_22", "page_23", "page_24"],
+    },
+  ],
   steps: [
     {
       id: "page_01",
-      label: "Input -> f(x) -> Output",
+      label: "渲染问题的最小模型",
       caption: "从输入经过一个函数得到输出，这是后续所有框架演化前的最小骨架。",
+      keyPoints: [
+        "先让观众记住 Input -> f(x) -> Output 这条基础主轴。",
+        "后续所有 API 与工程结构，都是这条主轴的展开。",
+      ],
       notes:
         "第一页保持静态终态，不做入场动画。观众先记住这条最简单的主轴，后面我们再往这条主轴上加结构。",
       focusTarget: "基础公式",
@@ -22,8 +53,12 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_02",
-      label: "VertexData -> GPU -> Pixels",
+      label: "把模型映射到渲染语义",
       caption: "把抽象的 f(x) 具体化成 GPU，把输入和输出也换成更接近图形渲染语义的表达。",
+      keyPoints: [
+        "Input 对应 VertexData，f(x) 对应 GPU，Output 对应 Pixels。",
+        "三段位置保持不变，只替换语义，建立空间连续性。",
+      ],
       notes:
         "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出。",
       focusTarget: "GPU",
@@ -36,9 +71,13 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_03",
-      label: "OpenGL",
+      label: "OpenGL：运行时组装 Program",
       caption:
         "把 Raw ShaderCode 先 compile 成 Binary ShaderCode，再经过 link 得到 Program；这一组还可以提前缓存成可复用产物，最后和状态一起喂给 GPU。",
+      keyPoints: [
+        "Shader 在运行时经历 compile -> link -> use 的链路。",
+        "Depth/Blend 等状态调用与 Program 一起汇入 GPU。",
+      ],
       notes:
         "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。这里左边最重要的是 Raw ShaderCode 经由 glCompileShader() 变成 Binary ShaderCode，再通过 glLinkProgram() 组织成 Program，随后还可以用 glGetProgramBinary() 把这一组取回做缓存；最后由 glUseProgram() 往下启用。右边的 Depth、Blend 继续通过 Graphics API 调用往下配置到 GPU。",
       focusTarget: "OpenGL",
@@ -57,13 +96,27 @@ export const masterStoryboard: Storyboard = {
         {id: 5, label: "glLinkProgram()"},
         {id: 6, label: "glGetProgramBinary()"},
       ],
+      relatedLinks: [
+        {
+          label: "glCompileShader 官方参考",
+          url: "https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCompileShader.xhtml",
+        },
+        {
+          label: "glLinkProgram 官方参考",
+          url: "https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml",
+        },
+      ],
       focusColorKey: "opengl",
     },
     {
       id: "page_04",
-      label: "Vulkan",
+      label: "Vulkan：预组装 PSO",
       caption:
         "把 Raw ShaderCode 更早整理成 SPIR-V ShaderCode，再连同状态先收进 Description 和 PSO；这一组还能通过缓存数据复用，运行时只保留更少的高亮调用。",
+      keyPoints: [
+        "SPIR-V 与状态先进入 Description，再创建 PSO。",
+        "运行时从“多调用”变成“以绑定 PSO 为主”的路径。",
+      ],
       notes:
         "第四页继承第三页的底部主轴和上方输入分区，不重画结构，而是在保持 Raw ShaderCode -> SPIR-V ShaderCode 这条 Vulkan shader 路径的同时，把 SPIR-V、Depth、Blend 先收进一份 Description，再由 create 过程生成 PSO。这个预处理区还能通过 vkGetPipelineCacheData() 取回缓存；真正高亮的只剩下运行时那一条绑定线。",
       focusTarget: "PSO",
@@ -79,13 +132,28 @@ export const masterStoryboard: Storyboard = {
         {id: 2, label: "vkCmdBindPipeline()"},
         {id: 3, label: "vkGetPipelineCacheData()"},
       ],
+      relatedLinks: [
+        {
+          label: "vkCreateGraphicsPipelines 官方参考",
+          url: "https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkCreateGraphicsPipelines.html",
+        },
+        {
+          label: "vkCmdBindPipeline 官方参考",
+          url: "https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/vkCmdBindPipeline.html",
+        },
+      ],
       focusColorKey: "vulkan",
     },
     {
       id: "page_05",
-      label: "UE Asset Cook",
+      label: "UE Cook：资产进入渲染主线",
       caption:
         "把实际资产接进来：Mesh 生成 VertexData，Material 经过 cook 变成 Cooked ShaderCode，再继续整理成 Binary ShaderCode。",
+      keyPoints: [
+        "Mesh 对应 VertexData，Material 对应 Shader 产物。",
+        "Cooked ShaderCode 是连接资产语义与运行语义的关键桥梁。",
+      ],
+      apiHighlights: ["Mesh", "Material", "Cooked ShaderCode", "Binary ShaderCode"],
       notes:
         "这一页是慢慢过渡到 UE 的关键。先不要把 PSO 那些中间层重新塞回来，而是回到更干净的主轴：资产先变成运行时真正要喂给 GPU 的东西。Mesh 对应 VertexData，Material 先产出 Cooked ShaderCode，再继续落到 Binary ShaderCode，然后送向 GPU。",
       focusTarget: "Cook",
@@ -99,9 +167,19 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_06",
-      label: "区分因素在哪一层",
+      label: "UE 分层：区分因素落在哪一层",
       caption:
         "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：Platform 在 Material，FeatureLevel / QualityLevel 在 Resource，ShaderType / VertexFactory / Permutation 在 ShaderMap。",
+      keyPoints: [
+        "不同维度的区分因素落在不同层级，不是同层混放。",
+        "先讲清分层职责，再讲运行时如何取 code。",
+      ],
+      apiHighlights: [
+        "Material",
+        "FMaterialResource",
+        "FMaterialShaderMap",
+        "ShaderPlatform / FeatureLevel / QualityLevel / Permutation",
+      ],
       notes:
         "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左侧保留三张 selector 表：ShaderPlatform、FeatureLevel / QualityLevel、ShaderType / VertexFactory / Permutation；右侧保留 Material -> FMaterialResource -> FMaterialShaderMap 这一条主链。这里不展开 InlineCode 存储细节，只给一个很弱的后续锚点，让观众先建立“哪一层负责区分什么”的认知。",
       focusTarget: "InlineCode",
@@ -115,9 +193,19 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_07",
-      label: "InlineCode 如何拿到 code",
+      label: "InlineCode：运行时如何命中 ShaderCode",
       caption:
         "把左侧的分层提示全部退场，只保留最小锚点，然后把 FShaderMapResource_InlineCode 放大成主角，顺着 ResourceIndex 看它如何命中 ShaderEntries[Index] 并拿到 ShaderCode。",
+      keyPoints: [
+        "主路径是 ResourceIndex -> ShaderEntries[Index] -> ShaderCode。",
+        "Hash 是旁路元数据，不是运行时取 code 的主链。",
+      ],
+      apiHighlights: [
+        "FShaderMapResource_InlineCode",
+        "FShaderMapResourceCode",
+        "ShaderEntries[Index]",
+        "ShaderHashes[Index]",
+      ],
       notes:
         "第七页是拆页后的第二张。左侧三张 selector 表和阴影卡片全部清掉，只保留最小必要锚点：FMaterialShaderMap、FShader、ResourceIndex。腾出来的空间全部让给右侧，重点放大 FShaderMapResource_InlineCode，在其中展开 FShaderMapResourceCode、ShaderEntries[Index]、ShaderHashes[Index] 和 Cooked ShaderCode。强调主链是 Index 驱动拿 code，而 Hash 是旁路元数据。",
       focusTarget: "PSO cache",
@@ -131,9 +219,18 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_08",
-      label: "PSO cache 为什么只存 Hash",
+      label: "PSO Cache：为什么只存 Hash",
       caption:
         "上方先点出 Material 的 Cooked ShaderCode 仍然跟着资产走；下方再长出 PSO Cache，让 VS/PS Hash 只对齐到 ShaderHashes[Index]。",
+      keyPoints: [
+        "Code 仍分散在资产侧，PSO Cache 记录的是组合元数据。",
+        "PSO 的 shader 信息来自 ShaderHashes[Index]，不是直接存 ShaderCode。",
+      ],
+      apiHighlights: [
+        "PSO Cache",
+        "VS Hash / PS Hash",
+        "BlendState / DepthStencilState / RasterizerState",
+      ],
       notes:
         "第八页延续第七页的放大画布，不换坐标系。上方先用一个外部 Material 指回 Cooked ShaderCode，说明 InlineCode 下 code 仍然跟着各个资产走，并没有被共享到一个全局库里。下方再长出一个 PSO 结构表格（VS Hash、PS Hash、BlendState、DepthStencilState、RasterizerState、RT Format），连线必须从第七页的 ShaderHashes[Index] 那个位置长出来，而不是误导成从主 runtime chain 直接下去。这样就能把两个问题放在同一页上：code 还散落在各个 uasset 里，而 PSO 手里拿到的又只是 Hash。",
       focusTarget: "PSO cache",
@@ -147,9 +244,25 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_09",
-      label: "SharedCode 为什么成为必需",
+      label: "SharedCode：Hash 如何反查到 Code",
       caption:
         "SharedCode 的关键不是一句 GlobalIndex，而是两层索引：ShaderMapIndex + ResourceIndex 先得到 LibraryShaderIndex，再用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size 取出真正 code；PSO 的 Hash 也通过 ShaderHashTable 命中同一个 LibraryShaderIndex。",
+      keyPoints: [
+        "SharedCode 用 LibraryShaderIndex 把运行链与 Hash 反查链汇合。",
+        "两层索引解决“去重”和“PSO 反查 code”两个问题。",
+      ],
+      apiHighlights: [
+        "ShaderMapEntries[ShaderMapIndex]",
+        "ShaderIndicesOffset + ResourceIndex",
+        "ShaderHashTable[Hash]",
+        "ShaderEntries[LibraryShaderIndex]",
+      ],
+      relatedLinks: [
+        {
+          label: "UE Shader Code Library（官方文档）",
+          url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/shader-pipeline-cache-in-unreal-engine",
+        },
+      ],
       notes:
         "第八页延续第七页结构。split 节点从 FShaderMapResource_InlineCode 变成 FShaderMapResource_SharedCode，并新增 ShaderMapIndex。主路径变成：ShaderMapEntries[ShaderMapIndex] 先给出 ShaderIndicesOffset，再和 ResourceIndex 组合，查 ShaderIndices[ShaderIndicesOffset + ResourceIndex]，得到 LibraryShaderIndex。随后通过 ShaderEntries[LibraryShaderIndex] 里的 Offset/Size，在大二进制里切出 code。PSO 的 Hash 侧边分支则走 ShaderHashTable[Hash] 命中同一个 LibraryShaderIndex，再复用同一段下游流程。",
       focusTarget: "SharedCode",
@@ -163,9 +276,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_10",
-      label: "先回到第 5 页，再回答 ShaderLibrary",
+      label: "回到旧问题：ShaderLibrary 从何而来",
       caption:
         "这一页只做回调：先回退到第五页的旧问题，重播 `? -> !`，再把 `Material / CookedShaderCode` 收成 `ShaderLibrary`，不提前展开后面的电脑 / 手机舞台。",
+      keyPoints: [
+        "先回到第五页语义，再完成 ? -> ! 的答案转换。",
+        "Material 与 Cooked ShaderCode 在这一页收成 ShaderLibrary。",
+      ],
+      apiHighlights: ["Material", "Cooked ShaderCode", "ShaderLibrary"],
       notes:
         "第十页先不要急着露出整个 loop template。观众需要先从 SharedCode 回拉到第五页，重新看到那个 cook 问号；然后问号变成感叹号，`Material` 和 `CookedShaderCode` 再被收成一个新的 `ShaderLibrary`。电脑、手机、`.ushaderbytecode`、`.scl.csv` 和闭环路径都整体后移一页。",
       focusTarget: "ShaderLibrary",
@@ -179,9 +297,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_11",
-      label: "电脑和手机的基础舞台先落位",
+      label: "新舞台建立：Computer / Phone / .ushaderbytecode",
       caption:
         "这一页才把新的母版正式展开：左边是 `Computer`，右边是 `Phone`，而第十页的 `ShaderLibrary` 开始落成中间那条 `.ushaderbytecode`。",
+      keyPoints: [
+        "先建立 Computer 与 Phone 的稳定空间母版。",
+        "ShaderLibrary 开始落成 .ushaderbytecode 这条主中轴。",
+      ],
+      apiHighlights: ["Computer", "Phone", ".ushaderbytecode", "ShaderLibrary"],
       notes:
         "第十一页才让电脑 / 手机双极布局整体落位。这里先不要出现 `cook` 分叉，也不要出现 `.scl.csv`，只是把新的空间母版建立起来，让观众看见后面几页会在什么舞台上继续讲。",
       focusTarget: "Base Stage",
@@ -195,9 +318,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_12",
-      label: "首次 Cook 再分出第二份 .scl.csv",
+      label: "首次 Cook 补齐：再产出 .scl.csv",
       caption:
         "基础舞台已经就位之后，这一页才把首次 `cook` 讲清：电脑侧分叉，补出第二份 `.scl.csv`。",
+      keyPoints: [
+        "首次 cook 产出不仅有 .ushaderbytecode，还会有 .scl.csv。",
+        "这一页只讲电脑侧分叉，不提前进入手机运行侧。",
+      ],
+      apiHighlights: ["cook", ".ushaderbytecode", ".scl.csv"],
       notes:
         "第十二页先不要让文件去碰 `Phone`。这一页只做一件事，就是把电脑侧 `cook` 的分叉补全，让观众从“先有 `.ushaderbytecode`”进入“原来还会再分出一份 `.scl.csv`”。",
       focusTarget: "Cook Split",
@@ -211,9 +339,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_13",
-      label: "手机先吃进 .ushaderbytecode",
+      label: "运行侧接入：.ushaderbytecode 进入 Phone",
       caption:
         "两份文件关系讲清之后，这一页才第一次把 `.ushaderbytecode` 真正接到手机运行时。",
+      keyPoints: [
+        "Phone 首次吃进 .ushaderbytecode，运行侧正式落地。",
+        "本页不引入回传与 stable 流程，控制信息密度。",
+      ],
+      apiHighlights: ["Phone Runtime", ".ushaderbytecode"],
       notes:
         "第十三页让 `Phone` 成为主角，但仍然不要出现回流或 stable。这里只新增第一条真正进入运行端的线路，让 `.ushaderbytecode` 先跨过去。",
       focusTarget: ".ushaderbytecode",
@@ -227,9 +360,19 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_14",
-      label: "运行时如何收集 PSO",
+      label: "运行时采集：PSO 记录如何形成",
       caption:
         "这一页先停一下，不改主拓扑，只解释手机侧运行时到底记录了什么，以及为什么不同图形 API 会看到不同数量级的记录。",
+      keyPoints: [
+        "Phone 运行时把 ShaderHash 与 State 沉淀为 .rec.upipelinecache。",
+        "OpenGL 与 Metal 的显式程度不同，导致记录规模不同。",
+      ],
+      apiHighlights: [
+        ".rec.upipelinecache",
+        "ShaderHash + State",
+        "OpenGL",
+        "Metal",
+      ],
       notes:
         "第十四页是插入式说明页，不去抢第十三页和后续回流页的拓扑职责。画面重点放在两件事：`Phone` 不只是吃进 `.ushaderbytecode`，它还会把 Draw、ShaderHash、State 这些运行时观察收成 `.rec.upipelinecache`；同时用 `OpenGL` 对比 `Metal` / 现代显式 API，解释为什么显式 API 往往会暴露更多管线状态组合。",
       focusTarget: "Runtime Collection",
@@ -243,9 +386,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_15",
-      label: "手机开始回传 .rec.upipelinecache",
+      label: "回传开始：.rec.upipelinecache 回到电脑",
       caption:
         "保持手机放大，再从它身上长出回传腿：运行时开始把 `.rec.upipelinecache` 往电脑侧送。",
+      keyPoints: [
+        "流程从“单向下发”转为“包含回流”的闭环雏形。",
+        "本页重点是 Phone -> rec -> Computer 的回程路径。",
+      ],
+      apiHighlights: ["Phone", ".rec.upipelinecache", "Computer"],
       notes:
         "这一页不要急着生成 stable 产物，而是先把闭环真正补上一半。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
       focusTarget: ".rec.upipelinecache",
@@ -259,50 +407,210 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_16",
-      label: "expand / build 在做什么",
+      label: "Expand：把旧 Hash 提升为 StableKey",
       caption:
-        "这一页继续插入说明，不改主拓扑，只把电脑侧接下来那两个动作和四份文件各自承载的语义讲清楚。",
+        "这一页先只解释 expand，不急着讲 build：重点是为什么旧版本的 runtime 记录不能直接拿到当前版本使用，必须先借助历史 `scl.csv` 提升成 stable 语义。",
+      keyPoints: [
+        "Hash 不是跨版本稳定身份，必须先翻译回 StableKey 语义。",
+        "expand 用历史 scl.csv，把 rec 记录提升成 stablepc.csv。",
+      ],
+      apiHighlights: ["历史 .rec.upipelinecache", "历史 .scl.csv", "stablepc.csv", "Expand"],
+      relatedLinks: [
+        {
+          label: "Unreal PSO Caches（官方文档）",
+          url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine",
+        },
+      ],
       notes:
-        "第十六页还是占位说明页。核心不是再画一遍回流线，而是把 `rec.upipelinecache`、`scl.csv`、`stablepc.csv`、`stable.upipelinecache` 的职责拆开，并点明 `expand` 是把 Hash 归一成 StableKey，`build` 是把稳定键和状态重新装配成稳定记录。",
-      focusTarget: "Expand / Build",
+        "第十六页是 expand 专用说明页。观众此时最容易困惑的是：既然 `rec.upipelinecache` 里已经有 `ShaderHash + State`，为什么还需要一份 `scl.csv`？这一页要明确回答：Hash 不是跨版本稳定身份，历史 `scl.csv` 才能把旧 Hash 提升回 StableKey 视角。并且这里的 stable 指的是语义稳定，不是编译结果或 hash 本身稳定。",
+      focusTarget: "Expand",
       timingHint:
-        "沿用占位插页的统一进入退出语法，让回传页缩成背景板，再把四张文件卡和 `expand / build` 关系浮上来，最后退出到闭环页。",
+        "沿用占位插页的统一进入退出语法，让回传页缩成背景板，再把 `历史 rec.upipelinecache`、`历史 scl.csv`、`stablepc.csv` 和一个简化例子浮上来。",
       intro:
-        "手机把回流记录送回电脑之后，下一个问题通常不是『然后呢』，而是『电脑侧到底在加工什么』。",
+        "手机把回流记录送回电脑之后，第一个真正需要解释的问题不是 build，而是为什么电脑侧必须先做一次 expand。",
       manuscript:
-        "第十六页先不把 stable 闭环直接做完，而是把电脑侧的加工过程拆给观众看。`rec.upipelinecache` 里主要是运行时收集到的 `ShaderHash + State`；`scl.csv` 提供的是 `ShaderStableKey <-> ShaderHash` 的对应关系；`expand` 这一步就是利用这份对应关系，把回流来的 Hash 归一到稳定键视角；随后 `build` 会把 `ShaderStableKey + State` 重新装配成 `stablepc.csv` 这种更稳定的记录形态；最后再继续生成 `stable.upipelinecache`，作为后续编译和加载更直接可用的稳定产物。换句话说，电脑侧并不是魔法黑盒，而是在把运行时的散乱观察，逐步收束成稳定、可复用的构建输入。",
+        "第十六页先只讲 expand。`rec.upipelinecache` 里记录的是旧版本运行时真正看到的 `ShaderHash + State`，但 `ShaderHash` 本身不是跨版本稳定身份。只要 shader 代码生成、共享方式或者编译结果变了，旧 Hash 就可能失效。所以电脑侧必须拿历史版本的 `scl.csv`，把旧 `ShaderHash` 重新翻译回 `ShaderStableKey` 视角，再和原来的状态一起整理成 `stablepc.csv`。这里的 stable 指的是语义稳定，不是 hash 稳定。比如旧版本里两个 `StableKey` 可能恰好落到同一个旧 `ShaderHash`，运行时只记到一条 Hash 记录；expand 之后，这条记录会重新展开成两个 `StableKey + State` 组合。也就是说，expand 的意义不是重命名文件，而是把旧 runtime 观察提升回跨版本还能理解的 stable 语义。",
       focusColorKey: "shared",
     },
     {
       id: "page_17",
-      label: "电脑 expand，stable 再回到手机，闭环完成",
+      label: "Build：把 StableKey 映射回当前 Hash",
       caption:
-        "最后把电脑侧的 `expand`、`stablepc.csv`、`stable.upipelinecache` 和回到手机的那一条线压进同一页，让收集、构建、再使用真正闭合。",
+        "这一页再单独解释 build：stable 语义还不能直接拿来运行，必须再结合当前版本的 `scl.csv`，重新落回当前版本可用的 hash 世界。",
+      keyPoints: [
+        "build 使用“当前版本 scl.csv”完成 StableKey -> Hash 映射。",
+        "stablepc.csv 经 build 产出 stable.upipelinecache 供当前版本使用。",
+      ],
+      apiHighlights: ["stablepc.csv", "当前 .scl.csv", "stable.upipelinecache", "Build"],
+      relatedLinks: [
+        {
+          label: "Pipeline Cache 概览（Khronos）",
+          url: "https://www.khronos.org/opengl/wiki/Program_Binary",
+        },
+      ],
       notes:
-        "因为占位插页把旧主线继续顺延，这一页要把原来分开的“电脑侧 expand”与“stable 回到手机”压缩到同一拍里。先看电脑侧把 `.rec.upipelinecache` 和 `.scl.csv` 整理成 `stablepc.csv` 与 `stable.upipelinecache`，再看到 `stable.upipelinecache` 回到手机。",
-      focusTarget: "Closed Loop",
+        "第十七页是 build 专用说明页。这里必须强调 `.scl.csv` 这次已经不是历史版本那份，而是当前版本的映射字典。`build` 的职责，是把 `stablepc.csv` 里的 `StableKey + State` 再投影回当前版本的 `ShaderHash + State`，形成真正可供当前包体消费的 `stable.upipelinecache`。",
+      focusTarget: "Build",
       timingHint:
-        "先让电脑侧 `expand` 和 stable band 长出来，再在同一页后半拍把 `stable.upipelinecache -> 手机` 那一笔补上。",
+        "保持 onepage 轻量图解，只讲 `stablepc.csv + 当前 scl.csv -> stable.upipelinecache`，并在底部给出稳定键重新映射成当前 hash 的例子。",
       intro:
-        "只有当电脑把回流记录整理成 stable 产物，并且 stable 结果也真正回到手机侧，这套收集、构建、使用流程才算闭合完成。",
+        "expand 把旧 hash 提升成 stable 语义之后，还差最后一步：怎么把这些 stable 语义重新落回当前版本。",
       manuscript:
-        "到了第十七页，电脑侧终于承担起整理工作。手机送回来的 `.rec.upipelinecache` 会先进入 `expand` 过程，与前面已经出现过的 `.scl.csv` 一起整理出 `stablepc.csv` 和 `stable.upipelinecache`。然后这份 `stable.upipelinecache` 不会停在电脑侧，而是会再次回到手机继续使用。这样一来，手机负责运行与收集，电脑负责整理与稳定化，而稳定结果又重新喂回手机。PSO 的收集、构建、使用，到这里才真正形成一个闭合的完整流程。",
+        "第十七页只讲 build。expand 结束之后，电脑侧手里已经有 `stablepc.csv`，里面是 `ShaderStableKey + State`。但这仍然不是当前版本运行时能直接消费的格式，所以还需要拿当前版本的 `scl.csv`，把 `StableKey` 再映射回当前版本的 `ShaderHash`，最终生成 `stable.upipelinecache`。这一步的意义，是把 stable 语义重新落回当前版本。比如第十六页里 expand 得到了两条 `StableKey + State`，而当前版本的 `scl.csv` 可能会把它们重新映射成两个新的 `ShaderHash`；这样 build 出来的就会是两条当前版本可用的 PSO 记录。也就是说，build 不是重复 expand，而是把 stable 语义重新装配成当前版本真正能拿来预编译和加载的缓存表达。",
       focusColorKey: "shared",
     },
     {
       id: "page_18",
-      label: "预编译怎么发生",
+      label: "闭环落地：stable.upipelinecache 回到手机",
       caption:
-        "闭环做完之后，最后再补一张说明页：预编译吃的是稳定化后的缓存形态，但不同图形 API 仍然会在编译次数上拉开差距。",
+        "说明页讲完之后，回到主流程舞台，把 `stable.upipelinecache` 真正接回手机侧，让收集、构建、再使用完整闭合。",
+      keyPoints: [
+        "expand + build 的结果回到 Phone，闭环真正完成。",
+        "这一页只做主舞台收束，不再新增概念层。",
+      ],
+      apiHighlights: ["stable.upipelinecache", "Phone", "Closed Loop"],
       notes:
-        "第十八页作为最后一张占位说明页，重点不是再讲闭环，而是解释 `stable.upipelinecache` 进入预编译之后发生什么，以及为什么 `OpenGL` 和 `Metal` 在 compile-count 上常常不同。",
+        "第十八页不再是 onepage 说明，而是主舞台闭环页。观众已经在 page16 和 page17 分别理解了 expand 与 build，所以这一页只需要把 stable band 和 `stable.upipelinecache -> 手机` 压回主舞台，读成完整闭合即可。",
+      focusTarget: "Closed Loop",
+      timingHint:
+        "先恢复 page15 的回流主舞台，再长出 stable band 和 `stable -> 手机` 那一笔，让闭环在同一页收束完成。",
+      intro:
+        "现在 expand 和 build 都解释清楚了，终于可以回到主流程，把稳定产物真正送回手机使用。",
+      manuscript:
+        "第十八页回到主流程舞台。手机送回来的 `.rec.upipelinecache` 已经在电脑侧经过 expand 整理成 `stablepc.csv`，又经过 build 变成 `stable.upipelinecache`。现在这一份 stable 产物终于再次回到手机侧继续使用。这样一来，手机负责运行与收集，电脑负责把旧 Hash 提升成 stable 语义，再把 stable 语义落回当前版本，最后 stable 结果重新喂回手机。PSO 的收集、构建、使用，到这里才真正闭合。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_19",
+      label: "预编译：stable 缓存入内存 PSO",
+      caption:
+        "先讲第一段：stable.upipelinecache 被批次消费，转成 API 侧内存中 PSO。",
+      keyPoints: [
+        "输入来自 stable.upipelinecache。",
+        "这一页只讲“进入内存 PSO”，先不展开持久化差异。",
+      ],
+      apiHighlights: ["stable.upipelinecache", "Precompile", "内存中 PSO"],
+      notes:
+        "第十九页只保留左半段流程图：`stable.upipelinecache -> 预编译 -> 内存中 PSO`。这页不塞 API 细节，不塞对比表，只建立输入到内存态的直线语义。",
       focusTarget: "Precompile",
       timingHint:
-        "让闭环页缩退成背景，单独浮出预编译说明板。停留时突出 `stable.upipelinecache -> precompile`，同时在右侧给出 `OpenGL / Metal` 编译次数差异的解释。",
+        "让 page18 缩退后，先拉出左半页，强调直线主链，不做复杂注释。",
       intro:
-        "闭环已经成立，但观众往往还会继续追问：既然已经稳定化了，后面的预编译又是怎么发生的。",
+        "闭环成立后，先回答预编译第一问：稳定缓存如何进入运行时内存态。",
       manuscript:
-        "第十八页专门回答预编译。输入侧吃进来的已经不是原始运行时观察，而是稳定化后的 `stable.upipelinecache`。接下来，系统会沿着 `StableKey / State -> build pipeline -> 预编译` 这条链，把这些稳定记录转成真正要提前准备的管线对象。这里还要顺带补一句经常被忽略的现实差异：即使都从 `stable.upipelinecache` 出发，`OpenGL` 通常仍然只会落到更少的 compile target，因为它保留了更多隐式状态和驱动侧处理；`Metal` 这类显式 API 则往往会暴露更多明确组合，因此预编译阶段看到的编译次数也会更多。也就是说，稳定缓存解决的是输入组织问题，但不同 API 的显式程度，依旧会决定最终预编译的工作量。",
+        "第十九页把问题拆开。先只看第一段：`stable.upipelinecache` 进入预编译批次后，分别落到 API 侧的内存中 PSO。这一步解决的是“输入组织到内存对象”的转换，不讨论落盘，不讨论数量差异。画面上保持主链直线，避免视觉负担。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_20",
+      label: "预编译：内存 PSO 持久化",
+      caption:
+        "再讲第二段：内存中 PSO 如何落盘，以及 OpenGL / Vulkan / Metal 的持久化路径差异。",
+      keyPoints: [
+        "OpenGL / Vulkan 常见引擎侧导出路径更显式。",
+        "Metal 多由系统管理，最终编译数量与行为统计常不同。",
+        "本地缓存并非永久有效：OS / 驱动 / GPU 芯片代际 / 图形栈版本变化都可能触发失效。",
+      ],
+      apiHighlights: ["OpenGL", "Vulkan", "Metal", "ProgramBinaryCache", "VulkanPSO.cache", "functions.data"],
+      relatedLinks: [
+        {
+          label: "Metal Pipeline State（Apple）",
+          url: "https://developer.apple.com/documentation/metal/mtlrenderpipelinestate",
+        },
+      ],
+      notes:
+        "第二十页承接第十九页的 `内存中 PSO`，只画右半段：`内存中 PSO -> API 导出路径 -> 磁盘缓存`。采用三条平行直线，并在底部加一条“缓存失效条件”提示，不引入额外分支。",
+      focusTarget: "Precompile Persist",
+      timingHint:
+        "从 page19 到 page20 采用横向推入，保留共享锚点语义，减少透明度闪烁。",
+      intro:
+        "第一段讲完了输入如何变成内存态，第二段补齐“如何持久化”和“为何数量不同”。",
+      manuscript:
+        "第二十页只做一件事：把第十九页的 `内存中 PSO` 往右继续推，得到三条 API 的持久化路径。OpenGL 对应 ProgramBinary 类缓存，Vulkan 对应 PipelineCache 类缓存，而 Metal 通常更多由系统托管。即使输入都来自稳定缓存，这三条路径的显式程度不同，最终统计到的预编译数量和命中行为也会不同。这里要加一个特别提示：本地缓存不是永久有效，操作系统版本、GPU 驱动版本、芯片代际、图形 API/FeatureLevel 或引擎 shader 格式版本发生变化时，都可能导致缓存失效。失效后常见表现是缓存命中下降并触发重新编译，或者旧二进制直接不可加载。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_21",
+      label: "优化方向 1：卸掉 Code 压缩",
+      caption:
+        "先把压缩与解压链路单独拎出来：压缩省 IO，但解压吃 CPU 与带宽，是否保留应看瓶颈位置。",
+      keyPoints: [
+        "压缩收益主要在包体与 IO，解压成本主要在启动 CPU 路径。",
+        "当 IO 已不再是瓶颈时，可评估“卸掉压缩”换取更短启动链路。",
+      ],
+      apiHighlights: ["Compressed Code", "Decompress", "Compile/Load"],
+      notes:
+        "这一页作为后续优化章节的第一张占位页，只回答一个问题：为什么我们要讨论“卸掉压缩”。不做绝对判断，强调这是瓶颈导向决策。",
+      focusTarget: "Compression Tradeoff",
+      timingHint:
+        "由 page20 稳定落位后，左到右拉出 `Compressed -> Decompress -> Compile` 主轴，底部再补一条 `IO` 与 `CPU` 对冲结论条。",
+      intro:
+        "预编译链路说明完以后，先从最直接的优化讨论开始：压缩到底要不要留。",
+      manuscript:
+        "第二十一页先不谈复杂实现，只看一件事：`Code 压缩`。压缩通常能降低包体与 IO 压力，但运行时必须付出解压成本，这部分会直接占用启动阶段的 CPU 与内存带宽。如果当前平台瓶颈已经从 IO 转到了 CPU，那么“继续压缩”反而可能拉长首帧路径。因此这一步不是默认开启或默认关闭，而是基于瓶颈画像做取舍。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_22",
+      label: "优化方向 2：BCache 基础策略",
+      caption:
+        "用一页讲清缓存的基础治理：LRU / LFU、mmap、circular/ring，本质是 IO 换空间。",
+      keyPoints: [
+        "缓存不是越大越好，核心是命中模型与介质特性匹配。",
+        "LRU/LFU 决定淘汰，mmap 与 ring 决定读写路径与拷贝成本。",
+      ],
+      apiHighlights: ["BCache", "LRU", "LFU", "mmap", "ring"],
+      notes:
+        "第二十二页做策略占位，后续可把每个策略替换成项目里真实实现细节。现在先让观众理解“缓存调参是在做 IO/空间互换”。",
+      focusTarget: "Cache Strategy",
+      timingHint:
+        "中心先出现 BCache，再从中心长出四个策略分支，最后底部落一句 `IO 换空间`。",
+      intro:
+        "如果要继续优化，第二层是缓存策略，而不是一味堆更多编译线程。",
+      manuscript:
+        "第二十二页把 BCache 的思路先固定：这是一次典型的 IO 与空间交换。`LRU/LFU` 决定热数据保留，`mmap` 影响大对象读取与拷贝成本，`circular/ring` 影响顺序写入与回收。真正有效的方案不是把所有策略都开到最大，而是让策略与数据访问形态一致。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_23",
+      label: "优化方向 3：编译加速",
+      caption:
+        "编译优化拆成两条线：多线程提升吞吐，UsageMask 缩小编译集合，组合后才更稳。",
+      keyPoints: [
+        "先减少待编译集合，再并行化执行，通常优于盲目加线程。",
+        "UsageMask 让“能编的全部编”变成“按使用场景编”。",
+      ],
+      apiHighlights: ["Compile Queue", "Multi-thread", "UsageMask"],
+      notes:
+        "这一页的占位重点是把“并行”和“剪枝”放在同一张图里，防止后续讲述偏成单一线程优化。",
+      focusTarget: "Compile Acceleration",
+      timingHint:
+        "左侧先给 baseline 编译队列，右上长出多线程 worker，右下长出 UsageMask 分桶，最后在右端汇合到 reduced compile set。",
+      intro:
+        "第三层优化进入编译流程本身：我们既要更快执行，也要编得更少。",
+      manuscript:
+        "第二十三页把编译加速拆成两件事。第一是并行：通过多线程队列提高吞吐；第二是剪枝：通过 UsageMask 过滤不该在当前阶段编译的内容。只做并行而不减集合，常常会把开销搬到线程调度与资源竞争上。更稳定的路径是先减集合、再并行执行。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_24",
+      label: "优化方向 4：Metal vs OpenGL 差异来源",
+      caption:
+        "把差异归因到“状态来源与显式程度”本身：不是谁绝对更优，而是模型不同导致统计行为不同。",
+      keyPoints: [
+        "OpenGL 更偏驱动侧隐式状态，Metal 更偏显式状态组合。",
+        "编译数量与命中行为差异，核心来自状态来源路径差异。",
+      ],
+      apiHighlights: ["OpenGL PSO", "Metal PSO", "State Source"],
+      notes:
+        "最后一页占位用于收束差异来源，后续可继续补充平台实测数据与口径说明。",
+      focusTarget: "State Source",
+      timingHint:
+        "双栏同时落位：左 OpenGL，右 Metal，中间先出现 state-source 桥，再落底部结论条收束。",
+      intro:
+        "最后把最容易误读的点说清：Metal 和 OpenGL 的差异，来自状态模型本身。",
+      manuscript:
+        "第二十四页不做价值判断，只做来源解释。OpenGL 的部分状态更偏驱动隐式管理，而 Metal 的状态组合更显式，因而在编译数量、缓存命中和观测统计上会呈现不同分布。也就是说，差异的根因是状态来源路径不同，而不是单一 API 的优劣标签。",
       focusColorKey: "shared",
     },
   ],
