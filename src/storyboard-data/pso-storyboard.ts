@@ -4,12 +4,12 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, bridge into the UE asset cook flow, then split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, insert explanatory placeholder pages for runtime collection, expand, build, and split precompile into two pages. Pages 21-24 reserve practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences.",
   sessions: [
     {
       id: "s1-foundation",
       label: "Session 1 · 抽象模型到图形 API",
-      stepIds: ["page_01", "page_02", "page_03", "page_04"],
+      stepIds: ["page_01", "page_02", "page_03", "page_04", "page_04_data"],
     },
     {
       id: "s2-ue-shader",
@@ -19,17 +19,30 @@ export const masterStoryboard: Storyboard = {
     {
       id: "s3-runtime-loop",
       label: "Session 3 · 运行时收集与回传闭环",
-      stepIds: ["page_11", "page_12", "page_13", "page_14", "page_15"],
+      stepIds: [
+        "page_11",
+        "page_12",
+        "page_13",
+        "page_14",
+        "page_13_img",
+        "page_15_img",
+        "page_15",
+      ],
     },
     {
       id: "s4-stable-precompile",
       label: "Session 4 · Expand / Build / 预编译",
-      stepIds: ["page_16", "page_17", "page_18", "page_19", "page_20"],
+      stepIds: ["page_16", "page_17", "page_18", "page_18_img", "page_19", "page_20"],
     },
     {
-      id: "s5-optimization-notes",
-      label: "Session 5 · 预留优化方向",
-      stepIds: ["page_21", "page_22", "page_23", "page_24"],
+      id: "s5-awareness-bridge",
+      label: "Session 5 · 总结与风险认知",
+      stepIds: ["page_21", "page_22", "page_23"],
+    },
+    {
+      id: "s6-optimization-notes",
+      label: "Session 6 · 预留优化方向",
+      stepIds: ["page_24", "page_25", "page_26", "page_27"],
     },
   ],
   steps: [
@@ -73,10 +86,11 @@ export const masterStoryboard: Storyboard = {
       id: "page_03",
       label: "OpenGL：运行时组装 Program",
       caption:
-        "把 Raw ShaderCode 先 compile 成 Binary ShaderCode，再经过 link 得到 Program；这一组还可以提前缓存成可复用产物，最后和状态一起喂给 GPU。",
+        "把 Raw ShaderCode 先 compile 成 Binary ShaderCode，再经过 link 得到 Program；这一页只讲结构和调用链。",
       keyPoints: [
         "Shader 在运行时经历 compile -> link -> use 的链路。",
         "Depth/Blend 等状态调用与 Program 一起汇入 GPU。",
+        "平均耗时数据独立放到下一页，避免主图拥挤。",
       ],
       notes:
         "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。这里左边最重要的是 Raw ShaderCode 经由 glCompileShader() 变成 Binary ShaderCode，再通过 glLinkProgram() 组织成 Program，随后还可以用 glGetProgramBinary() 把这一组取回做缓存；最后由 glUseProgram() 往下启用。右边的 Depth、Blend 继续通过 Graphics API 调用往下配置到 GPU。",
@@ -112,10 +126,11 @@ export const masterStoryboard: Storyboard = {
       id: "page_04",
       label: "Vulkan：预组装 PSO",
       caption:
-        "把 Raw ShaderCode 更早整理成 SPIR-V ShaderCode，再连同状态先收进 Description 和 PSO；这一组还能通过缓存数据复用，运行时只保留更少的高亮调用。",
+        "把 Raw ShaderCode 更早整理成 SPIR-V ShaderCode，再连同状态先收进 Description 和 PSO；保持结构主线干净。",
       keyPoints: [
         "SPIR-V 与状态先进入 Description，再创建 PSO。",
         "运行时从“多调用”变成“以绑定 PSO 为主”的路径。",
+        "下一页再独立展示平均耗时数据。",
       ],
       notes:
         "第四页继承第三页的底部主轴和上方输入分区，不重画结构，而是在保持 Raw ShaderCode -> SPIR-V ShaderCode 这条 Vulkan shader 路径的同时，把 SPIR-V、Depth、Blend 先收进一份 Description，再由 create 过程生成 PSO。这个预处理区还能通过 vkGetPipelineCacheData() 取回缓存；真正高亮的只剩下运行时那一条绑定线。",
@@ -143,6 +158,27 @@ export const masterStoryboard: Storyboard = {
         },
       ],
       focusColorKey: "vulkan",
+    },
+    {
+      id: "page_04_data",
+      label: "数据页：OpenGL / Vulkan 平均耗时",
+      caption:
+        "在进入 UE Cook 前单独停一页，用一张纯表格展示 Link/Create/Bind 的 Min/Max/Avg 对比。",
+      keyPoints: [
+        "列结构固定为 Min / Max / Avg（单元格格式 Nubia / Pixel 7）。",
+        "行结构覆盖 Link、Create、Bind（GL 与 VK 两类 Bind 都显示）。",
+        "这一页不再放卡片容器，直接表格直出。",
+      ],
+      notes:
+        "这一页是纯数据插页，和补充图片页采用同一类过渡思路：先淡入数据表，结束前淡出，再进入 page_05 的资产主线。",
+      focusTarget: "平均耗时",
+      timingHint:
+        "固定背景结构，数据卡片淡入淡出，不引入额外连线或节点移动。",
+      intro:
+        "先给观众一个数据锚点，再切到 UE Cook 主线。",
+      manuscript:
+        "第四页和第五页之间增加一个纯数据页。这里不再讲结构，只展示一张表：列是 Min/Max/Avg，行覆盖 Link（glLinkProgram）、Create（CreateGfxPipeline）以及 Bind（BindProgramPipeline / BindGfxPipeline）。单元格统一用 Nubia/Pixel 7 双值表达，帮助观众在同一页读出分布范围与平均值，再切回 UE Cook 主线。",
+      focusColorKey: "shared",
     },
     {
       id: "page_05",
@@ -385,6 +421,48 @@ export const masterStoryboard: Storyboard = {
       focusColorKey: "shared",
     },
     {
+      id: "page_13_img",
+      label: "插页证据：运行时卡顿现场",
+      caption:
+        "独立插入一页全屏证据图，只讲“为什么要做 PSO 这套前置流程”。",
+      keyPoints: [
+        "这一页不讲新结构，只给观众一个直观痛点锚点。",
+        "切出时图片淡出，再衔接下一张 rec 证据图。",
+      ],
+      apiHighlights: ["PSO-卡顿", "运行时抖动", "证据页"],
+      notes:
+        "这是第一张补充证据插页，位置固定在 page14 和 page15 之间。目的不是加信息密度，而是先把“卡顿痛点”视觉化。",
+      focusTarget: "Stutter Evidence",
+      timingHint:
+        "本页只保留整页图片。进入淡入，退出淡出，然后继续主线。",
+      intro:
+        "先讲完 page14 采集机制，再给第一张痛点证据图。",
+      manuscript:
+        "这一页是证据插页。我们先不加新节点，只看一张运行时卡顿现场图：目的是把“为什么需要 PSO cache 前置流程”直观地钉在观众脑子里。看完后不直接跳回流程，而是再接一张 rec 实物图，最后再回到 page15 的回传路径。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_15_img",
+      label: "插页证据：rec 文件样例",
+      caption:
+        "第二张独立插页，继续放在 page14 和 page15 之间，用于展示 rec 文件实物。",
+      keyPoints: [
+        "证明“收集”不是抽象动作，而是真的落成文件。",
+        "两张证据图播完后再进入 page15 回传页。",
+      ],
+      apiHighlights: [".rec.upipelinecache", "Runtime Capture", "证据页"],
+      notes:
+        "第二张补充证据插页，位置放在 page14 与 page15 之间。用于强化“收集结果可落盘、可回传”的可信度。",
+      focusTarget: "rec Evidence",
+      timingHint:
+        "整页图片展示，切出淡出后直接进入 page15 回传页。",
+      intro:
+        "卡顿图之后紧接 rec 实物图，让观众把“痛点 -> 采集产物”连起来。",
+      manuscript:
+        "这页只做一件事：展示 `.rec.upipelinecache` 的实物证据。我们前面已经讲了收集与回传路径，现在用一张图把它落到真实文件层，帮助观众把“运行时观测 -> 文件化结果”建立成稳定记忆。",
+      focusColorKey: "shared",
+    },
+    {
       id: "page_15",
       label: "回传开始：.rec.upipelinecache 回到电脑",
       caption:
@@ -395,12 +473,12 @@ export const masterStoryboard: Storyboard = {
       ],
       apiHighlights: ["Phone", ".rec.upipelinecache", "Computer"],
       notes:
-        "这一页不要急着生成 stable 产物，而是先把闭环真正补上一半。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
+        "这页接在两张证据图之后，正式回到主拓扑。`Phone` 仍然是主角，只在顶部长出 `.rec.upipelinecache`，并且让它沿着回程路径往电脑侧回送。",
       focusTarget: ".rec.upipelinecache",
       timingHint:
         "保持手机侧高亮，新增 `Phone -> rec -> Computer` 这一圈回传路径，让观众第一次读到真正的回流。",
       intro:
-        "手机先吃进 bytecode 之后，接下来最重要的问题就是：运行时会不会把自己的收集结果送回来。",
+        "痛点和收集产物都看过后，回到主线回答：运行时结果如何送回电脑侧。",
       manuscript:
         "第十五页继续让手机侧保持主角，但语义发生了变化。`Phone` 不再只是接收 `.ushaderbytecode`，它还会在运行时把收集到的结果整理成 `.rec.upipelinecache`，并沿着回程路径送回电脑侧。到这里，PSO 这套流程终于不再是单向分发，而是第一次出现完整的回流半圈。",
       focusColorKey: "shared",
@@ -481,6 +559,27 @@ export const masterStoryboard: Storyboard = {
       focusColorKey: "shared",
     },
     {
+      id: "page_18_img",
+      label: "插页证据：预编译平滑高峰",
+      caption:
+        "在进入预编译细节前，先给一页结果图：前置后高峰被平滑。",
+      keyPoints: [
+        "先看结果，再讲机制，降低后续理解门槛。",
+        "本页是视觉证据，不新增结构节点。",
+      ],
+      apiHighlights: ["PSO预编译解决高峰", "峰值平滑", "证据页"],
+      notes:
+        "第三张补充证据插页。位置放在闭环完成后、预编译章节前，用于建立“这套流程值得做”的结果导向认知。",
+      focusTarget: "Peak Smoothing Evidence",
+      timingHint:
+        "整页图片淡入，退出淡出后切到 page19 进入预编译流程解释。",
+      intro:
+        "闭环讲完，先看结果图，再进入预编译分解。",
+      manuscript:
+        "这页给出“预编译解决高峰”的结果证据。目的是先让听众看见收益，再进入 page19 去讲 stable 缓存如何进入内存 PSO、page20 再讲如何持久化。这样观众会更容易接受后面的机制细节。",
+      focusColorKey: "shared",
+    },
+    {
       id: "page_19",
       label: "预编译：stable 缓存入内存 PSO",
       caption:
@@ -531,6 +630,82 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_21",
+      label: "我的理解：预编译成本转移",
+      caption:
+        "PSO 是对象，PSO Cache 是工程方法：用启动时间和内存空间，换运行时卡顿率。",
+      keyPoints: [
+        "PSO 是一个东西，PSO Cache 是一个工程方法。",
+        "PSO Cache 本质是用启动时间 + 内存空间，换运行时卡顿率。",
+        "它附属于 Shader，不是所有项目都必须启用；没有 PSO Cache 的项目也可能跑得很好。",
+        "这套方法代价并不小，甚至常常比想象中更大。",
+        "一句话记忆：预编译的 PSO 不会消失，只会转移。",
+      ],
+      apiHighlights: ["Material", "SharedCode", ".rec.upipelinecache", "stable.upipelinecache", "ProgramBinary/PipelineCache"],
+      notes:
+        "这页聚焦“概念澄清 + 代价意识”，不展开算法细节。让观众先知道 PSO Cache 不是免费午餐。",
+      focusTarget: "Bridge Summary",
+      timingHint:
+        "从 page20 推入后先讲定义，再讲代价，最后落一句“不会消失，只会转移”。",
+      intro:
+        "在进入优化细节前，先把“PSO vs PSO Cache”这个概念边界彻底讲清。",
+      manuscript:
+        "第二十一页先讲清一个很关键的边界：PSO 是一个东西，PSO Cache 是一种工程方法。这个方法本质上并不是“把问题消灭”，而是把代价在时间维度上做重分配，用启动时间和内存空间去换运行时卡顿率。它附属于 Shader，不是所有项目都必须开启；没有 PSO Cache 的项目也可能运行得很好。反过来说，这个方法的代价不小，往往比直觉更大。把它放回主线里看，就是 Material/ShaderCode 进入 SharedCode，运行时收集后再生成 stable.upipelinecache。可以用一句话收束：预编译的 PSO 不会消失，只会转移。通常是从运行时卡顿，转移到首启等待。工程优先级通常也是先保运行时帧稳定，再看首次启动时长。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_22",
+      label: "PSO 本质提醒：缓存有效性依赖运行环境",
+      caption:
+        "进一步讲工程代价来源：收集策略、启动 Open 策略、API 状态模型差异，以及缓存失效边界。",
+      keyPoints: [
+        "运行时收集要“尽量少”又“尽量全”；如果暴力 Permute Shader State，数量会指数增长。",
+        "启动时 Open 策略常见是一把 Load stable.upipelinecache，单次内存和时长压力都很大。",
+        "OpenGL 没有完整管线状态（更多是 Shader 维度），与现代 API 的 PSO 结构假设不同。",
+        "同时还要面对环境失效：操作系统/驱动/芯片变化会触发缓存失效。",
+      ],
+      apiHighlights: ["Permute Shader State", "stable.upipelinecache Open/Load", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
+      notes:
+        "这页从“代价是怎么来的”切入，再回收“为什么要分桶管理缓存失效”。",
+      focusTarget: "Cache Validity",
+      timingHint:
+        "先讲收集与启动阶段的压力，再补 OpenGL 与现代 API 差异，最后落到失效边界。",
+      intro:
+        "定义讲清后，下一步是让观众看到这套方法为什么在工程上“贵”。",
+      manuscript:
+        "第二十二页把成本来源拆开讲。第一层是运行时收集策略：PSO Cache 既要尽量少又要尽量全面，如果我们试图把 Shader State 全部 Permute 出来，数量会是指数级增长。第二层是启动时 Open 策略：引擎原生通常只在启动时 Load 一次 `stable.upipelinecache`，这会把内存压力和单次加载时长集中到首启窗口。第三层是 API 模型差异：OpenGL 没有完整管线状态，更多是 Shader 维度，而现代 API（如 Vulkan/Metal）对管线状态更显式，收集与命中形态天然不同。最后还要补边界：本地缓存本质是环境相关产物，操作系统、驱动、芯片和 API/FeatureLevel 变化都可能触发失效。也就是说，前置不等于消失，工程上仍然要做收集-构建-回灌，并按环境指纹分桶管理。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_23",
+      label: "补充证据：OpenGL / Vulkan 性能表",
+      caption:
+        "把 Supplement 里的多机型实测指标整理成一页表格，直接对比 OpenGL 与 Vulkan 的总量与热点差异。",
+      keyPoints: [
+        "数据源：Supplement/耗时Insight/MinePSO_耗时对比分析（Nubia Z60 Ultra + Pixel 7）。",
+        "Nubia：OpenGL 0.795s / Vulkan 1.440s。",
+        "Pixel 7：OpenGL 1.453s / Vulkan 2.526s。",
+        "热点稳定落在 Link/Compile/Create Pipeline，表格用于承接最早的 OpenGL/Vulkan 结构图。",
+      ],
+      apiHighlights: [
+        "Nubia Z60 Ultra",
+        "Pixel 7",
+        "OpenGL 0.795s / 1.453s",
+        "Vulkan 1.440s / 2.526s",
+        "CreateGfxPipeline",
+      ],
+      notes:
+        "这页是纯证据表格页，建议先让观众扫“设备 + API + 总量”，再看每行热点构成。",
+      focusTarget: "Evidence Anchor",
+      timingHint:
+        "先横向比较两台机器的总量，再纵向比较同机型 OpenGL vs Vulkan，最后回收“前置不是免费午餐”。",
+      intro:
+        "讲完方法和边界后，用一页实测表格把抽象概念落地。",
+      manuscript:
+        "第二十三页是实测表格页，不引入新概念。数据来自 Supplement 的 `MinePSO_耗时对比分析`：Nubia Z60 Ultra 上，OpenGL 总计 0.795s、Vulkan 总计 1.440s；Pixel 7 上，OpenGL 总计 1.453s、Vulkan 总计 2.526s。热点形态也一致落在 `glLinkProgram / glCompileShader` 与 `CreateGfxPipeline / CreateComputePipeline`。这页的作用是把最早那张 OpenGL/Vulkan 结构图，接到跨设备的真实测量数据上，让听众看到“结构差异会稳定落成不同的热点分布”。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_24",
       label: "优化方向 1：卸掉 Code 压缩",
       caption:
         "先把压缩与解压链路单独拎出来：压缩省 IO，但解压吃 CPU 与带宽，是否保留应看瓶颈位置。",
@@ -540,18 +715,18 @@ export const masterStoryboard: Storyboard = {
       ],
       apiHighlights: ["Compressed Code", "Decompress", "Compile/Load"],
       notes:
-        "这一页作为后续优化章节的第一张占位页，只回答一个问题：为什么我们要讨论“卸掉压缩”。不做绝对判断，强调这是瓶颈导向决策。",
+        "这一页作为优化章节的第一张占位页，只回答一个问题：为什么我们要讨论“卸掉压缩”。不做绝对判断，强调这是瓶颈导向决策。",
       focusTarget: "Compression Tradeoff",
       timingHint:
-        "由 page20 稳定落位后，左到右拉出 `Compressed -> Decompress -> Compile` 主轴，底部再补一条 `IO` 与 `CPU` 对冲结论条。",
+        "由 page22 稳定落位后，左到右拉出 `Compressed -> Decompress -> Compile` 主轴，底部再补一条 `IO` 与 `CPU` 对冲结论条。",
       intro:
-        "预编译链路说明完以后，先从最直接的优化讨论开始：压缩到底要不要留。",
+        "边界讲清之后，先从最直接的优化讨论开始：压缩到底要不要留。",
       manuscript:
-        "第二十一页先不谈复杂实现，只看一件事：`Code 压缩`。压缩通常能降低包体与 IO 压力，但运行时必须付出解压成本，这部分会直接占用启动阶段的 CPU 与内存带宽。如果当前平台瓶颈已经从 IO 转到了 CPU，那么“继续压缩”反而可能拉长首帧路径。因此这一步不是默认开启或默认关闭，而是基于瓶颈画像做取舍。",
+        "第二十四页先不谈复杂实现，只看一件事：`Code 压缩`。压缩通常能降低包体与 IO 压力，但运行时必须付出解压成本，这部分会直接占用启动阶段的 CPU 与内存带宽。如果当前平台瓶颈已经从 IO 转到了 CPU，那么“继续压缩”反而可能拉长首帧路径。因此这一步不是默认开启或默认关闭，而是基于瓶颈画像做取舍。",
       focusColorKey: "shared",
     },
     {
-      id: "page_22",
+      id: "page_25",
       label: "优化方向 2：BCache 基础策略",
       caption:
         "用一页讲清缓存的基础治理：LRU / LFU、mmap、circular/ring，本质是 IO 换空间。",
@@ -561,18 +736,18 @@ export const masterStoryboard: Storyboard = {
       ],
       apiHighlights: ["BCache", "LRU", "LFU", "mmap", "ring"],
       notes:
-        "第二十二页做策略占位，后续可把每个策略替换成项目里真实实现细节。现在先让观众理解“缓存调参是在做 IO/空间互换”。",
+        "这一页做策略占位，后续可把每个策略替换成项目里真实实现细节。现在先让观众理解“缓存调参是在做 IO/空间互换”。",
       focusTarget: "Cache Strategy",
       timingHint:
         "中心先出现 BCache，再从中心长出四个策略分支，最后底部落一句 `IO 换空间`。",
       intro:
         "如果要继续优化，第二层是缓存策略，而不是一味堆更多编译线程。",
       manuscript:
-        "第二十二页把 BCache 的思路先固定：这是一次典型的 IO 与空间交换。`LRU/LFU` 决定热数据保留，`mmap` 影响大对象读取与拷贝成本，`circular/ring` 影响顺序写入与回收。真正有效的方案不是把所有策略都开到最大，而是让策略与数据访问形态一致。",
+        "第二十五页把 BCache 的思路先固定：这是一次典型的 IO 与空间交换。`LRU/LFU` 决定热数据保留，`mmap` 影响大对象读取与拷贝成本，`circular/ring` 影响顺序写入与回收。真正有效的方案不是把所有策略都开到最大，而是让策略与数据访问形态一致。",
       focusColorKey: "shared",
     },
     {
-      id: "page_23",
+      id: "page_26",
       label: "优化方向 3：编译加速",
       caption:
         "编译优化拆成两条线：多线程提升吞吐，UsageMask 缩小编译集合，组合后才更稳。",
@@ -589,11 +764,11 @@ export const masterStoryboard: Storyboard = {
       intro:
         "第三层优化进入编译流程本身：我们既要更快执行，也要编得更少。",
       manuscript:
-        "第二十三页把编译加速拆成两件事。第一是并行：通过多线程队列提高吞吐；第二是剪枝：通过 UsageMask 过滤不该在当前阶段编译的内容。只做并行而不减集合，常常会把开销搬到线程调度与资源竞争上。更稳定的路径是先减集合、再并行执行。",
+        "第二十六页把编译加速拆成两件事。第一是并行：通过多线程队列提高吞吐；第二是剪枝：通过 UsageMask 过滤不该在当前阶段编译的内容。只做并行而不减集合，常常会把开销搬到线程调度与资源竞争上。更稳定的路径是先减集合、再并行执行。",
       focusColorKey: "shared",
     },
     {
-      id: "page_24",
+      id: "page_27",
       label: "优化方向 4：Metal vs OpenGL 差异来源",
       caption:
         "把差异归因到“状态来源与显式程度”本身：不是谁绝对更优，而是模型不同导致统计行为不同。",
@@ -610,7 +785,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "最后把最容易误读的点说清：Metal 和 OpenGL 的差异，来自状态模型本身。",
       manuscript:
-        "第二十四页不做价值判断，只做来源解释。OpenGL 的部分状态更偏驱动隐式管理，而 Metal 的状态组合更显式，因而在编译数量、缓存命中和观测统计上会呈现不同分布。也就是说，差异的根因是状态来源路径不同，而不是单一 API 的优劣标签。",
+        "第二十七页不做价值判断，只做来源解释。OpenGL 的部分状态更偏驱动隐式管理，而 Metal 的状态组合更显式，因而在编译数量、缓存命中和观测统计上会呈现不同分布。也就是说，差异的根因是状态来源路径不同，而不是单一 API 的优劣标签。",
       focusColorKey: "shared",
     },
   ],

@@ -2894,36 +2894,32 @@ describe("MyComposition", () => {
     expect(opacityOf(finalPsoGroup)).toBe(1);
   });
 
-  it("keeps page 04 -> page 05 as a correspondence-based handoff instead of a static-position fade", () => {
-    mockFrame = 144;
-    const {container: midContainer, unmount} = render(
-      <MyComposition variantId="bus-clean" />,
-    );
-    const midPsoGroup = findBoxGroupByLabel(midContainer, "PSO");
-    const rawGroup = findBoxGroupByLabel(midContainer, "Raw");
-    const materialGroup = findBoxGroupByLabel(midContainer, "Material");
-    const spirvGroup = findBoxGroupByLabel(midContainer, "SPIR-V");
-    const cookedGroup = findBoxGroupByLabel(midContainer, "Cooked");
-    const midVertexIcon = midContainer.querySelector('[data-testid="vertex-icon"]');
-    const sharedHorizontalArrow = midContainer.querySelector(
-      '[data-testid="shared-upper-horizontal-arrow"]',
-    );
-    const sharedVerticalArrow = midContainer.querySelector(
-      '[data-testid="shared-upper-vertical-arrow"]',
-    );
+  it("inserts a dedicated data checkpoint page between page 04 and page 05", () => {
+    mockFrame = 150;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    unmount();
+    const dataOverlay = container.querySelector('[data-testid="page4-data-overlay"]');
+    const sceneBaseLayer = container.querySelector('[data-testid="scene-base-layer"]');
+    const dataTitle = findTextNodes(container, "OpenGL / Vulkan 耗时对比表")[0];
+    const dataOpenGlRow = findTextNodes(
+      container,
+      "Link (glLinkProgram)",
+    )[0];
+    const dataVulkanRow = findTextNodes(
+      container,
+      "Create (CreateGfxPipeline)",
+    )[0];
+    const page5Material = findTextNodes(container, "Material")[0];
+    const page5Cooked = findTextNodes(container, "Cooked")[0];
 
-    expect(opacityOf(midPsoGroup)).toBeGreaterThan(0);
-    expect(opacityOf(midPsoGroup)).toBeLessThan(0.45);
-    expect(opacityOf(midVertexIcon)).toBeGreaterThan(0.9);
-    expect(rawGroup).toBeTruthy();
-    expect(materialGroup).toBeTruthy();
-    expect(spirvGroup).toBeTruthy();
-    expect(cookedGroup).toBeTruthy();
-    expect(rawGroup?.isSameNode(materialGroup ?? null)).toBe(true);
-    expect(spirvGroup?.isSameNode(cookedGroup ?? null)).toBe(true);
-    expect(sharedHorizontalArrow).not.toBeNull();
-    expect(sharedVerticalArrow).not.toBeNull();
+    expect(dataOverlay).not.toBeNull();
+    expect(opacityOf(dataOverlay)).toBeGreaterThan(0);
+    expect(sceneBaseLayer).not.toBeNull();
+    expect(opacityOf(sceneBaseLayer)).toBeLessThan(0.5);
+    expect(dataTitle).toBeDefined();
+    expect(dataOpenGlRow).toBeDefined();
+    expect(dataVulkanRow).toBeDefined();
+    expect(page5Material).toBeUndefined();
+    expect(page5Cooked).toBeUndefined();
   });
 });

@@ -8,6 +8,7 @@ export type StoryStepId =
   | "page_02"
   | "page_03"
   | "page_04"
+  | "page_04_data"
   | "page_05"
   | "page_06"
   | "page_07"
@@ -17,17 +18,23 @@ export type StoryStepId =
   | "page_11"
   | "page_12"
   | "page_13"
+  | "page_13_img"
   | "page_14"
   | "page_15"
+  | "page_15_img"
   | "page_16"
   | "page_17"
   | "page_18"
+  | "page_18_img"
   | "page_19"
   | "page_20"
   | "page_21"
   | "page_22"
   | "page_23"
-  | "page_24";
+  | "page_24"
+  | "page_25"
+  | "page_26"
+  | "page_27";
 
 export type StorySession = {
   id: string;

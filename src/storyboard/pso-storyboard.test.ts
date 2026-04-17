@@ -8,6 +8,7 @@ describe("masterStoryboard", () => {
       "page_02",
       "page_03",
       "page_04",
+      "page_04_data",
       "page_05",
       "page_06",
       "page_07",
@@ -18,16 +19,22 @@ describe("masterStoryboard", () => {
       "page_12",
       "page_13",
       "page_14",
+      "page_13_img",
+      "page_15_img",
       "page_15",
       "page_16",
       "page_17",
       "page_18",
+      "page_18_img",
       "page_19",
       "page_20",
       "page_21",
       "page_22",
       "page_23",
       "page_24",
+      "page_25",
+      "page_26",
+      "page_27",
     ]);
   });
 
@@ -43,6 +50,7 @@ describe("masterStoryboard", () => {
     const page02 = requireStep("page_02");
     const page03 = requireStep("page_03");
     const page04 = requireStep("page_04");
+    const page04Data = requireStep("page_04_data");
     const page05 = requireStep("page_05");
     const page06 = requireStep("page_06");
     const page07 = requireStep("page_07");
@@ -52,17 +60,23 @@ describe("masterStoryboard", () => {
     const page11 = requireStep("page_11");
     const page12 = requireStep("page_12");
     const page13 = requireStep("page_13");
+    const page13Img = requireStep("page_13_img");
     const page14 = requireStep("page_14");
     const page15 = requireStep("page_15");
+    const page15Img = requireStep("page_15_img");
     const page16 = requireStep("page_16");
     const page17 = requireStep("page_17");
     const page18 = requireStep("page_18");
+    const page18Img = requireStep("page_18_img");
     const page19 = requireStep("page_19");
     const page20 = requireStep("page_20");
     const page21 = requireStep("page_21");
     const page22 = requireStep("page_22");
     const page23 = requireStep("page_23");
     const page24 = requireStep("page_24");
+    const page25 = requireStep("page_25");
+    const page26 = requireStep("page_26");
+    const page27 = requireStep("page_27");
 
     expect(page01.label).toContain("最小模型");
     expect(page01.caption).toContain("最小骨架");
@@ -83,6 +97,12 @@ describe("masterStoryboard", () => {
     expect(page04.manuscript).toContain("PSO");
     expect(page04.manuscript).toContain("vkCreateGraphicsPipelines()");
     expect(page04.manuscript).toContain("vkCmdBindPipeline()");
+    expect(page04Data.label).toContain("数据页");
+    expect(page04Data.manuscript).toContain("Min/Max/Avg");
+    expect(page04Data.manuscript).toContain("glLinkProgram");
+    expect(page04Data.manuscript).toContain("CreateGfxPipeline");
+    expect(page04Data.manuscript).toContain("BindProgramPipeline");
+    expect(page04Data.manuscript).toContain("BindGfxPipeline");
     expect(page05.label).toContain("UE Cook");
     expect(page05.manuscript).toContain("Mesh");
     expect(page05.manuscript).toContain("Material");
@@ -133,6 +153,8 @@ describe("masterStoryboard", () => {
     expect(page13.manuscript).toContain(".ushaderbytecode");
     expect(page13.manuscript).toContain("手机");
     expect(page13.manuscript).not.toContain(".rec.upipelinecache");
+    expect(page13Img.label).toContain("插页证据");
+    expect(page13Img.manuscript).toContain("卡顿");
     expect(page14.label).toContain("运行时采集");
     expect(page14.manuscript).toContain(".rec.upipelinecache");
     expect(page14.manuscript).toContain("OpenGL");
@@ -142,6 +164,8 @@ describe("masterStoryboard", () => {
     expect(page15.manuscript).toContain(".rec.upipelinecache");
     expect(page15.manuscript).toContain("回程");
     expect(page15.manuscript).not.toContain("stablepc.csv");
+    expect(page15Img.label).toContain("插页证据");
+    expect(page15Img.manuscript).toContain(".rec.upipelinecache");
     expect(page16.label).toContain("Expand");
     expect(page16.manuscript).toContain("rec.upipelinecache");
     expect(page16.manuscript).toContain("历史");
@@ -159,6 +183,8 @@ describe("masterStoryboard", () => {
     expect(page18.manuscript).toContain("stable.upipelinecache");
     expect(page18.manuscript).toContain("闭合");
     expect(page18.manuscript).toContain("手机");
+    expect(page18Img.label).toContain("插页证据");
+    expect(page18Img.manuscript).toContain("高峰");
     expect(page19.label).toContain("预编译");
     expect(page19.manuscript).toContain("stable.upipelinecache");
     expect(page19.manuscript).toContain("预编译");
@@ -166,17 +192,40 @@ describe("masterStoryboard", () => {
     expect(page20.label).toContain("持久化");
     expect(page20.manuscript).toContain("内存中 PSO");
     expect(page20.manuscript).toContain("ProgramBinary");
-    expect(page21.label).toContain("优化方向 1");
-    expect(page21.manuscript).toContain("压缩");
-    expect(page21.manuscript).toContain("解压");
-    expect(page22.label).toContain("优化方向 2");
-    expect(page22.manuscript).toContain("LRU");
-    expect(page22.manuscript).toContain("mmap");
-    expect(page23.label).toContain("优化方向 3");
-    expect(page23.manuscript).toContain("多线程");
-    expect(page23.manuscript).toContain("UsageMask");
-    expect(page24.label).toContain("优化方向 4");
-    expect(page24.manuscript).toContain("OpenGL");
-    expect(page24.manuscript).toContain("Metal");
+    expect(page21.label).toContain("我的理解");
+    expect(page21.manuscript).toContain("SharedCode");
+    expect(page21.manuscript).toContain("stable.upipelinecache");
+    expect(page21.manuscript).toContain("PSO 是一个东西");
+    expect(page21.manuscript).toContain("PSO Cache");
+    expect(page21.manuscript).toContain("不会消失");
+    expect(page21.manuscript).toContain("只会转移");
+    expect(page21.manuscript).toContain("首次启动");
+    expect(page22.label).toContain("缓存有效性");
+    expect(page22.manuscript).toContain("操作系统");
+    expect(page22.manuscript).toContain("驱动");
+    expect(page22.manuscript).toContain("芯片");
+    expect(page22.manuscript).toContain("失效");
+    expect(page22.manuscript).toContain("Permute");
+    expect(page22.manuscript).toContain("stable.upipelinecache");
+    expect(page22.manuscript).toContain("OpenGL");
+    expect(page23.label).toContain("补充证据");
+    expect(page23.manuscript).toContain("Nubia Z60 Ultra");
+    expect(page23.manuscript).toContain("Pixel 7");
+    expect(page23.manuscript).toContain("0.795s");
+    expect(page23.manuscript).toContain("2.526s");
+    expect(page23.manuscript).toContain("glCompileShader");
+    expect(page23.manuscript).toContain("CreateGfxPipeline");
+    expect(page24.label).toContain("优化方向 1");
+    expect(page24.manuscript).toContain("压缩");
+    expect(page24.manuscript).toContain("解压");
+    expect(page25.label).toContain("优化方向 2");
+    expect(page25.manuscript).toContain("LRU");
+    expect(page25.manuscript).toContain("mmap");
+    expect(page26.label).toContain("优化方向 3");
+    expect(page26.manuscript).toContain("多线程");
+    expect(page26.manuscript).toContain("UsageMask");
+    expect(page27.label).toContain("优化方向 4");
+    expect(page27.manuscript).toContain("OpenGL");
+    expect(page27.manuscript).toContain("Metal");
   });
 });

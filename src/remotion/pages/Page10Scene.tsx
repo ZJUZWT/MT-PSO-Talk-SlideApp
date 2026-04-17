@@ -72,17 +72,24 @@ const LOOP_PAGE11_FRAME = 546;
 const LOOP_PAGE12_FRAME = 600;
 const LOOP_PAGE13_FRAME = 654;
 const LOOP_PAGE14_FRAME = 708;
-const LOOP_PAGE15_FRAME = 798;
-const LOOP_PAGE16_FRAME = 852;
-const LOOP_PAGE17_FRAME = 942;
-const LOOP_PAGE18_FRAME = 1032;
-const LOOP_PAGE19_FRAME = 1086;
-const LOOP_PAGE20_FRAME = 1176;
-const LOOP_PAGE21_FRAME = 1266;
-const LOOP_PAGE22_FRAME = 1356;
-const LOOP_PAGE23_FRAME = 1446;
-const LOOP_PAGE24_FRAME = 1536;
+const LOOP_PAGE13_IMAGE_FRAME = 762;
+const LOOP_PAGE15_IMAGE_FRAME = 816;
+const LOOP_PAGE15_FRAME = 870;
+const LOOP_PAGE16_FRAME = 960;
+const LOOP_PAGE17_FRAME = 1050;
+const LOOP_PAGE18_FRAME = 1140;
+const LOOP_PAGE18_IMAGE_FRAME = 1194;
+const LOOP_PAGE19_FRAME = 1248;
+const LOOP_PAGE20_FRAME = 1338;
+const LOOP_PAGE21_FRAME = 1428;
+const LOOP_PAGE22_FRAME = 1518;
+const LOOP_PAGE23_FRAME = 1608;
+const LOOP_PAGE24_FRAME = 1698;
+const LOOP_PAGE25_FRAME = 1788;
+const LOOP_PAGE26_FRAME = 1878;
+const LOOP_PAGE27_FRAME = 1968;
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
+const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
 const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};
 const PLACEHOLDER_PAGE16_CARD_2 = {x: 500, y: 220, width: 250, height: 124, radius: 22};
 const PLACEHOLDER_PAGE16_CARD_3 = {x: 190, y: 382, width: 250, height: 124, radius: 22};
@@ -696,6 +703,65 @@ function PlaceholderBoardShell({
       transform={`translate(${centerX(PLACEHOLDER_BOARD)} ${centerY(PLACEHOLDER_BOARD)}) scale(${boardScale}) translate(${-centerX(PLACEHOLDER_BOARD)} ${-centerY(PLACEHOLDER_BOARD)})`}
     >
       {children}
+    </g>
+  );
+}
+
+function SupplementImageOverlay({
+  scene,
+  href,
+  opacity,
+  clipId,
+}: {
+  scene: SceneModel;
+  href: string;
+  opacity: number;
+  clipId: string;
+}) {
+  if (opacity <= 0.001) {
+    return null;
+  }
+
+  const reveal = easeOutQuint(clamp01(opacity));
+  const overlayScale = mix(0.97, 1, reveal);
+
+  return (
+    <g
+      opacity={opacity}
+      transform={`translate(${centerX(SUPPLEMENT_IMAGE_BOX)} ${centerY(SUPPLEMENT_IMAGE_BOX)}) scale(${overlayScale}) translate(${-centerX(SUPPLEMENT_IMAGE_BOX)} ${-centerY(SUPPLEMENT_IMAGE_BOX)})`}
+    >
+      <defs>
+        <clipPath id={clipId}>
+          <rect
+            x={SUPPLEMENT_IMAGE_BOX.x}
+            y={SUPPLEMENT_IMAGE_BOX.y}
+            width={SUPPLEMENT_IMAGE_BOX.width}
+            height={SUPPLEMENT_IMAGE_BOX.height}
+            rx={SUPPLEMENT_IMAGE_BOX.radius}
+            ry={SUPPLEMENT_IMAGE_BOX.radius}
+          />
+        </clipPath>
+      </defs>
+      <image
+        href={href}
+        x={SUPPLEMENT_IMAGE_BOX.x}
+        y={SUPPLEMENT_IMAGE_BOX.y}
+        width={SUPPLEMENT_IMAGE_BOX.width}
+        height={SUPPLEMENT_IMAGE_BOX.height}
+        preserveAspectRatio="xMidYMid slice"
+        clipPath={`url(#${clipId})`}
+      />
+      <rect
+        x={SUPPLEMENT_IMAGE_BOX.x}
+        y={SUPPLEMENT_IMAGE_BOX.y}
+        width={SUPPLEMENT_IMAGE_BOX.width}
+        height={SUPPLEMENT_IMAGE_BOX.height}
+        rx={SUPPLEMENT_IMAGE_BOX.radius}
+        ry={SUPPLEMENT_IMAGE_BOX.radius}
+        fill="none"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
     </g>
   );
 }
@@ -2427,32 +2493,28 @@ function Page20Placeholder({
   );
 }
 
-function Page21Placeholder({
+function TextOnlyPlaceholder({
   scene,
   opacity,
   entryProgress,
+  title,
+  goalLines,
+  bridgeLines,
 }: {
   scene: SceneModel;
   opacity: number;
   entryProgress: number;
+  title: string;
+  goalLines: string[];
+  bridgeLines: string[];
 }) {
-  const routeReveal = resolveWindowProgress(entryProgress, 0.18, 0.84, easeOutQuint);
-  const compressionBox = {x: 190, y: 302, width: 294, height: 94, radius: 24};
-  const decompressBox = {x: 535, y: 302, width: 210, height: 94, radius: 24};
-  const compileBox = {x: 798, y: 302, width: 294, height: 94, radius: 24};
-  const ioPanel = {x: 236, y: 444, width: 330, height: 112, radius: 22};
-  const cpuPanel = {x: 714, y: 444, width: 330, height: 112, radius: 22};
-  const compressionToDecompress = [
-    {x: right(compressionBox) + 12, y: centerY(compressionBox)},
-    {x: decompressBox.x - 12, y: centerY(decompressBox)},
-  ];
-  const decompressToCompile = [
-    {x: right(decompressBox) + 12, y: centerY(decompressBox)},
-    {x: compileBox.x - 12, y: centerY(compileBox)},
-  ];
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const goalCard = {x: 172, y: 210, width: 936, height: 172, radius: 26};
+  const bridgeCard = {x: 172, y: 408, width: 936, height: 178, radius: 26};
 
   return (
-    <PlaceholderBoardShell opacity={opacity}>
+    <PlaceholderBoardShell opacity={panelOpacity}>
       <text
         x={centerX(PLACEHOLDER_BOARD)}
         y="126"
@@ -2462,90 +2524,54 @@ function Page21Placeholder({
         textAnchor="middle"
         dominantBaseline="middle"
       >
-        优化方向 1：Code 压缩取舍
+        {title}
       </text>
-      <FloatingPill
+      <FloatingCard
         scene={scene}
-        box={compressionBox}
-        label="Compressed Code"
-        opacity={opacity}
-        accent
-      />
-      <FloatingPill
-        scene={scene}
-        box={decompressBox}
-        label="Decompress"
-        opacity={opacity}
-      />
-      <FloatingPill
-        scene={scene}
-        box={compileBox}
-        label="Compile / Load"
-        opacity={opacity}
+        box={goalCard}
+        title="这一页讲什么"
+        lines={goalLines}
+        opacity={panelOpacity}
         accent
       />
       <NotePanel
         scene={scene}
-        box={ioPanel}
-        title="+ IO / 包体收益"
-        lines={["压缩后体积更小", "下载与磁盘压力下降"]}
-        opacity={opacity}
-      />
-      <NotePanel
-        scene={scene}
-        box={cpuPanel}
-        title="- CPU / 带宽成本"
-        lines={["解压抢启动 CPU", "内存带宽会被占用"]}
-        opacity={opacity}
-        accent
-      />
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y={600}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="20"
-        fontWeight="720"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        opacity={opacity}
-      >
-        先看瓶颈：IO 还是 CPU，再决定要不要卸掉压缩
-      </text>
-      <StrokeArrow
-        d={horizontalPath(
-          right(compressionBox) + 12,
-          decompressBox.x - 12,
-          centerY(compressionBox),
-        )}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(compressionToDecompress, routeReveal)}
-        tipX={decompressBox.x - 12}
-        tipY={centerY(compressionBox)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-      <StrokeArrow
-        d={horizontalPath(
-          right(decompressBox) + 12,
-          compileBox.x - 12,
-          centerY(decompressBox),
-        )}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(decompressToCompile, routeReveal)}
-        tipX={compileBox.x - 12}
-        tipY={centerY(decompressBox)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
+        box={bridgeCard}
+        title="和下一页怎么衔接"
+        lines={bridgeLines}
+        opacity={panelOpacity}
       />
     </PlaceholderBoardShell>
+  );
+}
+
+function Page21Placeholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  return (
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 21 页：我的理解（成本转移）"
+      goalLines={[
+        "PSO 是对象，PSO Cache 是工程方法：用启动时间+内存，换运行时卡顿率。",
+        "它附属于 Shader，不是所有项目都必须开；不开也可能跑得很好。",
+        "这套方法代价不小，往往比想象中大。",
+        "一句话记忆：预编译的 PSO 不会消失，只会转移（运行时 -> 首启）。",
+        "工程优先级通常先保运行时卡顿，其次再压首次启动时间。",
+      ]}
+      bridgeLines={[
+        "下一页讲代价来源：收集策略、启动 Open 策略、OpenGL 与现代 API 差异。",
+        "最后再回收到环境失效边界（OS/驱动/芯片）。",
+      ]}
+    />
   );
 }
 
@@ -2558,142 +2584,23 @@ function Page22Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  const routeReveal = resolveWindowProgress(entryProgress, 0.2, 0.86, easeOutQuint);
-  const cacheCore = {x: 526, y: 292, width: 228, height: 96, radius: 24};
-  const lruCard = {x: 210, y: 196, width: 262, height: 124, radius: 22};
-  const lfuCard = {x: 210, y: 402, width: 262, height: 124, radius: 22};
-  const mmapCard = {x: 808, y: 196, width: 262, height: 124, radius: 22};
-  const ringCard = {x: 808, y: 402, width: 262, height: 124, radius: 22};
-  const coreToLru = [
-    {x: cacheCore.x - 10, y: centerY(cacheCore) - 18},
-    {x: right(lruCard) + 10, y: centerY(lruCard)},
-  ];
-  const coreToLfu = [
-    {x: cacheCore.x - 10, y: centerY(cacheCore) + 18},
-    {x: right(lfuCard) + 10, y: centerY(lfuCard)},
-  ];
-  const coreToMmap = [
-    {x: right(cacheCore) + 10, y: centerY(cacheCore) - 18},
-    {x: mmapCard.x - 10, y: centerY(mmapCard)},
-  ];
-  const coreToRing = [
-    {x: right(cacheCore) + 10, y: centerY(cacheCore) + 18},
-    {x: ringCard.x - 10, y: centerY(ringCard)},
-  ];
-
   return (
-    <PlaceholderBoardShell opacity={opacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
-        fill={scene.apiStroke}
-        fontSize="34"
-        fontWeight="800"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        优化方向 2：BCache 基础策略
-      </text>
-      <FloatingPill
-        scene={scene}
-        box={cacheCore}
-        label="BCache"
-        opacity={opacity}
-        accent
-      />
-      <FloatingCard
-        scene={scene}
-        box={lruCard}
-        title="LRU / LFU"
-        lines={["决定热数据保留", "控制淘汰节奏"]}
-        opacity={opacity}
-      />
-      <FloatingCard
-        scene={scene}
-        box={mmapCard}
-        title="mmap"
-        lines={["按需映射读取", "减少中间拷贝"]}
-        opacity={opacity}
-      />
-      <FloatingCard
-        scene={scene}
-        box={lfuCard}
-        title="Hit Model"
-        lines={["命中率优先", "避免盲目扩容"]}
-        opacity={opacity}
-      />
-      <FloatingCard
-        scene={scene}
-        box={ringCard}
-        title="circular / ring"
-        lines={["顺序写更友好", "回收与覆盖可控"]}
-        opacity={opacity}
-      />
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y={600}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="20"
-        fontWeight="720"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        opacity={opacity}
-      >
-        本质：用空间换 IO，但要让策略匹配访问形态
-      </text>
-      <StrokeArrow
-        d={roundedPolylinePath(coreToLru)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(coreToLru, routeReveal)}
-        tipX={right(lruCard) + 10}
-        tipY={centerY(lruCard)}
-        direction="left"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-      <StrokeArrow
-        d={roundedPolylinePath(coreToLfu)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(coreToLfu, routeReveal)}
-        tipX={right(lfuCard) + 10}
-        tipY={centerY(lfuCard)}
-        direction="left"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-      <StrokeArrow
-        d={roundedPolylinePath(coreToMmap)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(coreToMmap, routeReveal)}
-        tipX={mmapCard.x - 10}
-        tipY={centerY(mmapCard)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-      <StrokeArrow
-        d={roundedPolylinePath(coreToRing)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(coreToRing, routeReveal)}
-        tipX={ringCard.x - 10}
-        tipY={centerY(ringCard)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-    </PlaceholderBoardShell>
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 22 页：PSO 缓存有效性边界"
+      goalLines={[
+        "收集策略要“少而全”：若暴力 Permute Shader State，数量会指数增长。",
+        "启动 Open 常见一次性 Load stable.upipelinecache：单次内存/时长压力大。",
+        "OpenGL 没有完整管线状态（更偏 Shader 维度），与现代 API 模型不同。",
+        "再叠加环境变化（OS/驱动/芯片/API），缓存就会失效并触发重编译。",
+      ]}
+      bridgeLines={[
+        "前置并不等于消失，只有收集-构建-回灌链路持续成立才有效。",
+        "下一页再进入优化方向：压缩/解压取舍。",
+      ]}
+    />
   );
 }
 
@@ -2706,133 +2613,224 @@ function Page23Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  const routeReveal = resolveWindowProgress(entryProgress, 0.2, 0.88, easeOutQuint);
-  const queueBox = {x: 164, y: 304, width: 252, height: 96, radius: 24};
-  const workersBox = {x: 488, y: 188, width: 300, height: 124, radius: 24};
-  const maskBox = {x: 488, y: 392, width: 300, height: 124, radius: 24};
-  const outputBox = {x: 864, y: 304, width: 252, height: 96, radius: 24};
-  const queueToWorkers = [
-    {x: right(queueBox) + 10, y: centerY(queueBox) - 18},
-    {x: workersBox.x - 12, y: centerY(workersBox)},
-  ];
-  const queueToMask = [
-    {x: right(queueBox) + 10, y: centerY(queueBox) + 18},
-    {x: maskBox.x - 12, y: centerY(maskBox)},
-  ];
-  const workersToOutput = [
-    {x: right(workersBox) + 12, y: centerY(workersBox)},
-    {x: outputBox.x - 12, y: centerY(outputBox) - 16},
-  ];
-  const maskToOutput = [
-    {x: right(maskBox) + 12, y: centerY(maskBox)},
-    {x: outputBox.x - 12, y: centerY(outputBox) + 16},
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const tableBox = {x: 104, y: 170, width: 1072, height: 410, radius: 24};
+  const headerHeight = 58;
+  const rowCount = 4;
+  const rowHeight = (tableBox.height - headerHeight) / rowCount;
+  const col1 = tableBox.x + 260;
+  const col2 = tableBox.x + 430;
+  const col3 = tableBox.x + 749;
+  const headerY = tableBox.y + headerHeight;
+  const rowCenter = (index: number) =>
+    headerY + rowHeight * index + rowHeight / 2;
+  const rows = [
+    {
+      label: "Nubia Z60 Ultra / OpenGL",
+      total: "0.795 s",
+      hot1: "glLinkProgram 318 ms",
+      hot2: "glCompileShader 232.4 ms",
+    },
+    {
+      label: "Nubia Z60 Ultra / Vulkan",
+      total: "1.440 s",
+      hot1: "CreateGfxPipeline 1.257 s",
+      hot2: "CreateComputePipeline 148.3 ms",
+    },
+    {
+      label: "Pixel 7 / OpenGL",
+      total: "1.453 s",
+      hot1: "glLinkProgram 590 ms",
+      hot2: "glCompileShader 499 ms",
+    },
+    {
+      label: "Pixel 7 / Vulkan",
+      total: "2.526 s",
+      hot1: "CreateGfxPipeline 2.092 s",
+      hot2: "CreateComputePipeline 334 ms",
+    },
   ];
 
   return (
-    <PlaceholderBoardShell opacity={opacity}>
+    <PlaceholderBoardShell opacity={panelOpacity}>
       <text
         x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
+        y="124"
         fill={scene.apiStroke}
-        fontSize="34"
+        fontSize="32"
         fontWeight="800"
         textAnchor="middle"
         dominantBaseline="middle"
       >
-        优化方向 3：编译加速
+        第 23 页：跨设备 OpenGL / Vulkan 实测表
       </text>
-      <FloatingPill
-        scene={scene}
-        box={queueBox}
-        label="Compile Queue"
-        opacity={opacity}
-      />
-      <FloatingCard
-        scene={scene}
-        box={workersBox}
-        title="Multi-thread"
-        lines={["并行 worker 提升吞吐", "任务粒度要可控"]}
-        opacity={opacity}
-        accent
-      />
-      <FloatingCard
-        scene={scene}
-        box={maskBox}
-        title="UsageMask"
-        lines={["按使用场景分桶", "减少可编译集合"]}
-        opacity={opacity}
-      />
-      <FloatingPill
-        scene={scene}
-        box={outputBox}
-        label="Reduced Compile Set"
-        opacity={opacity}
-        accent
-      />
       <text
         x={centerX(PLACEHOLDER_BOARD)}
-        y={600}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="20"
-        fontWeight="720"
+        y="152"
+        fill="#4f5e6b"
+        fontSize="15"
+        fontWeight="650"
         textAnchor="middle"
         dominantBaseline="middle"
-        opacity={opacity}
       >
-        先减集合，再并行，通常更稳
+        数据源：Supplement/耗时Insight/MinePSO_耗时对比分析（Nubia Z60 Ultra + Pixel 7）
       </text>
-      <StrokeArrow
-        d={roundedPolylinePath(queueToWorkers)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(queueToWorkers, routeReveal)}
-        tipX={workersBox.x - 12}
-        tipY={centerY(workersBox)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
+      <StageBox
+        box={tableBox}
+        fill="rgba(255, 251, 246, 0.96)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.8}
       />
-      <StrokeArrow
-        d={roundedPolylinePath(queueToMask)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(queueToMask, routeReveal)}
-        tipX={maskBox.x - 12}
-        tipY={centerY(maskBox)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
+      <line
+        x1={tableBox.x}
+        y1={headerY}
+        x2={tableBox.x + tableBox.width}
+        y2={headerY}
+        stroke={scene.nodeStroke}
+        strokeWidth={2}
       />
-      <StrokeArrow
-        d={roundedPolylinePath(workersToOutput)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(workersToOutput, routeReveal)}
-        tipX={outputBox.x - 12}
-        tipY={centerY(outputBox) - 16}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
+      <line
+        x1={col1}
+        y1={tableBox.y}
+        x2={col1}
+        y2={tableBox.y + tableBox.height}
+        stroke={scene.nodeStroke}
+        strokeWidth={1.8}
       />
-      <StrokeArrow
-        d={roundedPolylinePath(maskToOutput)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(maskToOutput, routeReveal)}
-        tipX={outputBox.x - 12}
-        tipY={centerY(outputBox) + 16}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
+      <line
+        x1={col2}
+        y1={tableBox.y}
+        x2={col2}
+        y2={tableBox.y + tableBox.height}
+        stroke={scene.nodeStroke}
+        strokeWidth={1.8}
       />
+      <line
+        x1={col3}
+        y1={tableBox.y}
+        x2={col3}
+        y2={tableBox.y + tableBox.height}
+        stroke={scene.nodeStroke}
+        strokeWidth={1.8}
+      />
+      {Array.from({length: rowCount - 1}).map((_, idx) => {
+        const y = headerY + rowHeight * (idx + 1);
+        return (
+          <line
+            key={`row-line-${idx}`}
+            x1={tableBox.x}
+            y1={y}
+            x2={tableBox.x + tableBox.width}
+            y2={y}
+            stroke="rgba(34, 48, 61, 0.45)"
+            strokeWidth={1.4}
+          />
+        );
+      })}
+      <text
+        x={tableBox.x + (col1 - tableBox.x) / 2}
+        y={tableBox.y + 30}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        设备 / API
+      </text>
+      <text
+        x={col1 + (col2 - col1) / 2}
+        y={tableBox.y + 30}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        CPU Total
+      </text>
+      <text
+        x={col2 + (col3 - col2) / 2}
+        y={tableBox.y + 30}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        热点 1
+      </text>
+      <text
+        x={col3 + (tableBox.x + tableBox.width - col3) / 2}
+        y={tableBox.y + 30}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        热点 2
+      </text>
+
+      {rows.map((row, idx) => {
+        const y = rowCenter(idx);
+        return (
+          <g key={row.label}>
+            <text
+              x={tableBox.x + 16}
+              y={y}
+              fill="#22303d"
+              fontSize="17"
+              fontWeight="740"
+              dominantBaseline="middle"
+            >
+              {row.label}
+            </text>
+            <text
+              x={col1 + 16}
+              y={y}
+              fill="#22303d"
+              fontSize="17"
+              fontWeight="740"
+              dominantBaseline="middle"
+            >
+              {row.total}
+            </text>
+            <text
+              x={col2 + 16}
+              y={y}
+              fill="#22303d"
+              fontSize="16"
+              fontWeight="680"
+              dominantBaseline="middle"
+            >
+              {row.hot1}
+            </text>
+            <text
+              x={col3 + 16}
+              y={y}
+              fill="#22303d"
+              fontSize="16"
+              fontWeight="680"
+              dominantBaseline="middle"
+            >
+              {row.hot2}
+            </text>
+          </g>
+        );
+      })}
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y="604"
+        fill="rgba(34, 48, 61, 0.74)"
+        fontSize="20"
+        fontWeight="730"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        结论：跨设备都可见 Vulkan 管线创建更重，热点稳定集中在 Create/Compile 阶段
+      </text>
     </PlaceholderBoardShell>
   );
 }
@@ -2846,97 +2844,106 @@ function Page24Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  const routeReveal = resolveWindowProgress(entryProgress, 0.2, 0.86, easeOutQuint);
-  const openglCard = {x: 180, y: 180, width: 390, height: 348, radius: 26};
-  const metalCard = {x: 710, y: 180, width: 390, height: 348, radius: 26};
-  const stateBridge = {x: 580, y: 312, width: 120, height: 84, radius: 22};
-  const takeaway = {x: 214, y: 560, width: 852, height: 54, radius: 18};
-  const glToBridge = [
-    {x: right(openglCard) + 12, y: centerY(openglCard)},
-    {x: stateBridge.x - 12, y: centerY(stateBridge)},
-  ];
-  const bridgeToMetal = [
-    {x: right(stateBridge) + 12, y: centerY(stateBridge)},
-    {x: metalCard.x - 12, y: centerY(metalCard)},
-  ];
-
   return (
-    <PlaceholderBoardShell opacity={opacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
-        fill={scene.apiStroke}
-        fontSize="34"
-        fontWeight="800"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        优化方向 4：Metal vs OpenGL 差异来源
-      </text>
-      <FloatingCard
-        scene={scene}
-        box={openglCard}
-        title="OpenGL PSO"
-        lines={[
-          "更多驱动侧隐式状态",
-          "统计口径常更收敛",
-          "状态来源更偏运行期托管",
-        ]}
-        opacity={opacity}
-      />
-      <FloatingCard
-        scene={scene}
-        box={metalCard}
-        title="Metal PSO"
-        lines={[
-          "更多显式状态组合",
-          "状态变化更直接可见",
-          "编译数量更受组合影响",
-        ]}
-        opacity={opacity}
-        accent
-      />
-      <FloatingPill
-        scene={scene}
-        box={stateBridge}
-        label="State Source"
-        opacity={opacity}
-        accent
-      />
-      <NotePanel
-        scene={scene}
-        box={takeaway}
-        title="结论"
-        lines={["差异来自状态来源与显式程度，而不是 API 的单一优劣判断。"]}
-        opacity={opacity}
-      />
-      <StrokeArrow
-        d={roundedPolylinePath(glToBridge)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(glToBridge, routeReveal)}
-        tipX={stateBridge.x - 12}
-        tipY={centerY(stateBridge)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-      <StrokeArrow
-        d={roundedPolylinePath(bridgeToMetal)}
-        stroke={scene.apiStroke}
-        opacity={opacity}
-        headOpacity={revealHeadOpacity(routeReveal, opacity)}
-        dashArray={revealDashArray(bridgeToMetal, routeReveal)}
-        tipX={metalCard.x - 12}
-        tipY={centerY(metalCard)}
-        direction="right"
-        shaftWidth={2.8}
-        underlayWidth={5}
-        headSize={8}
-      />
-    </PlaceholderBoardShell>
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 24 页：优化方向 1（压缩取舍）"
+      goalLines={[
+        "讨论 Code 压缩是否保留：压缩省 IO/包体，解压吃 CPU/带宽。",
+        "核心判断标准是当前瓶颈位置，不是固定开关。",
+        "给出结论模板：IO 瓶颈偏保留压缩，CPU 瓶颈偏减少压缩。",
+      ]}
+      bridgeLines={[
+        "下一页进入优化方向 2：BCache 策略。",
+        "本页先文本占位，后续再加数据佐证。",
+      ]}
+    />
+  );
+}
+
+function Page25Placeholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  return (
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 25 页：优化方向 2（BCache 策略）"
+      goalLines={[
+        "说明缓存治理不是单一参数：LRU/LFU、mmap、ring 都影响效果。",
+        "强调缓存优化本质是“空间换 IO”，要匹配访问形态。",
+        "明确后续可补命中率与启动耗时对比证据。",
+      ]}
+      bridgeLines={[
+        "下一页进入优化方向 3：编译加速（多线程 + UsageMask）。",
+        "本页暂不画结构图，只保留讲稿骨架。",
+      ]}
+    />
+  );
+}
+
+function Page26Placeholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  return (
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 26 页：优化方向 3（编译加速）"
+      goalLines={[
+        "两条线并行考虑：多线程提升吞吐，UsageMask 缩小编译集合。",
+        "建议顺序：先减集合，再并行执行。",
+        "后续可补线程数、任务分桶、耗时曲线作为证据。",
+      ]}
+      bridgeLines={[
+        "下一页收束优化方向 4：Metal vs OpenGL 差异来源。",
+        "本页保持文本占位，等你确认后再加图。",
+      ]}
+    />
+  );
+}
+
+function Page27Placeholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  return (
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 27 页：优化方向 4（Metal vs OpenGL）"
+      goalLines={[
+        "归因到状态来源与显式程度差异，而不是 API 优劣口号。",
+        "说明为什么统计到的编译数量与命中行为会不同。",
+        "预留位置补充平台实测口径与数据证据。",
+      ]}
+      bridgeLines={[
+        "这页作为优化章节收束页，后续可接 Q&A 或附录。",
+        "目前先文本占位，结构稳定后再上图。",
+      ]}
+    />
   );
 }
 
@@ -2951,9 +2958,19 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE13_FRAME,
     LOOP_PAGE14_FRAME,
   );
-  const page15Reveal = settledSegmentProgress(
+  const page13ImageReveal = settledSegmentProgress(
     frame,
     LOOP_PAGE14_FRAME,
+    LOOP_PAGE13_IMAGE_FRAME,
+  );
+  const page15ImageReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE13_IMAGE_FRAME,
+    LOOP_PAGE15_IMAGE_FRAME,
+  );
+  const page15Reveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE15_IMAGE_FRAME,
     LOOP_PAGE15_FRAME,
   );
   const page16PlaceholderReveal = settledSegmentProgress(
@@ -2971,9 +2988,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE17_FRAME,
     LOOP_PAGE18_FRAME,
   );
-  const page19PlaceholderReveal = settledSegmentProgress(
+  const page18ImageReveal = settledSegmentProgress(
     frame,
     LOOP_PAGE18_FRAME,
+    LOOP_PAGE18_IMAGE_FRAME,
+  );
+  const page19PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE18_IMAGE_FRAME,
     LOOP_PAGE19_FRAME,
   );
   const page20PlaceholderReveal = settledSegmentProgress(
@@ -3001,10 +3023,43 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE23_FRAME,
     LOOP_PAGE24_FRAME,
   );
+  const page25PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE24_FRAME,
+    LOOP_PAGE25_FRAME,
+  );
+  const page26PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE25_FRAME,
+    LOOP_PAGE26_FRAME,
+  );
+  const page27PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE26_FRAME,
+    LOOP_PAGE27_FRAME,
+  );
   const page14PlaceholderVisible = resolveWindowProgress(
     page14PlaceholderReveal,
     0.08,
     0.84,
+    easeInOutCubic,
+  );
+  const page13ImageVisible = resolveWindowProgress(
+    page13ImageReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page15ImageVisible = resolveWindowProgress(
+    page15ImageReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page18ImageVisible = resolveWindowProgress(
+    page18ImageReveal,
+    0.08,
+    0.88,
     easeInOutCubic,
   );
   const page16PlaceholderVisible = resolveWindowProgress(
@@ -3055,7 +3110,26 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.88,
     easeInOutCubic,
   );
-  const page14OverlayExit = 1 - resolveWindowProgress(page15Reveal, 0, 0.12, easeInOutCubic);
+  const page25PlaceholderVisible = resolveWindowProgress(
+    page25PlaceholderReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page26PlaceholderVisible = resolveWindowProgress(
+    page26PlaceholderReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page27PlaceholderVisible = resolveWindowProgress(
+    page27PlaceholderReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page14OverlayExit =
+    1 - resolveWindowProgress(page13ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page17CarrierVisible = page17PlaceholderVisible > 0.5 ? 1 : 0;
   const page16OverlayExit = 1 - page17CarrierVisible;
   const page17OverlayExit =
@@ -3072,11 +3146,39 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     1 - resolveWindowProgress(page23PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
   const page23OverlayExit =
     1 - resolveWindowProgress(page24PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page24OverlayExit =
+    1 - resolveWindowProgress(page25PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page25OverlayExit =
+    1 - resolveWindowProgress(page26PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page26OverlayExit =
+    1 - resolveWindowProgress(page27PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page13ImageOverlayExit =
+    1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
+  const page15ImageOverlayExit =
+    1 - resolveWindowProgress(page15Reveal, 0.08, 0.3, easeInOutCubic);
+  const page18ImageOverlayExit =
+    1 - resolveWindowProgress(page19PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
   const page20PlaceholderFocus = page20PlaceholderVisible * page20OverlayExit;
   const page21PlaceholderFocus = page21PlaceholderVisible * page21OverlayExit;
   const page22PlaceholderFocus = page22PlaceholderVisible * page22OverlayExit;
   const page23PlaceholderFocus = page23PlaceholderVisible * page23OverlayExit;
-  const page24PlaceholderFocus = page24PlaceholderVisible;
+  const page24PlaceholderFocus = page24PlaceholderVisible * page24OverlayExit;
+  const page25PlaceholderFocus = page25PlaceholderVisible * page25OverlayExit;
+  const page26PlaceholderFocus = page26PlaceholderVisible * page26OverlayExit;
+  const page27PlaceholderFocus = page27PlaceholderVisible;
+  const page13ImageFocus = page13ImageVisible * page13ImageOverlayExit;
+  const page15ImageFocus = page15ImageVisible * page15ImageOverlayExit;
+  const page18ImageFocus = page18ImageVisible * page18ImageOverlayExit;
+  const imageDeckBackdropIn = resolveWindowProgress(
+    page13ImageReveal,
+    0.04,
+    0.28,
+    easeOutQuint,
+  );
+  const imageDeckBackdropOut =
+    1 - resolveWindowProgress(page15Reveal, 0.02, 0.42, easeInOutCubic);
+  const imageDeckBackdropOpacity = clamp01(imageDeckBackdropIn * imageDeckBackdropOut);
+  const page15MainReveal = resolveWindowProgress(page15Reveal, 0.42, 1, easeInOutCubic);
 
   const callbackExit = resolveWindowProgress(page11Reveal, 0.1, 0.34, easeInOutCubic);
   const callbackOpacity = 1 - callbackExit;
@@ -3267,18 +3369,25 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page11Focus = page11Reveal * (1 - page12Reveal);
   const page12Focus = page12Reveal * (1 - page13Reveal);
   const page13Focus = page13Reveal * (1 - page14PlaceholderReveal);
-  const page15Focus = page15Reveal * (1 - page16PlaceholderVisible);
-  const page18Focus = page18Reveal * (1 - page19PlaceholderVisible);
+  const page15Focus = page15MainReveal * (1 - page16PlaceholderVisible);
+  const page18Focus = page18Reveal * (1 - page18ImageReveal);
   const placeholderFocus = Math.max(
+    imageDeckBackdropOpacity,
+    page13ImageFocus,
     page14PlaceholderFocus,
+    page15ImageFocus,
     page16PlaceholderFocus,
     page17PlaceholderFocus,
+    page18ImageFocus,
     page19PlaceholderFocus,
     page20PlaceholderFocus,
     page21PlaceholderFocus,
     page22PlaceholderFocus,
     page23PlaceholderFocus,
     page24PlaceholderFocus,
+    page25PlaceholderFocus,
+    page26PlaceholderFocus,
+    page27PlaceholderFocus,
   );
   const placeholderStageFade = resolveWindowProgress(
     placeholderFocus,
@@ -3287,14 +3396,21 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     easeInOutCubic,
   );
   const onepageHold = Math.max(
+    imageDeckBackdropOpacity,
+    page13ImageFocus,
+    page15ImageFocus,
     page16PlaceholderFocus,
     page17PlaceholderFocus,
+    page18ImageFocus,
     page19PlaceholderFocus,
     page20PlaceholderFocus,
     page21PlaceholderFocus,
     page22PlaceholderFocus,
     page23PlaceholderFocus,
     page24PlaceholderFocus,
+    page25PlaceholderFocus,
+    page26PlaceholderFocus,
+    page27PlaceholderFocus,
   );
   const onepageStageSuppression = resolveWindowProgress(
     onepageHold,
@@ -3309,12 +3425,20 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
 
   const computerScalePhase12 = mix(1, 1.08, easeInOutCubic(page12Reveal));
   const computerScalePhase13 = mix(computerScalePhase12, 0.94, easeInOutCubic(page13Reveal));
-  const computerScalePhase15 = mix(computerScalePhase13, 0.92, easeInOutCubic(page15Reveal));
+  const computerScalePhase15 = mix(
+    computerScalePhase13,
+    0.92,
+    easeInOutCubic(page15MainReveal),
+  );
   const computerScale = mix(computerScalePhase15, 1.08, easeInOutCubic(stableBuildReveal));
 
   const phoneScalePhase12 = mix(1, 0.92, easeInOutCubic(page12Reveal));
   const phoneScalePhase13 = mix(phoneScalePhase12, 1.08, easeInOutCubic(page13Reveal));
-  const phoneScalePhase15 = mix(phoneScalePhase13, 1.12, easeInOutCubic(page15Reveal));
+  const phoneScalePhase15 = mix(
+    phoneScalePhase13,
+    1.12,
+    easeInOutCubic(page15MainReveal),
+  );
   const phoneScale = mix(phoneScalePhase15, 1.1, easeInOutCubic(stableReturnReveal));
 
   const baseNodeOpacity = stageContentReveal;
@@ -3342,7 +3466,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const bytecodeToPhoneOpacity =
     stageContentReveal *
     page13Reveal;
-  const recRouteReveal = resolveWindowProgress(page15Reveal, 0.4, 0.92, easeOutQuint);
+  const recRouteReveal = resolveWindowProgress(page15MainReveal, 0.4, 0.92, easeOutQuint);
   const stableBandReveal = resolveWindowProgress(page18Reveal, 0.52, 0.78, easeOutQuint);
   const stableMergeReveal = resolveWindowProgress(page18Reveal, 0.68, 0.9, easeOutQuint);
   const stablePcStageReturnProgress = resolveWindowProgress(
@@ -3363,9 +3487,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page16SemanticHandoff;
   const recGeometryVisible =
     stageContentReveal > 0.001 &&
-    (page14PlaceholderReveal > 0.001 || page15Reveal > 0.001);
+    (page14PlaceholderReveal > 0.001 || page15MainReveal > 0.001);
   const recGeometryOpacity =
-    page15Reveal > 0.001
+    page15MainReveal > 0.001
       ? recOpacity
       : stageContentReveal * page14PlaceholderFocus * 0.001;
   const stableBandOpacity = stageContentReveal * stableBuildReveal;
@@ -4199,6 +4323,55 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           entryProgress={page24PlaceholderReveal}
         />
       ) : null}
+      {page25PlaceholderFocus > 0.001 ? (
+        <Page25Placeholder
+          scene={scene}
+          opacity={page25PlaceholderFocus}
+          entryProgress={page25PlaceholderReveal}
+        />
+      ) : null}
+      {page26PlaceholderFocus > 0.001 ? (
+        <Page26Placeholder
+          scene={scene}
+          opacity={page26PlaceholderFocus}
+          entryProgress={page26PlaceholderReveal}
+        />
+      ) : null}
+      {page27PlaceholderFocus > 0.001 ? (
+        <Page27Placeholder
+          scene={scene}
+          opacity={page27PlaceholderFocus}
+          entryProgress={page27PlaceholderReveal}
+        />
+      ) : null}
+      {imageDeckBackdropOpacity > 0.001 ? (
+        <rect
+          x="0"
+          y="0"
+          width="1280"
+          height="720"
+          fill="rgba(14, 16, 22, 0.9)"
+          opacity={imageDeckBackdropOpacity}
+        />
+      ) : null}
+      <SupplementImageOverlay
+        scene={scene}
+        href="/supplement/pso-stutter.png"
+        clipId="supplement-stutter-clip"
+        opacity={page13ImageFocus}
+      />
+      <SupplementImageOverlay
+        scene={scene}
+        href="/supplement/pso-rec-cache.png"
+        clipId="supplement-rec-clip"
+        opacity={page15ImageFocus}
+      />
+      <SupplementImageOverlay
+        scene={scene}
+        href="/supplement/pso-precompile-smooth-peak.png"
+        clipId="supplement-precompile-clip"
+        opacity={page18ImageFocus}
+      />
     </>
   );
 }
