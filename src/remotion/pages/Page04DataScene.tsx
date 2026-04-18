@@ -5,6 +5,8 @@ import {VIEWBOX} from "./page-layout-constants";
 const PAGE04_FRAME = resolveRemotionStepFrame("page_04");
 const PAGE04_DATA_FRAME = resolveRemotionStepFrame("page_04_data");
 const PAGE05_FRAME = resolveRemotionStepFrame("page_05");
+const LEGACY_PAGE45_REPLAY_FRAMES = 120;
+const LEGACY_PAGE05_REPLAY_FRAME = PAGE04_FRAME + LEGACY_PAGE45_REPLAY_FRAMES;
 
 export type Page04DataOverlayState = {
   overlayOpacity: number;
@@ -22,7 +24,7 @@ export function resolvePage04DataOverlayState(
 
   const enterStartFrame = PAGE04_FRAME;
   const enterEndFrame = PAGE04_DATA_FRAME;
-  const replayFrames = 36;
+  const replayFrames = LEGACY_PAGE45_REPLAY_FRAMES;
   const exitFrames = 6;
   const replayStartFrame = Math.max(enterEndFrame, PAGE05_FRAME - replayFrames);
   const exitStartFrame = Math.max(enterEndFrame, replayStartFrame - exitFrames);
@@ -66,7 +68,7 @@ export function resolvePage04DataOverlayState(
   return {
     overlayOpacity: 0,
     baseOpacity: 1,
-    sceneFrame: mix(PAGE04_FRAME, PAGE05_FRAME, easeInOutCubic(replay)),
+    sceneFrame: mix(PAGE04_FRAME, LEGACY_PAGE05_REPLAY_FRAME, replay),
     scale: 1,
   };
 }
@@ -78,41 +80,60 @@ export function Page04DataScene({frame}: {frame: number}) {
   }
 
   const {overlayOpacity, scale} = progress;
-  const table = {x: 80, y: 194, width: 1120, height: 404};
-  const headerHeight = 74;
-  const rowCount = 4;
-  const rowHeight = (table.height - headerHeight) / rowCount;
-  const colApi = table.x + 450;
-  const colMin = table.x + 750;
-  const colMax = table.x + 970;
-  const headerY = table.y + headerHeight;
-  const rowCenter = (index: number) => headerY + rowHeight * index + rowHeight / 2;
   const rows = [
     {
-      api: "Link (glLinkProgram)",
+      group: "OpenGL",
+      api: "glCompileShader",
+      min: "0.396 / 0.470",
+      max: "19.797 / 85.457",
+      avg: "3.631 / 7.675",
+    },
+    {
+      group: "OpenGL",
+      api: "glLinkProgram",
       min: "1.059 / 0.125",
       max: "30.576 / 66.751",
       avg: "7.572 / 13.722",
     },
     {
-      api: "Create (CreateGfxPipeline)",
-      min: "0.052 / 0.089",
-      max: "59.581 / 122.600",
-      avg: "13.968 / 23.243",
-    },
-    {
-      api: "Bind (BindProgramPipeline)",
+      group: "OpenGL",
+      api: "BindProgramPipeline",
       min: "0.000 / 0.000",
       max: "1.293 / 0.757",
       avg: "0.003 / 0.004",
     },
     {
-      api: "Bind (BindGfxPipeline)",
+      group: "Vulkan",
+      api: "CreateGfxPipeline",
+      min: "0.052 / 0.089",
+      max: "59.581 / 122.600",
+      avg: "13.968 / 23.243",
+    },
+    {
+      group: "Vulkan",
+      api: "BindGfxPipeline",
       min: "0.000 / 0.000",
       max: "0.472 / 0.583",
       avg: "0.001 / 0.004",
     },
   ] as const;
+  const tableWidth = 1200;
+  const table = {
+    x: (VIEWBOX.width - tableWidth) / 2,
+    y: 200,
+    width: tableWidth,
+    height: 456,
+  };
+  const apiColWidth = 500;
+  const valueColWidth = (table.width - apiColWidth) / 3;
+  const headerHeight = 74;
+  const rowCount = rows.length;
+  const rowHeight = (table.height - headerHeight) / rowCount;
+  const colApi = table.x + apiColWidth;
+  const colMin = colApi + valueColWidth;
+  const colMax = colMin + valueColWidth;
+  const headerY = table.y + headerHeight;
+  const rowCenter = (index: number) => headerY + rowHeight * index + rowHeight / 2;
 
   return (
     <g
@@ -121,24 +142,37 @@ export function Page04DataScene({frame}: {frame: number}) {
       transform={`translate(${VIEWBOX.width / 2} ${VIEWBOX.height / 2}) scale(${scale}) translate(${-VIEWBOX.width / 2} ${-VIEWBOX.height / 2})`}
     >
       <text
-        x={table.x}
-        y={92}
-        fill="#22303d"
-        fontSize="52"
-        fontWeight="800"
-        dominantBaseline="middle"
-      >
-        OpenGL / Vulkan 耗时对比表
-      </text>
-      <text
-        x={table.x}
-        y={132}
+        x={VIEWBOX.width / 2}
+        y={88}
         fill="#556474"
-        fontSize="20"
+        fontSize="24"
         fontWeight="640"
+        textAnchor="middle"
         dominantBaseline="middle"
       >
         指标单位：ms，单元格格式为 Nubia / Pixel 7
+      </text>
+      <text
+        x={VIEWBOX.width / 2}
+        y={118}
+        fill="#5d6d7d"
+        fontSize="22"
+        fontWeight="620"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        N = Nubia Z60 Ultra (Snapdragon 8 Gen 3)
+      </text>
+      <text
+        x={VIEWBOX.width / 2}
+        y={146}
+        fill="#5d6d7d"
+        fontSize="22"
+        fontWeight="620"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        P = Pixel 7 (Google Tensor G2)
       </text>
 
       <line
@@ -194,6 +228,7 @@ export function Page04DataScene({frame}: {frame: number}) {
           return null;
         }
         const y = headerY + rowHeight * (idx + 1);
+        const isGroupBreak = rows[idx].group !== rows[idx + 1].group;
         return (
           <line
             key={`row-line-${idx}`}
@@ -201,8 +236,8 @@ export function Page04DataScene({frame}: {frame: number}) {
             y1={y}
             x2={table.x + table.width}
             y2={y}
-            stroke="rgba(34, 48, 61, 0.28)"
-            strokeWidth="1.6"
+            stroke={isGroupBreak ? "rgba(34, 48, 61, 0.42)" : "rgba(34, 48, 61, 0.28)"}
+            strokeWidth={isGroupBreak ? "2.2" : "1.6"}
           />
         );
       })}
@@ -211,7 +246,7 @@ export function Page04DataScene({frame}: {frame: number}) {
         x={table.x + (colApi - table.x) / 2}
         y={table.y + 37}
         fill="#22303d"
-        fontSize="24"
+        fontSize="28"
         fontWeight="780"
         textAnchor="middle"
         dominantBaseline="middle"
@@ -222,7 +257,7 @@ export function Page04DataScene({frame}: {frame: number}) {
         x={colApi + (colMin - colApi) / 2}
         y={table.y + 37}
         fill="#22303d"
-        fontSize="24"
+        fontSize="28"
         fontWeight="780"
         textAnchor="middle"
         dominantBaseline="middle"
@@ -233,7 +268,7 @@ export function Page04DataScene({frame}: {frame: number}) {
         x={colMin + (colMax - colMin) / 2}
         y={table.y + 37}
         fill="#22303d"
-        fontSize="24"
+        fontSize="28"
         fontWeight="780"
         textAnchor="middle"
         dominantBaseline="middle"
@@ -244,7 +279,7 @@ export function Page04DataScene({frame}: {frame: number}) {
         x={colMax + (table.x + table.width - colMax) / 2}
         y={table.y + 37}
         fill="#22303d"
-        fontSize="24"
+        fontSize="28"
         fontWeight="780"
         textAnchor="middle"
         dominantBaseline="middle"
@@ -253,23 +288,25 @@ export function Page04DataScene({frame}: {frame: number}) {
       </text>
       {rows.map((row, idx) => {
         const y = rowCenter(idx);
+        const rowColor = row.group === "OpenGL" ? "#3e5870" : "#6a3a25";
         return (
           <g key={row.api}>
             <text
-              x={table.x + 16}
+              x={table.x + (colApi - table.x) / 2}
               y={y}
-              fill="#344454"
-              fontSize="20"
-              fontWeight="730"
+              fill={rowColor}
+              fontSize="22"
+              fontWeight="760"
+              textAnchor="middle"
               dominantBaseline="middle"
             >
-              {row.api}
+              {row.group} · {row.api}
             </text>
             <text
               x={colApi + 16}
               y={y}
               fill="#6f3f27"
-              fontSize="20"
+              fontSize="22"
               fontWeight="760"
               dominantBaseline="middle"
             >
@@ -279,7 +316,7 @@ export function Page04DataScene({frame}: {frame: number}) {
               x={colMin + 16}
               y={y}
               fill="#6f3f27"
-              fontSize="20"
+              fontSize="22"
               fontWeight="760"
               dominantBaseline="middle"
             >
@@ -289,7 +326,7 @@ export function Page04DataScene({frame}: {frame: number}) {
               x={colMax + 16}
               y={y}
               fill="#6f3f27"
-              fontSize="20"
+              fontSize="22"
               fontWeight="760"
               dominantBaseline="middle"
             >
@@ -299,16 +336,6 @@ export function Page04DataScene({frame}: {frame: number}) {
         );
       })}
 
-      <text
-        x={table.x}
-        y={648}
-        fill="#5d6d7d"
-        fontSize="20"
-        fontWeight="640"
-        dominantBaseline="middle"
-      >
-        数据来源：Supplement/耗时Insight/MinePSO_耗时对比分析
-      </text>
     </g>
   );
 }
