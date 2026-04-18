@@ -126,10 +126,12 @@ const PIXEL_GRID_SIZE = 60;
 
 export function computeSceneModel(frame: number, variantId: VariantId = "bus-clean") {
   const PAGE5_SPINE_SHIFT = 100;
+  const PAGE45_LEGACY_DURATION_FRAMES = 120;
+  const page45LegacyEndFrame = PAGE_04_FRAME + PAGE45_LEGACY_DURATION_FRAMES;
   const page12Progress = resolveSegmentProgress(frame, PAGE_01_FRAME, PAGE_02_FRAME);
   const page23Progress = resolveSegmentProgress(frame, PAGE_02_FRAME, PAGE_03_FRAME);
   const page34Progress = resolveSegmentProgress(frame, PAGE_03_FRAME, PAGE_04_FRAME);
-  const page45Progress = resolveSegmentProgress(frame, PAGE_04_FRAME, PAGE_05_FRAME);
+  const page45Progress = resolveSegmentProgress(frame, PAGE_04_FRAME, page45LegacyEndFrame);
   const page56Progress = resolveSegmentProgress(frame, PAGE_05_FRAME, PAGE_06_FRAME);
   const page67Progress = resolveSegmentProgress(frame, PAGE_06_FRAME, PAGE_07_FRAME);
   const page78Progress = resolveSegmentProgress(frame, PAGE_07_FRAME, PAGE_08_FRAME);
@@ -153,7 +155,8 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const settledPage12Progress = frame >= PAGE_02_FRAME ? 1 : page12Progress;
   const settledPage23Progress = frame <= PAGE_02_FRAME ? 0 : page23Progress;
   const settledPage34Progress = frame <= PAGE_03_FRAME ? 0 : page34Progress;
-  const settledPage45Progress = frame <= PAGE_04_FRAME ? 0 : page45Progress;
+  const settledPage45Progress =
+    frame <= PAGE_04_FRAME ? 0 : frame >= page45LegacyEndFrame ? 1 : page45Progress;
   const settledPage56Progress = frame <= PAGE_05_FRAME ? 0 : frame >= PAGE_06_FRAME ? 1 : page56Progress;
   const settledPage67Progress = frame <= PAGE_06_FRAME ? 0 : frame >= PAGE_07_FRAME ? 1 : page67Progress;
   const settledPage78Progress = frame <= PAGE_07_FRAME ? 0 : frame >= PAGE_08_FRAME ? 1 : page78Progress;

@@ -10,6 +10,7 @@ import {
   verticalPath,
 } from "../geometry/geometry";
 import type {SceneModel} from "../model/scene-model-types";
+import {resolveRemotionStepFrame} from "../embed";
 import {Page01Scene} from "./Page01Scene";
 import {Page02Scene} from "./Page02Scene";
 import {
@@ -68,26 +69,29 @@ const PHONE_PIXELS_BRIDGE_BOX = {
 const SPLIT_CENTER = {x: 330, y: 580};
 const PAGE15_EXPAND_MERGE_CENTER = {x: 330, y: 346};
 const PAGE15_MERGE_CENTER = {x: 690, y: 346};
-const LOOP_PAGE11_FRAME = 546;
-const LOOP_PAGE12_FRAME = 600;
-const LOOP_PAGE13_FRAME = 654;
-const LOOP_PAGE14_FRAME = 708;
-const LOOP_PAGE13_IMAGE_FRAME = 762;
-const LOOP_PAGE15_IMAGE_FRAME = 816;
-const LOOP_PAGE15_FRAME = 870;
-const LOOP_PAGE16_FRAME = 960;
-const LOOP_PAGE17_FRAME = 1050;
-const LOOP_PAGE18_FRAME = 1140;
-const LOOP_PAGE18_IMAGE_FRAME = 1194;
-const LOOP_PAGE19_FRAME = 1248;
-const LOOP_PAGE20_FRAME = 1338;
-const LOOP_PAGE21_FRAME = 1428;
-const LOOP_PAGE22_FRAME = 1518;
-const LOOP_PAGE23_FRAME = 1608;
-const LOOP_PAGE24_FRAME = 1698;
-const LOOP_PAGE25_FRAME = 1788;
-const LOOP_PAGE26_FRAME = 1878;
-const LOOP_PAGE27_FRAME = 1968;
+const LOOP_FRAME_LEAD = 0;
+const loopFrame = (stepId: Parameters<typeof resolveRemotionStepFrame>[0]) =>
+  resolveRemotionStepFrame(stepId) - LOOP_FRAME_LEAD;
+const LOOP_PAGE11_FRAME = loopFrame("page_11");
+const LOOP_PAGE12_FRAME = loopFrame("page_12");
+const LOOP_PAGE13_FRAME = loopFrame("page_13");
+const LOOP_PAGE14_FRAME = loopFrame("page_14");
+const LOOP_PAGE13_IMAGE_FRAME = loopFrame("page_13_img");
+const LOOP_PAGE15_IMAGE_FRAME = loopFrame("page_15_img");
+const LOOP_PAGE15_FRAME = loopFrame("page_15");
+const LOOP_PAGE16_FRAME = loopFrame("page_16");
+const LOOP_PAGE17_FRAME = loopFrame("page_17");
+const LOOP_PAGE18_FRAME = loopFrame("page_18");
+const LOOP_PAGE18_IMAGE_FRAME = loopFrame("page_18_img");
+const LOOP_PAGE19_FRAME = loopFrame("page_19");
+const LOOP_PAGE20_FRAME = loopFrame("page_20");
+const LOOP_PAGE21_FRAME = loopFrame("page_21");
+const LOOP_PAGE22_FRAME = loopFrame("page_22");
+const LOOP_PAGE23_FRAME = loopFrame("page_23");
+const LOOP_PAGE24_FRAME = loopFrame("page_24");
+const LOOP_PAGE25_FRAME = loopFrame("page_25");
+const LOOP_PAGE26_FRAME = loopFrame("page_26");
+const LOOP_PAGE27_FRAME = loopFrame("page_27");
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
 const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};

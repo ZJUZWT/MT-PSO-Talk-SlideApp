@@ -20,7 +20,80 @@ vi.mock("remotion", () => ({
 }));
 
 import {MyComposition} from "./Composition";
+import {resolveRemotionStepFrame} from "./embed";
 import {computeSceneModel} from "./model/computeSceneModel";
+import {REMOTION_STEP_SEQUENCE} from "./sceneTimeline";
+
+const LEGACY_STEP_FRAME_MAP = {
+  page_01: 18,
+  page_02: 54,
+  page_03: 90,
+  page_04: 126,
+  page_04_data: 144,
+  page_05: 198,
+  page_06: 270,
+  page_07: 306,
+  page_08: 342,
+  page_09: 378,
+  page_10: 510,
+  page_11: 582,
+  page_12: 636,
+  page_13: 690,
+  page_14: 744,
+  page_13_img: 798,
+  page_15_img: 852,
+  page_15: 906,
+  page_16: 996,
+  page_17: 1086,
+  page_18: 1176,
+  page_18_img: 1230,
+  page_19: 1284,
+  page_20: 1374,
+  page_21: 1464,
+  page_22: 1554,
+  page_23: 1644,
+  page_24: 1734,
+  page_25: 1824,
+  page_26: 1914,
+  page_27: 2004,
+} as const;
+
+function remapLegacyFrame(legacyFrame: number) {
+  const safeLegacyFrame = Math.max(0, Math.round(legacyFrame));
+  const firstStep = REMOTION_STEP_SEQUENCE[0];
+  const firstLegacyFrame = LEGACY_STEP_FRAME_MAP[firstStep];
+
+  if (safeLegacyFrame <= firstLegacyFrame) {
+    return safeLegacyFrame;
+  }
+
+  for (let index = 0; index < REMOTION_STEP_SEQUENCE.length - 1; index += 1) {
+    const fromStep = REMOTION_STEP_SEQUENCE[index]!;
+    const toStep = REMOTION_STEP_SEQUENCE[index + 1]!;
+    const fromLegacy = LEGACY_STEP_FRAME_MAP[fromStep];
+    const toLegacy = LEGACY_STEP_FRAME_MAP[toStep];
+
+    if (safeLegacyFrame <= toLegacy) {
+      const progress =
+        (safeLegacyFrame - fromLegacy) / Math.max(1, toLegacy - fromLegacy);
+      const fromFrame = resolveRemotionStepFrame(fromStep);
+      const toFrame = resolveRemotionStepFrame(toStep);
+
+      return Math.round(fromFrame + progress * (toFrame - fromFrame));
+    }
+  }
+
+  const lastStep = REMOTION_STEP_SEQUENCE[REMOTION_STEP_SEQUENCE.length - 1]!;
+  const lastLegacyFrame = LEGACY_STEP_FRAME_MAP[lastStep];
+  const lastFrame = resolveRemotionStepFrame(lastStep);
+  const trailingOffset = safeLegacyFrame - lastLegacyFrame;
+
+  return Math.max(0, Math.round(lastFrame + trailingOffset));
+}
+
+function setLegacyFrame(legacyFrame: number) {
+  mockFrame = remapLegacyFrame(legacyFrame);
+}
 
 function normalizeText(value: string | null | undefined) {
   return (value ?? "").replace(/\s+/g, "");
@@ -313,7 +386,7 @@ function horizontalDividerY(group: Element | null | undefined, role: string, ind
 
 describe("MyComposition", () => {
   beforeEach(() => {
-    mockFrame = 18;
+    setLegacyFrame(18);
   });
 
   afterEach(() => {
@@ -334,7 +407,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 02 as VertexData -> GPU -> pixels without GPU inner chrome", () => {
-    mockFrame = 54;
+    setLegacyFrame(54);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(screen.getAllByText("GPU").length).toBeGreaterThanOrEqual(1);
@@ -351,7 +424,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 03 with a top configuration band and API-call legend", () => {
-    mockFrame = 90;
+    setLegacyFrame(90);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const orangeArrows = Array.from(
       container.querySelectorAll('path[stroke="#d06b44"]'),
@@ -411,7 +484,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 04 as a Vulkan PSO page that keeps the SPIR-V path and middle packaging layers", () => {
-    mockFrame = 126;
+    setLegacyFrame(126);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const visibleOrangeBadges = Array.from(
       container.querySelectorAll('circle[stroke="#d06b44"]'),
@@ -451,7 +524,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 05 as the UE asset cook bridge with mesh and material assets feeding runtime inputs", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     render(<MyComposition variantId="bus-clean" />);
 
     expect(screen.getByText("Mesh")).toBeInTheDocument();
@@ -466,7 +539,7 @@ describe("MyComposition", () => {
   });
 
   it("routes page 05 shader artifacts as Cooked -> Binary -> GPU", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const cookedGroup = findBoxGroupByLabel(container, "Cooked");
     const binaryGroup = findBoxGroupByLabel(container, "Binary");
@@ -493,7 +566,7 @@ describe("MyComposition", () => {
   });
 
   it("uses asset green for cook relations and API orange for the Binary -> GPU call on page 05", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const materialToCookedArrow = container.querySelector(
       '[data-testid="shared-upper-horizontal-arrow"]',
@@ -511,7 +584,7 @@ describe("MyComposition", () => {
   });
 
   it("adds a visible question hook on the page 05 Material -> Cooked relation", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
 
@@ -521,7 +594,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 06 as the v4 ownership layout with one left dashed relation and one short right dashed relation", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
     const materialGroup = findVisibleBoxGroupByLabel(container, "Material");
@@ -685,7 +758,7 @@ describe("MyComposition", () => {
   });
 
   it("treats page 06 as an ownership slide before InlineCode storage is expanded", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page6-platform-table"]')).not.toBeNull();
@@ -703,7 +776,7 @@ describe("MyComposition", () => {
   });
 
   it("uses page 06 as a clean ownership page with one left relation mark and the shader selector floating above the shaderMap -> cooked span", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformTableRect = container
       .querySelector('[data-testid="page6-platform-table"]')
@@ -742,7 +815,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 FL/QL labels visually centered inside a widened selector table", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceTableRect = container
       .querySelector('[data-testid="page6-resource-selector-table"]')
@@ -762,7 +835,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 platform header and each API name centered in its own table cell", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformTable = container.querySelector('[data-testid="page6-platform-table"]');
     const platformTableRect = platformTable?.querySelector("rect");
@@ -783,7 +856,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 FL and QL headers centered in their header cells", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceTable = container.querySelector('[data-testid="page6-resource-selector-table"]');
     const resourceTableRect = resourceTable?.querySelector("rect");
@@ -797,7 +870,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 shader selector headers centered in their header cells", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderTable = container.querySelector('[data-testid="page6-shadermap-selector-table"]');
     const shaderTableRect = shaderTable?.querySelector("rect");
@@ -813,7 +886,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 shader selector values centered in each lower cell row", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderTable = container.querySelector('[data-testid="page6-shadermap-selector-table"]');
     const shaderTableRect = shaderTable?.querySelector("rect");
@@ -836,7 +909,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 FL and QL values centered in their own lower cells", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceTable = container.querySelector('[data-testid="page6-resource-selector-table"]');
     const resourceTableRect = resourceTable?.querySelector("rect");
@@ -855,7 +928,7 @@ describe("MyComposition", () => {
   });
 
   it("gives page 06 more vertical breathing room on the left and balances the two main-axis arrow gaps", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformTableRect = container
       .querySelector('[data-testid="page6-platform-table"]')
@@ -891,7 +964,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 shader selector board to the right of FMaterialResource and makes it taller for classroom readability", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderTableRect = container
       .querySelector('[data-testid="page6-shadermap-selector-table"]')
@@ -903,7 +976,7 @@ describe("MyComposition", () => {
   });
 
   it("restores page 06 material prominence and enlarges both selector columns before InlineCode expansion", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
     const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
@@ -940,7 +1013,7 @@ describe("MyComposition", () => {
   });
 
   it("aligns the left dashed relation to the ownership spine center and enlarges table typography for PPT reading", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformResourceSpine = container.querySelector(
       '[data-testid="page6-platform-resource-spine"]',
@@ -964,7 +1037,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 06 uasset frame and both ownership columns centered on one slide axis", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
     const platformTableRect = container
@@ -1005,7 +1078,7 @@ describe("MyComposition", () => {
   });
 
   it("treats page 07 as the runtime InlineCode lookup slide before PSO Cache appears", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page6-platform-table"]')).toBeNull();
@@ -1022,7 +1095,7 @@ describe("MyComposition", () => {
   });
 
   it("compresses the page 07 left spine and reallocates the stage toward a larger ResourceCode payload", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container: page6Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -1030,7 +1103,7 @@ describe("MyComposition", () => {
     const page6ShaderMapRect = findVisibleBoxGroupByLabel(page6Container, "FMaterialShaderMap")?.querySelector("rect");
 
     unmount();
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const page7MaterialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
     const page7ShaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
@@ -1067,7 +1140,7 @@ describe("MyComposition", () => {
   });
 
   it("models page 07 InlineCode access as ShaderMap ownership plus direct FShader lookup by idx", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(screen.getByText("FMaterialShaderMap")).toBeInTheDocument();
@@ -1095,7 +1168,7 @@ describe("MyComposition", () => {
   });
 
   it("starts page 07 InlineCode reveal with the lookup line before the receiver plane appears", () => {
-    mockFrame = 246;
+    setLegacyFrame(246);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const earlyLookupArrow = container.querySelector(
       '[data-testid="page6-fshader-to-inline-arrow"]',
@@ -1114,7 +1187,7 @@ describe("MyComposition", () => {
   });
 
   it("reveals the outer page 07 InlineCode receiver before the inner payload is inserted", () => {
-    mockFrame = 248;
+    setLegacyFrame(248);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const midInlineBox = container.querySelector(
       '[data-testid="page6-inline-resource-box"]',
@@ -1129,7 +1202,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 07 inner payload delayed until after the receiver plane has had time to settle", () => {
-    mockFrame = 252;
+    setLegacyFrame(252);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const lateInlineBox = container.querySelector(
       '[data-testid="page6-inline-resource-box"]',
@@ -1144,7 +1217,7 @@ describe("MyComposition", () => {
   });
 
   it("finishes the page 07 InlineCode reveal by inserting the inner payload rows after the receiver plane", () => {
-    mockFrame = 258;
+    setLegacyFrame(258);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const lateResourceCodeBox = container.querySelector(
       '[data-testid="page6-resource-code-box"]',
@@ -1159,7 +1232,7 @@ describe("MyComposition", () => {
   });
 
   it("adds horizontal row guides inside the page 06 selector tables", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformGuides = container.querySelectorAll(
       '[data-testid^="page6-platform-table-note-row-guide-"]',
@@ -1177,7 +1250,7 @@ describe("MyComposition", () => {
   });
 
   it("adds tight two-layer shadow stacks behind page 06 resource and shaderMap cards", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceCard = rectMetrics(
       container.querySelector('[data-testid="page6-resource-card"] rect'),
@@ -1215,7 +1288,7 @@ describe("MyComposition", () => {
   it("moves the question hook monotonically toward the center before it disappears", () => {
     const sampledFrames = [162, 186, 210];
     const sampledPositions = sampledFrames.map((frame) => {
-      mockFrame = frame;
+      setLegacyFrame(frame);
       const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
       const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
       const questionCircle = questionBadge?.querySelector("circle");
@@ -1234,7 +1307,7 @@ describe("MyComposition", () => {
   });
 
   it("does not keep a full-screen dim overlay during the page 05 -> page 06 handoff", () => {
-    mockFrame = 198;
+    setLegacyFrame(198);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(Boolean(container.querySelector('[data-testid="page56-world-dim"]'))).toBe(false);
@@ -1243,7 +1316,7 @@ describe("MyComposition", () => {
   it("reveals the page 06 stage as a monotonic center-scale animation", () => {
     const sampledFrames = [222, 228, 234];
     const sampledScales = sampledFrames.map((frame) => {
-      mockFrame = frame;
+      setLegacyFrame(frame);
       const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
       const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
       const scale = parseScale(stageGroup?.getAttribute("transform"));
@@ -1257,7 +1330,7 @@ describe("MyComposition", () => {
   });
 
   it("shows the page 06 main chain before dashed guides and white boards appear", () => {
-    mockFrame = 210;
+    setLegacyFrame(210);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page6-resource-card"]')).not.toBeNull();
@@ -1274,7 +1347,7 @@ describe("MyComposition", () => {
   });
 
   it("shows the page 06 dashed guides before the white boards expand in", () => {
-    mockFrame = 216;
+    setLegacyFrame(216);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const dashedSpine = container.querySelector('[data-testid="page6-platform-resource-spine"]');
     const dashedShaderLink = container.querySelector(
@@ -1291,7 +1364,7 @@ describe("MyComposition", () => {
   });
 
   it("begins the page 06 white board reveal gently after the dashed guides appear", () => {
-    mockFrame = 222;
+    setLegacyFrame(222);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformTable = container.querySelector('[data-testid="page6-platform-table"]');
     const resourceTable = container.querySelector(
@@ -1313,7 +1386,7 @@ describe("MyComposition", () => {
   });
 
   it("continues expanding the page 06 white boards across later frames instead of finishing in a flash", () => {
-    mockFrame = 222;
+    setLegacyFrame(222);
     const {container: earlyContainer, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -1328,7 +1401,7 @@ describe("MyComposition", () => {
     );
     unmount();
 
-    mockFrame = 228;
+    setLegacyFrame(228);
     const {container: lateContainer} = render(<MyComposition variantId="bus-clean" />);
     const latePlatformOpacity = effectiveOpacity(
       lateContainer.querySelector('[data-testid="page6-platform-table"]'),
@@ -1348,7 +1421,7 @@ describe("MyComposition", () => {
   it("keeps the page 06 -> page 07 stage vertically anchored instead of drifting upward", () => {
     const sampledFrames = [234, 252, 270];
     const sampledAnchorYs = sampledFrames.map((frame) => {
-      mockFrame = frame;
+      setLegacyFrame(frame);
       const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
       const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
       const trailingTranslate = parseTrailingTranslate(stageGroup?.getAttribute("transform"));
@@ -1361,7 +1434,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 07 with readable vertical and horizontal spans and de-emphasizes the old page 05 world", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const arrows = [
       container.querySelector('[data-testid="page6-material-to-resource-arrow"]'),
@@ -1381,7 +1454,7 @@ describe("MyComposition", () => {
   });
 
   it("treats the page 07 left ownership stack as a rigid translation of page 06 with unchanged card sizes", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container: page6Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -1399,7 +1472,7 @@ describe("MyComposition", () => {
     )?.querySelector("rect");
     unmount();
 
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceShadowRects = Array.from(
       container.querySelectorAll('[data-testid^="page6-resource-shadow-"] rect'),
@@ -1476,7 +1549,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 07 inline details inserted between shaderMap and the anchored cooked-code box", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const inlineResourceRect = container
@@ -1542,7 +1615,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 07 ShaderMap handoff arrow on a flat outgoing channel", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderMapRect = findVisibleBoxGroupByLabel(
       container,
@@ -1560,7 +1633,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 07 receiver and payload titles on one line for spacing control", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const inlineTitle = findSvgTextNodesByContent(
       container,
@@ -1578,7 +1651,7 @@ describe("MyComposition", () => {
   });
 
   it("uses balanced, presentation-sized row typography inside the page 07 InlineCode payload", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const inlineRect = container
       .querySelector('[data-testid="page6-inline-resource-box"]')
@@ -1625,7 +1698,7 @@ describe("MyComposition", () => {
   });
 
   it("balances the page 07 visible content with near-symmetric left and right breathing room inside uasset", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetMetrics = rectMetrics(container.querySelector('[data-testid="page6-uasset-frame"]'));
     const contentRects = [
@@ -1650,7 +1723,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 platform and FL/QL tables on one lane while relocating shader selectors above the shaderMap -> cooked relation", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const platformTableRect = container
       .querySelector('[data-testid="page6-platform-table"]')
@@ -1674,7 +1747,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 as one world by avoiding duplicate visible Material labels", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const visibleMaterialLabels = findTextNodes(container, "Material").filter(
       (node) => effectiveOpacity(node) > 0.16,
@@ -1684,7 +1757,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 06 labels readable without glyph compression hacks", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const resourceLabels = findTextNodes(container, "FMaterialResource");
     const shaderMapLabel = findTextNodes(container, "FMaterialShaderMap")[0];
@@ -1708,7 +1781,7 @@ describe("MyComposition", () => {
   });
 
   it("removes the page 05 question hook by the settled page 06 frame", () => {
-    mockFrame = 234;
+    setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const questionBadge = container.querySelector('[data-testid="page5-question-badge"]');
     const visibleQuestionLabels = findTextNodes(container, "?").filter(
@@ -1720,7 +1793,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 08 with PSO Cache table below the lookup slide showing Hash fields and state fields", () => {
-    mockFrame = 270;
+    setLegacyFrame(270);
     const {container: page7Container} = render(<MyComposition variantId="bus-clean" />);
     const page7UassetRect = page7Container.querySelector('[data-testid="page6-uasset-frame"]');
     const page7FshaderRect = page7Container.querySelector('[data-testid="page6-fshader-card"] rect');
@@ -1729,7 +1802,7 @@ describe("MyComposition", () => {
     );
     cleanup();
 
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const cacheBox = container.querySelector('[data-testid="page8-pso-box"]');
     const materialProofBox = container.querySelector('[data-testid="page8-proof-material-box"]');
@@ -1830,7 +1903,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 08 cooked shader code inside uasset while the external Material carries its own cooked cue", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
@@ -1857,7 +1930,7 @@ describe("MyComposition", () => {
   });
 
   it("routes page 08 VS/PS hash fields back to ShaderHashes[idx] as dashed branch references from the PSO Cache", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
     const psoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
@@ -1905,7 +1978,7 @@ describe("MyComposition", () => {
   });
 
   it("projects page 08 external Material -> Cooked arrow tip through the stage transform before drawing outside the stage group", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
     const cookedRect = container.querySelector('[data-testid="page6-cooked-code-box"] rect');
@@ -1922,7 +1995,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 08 hash reference lines hidden until the PSO cache scale has essentially settled", () => {
-    mockFrame = 288;
+    setLegacyFrame(288);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page8-pso-box"]')).not.toBeNull();
@@ -1931,7 +2004,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 08 PSO Hash focus subordinate to the page 07 mainline by narrowing the cache and tucking VS/PS Hash under ShaderHashes[idx]", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
     const psoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
@@ -1957,12 +2030,12 @@ describe("MyComposition", () => {
   });
 
   it("renders page 09 as a SharedCode solution page with a lookup rail while keeping the PSO cache on the inherited bottom band", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container: page8Container} = render(<MyComposition variantId="bus-clean" />);
     const page8PsoRect = page8Container.querySelector('[data-testid="page8-pso-box"] rect');
     cleanup();
 
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const page9PsoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
     const sharedLibrary = container.querySelector('[data-testid="page9-shared-library-box"]');
@@ -2058,7 +2131,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 09 SharedCode carry box lifted clear of the inherited PSO band", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const page9PsoRect = container.querySelector('[data-testid="page8-pso-box"] rect');
     const sharedResourceRect = container
@@ -2069,7 +2142,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 09 SharedCode carry box inside the uasset frame with a visible right breathing margin", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
     const sharedResourceRect = container
@@ -2082,7 +2155,7 @@ describe("MyComposition", () => {
   });
 
   it("drops the page 09 SharedCode carry box onto a lower band so the left handoff can turn under ShaderMap", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const sharedResourceRect = container
       .querySelector('[data-testid="page9-shared-resource-box"]')
@@ -2092,7 +2165,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 09 VS/PS proof lane from scraping directly under the SharedCode carry box", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
     const sharedResourceRect = container
@@ -2110,7 +2183,7 @@ describe("MyComposition", () => {
   });
 
   it("routes the page 09 ShaderMap handoff by dropping below ShaderMap before turning right into SharedCode", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderMapGroup = findVisibleBoxGroupByLabel(
       container,
@@ -2146,7 +2219,7 @@ describe("MyComposition", () => {
   });
 
   it("starts the page 09 ShaderMapIndex lookup branch from the ShaderMapIndex pill on a flat horizontal lane", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const sharedResourceRect = container
       .querySelector('[data-testid="page9-shared-resource-box"]')
@@ -2165,7 +2238,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 09 VS and PS proof endpoints aligned to their own left-right order on the hash table floor", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const vsProofVertices = parsePolylineVertices(
       container.querySelector('[data-testid="page9-vs-hash-proof-arrow"]'),
@@ -2180,7 +2253,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 09 diagram typography above the PPT readability floor", () => {
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const materialA = findTextNodes(container, "Material A")[0];
@@ -2215,7 +2288,7 @@ describe("MyComposition", () => {
   });
 
   it("renders page 10 as a page-5 callback that settles on ShaderLibrary before the loop chapter starts", () => {
-    mockFrame = 474;
+    setLegacyFrame(474);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const scene = computeSceneModel(474, "bus-clean");
     const visibleMaterial = findSvgTextNodesByContent(container, "Material").filter(
@@ -2258,14 +2331,14 @@ describe("MyComposition", () => {
   });
 
   it("shows a transient answer badge during the page 09 to page 10 transition", () => {
-    mockFrame = 432;
+    setLegacyFrame(432);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(container.querySelector('[data-testid="page10-answer-badge"]')).not.toBeNull();
   });
 
   it("shrinks the legacy page-09 world before the page-10 callback settles", () => {
-    mockFrame = 372;
+    setLegacyFrame(372);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const legacyWorld = container.querySelector('[data-testid="page910-legacy-world"]');
     const legacyScale = parseScale(legacyWorld?.getAttribute("transform"));
@@ -2276,7 +2349,7 @@ describe("MyComposition", () => {
   });
 
   it("pulls Material and CookedShaderCode into ShaderLibrary during the page-10 merge", () => {
-    mockFrame = 444;
+    setLegacyFrame(444);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const scene = computeSceneModel(444, "bus-clean");
     const materialSource = container.querySelector(
@@ -2326,7 +2399,7 @@ describe("MyComposition", () => {
   });
 
   it("fades the old Material source link as the page-10 merge nearly finishes", () => {
-    mockFrame = 444;
+    setLegacyFrame(444);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const materialSource = container.querySelector(
       '[data-testid="page10-callback-material-merge-source"]',
@@ -2342,7 +2415,7 @@ describe("MyComposition", () => {
   });
 
   it("starts page 11 by morphing ShaderLibrary into .ushaderbytecode on the same traveling node", () => {
-    mockFrame = 498;
+    setLegacyFrame(498);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const bytecodeGroup = findVisibleBoxGroupByLabel(container, ".ushaderbytecode");
     const bytecodeRect = bytecodeGroup?.querySelector("rect");
@@ -2356,7 +2429,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps ShaderLibrary visible through the first page-11 frames instead of blinking out", () => {
-    mockFrame = 480;
+    setLegacyFrame(480);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const shaderBridge = container.querySelector(
       '[data-testid="page10-callback-shaderlibrary-target"]',
@@ -2367,7 +2440,7 @@ describe("MyComposition", () => {
   });
 
   it("bridges the three runtime nodes into the phone with matching node and edge motion", () => {
-    mockFrame = 498;
+    setLegacyFrame(498);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const scene = computeSceneModel(498, "bus-clean");
     const leftBridge = container.querySelector('[data-testid="page10-runtime-bridge-left"]');
@@ -2394,7 +2467,7 @@ describe("MyComposition", () => {
   });
 
   it("fades in the device shell while keeping page-11 continuity on the shared bridge carriers", () => {
-    mockFrame = 498;
+    setLegacyFrame(498);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const phoneShell = container.querySelector('[data-testid="page10-phone-shell"]');
     const phoneRuntime = container.querySelector('[data-testid="page10-phone-runtime"]');
@@ -2419,7 +2492,7 @@ describe("MyComposition", () => {
   });
 
   it("reveals the computer-phone base stage on page 11 before the cook split begins", () => {
-    mockFrame = 546;
+    setLegacyFrame(546);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const bridgeCenter = container.querySelector('[data-testid="page10-runtime-bridge-center"]');
     const bridgeLeftLink = container.querySelector('[data-testid="page10-runtime-bridge-link-left"]');
@@ -2475,7 +2548,7 @@ describe("MyComposition", () => {
   });
 
   it("reveals the cook split on page 12 and the bytecode landing on page 13", () => {
-    mockFrame = 600;
+    setLegacyFrame(600);
     const {container: page12Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2487,7 +2560,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page12Container, "rec.upipelinecache").length).toBe(0);
 
     unmount();
-    mockFrame = 654;
+    setLegacyFrame(654);
     const {container: page13Container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(page13Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
@@ -2497,7 +2570,7 @@ describe("MyComposition", () => {
   });
 
   it("inserts placeholder explanation pages and shifts the old rec/stable beats forward", () => {
-    mockFrame = 708;
+    setLegacyFrame(708);
     const {container: page14Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2516,7 +2589,7 @@ describe("MyComposition", () => {
     expect(page14Container.querySelector('[data-testid="page14-pso-to-rec-arrow"]')).not.toBeNull();
 
     unmount();
-    mockFrame = 798;
+    setLegacyFrame(798);
     const {container: page15Container, unmount: unmount15} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2527,7 +2600,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page15Container, "stablepc.csv").length).toBe(0);
 
     unmount15();
-    mockFrame = 852;
+    setLegacyFrame(852);
     const {container: page16Container, unmount: unmount16} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2542,7 +2615,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page16Container, "stable.upipelinecache").length).toBe(0);
 
     unmount16();
-    mockFrame = 942;
+    setLegacyFrame(942);
     const {container: page17Container, unmount: unmount17} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2559,7 +2632,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page17Container, "expand").length).toBe(0);
 
     unmount17();
-    mockFrame = 1032;
+    setLegacyFrame(1032);
     const {container, unmount: unmount18} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
@@ -2570,7 +2643,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
 
     unmount18();
-    mockFrame = 1086;
+    setLegacyFrame(1086);
     const {container: page19Container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(page19Container, "Precompile").length).toBeGreaterThanOrEqual(1);
@@ -2586,7 +2659,7 @@ describe("MyComposition", () => {
   });
 
   it("restores page 13 before page 15 starts growing the rec return route", () => {
-    mockFrame = 726;
+    setLegacyFrame(726);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(container, "Phone如何收集PSO").length).toBe(0);
@@ -2598,7 +2671,7 @@ describe("MyComposition", () => {
   });
 
   it("settles the old stable loop on page 18 after the inserted placeholder pages", () => {
-    mockFrame = 1032;
+    setLegacyFrame(1032);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
@@ -2616,7 +2689,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the page 18 stable return path outside the stable.upipelinecache text lane", () => {
-    mockFrame = 1032;
+    setLegacyFrame(1032);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stableLabel = findSvgTextNodesByContent(container, "stable.").find(
       (node) => effectiveOpacity(node) > 0.2,
@@ -2648,7 +2721,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps FShader as a translated continuation from page 08 into page 09 with only a bounded width retargeting", () => {
-    mockFrame = 306;
+    setLegacyFrame(306);
     const {container: page8Container, unmount} = render(<MyComposition variantId="bus-clean" />);
     const page8FShaderCard = page8Container.querySelector('[data-testid="page6-fshader-card"]');
     const page8FShaderRect = page8FShaderCard?.querySelector("rect");
@@ -2660,7 +2733,7 @@ describe("MyComposition", () => {
     );
 
     unmount();
-    mockFrame = 342;
+    setLegacyFrame(342);
     const {container: page9Container} = render(<MyComposition variantId="bus-clean" />);
     const page9FShaderCard = page9Container.querySelector('[data-testid="page9-fshader-card"]');
     const page9FShaderRect = page9FShaderCard?.querySelector("rect");
@@ -2680,7 +2753,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps pages 01-04 on the original spine and only shifts the runtime axis to the right for page 05", () => {
-    mockFrame = 54;
+    setLegacyFrame(54);
     const {container: page2Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2689,14 +2762,14 @@ describe("MyComposition", () => {
     const page2Gpu = findTextNodes(page2Container, "GPU")[0];
 
     unmount();
-    mockFrame = 126;
+    setLegacyFrame(126);
     const {container: page4Container, unmount: unmountPage4} = render(
       <MyComposition variantId="bus-clean" />,
     );
     const page4Gpu = findTextNodes(page4Container, "GPU")[0];
 
     unmountPage4();
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container: page5Container} = render(<MyComposition variantId="bus-clean" />);
     const page5Vertex = page5Container.querySelector('[data-testid="vertex-icon"]');
     const page5VertexCenter = parseLeadingTranslate(page5Vertex?.getAttribute("transform"));
@@ -2710,7 +2783,7 @@ describe("MyComposition", () => {
   });
 
   it("lays out page 05 with Mesh on the main-axis left side and a clean Material -> Cooked asset band", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const meshGroup = findBoxGroupByLabel(container, "Mesh");
     const materialGroup = findBoxGroupByLabel(container, "Material");
@@ -2760,7 +2833,7 @@ describe("MyComposition", () => {
   });
 
   it("uses a pale green asset treatment for UE asset nodes on page 05", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const meshGroup = findTextNodes(container, "Mesh")[0]?.closest("g");
     const materialGroup = findTextNodes(container, "Material")[0]?.closest("g");
@@ -2772,7 +2845,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps the VertexData icon visible on page 05 instead of reducing it to text only", () => {
-    mockFrame = 54;
+    setLegacyFrame(54);
     const {container: page2Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2780,7 +2853,7 @@ describe("MyComposition", () => {
     const page2Scale = parseScale(page2VertexIcon?.getAttribute("transform"));
 
     unmount();
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const vertexIcon = container.querySelector('[data-testid="vertex-icon"]');
 
@@ -2790,7 +2863,7 @@ describe("MyComposition", () => {
   });
 
   it("renders Mesh and Material as clean asset boxes without decorative inner stripes", () => {
-    mockFrame = 162;
+    setLegacyFrame(162);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const meshGroup = findBoxGroupByLabel(container, "Mesh");
     const materialGroup = findBoxGroupByLabel(container, "Material");
@@ -2800,7 +2873,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 01 -> page 02 in a real mid-transition state halfway through", () => {
-    mockFrame = 36;
+    setLegacyFrame(36);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const inputLabels = findTextNodes(container, "Input");
     const vertexIcon = container.querySelector('[data-testid="vertex-icon"]');
@@ -2812,7 +2885,7 @@ describe("MyComposition", () => {
   });
 
   it("does not render a GPU pulse dot during the page 01 -> page 02 morph", () => {
-    mockFrame = 36;
+    setLegacyFrame(36);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const pulseCircle = Array.from(container.querySelectorAll("circle")).find(
@@ -2823,7 +2896,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 01 -> page 02 continuous across the page 02 boundary", () => {
-    mockFrame = 53;
+    setLegacyFrame(53);
     const {container: nearPage2Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
@@ -2836,7 +2909,7 @@ describe("MyComposition", () => {
     const nearPage2Gpu = findTextNodes(nearPage2Container, "GPU")[0];
 
     unmount();
-    mockFrame = 54;
+    setLegacyFrame(54);
     const {container: page2Container} = render(<MyComposition variantId="bus-clean" />);
     const page2Vertex = page2Container.querySelector('[data-testid="vertex-icon"]');
     const page2Pixels = page2Container.querySelector('[data-testid="pixel-grid"]');
@@ -2855,13 +2928,13 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 02 -> page 03 upper band and API lines still animating halfway through", () => {
-    mockFrame = 72;
+    setLegacyFrame(72);
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
     const shaderCodeLine = findTextNodes(midContainer, "ShaderCode")[0];
     const midLine = midContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
 
     unmount();
-    mockFrame = 90;
+    setLegacyFrame(90);
     const {container: finalContainer} = render(<MyComposition variantId="bus-clean" />);
     const finalLine = finalContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
 
@@ -2870,7 +2943,7 @@ describe("MyComposition", () => {
   });
 
   it("keeps page 03 -> page 04 as a shader-artifact transition while PSO fades in", () => {
-    mockFrame = 108;
+    setLegacyFrame(108);
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
     const midPsoGroup = findTextNodes(midContainer, "PSO")[0]?.closest("g");
     const midProgramArrow = midContainer.querySelector('[data-testid="page3-useprogram-arrow"]');
@@ -2879,7 +2952,7 @@ describe("MyComposition", () => {
     );
 
     unmount();
-    mockFrame = 126;
+    setLegacyFrame(126);
     const {container: page4Container} = render(<MyComposition variantId="bus-clean" />);
     const page4Spirv = findTextNodes(page4Container, "SPIR-V")[0];
     const finalPsoGroup = findTextNodes(page4Container, "PSO")[0]?.closest("g");
@@ -2895,7 +2968,7 @@ describe("MyComposition", () => {
   });
 
   it("inserts a dedicated data checkpoint page between page 04 and page 05", () => {
-    mockFrame = 150;
+    setLegacyFrame(150);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const dataOverlay = container.querySelector('[data-testid="page4-data-overlay"]');
