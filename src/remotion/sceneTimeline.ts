@@ -12,6 +12,7 @@ export const REMOTION_STEP_SEQUENCE: StoryStepId[] = [
   "page_07",
   "page_08",
   "page_09",
+  "page_09_img",
   "page_10",
   "page_11",
   "page_12",

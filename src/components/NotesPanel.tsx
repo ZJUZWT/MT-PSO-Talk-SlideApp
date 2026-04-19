@@ -269,9 +269,11 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
   const outgoingStep = transition
     ? state.steps.find((step) => step.id === transition.outgoingStepId) ?? null
     : null;
+  const suppressOutgoingStep = state.currentStep.id.endsWith("_img");
+  const effectiveOutgoingStep = suppressOutgoingStep ? null : outgoingStep;
   const currentSessionInfo = resolveSessionInfo(state.currentStep.id, state.sessions);
-  const outgoingSessionInfo = outgoingStep
-    ? resolveSessionInfo(outgoingStep.id, state.sessions)
+  const outgoingSessionInfo = effectiveOutgoingStep
+    ? resolveSessionInfo(effectiveOutgoingStep.id, state.sessions)
     : null;
   const currentStackRole = transition ? "back" : "front";
   const outgoingStackRole = transition ? "front" : "back";
@@ -298,14 +300,14 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           className="notes-card-layer notes-card-layer--outgoing"
           data-motion-axis="vertical"
           data-motion-direction={transition?.direction ?? "idle"}
-          data-step-id={outgoingStep?.id}
+          data-step-id={effectiveOutgoingStep?.id}
           data-stack-role={outgoingStackRole}
-          data-has-step={outgoingStep ? "true" : "false"}
+          data-has-step={effectiveOutgoingStep ? "true" : "false"}
           data-fade="off"
           aria-hidden="true"
         >
-          {outgoingStep && outgoingSessionInfo ? (
-            <NotesCard step={outgoingStep} sessionInfo={outgoingSessionInfo} />
+          {effectiveOutgoingStep && outgoingSessionInfo ? (
+            <NotesCard step={effectiveOutgoingStep} sessionInfo={outgoingSessionInfo} />
           ) : (
             <NotesCardGhost />
           )}

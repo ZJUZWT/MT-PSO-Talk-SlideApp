@@ -82,7 +82,7 @@ export function ProgressBubbles({
                   } as CSSProperties
                 }
                 aria-current={isCurrent ? "step" : undefined}
-                aria-label={`Go to step ${index + 1}: ${step.label}`}
+                aria-label={`Go to ${step.id}: ${step.label}`}
                 onClick={() => {
                   if (onStepJump) {
                     onStepJump(step.id);
@@ -94,7 +94,7 @@ export function ProgressBubbles({
               >
                 <span className="progress-bubble-dot" aria-hidden="true" />
                 <span className="progress-bubble-copy">
-                  <span className="progress-step-index">Step {index + 1}</span>
+                  <span className="progress-step-index">{step.id}</span>
                   <span className="progress-step-label">{step.label}</span>
                 </span>
               </button>

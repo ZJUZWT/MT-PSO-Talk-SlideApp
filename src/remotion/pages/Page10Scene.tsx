@@ -72,6 +72,9 @@ const PAGE15_MERGE_CENTER = {x: 690, y: 346};
 const LOOP_FRAME_LEAD = 0;
 const loopFrame = (stepId: Parameters<typeof resolveRemotionStepFrame>[0]) =>
   resolveRemotionStepFrame(stepId) - LOOP_FRAME_LEAD;
+const LOOP_PAGE09_FRAME = loopFrame("page_09");
+const LOOP_PAGE09_IMAGE_FRAME = loopFrame("page_09_img");
+const LOOP_PAGE10_FRAME = loopFrame("page_10");
 const LOOP_PAGE11_FRAME = loopFrame("page_11");
 const LOOP_PAGE12_FRAME = loopFrame("page_12");
 const LOOP_PAGE13_FRAME = loopFrame("page_13");
@@ -94,6 +97,7 @@ const LOOP_PAGE26_FRAME = loopFrame("page_26");
 const LOOP_PAGE27_FRAME = loopFrame("page_27");
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
+const PAGE15_SUPPLEMENT_IMAGE_BOX = {x: 46, y: 52, width: 1188, height: 430, radius: 28};
 const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};
 const PLACEHOLDER_PAGE16_CARD_2 = {x: 500, y: 220, width: 250, height: 124, radius: 22};
 const PLACEHOLDER_PAGE16_CARD_3 = {x: 190, y: 382, width: 250, height: 124, radius: 22};
@@ -474,6 +478,8 @@ function PhoneDevice({
   scale,
   landingFocus,
   stableFocus,
+  offsetX = 0,
+  showShell = true,
   showDeviceLabel,
   showVertexLabel,
   showPixelsLabel,
@@ -484,6 +490,8 @@ function PhoneDevice({
   scale: number;
   landingFocus: number;
   stableFocus: number;
+  offsetX?: number;
+  showShell?: boolean;
   showDeviceLabel: boolean;
   showVertexLabel: boolean;
   showPixelsLabel: boolean;
@@ -494,56 +502,58 @@ function PhoneDevice({
 
   return (
     <g
-      transform={`translate(${centerX(PHONE_BOX)} ${centerY(PHONE_BOX)}) scale(${scale}) translate(${-centerX(PHONE_BOX)} ${-centerY(PHONE_BOX)})`}
+      transform={`translate(${offsetX} 0) translate(${centerX(PHONE_BOX)} ${centerY(PHONE_BOX)}) scale(${scale}) translate(${-centerX(PHONE_BOX)} ${-centerY(PHONE_BOX)})`}
     >
-      <g data-testid="page10-phone-shell" opacity={opacity}>
-        <rect
-          x={PHONE_BOX.x}
-          y={PHONE_BOX.y}
-          width={PHONE_BOX.width}
-          height={PHONE_BOX.height}
-          rx={PHONE_BOX.radius}
-          fill="rgba(255, 252, 247, 0.94)"
-          stroke="rgba(34, 48, 61, 0.22)"
-          strokeWidth="2.2"
-        />
-        <rect
-          x={centerX(PHONE_BOX) - 28}
-          y={PHONE_BOX.y + 16}
-          width="56"
-          height="7"
-          rx="3.5"
-          fill="rgba(34, 48, 61, 0.14)"
-        />
-        <text
-          x={centerX(PHONE_BOX)}
-          y={PHONE_BOX.y + 58}
-          fill={scene.apiStroke}
-          fontSize="24"
-          fontWeight="760"
-          textAnchor="middle"
-          dominantBaseline="middle"
-        >
-          {showDeviceLabel ? "Phone" : ""}
-        </text>
-        <text
-          x={centerX(PHONE_BOX)}
-          y={RUNTIME_LABEL_Y}
-          fill="rgba(34, 48, 61, 0.52)"
-          fontSize="15"
-          fontWeight="700"
-          letterSpacing="0.06em"
-          textAnchor="middle"
-        >
-          RUNTIME
-        </text>
-      </g>
+      {showShell ? (
+        <g data-testid="page10-phone-shell" opacity={opacity}>
+          <rect
+            x={PHONE_BOX.x}
+            y={PHONE_BOX.y}
+            width={PHONE_BOX.width}
+            height={PHONE_BOX.height}
+            rx={PHONE_BOX.radius}
+            fill="rgba(255, 252, 247, 0.94)"
+            stroke="rgba(34, 48, 61, 0.22)"
+            strokeWidth="2.2"
+          />
+          <rect
+            x={centerX(PHONE_BOX) - 28}
+            y={PHONE_BOX.y + 16}
+            width="56"
+            height="7"
+            rx="3.5"
+            fill="rgba(34, 48, 61, 0.14)"
+          />
+          <text
+            x={centerX(PHONE_BOX)}
+            y={PHONE_BOX.y + 58}
+            fill={scene.apiStroke}
+            fontSize="24"
+            fontWeight="760"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {showDeviceLabel ? "Phone" : ""}
+          </text>
+          <text
+            x={centerX(PHONE_BOX)}
+            y={RUNTIME_LABEL_Y}
+            fill="rgba(34, 48, 61, 0.52)"
+            fontSize="15"
+            fontWeight="700"
+            letterSpacing="0.06em"
+            textAnchor="middle"
+          >
+            RUNTIME
+          </text>
+        </g>
+      ) : null}
       <g data-testid="page10-phone-runtime" opacity={runtimeOpacity}>
         <VertexTriangles
           cx={PHONE_VERTEX_CENTER.x}
           cy={PHONE_VERTEX_CENTER.y}
           opacity={0.9}
-          scale={0.42}
+          scale={0.46}
         />
         {showVertexLabel ? (
           <text
@@ -716,11 +726,19 @@ function SupplementImageOverlay({
   href,
   opacity,
   clipId,
+  box = SUPPLEMENT_IMAGE_BOX,
+  preserveAspectRatio = "xMidYMid slice",
+  backgroundFill = "transparent",
+  imageTestId,
 }: {
   scene: SceneModel;
   href: string;
   opacity: number;
   clipId: string;
+  box?: {x: number; y: number; width: number; height: number; radius: number};
+  preserveAspectRatio?: string;
+  backgroundFill?: string;
+  imageTestId?: string;
 }) {
   if (opacity <= 0.001) {
     return null;
@@ -732,40 +750,371 @@ function SupplementImageOverlay({
   return (
     <g
       opacity={opacity}
-      transform={`translate(${centerX(SUPPLEMENT_IMAGE_BOX)} ${centerY(SUPPLEMENT_IMAGE_BOX)}) scale(${overlayScale}) translate(${-centerX(SUPPLEMENT_IMAGE_BOX)} ${-centerY(SUPPLEMENT_IMAGE_BOX)})`}
+      transform={`translate(${centerX(box)} ${centerY(box)}) scale(${overlayScale}) translate(${-centerX(box)} ${-centerY(box)})`}
     >
       <defs>
         <clipPath id={clipId}>
           <rect
-            x={SUPPLEMENT_IMAGE_BOX.x}
-            y={SUPPLEMENT_IMAGE_BOX.y}
-            width={SUPPLEMENT_IMAGE_BOX.width}
-            height={SUPPLEMENT_IMAGE_BOX.height}
-            rx={SUPPLEMENT_IMAGE_BOX.radius}
-            ry={SUPPLEMENT_IMAGE_BOX.radius}
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
+            rx={box.radius}
+            ry={box.radius}
           />
         </clipPath>
       </defs>
+      {backgroundFill !== "transparent" ? (
+        <rect
+          x={box.x}
+          y={box.y}
+          width={box.width}
+          height={box.height}
+          rx={box.radius}
+          ry={box.radius}
+          fill={backgroundFill}
+        />
+      ) : null}
       <image
+        data-testid={imageTestId}
         href={href}
-        x={SUPPLEMENT_IMAGE_BOX.x}
-        y={SUPPLEMENT_IMAGE_BOX.y}
-        width={SUPPLEMENT_IMAGE_BOX.width}
-        height={SUPPLEMENT_IMAGE_BOX.height}
-        preserveAspectRatio="xMidYMid slice"
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        preserveAspectRatio={preserveAspectRatio}
         clipPath={`url(#${clipId})`}
       />
       <rect
-        x={SUPPLEMENT_IMAGE_BOX.x}
-        y={SUPPLEMENT_IMAGE_BOX.y}
-        width={SUPPLEMENT_IMAGE_BOX.width}
-        height={SUPPLEMENT_IMAGE_BOX.height}
-        rx={SUPPLEMENT_IMAGE_BOX.radius}
-        ry={SUPPLEMENT_IMAGE_BOX.radius}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        rx={box.radius}
+        ry={box.radius}
         fill="none"
         stroke={scene.nodeStroke}
         strokeWidth={2.4}
       />
+    </g>
+  );
+}
+
+function Page09EvidenceNotes({
+  scene,
+  opacity,
+}: {
+  scene: SceneModel;
+  opacity: number;
+}) {
+  if (opacity <= 0.001) {
+    return null;
+  }
+
+  const reveal = easeOutQuint(clamp01(opacity));
+  const scale = mix(0.975, 1, reveal);
+  const leftBox = {x: 72, y: 96, width: 318, height: 258, radius: 24};
+  const centerBox = {x: 410, y: 96, width: 462, height: 258, radius: 24};
+  const rightBox = {x: 892, y: 96, width: 316, height: 258, radius: 24};
+  const hashLeftBox = {x: 72, y: 382, width: 560, height: 236, radius: 24};
+  const hashRightBox = {x: 648, y: 382, width: 560, height: 236, radius: 24};
+
+  const centerRows = [
+    {name: "M", inlineSize: "168K", sharedSize: "18K", diff: "-89%"},
+    {name: "M-I1", inlineSize: "178K", sharedSize: "20K", diff: "-89%"},
+    {name: "M-I2", inlineSize: "178K", sharedSize: "20K", diff: "-89%"},
+  ];
+  const centerArrowX = centerX(centerBox);
+  const centerNumberGap = 40;
+  const inlineRows = [
+    {name: "M", size: "168K"},
+    {name: "M-I1", size: "178K"},
+    {name: "M-I2", size: "178K"},
+  ];
+  const sharedRows = [
+    {name: "M", size: "18K"},
+    {name: "M-I1", size: "20K"},
+    {name: "M-I2", size: "20K"},
+    {name: "GL Archive", size: "14.0M"},
+    {name: "Vulkan Archive", size: "19.9M"},
+  ];
+
+  return (
+    <g
+      opacity={opacity}
+      transform={`translate(640 360) scale(${scale}) translate(-640 -360)`}
+    >
+      <StageBox
+        box={leftBox}
+        fill="rgba(255, 251, 246, 0.95)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={centerBox}
+        fill="rgba(255, 251, 246, 0.95)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={rightBox}
+        fill="rgba(255, 251, 246, 0.95)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={hashLeftBox}
+        fill="rgba(255, 251, 246, 0.95)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={hashRightBox}
+        fill="rgba(255, 251, 246, 0.95)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+
+      <text
+        x={leftBox.x + 18}
+        y={leftBox.y + 26}
+        fill={scene.apiStroke}
+        fontSize="19"
+        fontWeight="790"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        Inline（资产内）
+      </text>
+      {inlineRows.map((row, index) => (
+        <text
+          key={`inline-name-${row.name}`}
+          x={leftBox.x + 18}
+          y={leftBox.y + 84 + index * 52}
+          fill="#22303d"
+          fontSize="21"
+          fontWeight="700"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {row.name}
+        </text>
+      ))}
+      {inlineRows.map((row, index) => (
+        <text
+          key={`inline-size-${row.name}`}
+          x={leftBox.x + leftBox.width - 18}
+          y={leftBox.y + 84 + index * 52}
+          fill="#22303d"
+          fontSize="21"
+          fontWeight="700"
+          textAnchor="end"
+          dominantBaseline="middle"
+        >
+          {row.size}
+        </text>
+      ))}
+
+      <text
+        x={centerX(centerBox)}
+        y={centerBox.y + 26}
+        fill="#22303d"
+        fontSize="19"
+        fontWeight="790"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        .uexp 对比（M 系列）
+      </text>
+      <text
+        x={centerX(centerBox)}
+        y={centerBox.y + 54}
+        fill="rgba(34, 48, 61, 0.72)"
+        fontSize="16"
+        fontWeight="700"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        M=Material，M-I*=Material Instance
+      </text>
+      {centerRows.map((row, index) => {
+        const y = centerBox.y + 94 + index * 56;
+        return (
+          <g key={`center-row-${row.name}`}>
+            <line
+              x1={centerBox.x + 16}
+              x2={centerBox.x + centerBox.width - 16}
+              y1={y + 22}
+              y2={y + 22}
+              stroke="rgba(92, 106, 118, 0.24)"
+              strokeWidth={1.2}
+            />
+            <text
+              x={centerBox.x + 18}
+              y={y}
+              fill="#22303d"
+              fontSize="20"
+              fontWeight="760"
+              textAnchor="start"
+              dominantBaseline="middle"
+            >
+              {row.name}
+            </text>
+            <text
+              x={centerArrowX - centerNumberGap}
+              y={y}
+              fill={scene.apiStroke}
+              fontSize="22"
+              fontWeight="780"
+              textAnchor="end"
+              dominantBaseline="middle"
+            >
+              {row.inlineSize}
+            </text>
+            <text
+              x={centerArrowX}
+              y={y}
+              fill="rgba(92, 106, 118, 0.9)"
+              fontSize="22"
+              fontWeight="760"
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              →
+            </text>
+            <text
+              x={centerArrowX + centerNumberGap}
+              y={y}
+              fill="rgba(96, 154, 114, 0.98)"
+              fontSize="22"
+              fontWeight="780"
+              textAnchor="start"
+              dominantBaseline="middle"
+            >
+              {row.sharedSize}
+            </text>
+            <text
+              x={centerBox.x + centerBox.width - 18}
+              y={y}
+              fill="rgba(96, 154, 114, 0.98)"
+              fontSize="18"
+              fontWeight="760"
+              textAnchor="end"
+              dominantBaseline="middle"
+            >
+              {row.diff}
+            </text>
+          </g>
+        );
+      })}
+
+      <text
+        x={rightBox.x + 18}
+        y={rightBox.y + 26}
+        fill="rgba(96, 154, 114, 0.98)"
+        fontSize="19"
+        fontWeight="790"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        Shared（共享库）
+      </text>
+      {sharedRows.map((row, index) => (
+        <text
+          key={`shared-name-${row.name}`}
+          x={rightBox.x + 18}
+          y={rightBox.y + 82 + index * 36}
+          fill="#22303d"
+          fontSize="19"
+          fontWeight={index >= 3 ? "760" : "700"}
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {row.name}
+        </text>
+      ))}
+      {sharedRows.map((row, index) => (
+        <text
+          key={`shared-size-${row.name}`}
+          x={rightBox.x + rightBox.width - 18}
+          y={rightBox.y + 82 + index * 36}
+          fill="#22303d"
+          fontSize="19"
+          fontWeight={index >= 3 ? "760" : "700"}
+          textAnchor="end"
+          dominantBaseline="middle"
+        >
+          {row.size}
+        </text>
+      ))}
+
+      <text
+        x={hashLeftBox.x + 18}
+        y={hashLeftBox.y + 28}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="790"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        Hash 复用证据（OpenGL）
+      </text>
+      <text
+        x={hashLeftBox.x + 18}
+        y={hashLeftBox.y + 74}
+        fill="#22303d"
+        fontSize="24"
+        fontWeight="760"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        BC10CB48...B4A6DB57
+      </text>
+      <text
+        x={hashLeftBox.x + 18}
+        y={hashLeftBox.y + 116}
+        fill="rgba(34, 48, 61, 0.74)"
+        fontSize="18"
+        fontWeight="700"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        M-I1 / M-I2 复用同一 Hash
+      </text>
+
+      <text
+        x={hashRightBox.x + 18}
+        y={hashRightBox.y + 28}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="790"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        Hash 复用证据（Vulkan）
+      </text>
+      <text
+        x={hashRightBox.x + 18}
+        y={hashRightBox.y + 74}
+        fill="#22303d"
+        fontSize="24"
+        fontWeight="760"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        8DD283A7...E60A34B5
+      </text>
+      <text
+        x={hashRightBox.x + 18}
+        y={hashRightBox.y + 116}
+        fill="rgba(34, 48, 61, 0.74)"
+        fontSize="18"
+        fontWeight="700"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        共享模式命中同一套 Hash
+      </text>
     </g>
   );
 }
@@ -1012,106 +1361,73 @@ function DotMeter({
 function Page14Placeholder({
   scene,
   opacity,
+  phoneOffsetX,
 }: {
   scene: SceneModel;
   opacity: number;
+  phoneOffsetX: number;
 }) {
-  const drawReveal = resolveWindowProgress(opacity, 0.14, 0.5, easeOutQuint);
-  const routeReveal = resolveWindowProgress(opacity, 0.34, 0.82, easeOutQuint);
-  const drawBox = {x: 214, y: 318, width: 168, height: 58, radius: 20};
-  const psoBox = {x: 424, y: 282, width: 464, height: 126, radius: 60};
-  const recBox = {x: 930, y: 314, width: 206, height: 66, radius: 22};
-  const innerBssBox = {x: 436, y: 326, width: 222, height: 52, radius: 24};
-  const innerVsBox = {x: 446, y: 334, width: 96, height: 36, radius: 16};
-  const innerPsBox = {x: 552, y: 334, width: 96, height: 36, radius: 16};
-  const innerStateBox = {x: 704, y: 328, width: 136, height: 46, radius: 18};
-  const drawToPsoPoints = [
-    {x: right(drawBox) + 10, y: centerY(drawBox)},
-    {x: psoBox.x - 12, y: centerY(psoBox)},
+  const nodeReveal = resolveWindowProgress(opacity, 0.12, 0.54, easeOutQuint);
+  const routeReveal = resolveWindowProgress(opacity, 0.34, 0.92, easeOutQuint);
+  const runtimeGpuX = PHONE_GPU.x + phoneOffsetX;
+  const runtimeGpuY = PHONE_GPU.y;
+  const psoBox = {
+    x: runtimeGpuX - 760,
+    y: runtimeGpuY - 70,
+    width: 360,
+    height: 144,
+    radius: 24,
+  };
+  const recBox = {
+    x: psoBox.x + 12,
+    y: psoBox.y - 162,
+    width: 336,
+    height: 72,
+    radius: 22,
+  };
+
+  const psoToGpuPoints = [
+    {x: right(psoBox) + 10, y: runtimeGpuY},
+    {x: runtimeGpuX - 72, y: runtimeGpuY},
   ];
   const psoToRecPoints = [
-    {x: right(psoBox) + 12, y: centerY(psoBox)},
-    {x: recBox.x - 12, y: centerY(recBox)},
+    {x: centerX(psoBox), y: psoBox.y - 10},
+    {x: centerX(psoBox), y: recBox.y + recBox.height + 10},
   ];
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
-        fill={scene.apiStroke}
-        fontSize="34"
-        fontWeight="800"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        Phone 如何收集 PSO
-      </text>
-      <FloatingPill
-        scene={scene}
-        box={drawBox}
-        label="Draw"
-        opacity={opacity}
-      />
-      <g opacity={opacity}>
+      <g opacity={opacity * nodeReveal}>
         <StageBox
           box={psoBox}
-          fill="rgba(255, 251, 246, 0.94)"
+          fill="rgba(248, 236, 226, 0.96)"
           stroke={scene.apiStroke}
           strokeWidth={3}
         />
         <text
           x={centerX(psoBox)}
-          y={psoBox.y + 18}
-          fill={scene.apiStroke}
+          y={psoBox.y + 58}
+          fill="#22303d"
           fontSize="20"
-          fontWeight="780"
+          fontWeight="760"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          PSO
+          PSO = BSS + State
         </text>
-      </g>
-      <g opacity={opacity}>
-        <StageBox
-          box={innerBssBox}
-          fill="rgba(255, 247, 239, 0.96)"
-          stroke="rgba(209, 110, 74, 0.42)"
-          strokeWidth={2.2}
-        />
         <text
-          x={centerX(innerBssBox)}
-          y={innerBssBox.y - 8}
-          fill="rgba(34, 48, 61, 0.72)"
-          fontSize="15"
-          fontWeight="780"
+          x={centerX(psoBox)}
+          y={psoBox.y + 100}
+          fill="rgba(34, 48, 61, 0.78)"
+          fontSize="18"
+          fontWeight="730"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          BSS
+          BSS = VS Hash + PS Hash
         </text>
       </g>
-      <FloatingPill
-        scene={scene}
-        box={innerVsBox}
-        label="VS Hash"
-        opacity={opacity}
-        accent
-      />
-      <FloatingPill
-        scene={scene}
-        box={innerPsBox}
-        label="PS Hash"
-        opacity={opacity}
-        accent
-      />
-      <FloatingPill
-        scene={scene}
-        box={innerStateBox}
-        label="State"
-        opacity={opacity}
-      />
-      <g opacity={opacity}>
+      <g opacity={opacity * nodeReveal}>
         <StageBox
           box={recBox}
           fill="rgba(248, 236, 226, 0.96)"
@@ -1130,58 +1446,57 @@ function Page14Placeholder({
           .rec.upipelinecache
         </text>
       </g>
-      <text
-        x={psoBox.x + 108}
-        y={478}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="19"
-        fontWeight="720"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        opacity={opacity}
-      >
-        OpenGL: BSS
-      </text>
-      <text
-        x={psoBox.x + 342}
-        y={478}
-        fill={scene.apiStroke}
-        fontSize="19"
-        fontWeight="720"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        opacity={opacity}
-      >
-        Vulkan / Metal: BSS + State
-      </text>
       <StrokeArrow
-        d={roundedPolylinePath(drawToPsoPoints)}
+        d={roundedPolylinePath(psoToGpuPoints)}
         stroke={scene.apiStroke}
-        opacity={opacity * drawReveal}
-        headOpacity={revealHeadOpacity(drawReveal, opacity * drawReveal)}
-        tipX={psoBox.x - 12}
-        tipY={centerY(psoBox)}
+        opacity={opacity * routeReveal}
+        headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
+        tipX={runtimeGpuX - 72}
+        tipY={runtimeGpuY}
         direction="right"
-        shaftWidth={3.1}
-        underlayWidth={5.6}
-        headSize={9}
+        shaftWidth={3}
+        underlayWidth={5.5}
+        headSize={8}
         testId="page14-draw-to-pso-arrow"
-        dashArray="12 10"
       />
       <StrokeArrow
         d={roundedPolylinePath(psoToRecPoints)}
         stroke={scene.apiStroke}
         opacity={opacity * routeReveal}
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
-        dashArray={revealDashArray(psoToRecPoints, routeReveal)}
-        tipX={recBox.x - 12}
-        tipY={centerY(recBox)}
-        direction="right"
+        dashArray="12 10"
+        tipX={centerX(psoBox)}
+        tipY={recBox.y + recBox.height + 10}
+        direction="up"
         shaftWidth={3.1}
         underlayWidth={5.6}
         headSize={9}
         testId="page14-pso-to-rec-arrow"
       />
+      <text
+        x={centerX(psoBox) + 74}
+        y={(recBox.y + recBox.height + psoBox.y) / 2 - 6}
+        fill="rgba(34, 48, 61, 0.72)"
+        fontSize="16"
+        fontWeight="720"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={opacity * routeReveal}
+      >
+        保存在本地
+      </text>
+      <text
+        x={centerX(psoBox)}
+        y={bottom(psoBox) + 38}
+        fill="rgba(34, 48, 61, 0.7)"
+        fontSize="16"
+        fontWeight="700"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={opacity * nodeReveal}
+      >
+        注：Vulkan / Metal = BSS + State，OpenGL = BSS（无 State）
+      </text>
     </PlaceholderBoardShell>
   );
 }
@@ -1225,6 +1540,19 @@ function Page16Placeholder({
   const hashTokenBox = boxFromCenter(PAGE16_EXAMPLE_HASH_CENTER, 154, 40, 14);
   const key1Box = boxFromCenter(PAGE16_EXAMPLE_KEY1_CENTER, 154, 40, 14);
   const key2Box = boxFromCenter(PAGE16_EXAMPLE_KEY2_CENTER, 154, 40, 14);
+  const stableKeyTableBox = {
+    x: 706,
+    y: 416,
+    width: 420,
+    height: 188,
+    radius: 16,
+  };
+  const stableKeyRows: Array<{field: string; sample: string}> = [
+    {field: "ShaderType", sample: "BasePassPS (待补)"},
+    {field: "VertexFactory", sample: "LocalVF (待补)"},
+    {field: "MaterialDomain", sample: "Surface (待补)"},
+    {field: "PermutationId", sample: "0x**** (待补)"},
+  ];
   const recToExpandPoints = [
     {x: right(recBox) + 10, y: sharedCenter.y},
     {x: sharedCenter.x - 18, y: sharedCenter.y},
@@ -1270,6 +1598,18 @@ function Page16Placeholder({
         detailFontSize={17}
         emphasized
       />
+      <text
+        x={centerX(recBox)}
+        y={recBox.y - 24}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="760"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={sharedOpacity}
+      >
+        历史 runtime
+      </text>
       <ArtifactNode
         scene={scene}
         box={sclBox}
@@ -1279,6 +1619,18 @@ function Page16Placeholder({
         labelFontSize={24}
         detailFontSize={16}
       />
+      <text
+        x={centerX(sclBox)}
+        y={sclBox.y - 22}
+        fill={scene.apiStroke}
+        fontSize="20"
+        fontWeight="760"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={sharedOpacity}
+      >
+        历史映射
+      </text>
       <CalloutBadge
         x={sharedCenter.x}
         y={sharedCenter.y}
@@ -1328,6 +1680,101 @@ function Page16Placeholder({
         headSize={9}
         testId="page16-expand-to-stablepc-arrow"
       />
+      <g opacity={noteOpacity}>
+        <StageBox
+          box={stableKeyTableBox}
+          fill="rgba(255, 251, 246, 0.9)"
+          stroke="rgba(92, 106, 118, 0.22)"
+          strokeWidth={1.6}
+        />
+        <line
+          x1={stableKeyTableBox.x + 12}
+          x2={stableKeyTableBox.x + stableKeyTableBox.width - 12}
+          y1={stableKeyTableBox.y + 44}
+          y2={stableKeyTableBox.y + 44}
+          stroke="rgba(92, 106, 118, 0.28)"
+          strokeWidth={1.4}
+        />
+        <line
+          x1={stableKeyTableBox.x + 196}
+          x2={stableKeyTableBox.x + 196}
+          y1={stableKeyTableBox.y + 44}
+          y2={stableKeyTableBox.y + stableKeyTableBox.height - 14}
+          stroke="rgba(92, 106, 118, 0.2)"
+          strokeWidth={1.2}
+        />
+        <text
+          x={stableKeyTableBox.x + 16}
+          y={stableKeyTableBox.y + 24}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="780"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          ShaderStableKey 关键参数
+        </text>
+        <text
+          x={stableKeyTableBox.x + 16}
+          y={stableKeyTableBox.y + 62}
+          fill="rgba(34, 48, 61, 0.74)"
+          fontSize="19"
+          fontWeight="760"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          字段
+        </text>
+        <text
+          x={stableKeyTableBox.x + 206}
+          y={stableKeyTableBox.y + 62}
+          fill="rgba(34, 48, 61, 0.74)"
+          fontSize="19"
+          fontWeight="760"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          示例值（待补）
+        </text>
+        {stableKeyRows.map((row, index) => {
+          const rowCenterY = stableKeyTableBox.y + 62 + (index + 1) * 30;
+          const separatorY = stableKeyTableBox.y + 74 + index * 30;
+          return (
+            <g key={row.field}>
+              <line
+                x1={stableKeyTableBox.x + 12}
+                x2={stableKeyTableBox.x + stableKeyTableBox.width - 12}
+                y1={separatorY}
+                y2={separatorY}
+                stroke="rgba(92, 106, 118, 0.16)"
+                strokeWidth={1}
+              />
+              <text
+                x={stableKeyTableBox.x + 16}
+                y={rowCenterY}
+                fill={scene.apiStroke}
+                fontSize="18"
+                fontWeight="700"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.field}
+              </text>
+              <text
+                x={stableKeyTableBox.x + 206}
+                y={rowCenterY}
+                fill="rgba(34, 48, 61, 0.74)"
+                fontSize="17"
+                fontWeight="650"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.sample}
+              </text>
+            </g>
+          );
+        })}
+      </g>
       <ArrowLabelPill
         x={(sharedCenter.x + stablePcBox.x - 10) / 2 + 4}
         y={sharedCenter.y - 26}
@@ -1739,13 +2186,13 @@ function Page17Placeholder({
       <MicroToken
         scene={scene}
         box={splitKey1AnimatedBox}
-        label="Key_A"
+        label="StableKey_A"
         opacity={annotationOpacity}
       />
       <MicroToken
         scene={scene}
         box={splitKey2AnimatedBox}
-        label="Key_B"
+        label="StableKey_B"
         opacity={annotationOpacity}
       />
       <MicroToken
@@ -1791,13 +2238,13 @@ function Page17Placeholder({
       <MicroToken
         scene={scene}
         box={mergeKey1AnimatedBox}
-        label="Key_A"
+        label="StableKey_A"
         opacity={annotationOpacity}
       />
       <MicroToken
         scene={scene}
         box={mergeKey2AnimatedBox}
-        label="Key_B"
+        label="StableKey_B"
         opacity={annotationOpacity}
       />
       <MicroToken
@@ -2504,6 +2951,7 @@ function TextOnlyPlaceholder({
   title,
   goalLines,
   bridgeLines,
+  showTitle = true,
 }: {
   scene: SceneModel;
   opacity: number;
@@ -2511,6 +2959,7 @@ function TextOnlyPlaceholder({
   title: string;
   goalLines: string[];
   bridgeLines: string[];
+  showTitle?: boolean;
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
@@ -2519,17 +2968,19 @@ function TextOnlyPlaceholder({
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
-        fill={scene.apiStroke}
-        fontSize="34"
-        fontWeight="800"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        {title}
-      </text>
+      {showTitle ? (
+        <text
+          x={centerX(PLACEHOLDER_BOARD)}
+          y="126"
+          fill={scene.apiStroke}
+          fontSize="34"
+          fontWeight="800"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {title}
+        </text>
+      ) : null}
       <FloatingCard
         scene={scene}
         box={goalCard}
@@ -2549,6 +3000,84 @@ function TextOnlyPlaceholder({
   );
 }
 
+function NarrativeTypesetPlaceholder({
+  scene,
+  opacity,
+  entryProgress,
+  kicker,
+  bodyLines,
+  footer,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+  kicker: string;
+  bodyLines: string[];
+  footer: string;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const contentBox = {x: 148, y: 170, width: 984, height: 434, radius: 30};
+  const leftX = contentBox.x + 42;
+  const bodyStartY = contentBox.y + 112;
+  const bodyLineGap = 48;
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <StageBox
+        box={contentBox}
+        fill="rgba(255, 251, 246, 0.94)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <text
+        x={leftX}
+        y={contentBox.y + 48}
+        fill="rgba(214, 102, 48, 0.96)"
+        fontSize="19"
+        fontWeight="830"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {kicker}
+      </text>
+      {bodyLines.map((line, index) => (
+        <text
+          key={`narrative-line-${index}`}
+          x={leftX}
+          y={bodyStartY + index * bodyLineGap}
+          fill="#22303d"
+          fontSize="31"
+          fontWeight={index === 0 ? "790" : "730"}
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {line}
+        </text>
+      ))}
+      <line
+        x1={leftX}
+        y1={contentBox.y + contentBox.height - 92}
+        x2={contentBox.x + contentBox.width - 42}
+        y2={contentBox.y + contentBox.height - 92}
+        stroke="rgba(92, 106, 118, 0.3)"
+        strokeWidth={1.6}
+      />
+      <text
+        x={leftX}
+        y={contentBox.y + contentBox.height - 54}
+        fill="rgba(34, 48, 61, 0.76)"
+        fontSize="22"
+        fontWeight="700"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {footer}
+      </text>
+    </PlaceholderBoardShell>
+  );
+}
+
 function Page21Placeholder({
   scene,
   opacity,
@@ -2563,18 +3092,18 @@ function Page21Placeholder({
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 21 页：我的理解（成本转移）"
+      title="第 21 页：PSO 缓存有效性边界"
       goalLines={[
-        "PSO 是对象，PSO Cache 是工程方法：用启动时间+内存，换运行时卡顿率。",
-        "它附属于 Shader，不是所有项目都必须开；不开也可能跑得很好。",
-        "这套方法代价不小，往往比想象中大。",
-        "一句话记忆：预编译的 PSO 不会消失，只会转移（运行时 -> 首启）。",
-        "工程优先级通常先保运行时卡顿，其次再压首次启动时间。",
+        "收集策略必须“少而全”：如果暴力 Permute，PSO 数量会指数膨胀。",
+        "启动时一次性 Open stable.upipelinecache，会把内存和时长压力集中到首启。",
+        "OpenGL 与现代 API 的状态模型不同，缓存结构与命中形态天然不同。",
+        "OS / 驱动 / 芯片 / API 变化都可能导致本地缓存失效并触发重编译。",
       ]}
       bridgeLines={[
-        "下一页讲代价来源：收集策略、启动 Open 策略、OpenGL 与现代 API 差异。",
-        "最后再回收到环境失效边界（OS/驱动/芯片）。",
+        "下一页切到“我的理解”：用一句话收束 PSO 与 PSO Cache 的关系。",
+        "先把本质讲清，再进入后面的 4 个优化策略页。",
       ]}
+      showTitle={false}
     />
   );
 }
@@ -2589,21 +3118,18 @@ function Page22Placeholder({
   entryProgress: number;
 }) {
   return (
-    <TextOnlyPlaceholder
+    <NarrativeTypesetPlaceholder
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 22 页：PSO 缓存有效性边界"
-      goalLines={[
-        "收集策略要“少而全”：若暴力 Permute Shader State，数量会指数增长。",
-        "启动 Open 常见一次性 Load stable.upipelinecache：单次内存/时长压力大。",
-        "OpenGL 没有完整管线状态（更偏 Shader 维度），与现代 API 模型不同。",
-        "再叠加环境变化（OS/驱动/芯片/API），缓存就会失效并触发重编译。",
+      kicker="我的理解 / PSO Cache 本质"
+      bodyLines={[
+        "PSO 是对象，PSO Cache 是工程方法。",
+        "它本质是用启动时间 + 内存空间，换运行时卡顿率。",
+        "预编译的 PSO 不会消失，只会转移。",
+        "工程优先级通常先保运行时帧稳定，再压首次启动时长。",
       ]}
-      bridgeLines={[
-        "前置并不等于消失，只有收集-构建-回灌链路持续成立才有效。",
-        "下一页再进入优化方向：压缩/解压取舍。",
-      ]}
+      footer="PSO Cache 依赖 Shader 数据链路，本质是工程折中而不是“零代价优化”。"
     />
   );
 }
@@ -2617,225 +3143,23 @@ function Page23Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
-  const panelOpacity = opacity * reveal;
-  const tableBox = {x: 104, y: 170, width: 1072, height: 410, radius: 24};
-  const headerHeight = 58;
-  const rowCount = 4;
-  const rowHeight = (tableBox.height - headerHeight) / rowCount;
-  const col1 = tableBox.x + 260;
-  const col2 = tableBox.x + 430;
-  const col3 = tableBox.x + 749;
-  const headerY = tableBox.y + headerHeight;
-  const rowCenter = (index: number) =>
-    headerY + rowHeight * index + rowHeight / 2;
-  const rows = [
-    {
-      label: "Nubia Z60 Ultra / OpenGL",
-      total: "0.795 s",
-      hot1: "glLinkProgram 318 ms",
-      hot2: "glCompileShader 232.4 ms",
-    },
-    {
-      label: "Nubia Z60 Ultra / Vulkan",
-      total: "1.440 s",
-      hot1: "CreateGfxPipeline 1.257 s",
-      hot2: "CreateComputePipeline 148.3 ms",
-    },
-    {
-      label: "Pixel 7 / OpenGL",
-      total: "1.453 s",
-      hot1: "glLinkProgram 590 ms",
-      hot2: "glCompileShader 499 ms",
-    },
-    {
-      label: "Pixel 7 / Vulkan",
-      total: "2.526 s",
-      hot1: "CreateGfxPipeline 2.092 s",
-      hot2: "CreateComputePipeline 334 ms",
-    },
-  ];
-
   return (
-    <PlaceholderBoardShell opacity={panelOpacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="124"
-        fill={scene.apiStroke}
-        fontSize="32"
-        fontWeight="800"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        第 23 页：跨设备 OpenGL / Vulkan 实测表
-      </text>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="152"
-        fill="#4f5e6b"
-        fontSize="15"
-        fontWeight="650"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        数据源：Supplement/耗时Insight/MinePSO_耗时对比分析（Nubia Z60 Ultra + Pixel 7）
-      </text>
-      <StageBox
-        box={tableBox}
-        fill="rgba(255, 251, 246, 0.96)"
-        stroke={scene.nodeStroke}
-        strokeWidth={2.8}
-      />
-      <line
-        x1={tableBox.x}
-        y1={headerY}
-        x2={tableBox.x + tableBox.width}
-        y2={headerY}
-        stroke={scene.nodeStroke}
-        strokeWidth={2}
-      />
-      <line
-        x1={col1}
-        y1={tableBox.y}
-        x2={col1}
-        y2={tableBox.y + tableBox.height}
-        stroke={scene.nodeStroke}
-        strokeWidth={1.8}
-      />
-      <line
-        x1={col2}
-        y1={tableBox.y}
-        x2={col2}
-        y2={tableBox.y + tableBox.height}
-        stroke={scene.nodeStroke}
-        strokeWidth={1.8}
-      />
-      <line
-        x1={col3}
-        y1={tableBox.y}
-        x2={col3}
-        y2={tableBox.y + tableBox.height}
-        stroke={scene.nodeStroke}
-        strokeWidth={1.8}
-      />
-      {Array.from({length: rowCount - 1}).map((_, idx) => {
-        const y = headerY + rowHeight * (idx + 1);
-        return (
-          <line
-            key={`row-line-${idx}`}
-            x1={tableBox.x}
-            y1={y}
-            x2={tableBox.x + tableBox.width}
-            y2={y}
-            stroke="rgba(34, 48, 61, 0.45)"
-            strokeWidth={1.4}
-          />
-        );
-      })}
-      <text
-        x={tableBox.x + (col1 - tableBox.x) / 2}
-        y={tableBox.y + 30}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="780"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        设备 / API
-      </text>
-      <text
-        x={col1 + (col2 - col1) / 2}
-        y={tableBox.y + 30}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="780"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        CPU Total
-      </text>
-      <text
-        x={col2 + (col3 - col2) / 2}
-        y={tableBox.y + 30}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="780"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        热点 1
-      </text>
-      <text
-        x={col3 + (tableBox.x + tableBox.width - col3) / 2}
-        y={tableBox.y + 30}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="780"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        热点 2
-      </text>
-
-      {rows.map((row, idx) => {
-        const y = rowCenter(idx);
-        return (
-          <g key={row.label}>
-            <text
-              x={tableBox.x + 16}
-              y={y}
-              fill="#22303d"
-              fontSize="17"
-              fontWeight="740"
-              dominantBaseline="middle"
-            >
-              {row.label}
-            </text>
-            <text
-              x={col1 + 16}
-              y={y}
-              fill="#22303d"
-              fontSize="17"
-              fontWeight="740"
-              dominantBaseline="middle"
-            >
-              {row.total}
-            </text>
-            <text
-              x={col2 + 16}
-              y={y}
-              fill="#22303d"
-              fontSize="16"
-              fontWeight="680"
-              dominantBaseline="middle"
-            >
-              {row.hot1}
-            </text>
-            <text
-              x={col3 + 16}
-              y={y}
-              fill="#22303d"
-              fontSize="16"
-              fontWeight="680"
-              dominantBaseline="middle"
-            >
-              {row.hot2}
-            </text>
-          </g>
-        );
-      })}
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="604"
-        fill="rgba(34, 48, 61, 0.74)"
-        fontSize="20"
-        fontWeight="730"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        结论：跨设备都可见 Vulkan 管线创建更重，热点稳定集中在 Create/Compile 阶段
-      </text>
-    </PlaceholderBoardShell>
+    <TextOnlyPlaceholder
+      scene={scene}
+      opacity={opacity}
+      entryProgress={entryProgress}
+      title="第 23 页：优化策略导入"
+      goalLines={[
+        "从这里开始不再重复流程，而是专注“怎么优化这套工程方法”。",
+        "我们把优化拆成 4 个策略：时间换空间、IO换空间、延迟处理、API差异建模。",
+        "每页只讲一个策略，避免把实现细节堆在同一页。",
+      ]}
+      bridgeLines={[
+        "下一页进入策略 1：时间换空间（压缩/解压链路取舍）。",
+        "之后按策略 2 -> 3 -> 4 顺序推进并收束。",
+      ]}
+      showTitle={false}
+    />
   );
 }
 
@@ -2853,16 +3177,17 @@ function Page24Placeholder({
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 24 页：优化方向 1（压缩取舍）"
+      title="第 24 页：策略 1（时间换空间）"
       goalLines={[
-        "讨论 Code 压缩是否保留：压缩省 IO/包体，解压吃 CPU/带宽。",
-        "核心判断标准是当前瓶颈位置，不是固定开关。",
-        "给出结论模板：IO 瓶颈偏保留压缩，CPU 瓶颈偏减少压缩。",
+        "核心问题：是否保留 Code 压缩。压缩节省空间，但解压会消耗时间。",
+        "这是典型的“时间换空间”：把体积和存储压力换成启动阶段 CPU 时间。",
+        "决策方法：先看瓶颈画像，再选压缩级别，而不是一刀切开关。",
       ]}
       bridgeLines={[
-        "下一页进入优化方向 2：BCache 策略。",
-        "本页先文本占位，后续再加数据佐证。",
+        "下一页进入策略 2：IO换空间（mmap + LRU）。",
+        "后续可补压缩比、解压时长和首帧时间的实测对照。",
       ]}
+      showTitle={false}
     />
   );
 }
@@ -2881,16 +3206,17 @@ function Page25Placeholder({
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 25 页：优化方向 2（BCache 策略）"
+      title="第 25 页：策略 2（IO换空间）"
       goalLines={[
-        "说明缓存治理不是单一参数：LRU/LFU、mmap、ring 都影响效果。",
-        "强调缓存优化本质是“空间换 IO”，要匹配访问形态。",
-        "明确后续可补命中率与启动耗时对比证据。",
+        "IO换空间的典型做法：mmap 按需映射 + LRU 保留热数据。",
+        "目标是减少随机读与重复拷贝，把慢 IO 压成可控内存占用。",
+        "同类策略还包括 ring/circular，但本页先锁定 mmap 与 LRU 两个主轴。",
       ]}
       bridgeLines={[
-        "下一页进入优化方向 3：编译加速（多线程 + UsageMask）。",
-        "本页暂不画结构图，只保留讲稿骨架。",
+        "下一页进入策略 3：延迟处理（UsageMask）。",
+        "后续可补命中率、缺页与加载时长三组对比图。",
       ]}
+      showTitle={false}
     />
   );
 }
@@ -2909,16 +3235,17 @@ function Page26Placeholder({
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 26 页：优化方向 3（编译加速）"
+      title="第 26 页：策略 3（延迟处理 / UsageMask）"
       goalLines={[
-        "两条线并行考虑：多线程提升吞吐，UsageMask 缩小编译集合。",
-        "建议顺序：先减集合，再并行执行。",
-        "后续可补线程数、任务分桶、耗时曲线作为证据。",
+        "有些计算“必须做”但“现在不一定用得到”，这类任务适合延迟处理。",
+        "UsageMask 的作用是按使用场景筛选编译集合，避免一次性全量计算。",
+        "先做集合剪枝，再做并行加速，通常比单纯加线程更稳。",
       ]}
       bridgeLines={[
-        "下一页收束优化方向 4：Metal vs OpenGL 差异来源。",
-        "本页保持文本占位，等你确认后再加图。",
+        "下一页进入策略 4：深入理解 Metal 与 OpenGL 差异来源。",
+        "后续可补 UsageMask 命中率与延迟触发统计图。",
       ]}
+      showTitle={false}
     />
   );
 }
@@ -2937,23 +3264,45 @@ function Page27Placeholder({
       scene={scene}
       opacity={opacity}
       entryProgress={entryProgress}
-      title="第 27 页：优化方向 4（Metal vs OpenGL）"
+      title="第 27 页：策略 4（Metal vs OpenGL 差异）"
       goalLines={[
-        "归因到状态来源与显式程度差异，而不是 API 优劣口号。",
-        "说明为什么统计到的编译数量与命中行为会不同。",
-        "预留位置补充平台实测口径与数据证据。",
+        "研究 API 差异不是站队，而是反推“PSO 为什么会长成现在这样”。",
+        "Metal 与 OpenGL 在状态来源与显式程度上的差异，会直接影响编译数量与命中分布。",
+        "把差异研究清楚，才能反补前面三条策略的边界条件。",
       ]}
       bridgeLines={[
-        "这页作为优化章节收束页，后续可接 Q&A 或附录。",
-        "目前先文本占位，结构稳定后再上图。",
+        "这一页作为策略章节收束，后续可接实测数据或 Q&A。",
+        "本页先文本占位，等你给案例后再加图。",
       ]}
+      showTitle={false}
     />
   );
 }
 
 export function Page10Scene({scene}: {scene: SceneModel}) {
   const frame = scene.frame;
-  const introProgress = scene.settledPage910Progress ?? 0;
+  const page09ImageReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE09_FRAME,
+    LOOP_PAGE09_IMAGE_FRAME,
+  );
+  const page10RawReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE09_IMAGE_FRAME,
+    LOOP_PAGE10_FRAME,
+  );
+  const page10RestoreReveal = resolveWindowProgress(
+    page10RawReveal,
+    0.04,
+    0.34,
+    easeInOutCubic,
+  );
+  const introProgress = resolveWindowProgress(
+    page10RawReveal,
+    0.4,
+    1,
+    easeInOutCubic,
+  );
   const page11Reveal = scene.settledPage1011Progress ?? 0;
   const page12Reveal = scene.settledPage1112Progress ?? 0;
   const page13Reveal = scene.settledPage1213Progress ?? 0;
@@ -3132,12 +3481,25 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.88,
     easeInOutCubic,
   );
+  const page09ImageVisible = resolveWindowProgress(
+    page09ImageReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page09ImageExit =
+    1 - resolveWindowProgress(page10RawReveal, 0.04, 0.32, easeInOutCubic);
+  const page09ImageFocus = page09ImageVisible * page09ImageExit;
+  const callbackImageSuppression = Math.max(
+    1 - resolveWindowProgress(page09ImageReveal, 0.08, 0.32, easeInOutCubic),
+    page10RestoreReveal,
+  );
   const page14OverlayExit =
     1 - resolveWindowProgress(page13ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page17CarrierVisible = page17PlaceholderVisible > 0.5 ? 1 : 0;
   const page16OverlayExit = 1 - page17CarrierVisible;
   const page17OverlayExit =
-    1 - resolveWindowProgress(page18Reveal, 0.56, 0.9, easeInOutCubic);
+    1 - resolveWindowProgress(page18Reveal, 0.08, 0.3, easeInOutCubic);
   const page14PlaceholderFocus = page14PlaceholderVisible * page14OverlayExit;
   const page16PlaceholderFocus = page16PlaceholderVisible * page16OverlayExit;
   const page17PlaceholderFocus = page17CarrierVisible * page17OverlayExit;
@@ -3159,7 +3521,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page13ImageOverlayExit =
     1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page15ImageOverlayExit =
-    1 - resolveWindowProgress(page15Reveal, 0.08, 0.3, easeInOutCubic);
+    1 - resolveWindowProgress(page15Reveal, 0.02, 0.2, easeInOutCubic);
   const page18ImageOverlayExit =
     1 - resolveWindowProgress(page19PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
   const page20PlaceholderFocus = page20PlaceholderVisible * page20OverlayExit;
@@ -3180,12 +3542,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     easeOutQuint,
   );
   const imageDeckBackdropOut =
-    1 - resolveWindowProgress(page15Reveal, 0.02, 0.42, easeInOutCubic);
+    1 - resolveWindowProgress(page15Reveal, 0.02, 0.24, easeInOutCubic);
   const imageDeckBackdropOpacity = clamp01(imageDeckBackdropIn * imageDeckBackdropOut);
-  const page15MainReveal = resolveWindowProgress(page15Reveal, 0.42, 1, easeInOutCubic);
+  const page15MainReveal = resolveWindowProgress(page15Reveal, 0.06, 0.92, easeInOutCubic);
 
   const callbackExit = resolveWindowProgress(page11Reveal, 0.1, 0.34, easeInOutCubic);
-  const callbackOpacity = 1 - callbackExit;
+  const callbackOpacity = (1 - callbackExit) * callbackImageSuppression;
   const recallReveal = resolveWindowProgress(introProgress, 0.3, 0.64, easeInOutCubic);
   const callbackMergeProgress = resolveWindowProgress(introProgress, 0.72, 0.98, easeInOutCubic);
   const callbackWorldOpacity = callbackOpacity * recallReveal;
@@ -3213,14 +3575,81 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   );
   const questionOpacity =
     resolveWindowProgress(introProgress, 0.18, 0.32, easeOutQuint) *
-    (1 - resolveWindowProgress(introProgress, 0.72, 0.82, easeInOutCubic));
+    (1 - resolveWindowProgress(introProgress, 0.72, 0.82, easeInOutCubic)) *
+    callbackImageSuppression;
   const answerOpacity =
     resolveWindowProgress(introProgress, 0.62, 0.72, easeOutQuint) *
-    (1 - resolveWindowProgress(introProgress, 0.84, 0.92, easeInOutCubic));
+    (1 - resolveWindowProgress(introProgress, 0.84, 0.92, easeInOutCubic)) *
+    callbackImageSuppression;
   const deviceReveal = resolveWindowProgress(page11Reveal, 0.12, 0.42, easeInOutCubic);
   const stageContentReveal = page11Reveal > 0.001 ? 1 : 0;
-  const stableBuildReveal = resolveWindowProgress(page18Reveal, 0.44, 0.72, easeInOutCubic);
-  const stableReturnReveal = resolveWindowProgress(page18Reveal, 0.8, 0.98, easeInOutCubic);
+  const stableEdge1Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.2,
+    0.3,
+    easeOutQuint,
+  );
+  const stableNode1Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.32,
+    0.4,
+    easeInOutCubic,
+  );
+  const stableEdge2Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.42,
+    0.52,
+    easeOutQuint,
+  );
+  const stableNode2Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.54,
+    0.62,
+    easeInOutCubic,
+  );
+  const stableSupportEdge1Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.36,
+    0.56,
+    easeOutQuint,
+  );
+  const stableEdge3Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.64,
+    0.74,
+    easeOutQuint,
+  );
+  const stableNode3Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.76,
+    0.84,
+    easeInOutCubic,
+  );
+  const stableSupportEdge2Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.72,
+    0.9,
+    easeOutQuint,
+  );
+  const stableEdge4Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.82,
+    0.9,
+    easeOutQuint,
+  );
+  const stableNode4Reveal = resolveWindowProgress(
+    page18Reveal,
+    0.91,
+    0.95,
+    easeInOutCubic,
+  );
+  const stableReturnReveal = resolveWindowProgress(
+    page18Reveal,
+    0.95,
+    0.995,
+    easeOutQuint,
+  );
+  const stableBuildReveal = stableNode2Reveal;
   const answerScale = mix(
     0.88,
     1.16,
@@ -3277,8 +3706,20 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.8,
     easeInOutCubic,
   );
-  const runtimeBridgeVisible = stageContentReveal > 0.001;
-  const runtimeBridgeOpacity = stageContentReveal;
+  const runtimeBridgeFadeOut = resolveWindowProgress(
+    page13Reveal,
+    0.02,
+    0.22,
+    easeInOutCubic,
+  );
+  const runtimeBridgeOpacity = stageContentReveal * (1 - runtimeBridgeFadeOut);
+  const runtimeBridgeGpuFadeOut = resolveWindowProgress(
+    page13Reveal,
+    0.02,
+    0.22,
+    easeInOutCubic,
+  );
+  const runtimeBridgeGpuOpacity = runtimeBridgeOpacity * (1 - runtimeBridgeGpuFadeOut);
   const runtimeBridgeBoxVisible = page11Reveal > 0.001 && page11Reveal < 0.58;
   const runtimeBridgeBoxOpacity = runtimeBridgeBoxVisible ? 1 : 0;
   const runtimeBridgeLeftBox = mixBox(
@@ -3378,7 +3819,6 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const placeholderFocus = Math.max(
     imageDeckBackdropOpacity,
     page13ImageFocus,
-    page14PlaceholderFocus,
     page15ImageFocus,
     page16PlaceholderFocus,
     page17PlaceholderFocus,
@@ -3422,10 +3862,25 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.12,
     easeInOutCubic,
   );
+  const page15StageLift = resolveWindowProgress(
+    page15Reveal,
+    0.04,
+    0.28,
+    easeInOutCubic,
+  );
+  const page15StageLiftExit =
+    1 - resolveWindowProgress(page16PlaceholderReveal, 0.02, 0.22, easeInOutCubic);
+  const page15StageCarry = page15StageLift * page15StageLiftExit;
   const placeholderStageScale = mix(1, 0.94, placeholderStageFade);
-  const placeholderStageOpacity =
+  const placeholderStageOpacityBase =
     (1 - placeholderStageFade) * (1 - onepageStageSuppression);
+  const placeholderStageOpacity = Math.max(
+    placeholderStageOpacityBase,
+    stageContentReveal * page15StageCarry * 0.9,
+  );
   const placeholderStageTransform = `translate(640 360) scale(${placeholderStageScale}) translate(-640 -360)`;
+  const page14LeftMute =
+    1 - resolveWindowProgress(page14PlaceholderFocus, 0.02, 0.2, easeInOutCubic);
 
   const computerScalePhase12 = mix(1, 1.08, easeInOutCubic(page12Reveal));
   const computerScalePhase13 = mix(computerScalePhase12, 0.94, easeInOutCubic(page13Reveal));
@@ -3444,8 +3899,10 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     easeInOutCubic(page15MainReveal),
   );
   const phoneScale = mix(phoneScalePhase15, 1.1, easeInOutCubic(stableReturnReveal));
+  const page14PhoneEmphasis = mix(1, 1.08, easeOutQuint(page14PlaceholderFocus));
+  const page14PhoneOffsetX = mix(0, -120, easeInOutCubic(page14PlaceholderFocus));
 
-  const baseNodeOpacity = stageContentReveal;
+  const baseNodeOpacity = stageContentReveal * page14LeftMute;
   const page16HandoffIn = resolveWindowProgress(
     page16PlaceholderReveal,
     0.04,
@@ -3459,51 +3916,78 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     easeInOutCubic,
   );
   const page16SemanticHandoff = 1 - page16HandoffIn * (1 - page16HandoffOut);
-  const bytecodeBaseOpacity =
-    stageContentReveal *
-    page13Reveal;
+  const bytecodeBaseOpacity = stageContentReveal * page13Reveal * page14LeftMute;
   const stableContextFade = 1;
   const sclNodeOpacity =
-    stageContentReveal * page12Reveal * stableContextFade * page16SemanticHandoff;
-  const cookEdgeOpacity =
-    stageContentReveal * page12Reveal * stableContextFade;
-  const bytecodeToPhoneOpacity =
     stageContentReveal *
-    page13Reveal;
-  const recRouteReveal = resolveWindowProgress(page15MainReveal, 0.4, 0.92, easeOutQuint);
-  const stableBandReveal = resolveWindowProgress(page18Reveal, 0.52, 0.78, easeOutQuint);
-  const stableMergeReveal = resolveWindowProgress(page18Reveal, 0.68, 0.9, easeOutQuint);
+    page12Reveal *
+    stableContextFade *
+    page16SemanticHandoff *
+    page14LeftMute;
+  const cookCarrierOpacity = stageContentReveal * stableContextFade * page14LeftMute;
+  const cookMainReveal = resolveWindowProgress(page12Reveal, 0.06, 0.62, easeOutQuint);
+  const cookBranchReveal = resolveWindowProgress(page12Reveal, 0.34, 0.94, easeOutQuint);
+  const cookSplitOpacity =
+    cookCarrierOpacity * resolveWindowProgress(page12Reveal, 0.2, 0.5, easeOutQuint);
+  const cookLabelOpacity =
+    cookCarrierOpacity * resolveWindowProgress(page12Reveal, 0.24, 0.58, easeOutQuint);
+  const bytecodeToPhoneRouteReveal = resolveWindowProgress(
+    page13Reveal,
+    0.14,
+    0.9,
+    easeOutQuint,
+  );
+  const bytecodeToPhoneCarrierOpacity =
+    stageContentReveal *
+    resolveWindowProgress(page13Reveal, 0.04, 0.2, easeInOutCubic) *
+    page14LeftMute;
   const stablePcStageReturnProgress = resolveWindowProgress(
     page18Reveal,
-    0.42,
-    0.9,
+    0.18,
+    0.72,
     easeInOutCubic,
   );
   const stableReturnRouteReveal = resolveWindowProgress(
     page18Reveal,
-    0.88,
-    0.98,
+    0.95,
+    0.995,
     easeOutQuint,
   );
-  const recOpacity =
-    stageContentReveal *
-    recRouteReveal *
-    page16SemanticHandoff;
-  const recGeometryVisible =
-    stageContentReveal > 0.001 &&
-    (page14PlaceholderReveal > 0.001 || page15MainReveal > 0.001);
-  const recGeometryOpacity =
-    page15MainReveal > 0.001
-      ? recOpacity
-      : stageContentReveal * page14PlaceholderFocus * 0.001;
-  const stableBandOpacity = stageContentReveal * stableBuildReveal;
-  const stableMergeOpacity = stageContentReveal * stableMergeReveal;
+  const stableEdge1Opacity = stageContentReveal * stableEdge1Reveal;
+  const stableNode1Opacity = stageContentReveal * stableNode1Reveal;
+  const stableEdge2Opacity = stageContentReveal * stableEdge2Reveal;
+  const stableNode2Opacity = stageContentReveal * stableNode2Reveal;
+  const stableSupportEdge1Opacity = stageContentReveal * stableSupportEdge1Reveal;
+  const stableEdge3Opacity = stageContentReveal * stableEdge3Reveal;
+  const stableNode3Opacity = stageContentReveal * stableNode3Reveal;
+  const stableSupportEdge2Opacity = stageContentReveal * stableSupportEdge2Reveal;
+  const stableEdge4Opacity = stageContentReveal * stableEdge4Reveal;
+  const stableNode4Opacity = stageContentReveal * stableNode4Reveal;
   const stableToPhoneOpacity = stageContentReveal * stableReturnReveal;
   const stageStablePcBox = mixBox(
     PAGE17_STABLE_PC_TARGET_BOX,
     STABLE_PC_BOX,
     stablePcStageReturnProgress,
   );
+  const cookToSplitPoints = [
+    {x: centerX(COMPUTER_BOX), y: bottom(COMPUTER_BOX) + 8},
+    {x: centerX(COMPUTER_BOX), y: SPLIT_CENTER.y},
+    {x: SPLIT_CENTER.x - 8, y: SPLIT_CENTER.y},
+  ];
+  const splitToSclPoints = [
+    {x: SPLIT_CENTER.x, y: SPLIT_CENTER.y - 8},
+    {x: centerX(SCL_BOX), y: SCL_BOX.y + SCL_BOX.height},
+  ];
+  const splitToBytecodePoints = [
+    {x: SPLIT_CENTER.x + 8, y: SPLIT_CENTER.y},
+    {x: BYTECODE_BOX.x - 12, y: centerY(BYTECODE_BOX)},
+  ];
+  const bytecodeToPhonePoints = [
+    {x: right(BYTECODE_BOX) + 12, y: centerY(BYTECODE_BOX)},
+    {x: 920, y: centerY(BYTECODE_BOX)},
+    {x: 920, y: PHONE_GPU.y + 76},
+    {x: PHONE_BOX.x - 10, y: PHONE_GPU.y + 76},
+  ];
   const recPhoneToRecPoints = [
     {x: centerX(PHONE_BOX), y: PHONE_BOX.y - 8},
     {x: centerX(PHONE_BOX), y: centerY(REC_BOX)},
@@ -3514,6 +3998,61 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     {x: centerX(COMPUTER_BOX), y: centerY(REC_BOX)},
     {x: centerX(COMPUTER_BOX), y: COMPUTER_BOX.y - 8},
   ];
+  const recPhoneToRecLength = polylineLength(recPhoneToRecPoints);
+  const recToComputerLength = polylineLength(recToComputerPoints);
+  const recEdge1DurationMs = Math.max(
+    140,
+    Math.min(840, 140 + recPhoneToRecLength * 0.75),
+  );
+  const recNodeDurationMs = 320;
+  const recEdge2DurationMs = Math.max(
+    140,
+    Math.min(840, 140 + recToComputerLength * 0.75),
+  );
+  const recSequenceDurationMs =
+    recEdge1DurationMs + recNodeDurationMs + recEdge2DurationMs;
+  const recEdge1EndRatio = recEdge1DurationMs / recSequenceDurationMs;
+  const recNodeEndRatio =
+    (recEdge1DurationMs + recNodeDurationMs) / recSequenceDurationMs;
+  const recSequenceProgress = resolveWindowProgress(
+    page15Reveal,
+    0.08,
+    0.96,
+    easeInOutCubic,
+  );
+  const recEdge1Reveal = resolveWindowProgress(
+    recSequenceProgress,
+    0,
+    recEdge1EndRatio,
+    easeOutQuint,
+  );
+  const recNodeReveal = resolveWindowProgress(
+    recSequenceProgress,
+    recEdge1EndRatio,
+    recNodeEndRatio,
+    easeInOutCubic,
+  );
+  const recEdge2Reveal = resolveWindowProgress(
+    recSequenceProgress,
+    recNodeEndRatio,
+    1,
+    easeOutQuint,
+  );
+  const recOpacity =
+    stageContentReveal *
+    recNodeReveal *
+    page16SemanticHandoff;
+  const recGeometryVisible =
+    stageContentReveal > 0.001 &&
+    (page14PlaceholderReveal > 0.001 || page15Reveal > 0.001);
+  const recRouteCarrierOpacity =
+    stageContentReveal *
+    page16SemanticHandoff *
+    resolveWindowProgress(recSequenceProgress, 0.01, 0.12, easeInOutCubic);
+  const recGeometryOpacity =
+    page15Reveal > 0.001
+      ? recRouteCarrierOpacity
+      : stageContentReveal * page14PlaceholderFocus * 0.001;
   const stableExpandToMergePoints = [
     {x: right(COMPUTER_BOX) + 18, y: PAGE15_EXPAND_MERGE_CENTER.y},
     {x: PAGE15_EXPAND_MERGE_CENTER.x - 18, y: PAGE15_EXPAND_MERGE_CENTER.y},
@@ -3539,13 +4078,15 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     {x: PAGE15_MERGE_CENTER.x + 20, y: PAGE15_MERGE_CENTER.y},
     {x: STABLE_UPIPE_BOX.x - 10, y: centerY(STABLE_UPIPE_BOX)},
   ];
+  const stableToPhoneY = centerY(STABLE_UPIPE_BOX);
   const stableToPhonePoints = [
-    {x: right(STABLE_UPIPE_BOX) + 10, y: bottom(STABLE_UPIPE_BOX) + 22},
-    {x: PHONE_BOX.x - 10, y: bottom(STABLE_UPIPE_BOX) + 22},
+    {x: right(STABLE_UPIPE_BOX) + 10, y: stableToPhoneY},
+    {x: PHONE_BOX.x - 10, y: stableToPhoneY},
   ];
   const showComputerLabel = page15Focus > 0.12 || page18Focus > 0.12;
   const showPhoneLabel = false;
-  const phoneContentOpacity = stageContentReveal * page13Reveal;
+  const phoneContentOpacity =
+    stageContentReveal * Math.max(page13Reveal, page14PlaceholderFocus);
   const callbackQuestionX = mix(
     scene.cameraViewportCenterX,
     scene.page5QuestionX,
@@ -3557,7 +4098,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     questionTravelProgress,
   );
 
-  if (introProgress <= 0.001 && page11Reveal <= 0.001) {
+  if (introProgress <= 0.001 && page11Reveal <= 0.001 && page09ImageFocus <= 0.001) {
     return null;
   }
 
@@ -3819,16 +4360,18 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
         <g opacity={placeholderStageOpacity} transform={placeholderStageTransform}>
           <ComputerDevice
             scene={scene}
-            opacity={deviceReveal}
+            opacity={deviceReveal * page14LeftMute}
             scale={computerScale}
             showLabel={showComputerLabel}
           />
           <PhoneDevice
             scene={scene}
             opacity={deviceReveal}
-            scale={phoneScale}
+            scale={phoneScale * page14PhoneEmphasis}
             landingFocus={page13Focus}
             stableFocus={page18Focus}
+            offsetX={page14PhoneOffsetX}
+            showShell={page14PlaceholderFocus < 0.001}
             showDeviceLabel={showPhoneLabel}
             showVertexLabel={false}
             showPixelsLabel={false}
@@ -3905,7 +4448,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   letterSpacing="-0.06em"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  opacity={runtimeBridgeOpacity}
+                  opacity={runtimeBridgeGpuOpacity}
                 >
                   GPU
                 </text>
@@ -3952,7 +4495,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
             />
           ) : null}
 
-          {cookEdgeOpacity > 0.001 ? (
+          {cookCarrierOpacity > 0.001 && page12Reveal > 0.001 ? (
             <>
               <circle
                 cx={SPLIT_CENTER.x}
@@ -3961,16 +4504,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 fill="rgba(255, 251, 246, 0.98)"
                 stroke={scene.nodeStroke}
                 strokeWidth="2.2"
-                opacity={cookEdgeOpacity}
+                opacity={cookSplitOpacity}
               />
               <StrokeArrow
-                d={roundedPolylinePath([
-                  {x: centerX(COMPUTER_BOX), y: bottom(COMPUTER_BOX) + 8},
-                  {x: centerX(COMPUTER_BOX), y: SPLIT_CENTER.y},
-                  {x: SPLIT_CENTER.x - 8, y: SPLIT_CENTER.y},
-                ])}
+                d={roundedPolylinePath(cookToSplitPoints)}
                 stroke={scene.apiStroke}
-                opacity={cookEdgeOpacity}
+                opacity={cookCarrierOpacity}
+                headOpacity={revealHeadOpacity(cookMainReveal, cookCarrierOpacity)}
+                dashArray={revealDashArray(cookToSplitPoints, cookMainReveal)}
                 tipX={SPLIT_CENTER.x - 8}
                 tipY={SPLIT_CENTER.y}
                 direction="right"
@@ -3985,17 +4526,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 fontSize="24"
                 fontWeight="760"
                 textAnchor="middle"
-                opacity={cookEdgeOpacity}
+                opacity={cookLabelOpacity}
               >
                 cook
               </text>
               <StrokeArrow
-                d={roundedPolylinePath([
-                  {x: SPLIT_CENTER.x, y: SPLIT_CENTER.y - 8},
-                  {x: centerX(SCL_BOX), y: SCL_BOX.y + SCL_BOX.height},
-                ])}
+                d={roundedPolylinePath(splitToSclPoints)}
                 stroke={scene.apiStroke}
-                opacity={cookEdgeOpacity}
+                opacity={cookCarrierOpacity}
+                headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
+                dashArray={revealDashArray(splitToSclPoints, cookBranchReveal)}
                 tipX={centerX(SCL_BOX)}
                 tipY={SCL_BOX.y + SCL_BOX.height}
                 direction="up"
@@ -4004,12 +4544,11 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 headSize={9}
               />
               <StrokeArrow
-                d={roundedPolylinePath([
-                  {x: SPLIT_CENTER.x + 8, y: SPLIT_CENTER.y},
-                  {x: BYTECODE_BOX.x - 12, y: centerY(BYTECODE_BOX)},
-                ])}
+                d={roundedPolylinePath(splitToBytecodePoints)}
                 stroke={scene.apiStroke}
-                opacity={cookEdgeOpacity}
+                opacity={cookCarrierOpacity}
+                headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
+                dashArray={revealDashArray(splitToBytecodePoints, cookBranchReveal)}
                 tipX={BYTECODE_BOX.x - 12}
                 tipY={centerY(BYTECODE_BOX)}
                 direction="right"
@@ -4020,16 +4559,19 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
             </>
           ) : null}
 
-          {bytecodeToPhoneOpacity > 0.001 ? (
+          {bytecodeToPhoneCarrierOpacity > 0.001 && page13Reveal > 0.001 ? (
             <StrokeArrow
-              d={roundedPolylinePath([
-                {x: right(BYTECODE_BOX) + 12, y: centerY(BYTECODE_BOX)},
-                {x: 920, y: centerY(BYTECODE_BOX)},
-                {x: 920, y: PHONE_GPU.y + 76},
-                {x: PHONE_BOX.x - 10, y: PHONE_GPU.y + 76},
-              ])}
+              d={roundedPolylinePath(bytecodeToPhonePoints)}
               stroke={scene.apiStroke}
-              opacity={bytecodeToPhoneOpacity}
+              opacity={bytecodeToPhoneCarrierOpacity}
+              headOpacity={revealHeadOpacity(
+                bytecodeToPhoneRouteReveal,
+                bytecodeToPhoneCarrierOpacity,
+              )}
+              dashArray={revealDashArray(
+                bytecodeToPhonePoints,
+                bytecodeToPhoneRouteReveal,
+              )}
               tipX={PHONE_BOX.x - 10}
               tipY={PHONE_GPU.y + 76}
               direction="right"
@@ -4050,57 +4592,70 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   emphasized={page15Focus > 0.2}
                 />
               ) : null}
-              <StrokeArrow
-                testId="page14-phone-to-rec-arrow"
-                d={roundedPolylinePath(recPhoneToRecPoints)}
-                stroke={scene.apiStroke}
-                opacity={recGeometryOpacity}
-                headOpacity={revealHeadOpacity(recRouteReveal, recGeometryOpacity)}
-                dashArray={revealDashArray(recPhoneToRecPoints, recRouteReveal)}
-                tipX={right(REC_BOX) + 12}
-                tipY={centerY(REC_BOX)}
-                direction="left"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
-                underlayWidth={5.8}
-                headSize={9}
-              />
-              <StrokeArrow
-                d={roundedPolylinePath(recToComputerPoints)}
-                stroke={scene.apiStroke}
-                opacity={recGeometryOpacity}
-                headOpacity={revealHeadOpacity(recRouteReveal, recGeometryOpacity)}
-                dashArray={revealDashArray(recToComputerPoints, recRouteReveal)}
-                tipX={centerX(COMPUTER_BOX)}
-                tipY={COMPUTER_BOX.y - 8}
-                direction="down"
-                shaftWidth={emphasizeWidth(3.2, page15Focus)}
-                underlayWidth={5.8}
-                headSize={9}
-              />
+              {recEdge1Reveal > 0.001 ? (
+                <StrokeArrow
+                  testId="page14-phone-to-rec-arrow"
+                  d={roundedPolylinePath(recPhoneToRecPoints)}
+                  stroke={scene.apiStroke}
+                  opacity={recGeometryOpacity}
+                  headOpacity={revealHeadOpacity(recEdge1Reveal, recGeometryOpacity)}
+                  dashArray={revealDashArray(recPhoneToRecPoints, recEdge1Reveal)}
+                  tipX={right(REC_BOX) + 12}
+                  tipY={centerY(REC_BOX)}
+                  direction="left"
+                  shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                  underlayWidth={5.8}
+                  headSize={9}
+                />
+              ) : null}
+              {recEdge2Reveal > 0.001 ? (
+                <StrokeArrow
+                  d={roundedPolylinePath(recToComputerPoints)}
+                  stroke={scene.apiStroke}
+                  opacity={recGeometryOpacity}
+                  headOpacity={revealHeadOpacity(recEdge2Reveal, recGeometryOpacity)}
+                  dashArray={revealDashArray(recToComputerPoints, recEdge2Reveal)}
+                  tipX={centerX(COMPUTER_BOX)}
+                  tipY={COMPUTER_BOX.y - 8}
+                  direction="down"
+                  shaftWidth={emphasizeWidth(3.2, page15Focus)}
+                  underlayWidth={5.8}
+                  headSize={9}
+                />
+              ) : null}
             </>
           ) : null}
 
-          {stableBandOpacity > 0.001 || stableMergeOpacity > 0.001 ? (
+          {stableEdge1Opacity > 0.001 ||
+          stableNode1Opacity > 0.001 ||
+          stableEdge2Opacity > 0.001 ||
+          stableNode2Opacity > 0.001 ||
+          stableSupportEdge1Opacity > 0.001 ||
+          stableEdge3Opacity > 0.001 ||
+          stableNode3Opacity > 0.001 ||
+          stableSupportEdge2Opacity > 0.001 ||
+          stableEdge4Opacity > 0.001 ||
+          stableNode4Opacity > 0.001 ? (
             <>
-              {stableBandOpacity > 0.001 ? (
+              {stableNode2Opacity > 0.001 ? (
                 <ArtifactNode
                   box={stageStablePcBox}
                   scene={scene}
-                  opacity={stableBandOpacity}
+                  opacity={stableNode2Opacity}
                   label="stablepc.csv"
                   emphasized={page18Focus > 0.2}
                 />
               ) : null}
-              {stableMergeOpacity > 0.001 ? (
+              {stableNode4Opacity > 0.001 ? (
                 <ArtifactNode
                   box={STABLE_UPIPE_BOX}
                   scene={scene}
-                  opacity={stableMergeOpacity}
+                  opacity={stableNode4Opacity}
                   lines={["stable.", "upipelinecache"]}
                   emphasized={page18Focus > 0.2}
                 />
               ) : null}
-              <g opacity={stableBandOpacity}>
+              <g opacity={stableNode1Opacity}>
                 <circle
                   cx={PAGE15_EXPAND_MERGE_CENTER.x}
                   cy={PAGE15_EXPAND_MERGE_CENTER.y}
@@ -4121,7 +4676,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   +
                 </text>
               </g>
-              <g opacity={stableMergeOpacity}>
+              <g opacity={stableNode3Opacity}>
                 <circle
                   cx={PAGE15_MERGE_CENTER.x}
                   cy={PAGE15_MERGE_CENTER.y}
@@ -4146,9 +4701,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 testId="page15-expand-to-merge-arrow"
                 d={roundedPolylinePath(stableExpandToMergePoints)}
                 stroke={scene.apiStroke}
-                opacity={stableBandOpacity}
-                headOpacity={revealHeadOpacity(stableBandReveal, stableBandOpacity)}
-                dashArray={revealDashArray(stableExpandToMergePoints, stableBandReveal)}
+                opacity={stableEdge1Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableEdge1Reveal,
+                  stableEdge1Opacity,
+                )}
+                dashArray={revealDashArray(stableExpandToMergePoints, stableEdge1Reveal)}
                 tipX={PAGE15_EXPAND_MERGE_CENTER.x - 18}
                 tipY={PAGE15_EXPAND_MERGE_CENTER.y}
                 direction="right"
@@ -4165,7 +4723,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 fontSize="24"
                 fontWeight="760"
                 textAnchor="middle"
-                opacity={stableBandOpacity}
+                opacity={stableNode1Opacity}
               >
                 expand
               </text>
@@ -4173,11 +4731,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 testId="page15-expand-merge-to-stablepc-arrow"
                 d={roundedPolylinePath(stableExpandMergeToStablePcPoints)}
                 stroke={scene.apiStroke}
-                opacity={stableBandOpacity}
-                headOpacity={revealHeadOpacity(stableBandReveal, stableBandOpacity)}
+                opacity={stableEdge2Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableEdge2Reveal,
+                  stableEdge2Opacity,
+                )}
                 dashArray={revealDashArray(
                   stableExpandMergeToStablePcPoints,
-                  stableBandReveal,
+                  stableEdge2Reveal,
                 )}
                 tipX={stageStablePcBox.x - 10}
                 tipY={centerY(stageStablePcBox)}
@@ -4190,9 +4751,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 testId="page15-scl-to-expand-merge-arrow"
                 d={roundedPolylinePath(sclToExpandMergePoints)}
                 stroke={scene.apiStroke}
-                opacity={stableBandOpacity}
-                headOpacity={revealHeadOpacity(stableBandReveal, stableBandOpacity)}
-                dashArray={revealDashArray(sclToExpandMergePoints, stableBandReveal)}
+                opacity={stableSupportEdge1Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableSupportEdge1Reveal,
+                  stableSupportEdge1Opacity,
+                )}
+                dashArray={revealDashArray(sclToExpandMergePoints, stableSupportEdge1Reveal)}
                 tipX={PAGE15_EXPAND_MERGE_CENTER.x}
                 tipY={PAGE15_EXPAND_MERGE_CENTER.y + 18}
                 direction="up"
@@ -4203,9 +4767,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 d={roundedPolylinePath(stablePcToMergePoints)}
                 stroke={scene.apiStroke}
-                opacity={stableMergeOpacity}
-                headOpacity={revealHeadOpacity(stableMergeReveal, stableMergeOpacity)}
-                dashArray={revealDashArray(stablePcToMergePoints, stableMergeReveal)}
+                opacity={stableEdge3Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableEdge3Reveal,
+                  stableEdge3Opacity,
+                )}
+                dashArray={revealDashArray(stablePcToMergePoints, stableEdge3Reveal)}
                 tipX={PAGE15_MERGE_CENTER.x - 20}
                 tipY={PAGE15_MERGE_CENTER.y}
                 direction="right"
@@ -4217,9 +4784,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 testId="page15-scl-to-merge-arrow"
                 d={roundedPolylinePath(sclToMergePoints)}
                 stroke={scene.apiStroke}
-                opacity={stableMergeOpacity}
-                headOpacity={revealHeadOpacity(stableMergeReveal, stableMergeOpacity)}
-                dashArray={revealDashArray(sclToMergePoints, stableMergeReveal)}
+                opacity={stableSupportEdge2Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableSupportEdge2Reveal,
+                  stableSupportEdge2Opacity,
+                )}
+                dashArray={revealDashArray(sclToMergePoints, stableSupportEdge2Reveal)}
                 tipX={PAGE15_MERGE_CENTER.x}
                 tipY={PAGE15_MERGE_CENTER.y + 18}
                 direction="up"
@@ -4231,9 +4801,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 testId="page15-merge-to-stable-arrow"
                 d={roundedPolylinePath(mergeToStablePoints)}
                 stroke={scene.apiStroke}
-                opacity={stableMergeOpacity}
-                headOpacity={revealHeadOpacity(stableMergeReveal, stableMergeOpacity)}
-                dashArray={revealDashArray(mergeToStablePoints, stableMergeReveal)}
+                opacity={stableEdge4Opacity}
+                headOpacity={revealHeadOpacity(
+                  stableEdge4Reveal,
+                  stableEdge4Opacity,
+                )}
+                dashArray={revealDashArray(mergeToStablePoints, stableEdge4Reveal)}
                 tipX={STABLE_UPIPE_BOX.x - 10}
                 tipY={centerY(STABLE_UPIPE_BOX)}
                 direction="right"
@@ -4256,7 +4829,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               )}
               dashArray={revealDashArray(stableToPhonePoints, stableReturnRouteReveal)}
               tipX={PHONE_BOX.x - 10}
-              tipY={bottom(STABLE_UPIPE_BOX) + 22}
+              tipY={stableToPhoneY}
               direction="right"
               shaftWidth={emphasizeWidth(3.2, page18Focus)}
               underlayWidth={5.8}
@@ -4267,7 +4840,11 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
       ) : null}
 
       {page14PlaceholderFocus > 0.001 ? (
-        <Page14Placeholder scene={scene} opacity={page14PlaceholderFocus} />
+        <Page14Placeholder
+          scene={scene}
+          opacity={page14PlaceholderFocus}
+          phoneOffsetX={page14PhoneOffsetX}
+        />
       ) : null}
       {page16PlaceholderFocus > 0.001 ? (
         <Page16Placeholder
@@ -4348,6 +4925,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           entryProgress={page27PlaceholderReveal}
         />
       ) : null}
+      <Page09EvidenceNotes scene={scene} opacity={page09ImageFocus} />
       {imageDeckBackdropOpacity > 0.001 ? (
         <rect
           x="0"
@@ -4369,6 +4947,10 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
         href="/supplement/pso-rec-cache.png"
         clipId="supplement-rec-clip"
         opacity={page15ImageFocus}
+        box={PAGE15_SUPPLEMENT_IMAGE_BOX}
+        preserveAspectRatio="xMidYMid meet"
+        backgroundFill="rgba(247, 243, 240, 0.98)"
+        imageTestId="page15-supplement-image"
       />
       <SupplementImageOverlay
         scene={scene}

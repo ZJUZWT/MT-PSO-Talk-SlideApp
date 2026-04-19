@@ -14,6 +14,7 @@ describe("masterStoryboard", () => {
       "page_07",
       "page_08",
       "page_09",
+      "page_09_img",
       "page_10",
       "page_11",
       "page_12",
@@ -56,6 +57,7 @@ describe("masterStoryboard", () => {
     const page07 = requireStep("page_07");
     const page08 = requireStep("page_08");
     const page09 = requireStep("page_09");
+    const page09Img = requireStep("page_09_img");
     const page10 = requireStep("page_10");
     const page11 = requireStep("page_11");
     const page12 = requireStep("page_12");
@@ -141,6 +143,11 @@ describe("masterStoryboard", () => {
     expect(page10.manuscript).not.toContain(".ushaderbytecode");
     expect(page10.manuscript).not.toContain(".scl.csv");
     expect(page10.manuscript).not.toContain("手机");
+    expect(page09Img.label).toContain("证据");
+    expect(page09Img.manuscript).toContain("InlineShaderCode");
+    expect(page09Img.manuscript).toContain("SharedShaderCode");
+    expect(page09Img.manuscript).toContain(".uexp");
+    expect(page09Img.manuscript).toContain("ShaderMapHash");
     expect(page11.label).toContain("Computer / Phone");
     expect(page11.manuscript).toContain("Computer");
     expect(page11.manuscript).toContain("Phone");
@@ -192,39 +199,30 @@ describe("masterStoryboard", () => {
     expect(page20.label).toContain("持久化");
     expect(page20.manuscript).toContain("内存中 PSO");
     expect(page20.manuscript).toContain("ProgramBinary");
-    expect(page21.label).toContain("我的理解");
-    expect(page21.manuscript).toContain("SharedCode");
+    expect(page21.label).toContain("缓存有效性");
     expect(page21.manuscript).toContain("stable.upipelinecache");
-    expect(page21.manuscript).toContain("PSO 是一个东西");
-    expect(page21.manuscript).toContain("PSO Cache");
-    expect(page21.manuscript).toContain("不会消失");
-    expect(page21.manuscript).toContain("只会转移");
-    expect(page21.manuscript).toContain("首次启动");
-    expect(page22.label).toContain("缓存有效性");
-    expect(page22.manuscript).toContain("操作系统");
-    expect(page22.manuscript).toContain("驱动");
-    expect(page22.manuscript).toContain("芯片");
-    expect(page22.manuscript).toContain("失效");
-    expect(page22.manuscript).toContain("Permute");
-    expect(page22.manuscript).toContain("stable.upipelinecache");
-    expect(page22.manuscript).toContain("OpenGL");
-    expect(page23.label).toContain("补充证据");
-    expect(page23.manuscript).toContain("Nubia Z60 Ultra");
-    expect(page23.manuscript).toContain("Pixel 7");
-    expect(page23.manuscript).toContain("0.795s");
-    expect(page23.manuscript).toContain("2.526s");
-    expect(page23.manuscript).toContain("glCompileShader");
-    expect(page23.manuscript).toContain("CreateGfxPipeline");
-    expect(page24.label).toContain("优化方向 1");
+    expect(page21.manuscript).toContain("驱动");
+    expect(page21.manuscript).toContain("芯片");
+    expect(page21.manuscript).toContain("失效");
+    expect(page21.manuscript).toContain("Permute");
+    expect(page21.manuscript).toContain("OpenGL");
+    expect(page22.label).toContain("我的理解");
+    expect(page22.manuscript).toContain("PSO 是对象");
+    expect(page22.manuscript).toContain("PSO Cache");
+    expect(page22.manuscript).toContain("不会消失");
+    expect(page22.manuscript).toContain("只会转移");
+    expect(page23.label).toContain("优化章节导入");
+    expect(page23.manuscript).toContain("四个策略");
+    expect(page24.label).toContain("策略 1");
     expect(page24.manuscript).toContain("压缩");
     expect(page24.manuscript).toContain("解压");
-    expect(page25.label).toContain("优化方向 2");
+    expect(page25.label).toContain("策略 2");
     expect(page25.manuscript).toContain("LRU");
     expect(page25.manuscript).toContain("mmap");
-    expect(page26.label).toContain("优化方向 3");
+    expect(page26.label).toContain("策略 3");
     expect(page26.manuscript).toContain("多线程");
     expect(page26.manuscript).toContain("UsageMask");
-    expect(page27.label).toContain("优化方向 4");
+    expect(page27.label).toContain("策略 4");
     expect(page27.manuscript).toContain("OpenGL");
     expect(page27.manuscript).toContain("Metal");
   });

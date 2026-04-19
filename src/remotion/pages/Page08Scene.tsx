@@ -40,8 +40,13 @@ export function Page08Scene({scene}: {scene: SceneModel}) {
     page9VsHashLibraryTargetGlobal,
     page9PsHashLibraryTargetGlobal,
   } = scene;
-  const page9VsBridgeY = page9VsHashLibraryTargetGlobal.y + 28;
-  const page9PsBridgeY = page9PsHashLibraryTargetGlobal.y + 14;
+  // Keep VS/PS proof lanes visually parallel and non-crossing on Step 10.
+  const page9ProofLaneBaseY = Math.max(
+    page9VsHashLibraryTargetGlobal.y,
+    page9PsHashLibraryTargetGlobal.y,
+  );
+  const page9VsBridgeY = page9ProofLaneBaseY + 10;
+  const page9PsBridgeY = page9ProofLaneBaseY + 30;
 
   return (
     <>

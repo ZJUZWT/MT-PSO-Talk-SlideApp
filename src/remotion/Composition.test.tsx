@@ -35,6 +35,7 @@ const LEGACY_STEP_FRAME_MAP = {
   page_07: 306,
   page_08: 342,
   page_09: 378,
+  page_09_img: 444,
   page_10: 510,
   page_11: 582,
   page_12: 636,

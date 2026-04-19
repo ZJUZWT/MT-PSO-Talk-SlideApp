@@ -124,7 +124,7 @@ export function ControlBar({
           {collapsed ? "Show controls" : "Hide controls"}
         </button>
         <p className="control-summary" aria-live="polite">
-          {state.activeVariant.label} · {state.currentStep.label} · {state.aspectRatio} · Motion {activeMotionLabel}
+          {state.activeVariant.label} · {state.stepId} · {state.currentStep.label} · {state.aspectRatio} · Motion {activeMotionLabel}
           {activeFrameSummary}
         </p>
       </div>
@@ -156,7 +156,7 @@ export function ControlBar({
                 value={step.id}
                 disabled={!state.supportedStepIds.includes(step.id)}
               >
-                {step.label}
+                {step.id} · {step.label}
               </option>
             ))}
           </SelectField>

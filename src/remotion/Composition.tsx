@@ -2,6 +2,7 @@ import React from "react";
 import {AbsoluteFill, useCurrentFrame} from "remotion";
 import type {VariantId} from "../storyboard-data/pso-workbench-types";
 import type {RemotionWorkbenchProps} from "./embed";
+import {resolveRemotionStepFrame} from "./embed";
 import {computeSceneModel} from "./model/computeSceneModel";
 import {Page01Scene} from "./pages/Page01Scene";
 import {Page02Scene} from "./pages/Page02Scene";
@@ -47,18 +48,64 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
     zoomScale,
   } = scene;
   const page910LegacyFade =
-    settledPage910Progress <= 0
-      ? 1
-      : settledPage910Progress >= 0.28
-        ? 0
-        : 1 - settledPage910Progress / 0.28;
+    (() => {
+      const page09Frame = resolveRemotionStepFrame("page_09");
+      const page09ImageFrame = resolveRemotionStepFrame("page_09_img");
+      const page10Frame = resolveRemotionStepFrame("page_10");
+
+      if (sceneFrame <= page09Frame) {
+        return 1;
+      }
+
+      if (sceneFrame < page09ImageFrame) {
+        const progress =
+          (sceneFrame - page09Frame) /
+          Math.max(1, page09ImageFrame - page09Frame);
+        return 1 - resolveWindowProgress(progress, 0.06, 0.82, easeInOutCubic);
+      }
+
+      if (sceneFrame < page10Frame) {
+        const progress =
+          (sceneFrame - page09ImageFrame) /
+          Math.max(1, page10Frame - page09ImageFrame);
+        const restore = resolveWindowProgress(progress, 0.22, 0.46, easeInOutCubic);
+        const fadeOut = resolveWindowProgress(progress, 0.46, 0.72, easeInOutCubic);
+
+        return restore * (1 - fadeOut);
+      }
+
+      return settledPage910Progress <= 0
+        ? 1
+        : settledPage910Progress >= 0.28
+          ? 0
+          : 1 - settledPage910Progress / 0.28;
+    })();
   const page910LegacyShrinkProgress = resolveWindowProgress(
     settledPage910Progress,
     0,
     0.08,
     easeInOutCubic,
   );
-  const page910LegacyScale = mix(1, 0.84, page910LegacyShrinkProgress);
+  const page910LegacyScale =
+    (() => {
+      const page09ImageFrame = resolveRemotionStepFrame("page_09_img");
+      const page10Frame = resolveRemotionStepFrame("page_10");
+
+      if (sceneFrame <= page09ImageFrame) {
+        return 1;
+      }
+
+      if (sceneFrame < page10Frame) {
+        const progress =
+          (sceneFrame - page09ImageFrame) /
+          Math.max(1, page10Frame - page09ImageFrame);
+        const shrink = resolveWindowProgress(progress, 0.46, 0.74, easeInOutCubic);
+
+        return mix(1, 0.84, shrink);
+      }
+
+      return mix(1, 0.84, page910LegacyShrinkProgress);
+    })();
   return (
     <AbsoluteFill
       style={{

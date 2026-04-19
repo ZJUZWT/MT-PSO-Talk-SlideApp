@@ -14,7 +14,15 @@ export const masterStoryboard: Storyboard = {
     {
       id: "s2-ue-shader",
       label: "Session 2 · UE Shader 资产与 SharedCode",
-      stepIds: ["page_05", "page_06", "page_07", "page_08", "page_09", "page_10"],
+      stepIds: [
+        "page_05",
+        "page_06",
+        "page_07",
+        "page_08",
+        "page_09",
+        "page_09_img",
+        "page_10",
+      ],
     },
     {
       id: "s3-runtime-loop",
@@ -118,6 +126,10 @@ export const masterStoryboard: Storyboard = {
         {
           label: "glLinkProgram 官方参考",
           url: "https://registry.khronos.org/OpenGL-Refpages/gl4/html/glLinkProgram.xhtml",
+        },
+        {
+          label: "OpenGL Wiki：单阶段 / 多阶段 Program 混用",
+          url: "https://wikis.khronos.org/opengl/Shader_Compilation#Mixing_a_single-_and_a_multi-stage_program",
         },
       ],
       focusColorKey: "opengl",
@@ -308,6 +320,32 @@ export const masterStoryboard: Storyboard = {
         "这时候 SharedCode 就不是锦上添花，而是被去重和 PSO 预编译共同逼出来的基础设施。",
       manuscript:
         "两个问题同时出现。第一是去重：100 个材质用同一个 BasePass VS，InlineCode 下会存 100 份，包体膨胀。第二是 PSO 反查：预编译时只拿到 Hash，InlineCode 下 code 散落在各个 uasset 里，没有全局接口。SharedCode 把这两件事同时收口。主路径先从 ShaderMapEntries[ShaderMapIndex] 拿到 ShaderIndicesOffset，再与 ResourceIndex 组合，查 ShaderIndices[ShaderIndicesOffset + ResourceIndex]，得到 LibraryShaderIndex。随后用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size，从 ShaderArchive 的大二进制切出 ShaderCode。PSO 侧边分支也不是直接拿 code，而是先走 ShaderHashTable[Hash] 命中同一个 LibraryShaderIndex，再复用上面的 Offset/Size 读取流程。这样 Hash 分支和运行时主链在 LibraryShaderIndex 汇合，SharedCode 才真正成为 PSO 预编译可闭环的基础设施。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_09_img",
+      label: "证据插页：Inline vs Shared Cook 对比",
+      caption:
+        "插入一页实测证据图：对比 InlineShaderCode 与 SharedShaderCode 的 cook 结果，给 `page_09 -> page_10` 转场补一个“为什么值得做”的数据锚点。",
+      keyPoints: [
+        "证据页采用整页图展示，不在图内重复顶部标题。",
+        "先图后回退，再进入原 `page_09 -> page_10` 主动画。",
+      ],
+      apiHighlights: [
+        "InlineShaderCode",
+        "SharedShaderCode",
+        ".uexp 对比",
+        "ShaderArchive",
+      ],
+      notes:
+        "这个插页固定放在 page09 与 page10 之间：进入时图片淡入、page09 淡出；退出时图片淡出、page09 淡入；之后再播放原本的 page09 -> page10 动画，避免压缩原有节奏。",
+      focusTarget: "Evidence",
+      timingHint:
+        "把插页单独拆成一个 step，先完成证据展示，再恢复 page09 并进入原有主线过渡。",
+      intro:
+        "在进入 page10 的回调答案页前，先用一页证据把“Shared 的收益”讲清楚。",
+      manuscript:
+        "这一页只做证据展示。我们把 InlineShaderCode 和 SharedShaderCode 的 cook 结果放在同一页对比：材质侧 `.uexp` 在 Shared 下明显变小，同时 ShaderArchive 承担了共享代码承载；再补一组 hash 复用证据，说明同参数实例会复用同一套 ShaderMapHash。讲完后不直接硬切 page10，而是先把证据页淡出、把 page09 SharedCode 画面淡回，再开始原本 page09 到 page10 的回调动画。",
       focusColorKey: "shared",
     },
     {
@@ -594,6 +632,12 @@ export const masterStoryboard: Storyboard = {
       focusTarget: "Precompile",
       timingHint:
         "让 page18 缩退后，先拉出左半页，强调直线主链，不做复杂注释。",
+      relatedLinks: [
+        {
+          label: "知乎：Program Binary / 预编译缓存",
+          url: "https://zhuanlan.zhihu.com/p/587988966",
+        },
+      ],
       intro:
         "闭环成立后，先回答预编译第一问：稳定缓存如何进入运行时内存态。",
       manuscript:
@@ -630,88 +674,87 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_21",
-      label: "我的理解：预编译成本转移",
+      label: "PSO 缓存有效性边界",
       caption:
-        "PSO 是对象，PSO Cache 是工程方法：用启动时间和内存空间，换运行时卡顿率。",
+        "先把缓存边界讲清：收集、启动 Open、API 状态模型与环境失效共同决定缓存效果。",
       keyPoints: [
-        "PSO 是一个东西，PSO Cache 是一个工程方法。",
-        "PSO Cache 本质是用启动时间 + 内存空间，换运行时卡顿率。",
-        "它附属于 Shader，不是所有项目都必须启用；没有 PSO Cache 的项目也可能跑得很好。",
-        "这套方法代价并不小，甚至常常比想象中更大。",
-        "一句话记忆：预编译的 PSO 不会消失，只会转移。",
+        "运行时收集策略必须“少而全”，否则数量会指数增长。",
+        "启动阶段一次性 Open stable.upipelinecache，压力会集中到首启。",
+        "OpenGL 与现代 API 的状态模型不同，缓存结构与命中形态天然不同。",
+        "OS / 驱动 / 芯片 / API 变化都可能导致缓存失效并触发重编译。",
       ],
-      apiHighlights: ["Material", "SharedCode", ".rec.upipelinecache", "stable.upipelinecache", "ProgramBinary/PipelineCache"],
+      apiHighlights: ["Permute Shader State", "stable.upipelinecache Open/Load", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
       notes:
-        "这页聚焦“概念澄清 + 代价意识”，不展开算法细节。让观众先知道 PSO Cache 不是免费午餐。",
-      focusTarget: "Bridge Summary",
+        "先讲边界，再讲理解，避免听众把 PSO Cache 误解成“默认必开且永久有效”。",
+      focusTarget: "Cache Validity",
       timingHint:
-        "从 page20 推入后先讲定义，再讲代价，最后落一句“不会消失，只会转移”。",
+        "从 page20 推入后，先讲收集与启动压力，再落到环境失效边界。",
       intro:
-        "在进入优化细节前，先把“PSO vs PSO Cache”这个概念边界彻底讲清。",
+        "进入策略页之前，先把缓存有效性边界讲透。",
       manuscript:
-        "第二十一页先讲清一个很关键的边界：PSO 是一个东西，PSO Cache 是一种工程方法。这个方法本质上并不是“把问题消灭”，而是把代价在时间维度上做重分配，用启动时间和内存空间去换运行时卡顿率。它附属于 Shader，不是所有项目都必须开启；没有 PSO Cache 的项目也可能运行得很好。反过来说，这个方法的代价不小，往往比直觉更大。把它放回主线里看，就是 Material/ShaderCode 进入 SharedCode，运行时收集后再生成 stable.upipelinecache。可以用一句话收束：预编译的 PSO 不会消失，只会转移。通常是从运行时卡顿，转移到首启等待。工程优先级通常也是先保运行时帧稳定，再看首次启动时长。",
+        "第二十一页先讲缓存有效性边界。收集策略要“少而全”，如果暴力 Permute Shader State 会指数膨胀。启动时一次性 Open stable.upipelinecache 又会把内存和时长压力集中到首启窗口。再加上 OpenGL 与现代 API 的状态模型差异，缓存结构与命中行为天然不同。最后强调环境边界：OS、驱动、芯片与 API/FeatureLevel 变化都可能触发缓存失效并重编译。",
       focusColorKey: "shared",
     },
     {
       id: "page_22",
-      label: "PSO 本质提醒：缓存有效性依赖运行环境",
+      label: "我的理解：PSO 与 PSO Cache",
       caption:
-        "进一步讲工程代价来源：收集策略、启动 Open 策略、API 状态模型差异，以及缓存失效边界。",
+        "PSO 是对象，PSO Cache 是工程方法，本质是代价转移而不是代价消失。",
       keyPoints: [
-        "运行时收集要“尽量少”又“尽量全”；如果暴力 Permute Shader State，数量会指数增长。",
-        "启动时 Open 策略常见是一把 Load stable.upipelinecache，单次内存和时长压力都很大。",
-        "OpenGL 没有完整管线状态（更多是 Shader 维度），与现代 API 的 PSO 结构假设不同。",
-        "同时还要面对环境失效：操作系统/驱动/芯片变化会触发缓存失效。",
+        "PSO 是对象，PSO Cache 是工程方法。",
+        "PSO Cache 本质是用启动时间 + 内存空间，换运行时卡顿率。",
+        "它附属于 Shader，不是所有项目都必须启用；不开也可能跑得很好。",
+        "一句话收束：预编译的 PSO 不会消失，只会转移。",
       ],
-      apiHighlights: ["Permute Shader State", "stable.upipelinecache Open/Load", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
+      apiHighlights: ["Material", "SharedCode", ".rec.upipelinecache", "stable.upipelinecache", "ProgramBinary/PipelineCache"],
       notes:
-        "这页从“代价是怎么来的”切入，再回收“为什么要分桶管理缓存失效”。",
-      focusTarget: "Cache Validity",
+        "这页采用文字排版收束观点，不堆流程图节点。",
+      focusTarget: "Bridge Summary",
       timingHint:
-        "先讲收集与启动阶段的压力，再补 OpenGL 与现代 API 差异，最后落到失效边界。",
+        "从 page21 边界页推入后，先定义，再讲代价，最后落收束句。",
       intro:
-        "定义讲清后，下一步是让观众看到这套方法为什么在工程上“贵”。",
+        "边界讲完后，回到一句可复述的核心理解。",
       manuscript:
-        "第二十二页把成本来源拆开讲。第一层是运行时收集策略：PSO Cache 既要尽量少又要尽量全面，如果我们试图把 Shader State 全部 Permute 出来，数量会是指数级增长。第二层是启动时 Open 策略：引擎原生通常只在启动时 Load 一次 `stable.upipelinecache`，这会把内存压力和单次加载时长集中到首启窗口。第三层是 API 模型差异：OpenGL 没有完整管线状态，更多是 Shader 维度，而现代 API（如 Vulkan/Metal）对管线状态更显式，收集与命中形态天然不同。最后还要补边界：本地缓存本质是环境相关产物，操作系统、驱动、芯片和 API/FeatureLevel 变化都可能触发失效。也就是说，前置不等于消失，工程上仍然要做收集-构建-回灌，并按环境指纹分桶管理。",
+        "第二十二页做观点收束：PSO 是对象，PSO Cache 是工程方法。它不是把问题消灭，而是把代价在时间维度上重分配，用启动时间和内存空间去换运行时卡顿率。这个方法附属于 Shader，不是所有项目都必须开启。最后用一句话结束：预编译的 PSO 不会消失，只会转移。",
       focusColorKey: "shared",
     },
     {
       id: "page_23",
-      label: "补充证据：OpenGL / Vulkan 性能表",
+      label: "优化章节导入：四个策略",
       caption:
-        "把 Supplement 里的多机型实测指标整理成一页表格，直接对比 OpenGL 与 Vulkan 的总量与热点差异。",
+        "从这里开始进入策略章节，按 1~4 顺序拆解优化方向。",
       keyPoints: [
-        "数据源：Supplement/耗时Insight/MinePSO_耗时对比分析（Nubia Z60 Ultra + Pixel 7）。",
-        "Nubia：OpenGL 0.795s / Vulkan 1.440s。",
-        "Pixel 7：OpenGL 1.453s / Vulkan 2.526s。",
-        "热点稳定落在 Link/Compile/Create Pipeline，表格用于承接最早的 OpenGL/Vulkan 结构图。",
+        "策略 1：时间换空间（压缩/解压取舍）。",
+        "策略 2：IO换空间（mmap / LRU）。",
+        "策略 3：延迟处理（UsageMask）。",
+        "策略 4：API 差异研究（Metal vs OpenGL）。",
       ],
       apiHighlights: [
-        "Nubia Z60 Ultra",
-        "Pixel 7",
-        "OpenGL 0.795s / 1.453s",
-        "Vulkan 1.440s / 2.526s",
-        "CreateGfxPipeline",
+        "Strategy 1",
+        "Strategy 2",
+        "Strategy 3",
+        "Strategy 4",
+        "Optimization Roadmap",
       ],
       notes:
-        "这页是纯证据表格页，建议先让观众扫“设备 + API + 总量”，再看每行热点构成。",
-      focusTarget: "Evidence Anchor",
+        "这页不再展示数据表，改为策略导入页。",
+      focusTarget: "Strategy Overview",
       timingHint:
-        "先横向比较两台机器的总量，再纵向比较同机型 OpenGL vs Vulkan，最后回收“前置不是免费午餐”。",
+        "先报四个策略名称，再逐页展开。",
       intro:
-        "讲完方法和边界后，用一页实测表格把抽象概念落地。",
+        "讲完边界与理解后，切换到可执行策略。",
       manuscript:
-        "第二十三页是实测表格页，不引入新概念。数据来自 Supplement 的 `MinePSO_耗时对比分析`：Nubia Z60 Ultra 上，OpenGL 总计 0.795s、Vulkan 总计 1.440s；Pixel 7 上，OpenGL 总计 1.453s、Vulkan 总计 2.526s。热点形态也一致落在 `glLinkProgram / glCompileShader` 与 `CreateGfxPipeline / CreateComputePipeline`。这页的作用是把最早那张 OpenGL/Vulkan 结构图，接到跨设备的真实测量数据上，让听众看到“结构差异会稳定落成不同的热点分布”。",
+        "第二十三页作为优化章节导入页，不再重复数据表。只做一件事：把后续四个策略给出清晰路线，防止观众在策略页里丢失主线。",
       focusColorKey: "shared",
     },
     {
       id: "page_24",
-      label: "优化方向 1：卸掉 Code 压缩",
+      label: "策略 1：时间换空间",
       caption:
-        "先把压缩与解压链路单独拎出来：压缩省 IO，但解压吃 CPU 与带宽，是否保留应看瓶颈位置。",
+        "压缩节省空间但会消耗解压时间，是否保留要看瓶颈位置。",
       keyPoints: [
-        "压缩收益主要在包体与 IO，解压成本主要在启动 CPU 路径。",
-        "当 IO 已不再是瓶颈时，可评估“卸掉压缩”换取更短启动链路。",
+        "这是典型的时间换空间：用启动时间换包体和存储压力。",
+        "决策不做一刀切，要基于真实瓶颈画像选择压缩策略。",
       ],
       apiHighlights: ["Compressed Code", "Decompress", "Compile/Load"],
       notes:
@@ -727,14 +770,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_25",
-      label: "优化方向 2：BCache 基础策略",
+      label: "策略 2：IO换空间",
       caption:
-        "用一页讲清缓存的基础治理：LRU / LFU、mmap、circular/ring，本质是 IO 换空间。",
+        "IO换空间的典型实践：mmap + LRU，减少随机读与重复拷贝。",
       keyPoints: [
-        "缓存不是越大越好，核心是命中模型与介质特性匹配。",
-        "LRU/LFU 决定淘汰，mmap 与 ring 决定读写路径与拷贝成本。",
+        "mmap 负责按需映射，LRU 负责保留热数据。",
+        "策略目标是把慢 IO 转成可控内存占用，而不是盲目堆缓存。",
       ],
-      apiHighlights: ["BCache", "LRU", "LFU", "mmap", "ring"],
+      apiHighlights: ["BCache", "LRU", "mmap", "IO Budget", "Memory Budget"],
       notes:
         "这一页做策略占位，后续可把每个策略替换成项目里真实实现细节。现在先让观众理解“缓存调参是在做 IO/空间互换”。",
       focusTarget: "Cache Strategy",
@@ -748,14 +791,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_26",
-      label: "优化方向 3：编译加速",
+      label: "策略 3：延迟处理（UsageMask）",
       caption:
-        "编译优化拆成两条线：多线程提升吞吐，UsageMask 缩小编译集合，组合后才更稳。",
+        "有些计算必须做但不必现在做，UsageMask 用于按场景延迟处理。",
       keyPoints: [
-        "先减少待编译集合，再并行化执行，通常优于盲目加线程。",
-        "UsageMask 让“能编的全部编”变成“按使用场景编”。",
+        "先做集合剪枝，再做并行执行，通常比直接堆线程更稳。",
+        "UsageMask 把“全量立即编译”改为“按需延迟编译”。",
       ],
-      apiHighlights: ["Compile Queue", "Multi-thread", "UsageMask"],
+      apiHighlights: ["Deferred Compile", "UsageMask", "Compile Queue", "Hot Path", "Cold Path"],
       notes:
         "这一页的占位重点是把“并行”和“剪枝”放在同一张图里，防止后续讲述偏成单一线程优化。",
       focusTarget: "Compile Acceleration",
@@ -769,12 +812,12 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_27",
-      label: "优化方向 4：Metal vs OpenGL 差异来源",
+      label: "策略 4：Metal vs OpenGL 差异建模",
       caption:
-        "把差异归因到“状态来源与显式程度”本身：不是谁绝对更优，而是模型不同导致统计行为不同。",
+        "深入研究 API 差异来源，反推为什么 PSO 数量和命中行为会不同。",
       keyPoints: [
-        "OpenGL 更偏驱动侧隐式状态，Metal 更偏显式状态组合。",
-        "编译数量与命中行为差异，核心来自状态来源路径差异。",
+        "OpenGL 更偏隐式状态来源，Metal 更偏显式状态组合。",
+        "差异研究不是站队，而是为前面三条策略提供边界条件。",
       ],
       apiHighlights: ["OpenGL PSO", "Metal PSO", "State Source"],
       notes:

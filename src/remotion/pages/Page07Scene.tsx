@@ -137,13 +137,13 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
   const page7ShaderMapBridgeEndY = mix(
     page6ShaderMapCenterY,
     boxCenterY(page7SharedRenderBox),
-    page9CarryMorphProgress,
+    page89MorphProgress,
   );
   const page7ShaderMapBridgeStubX = page7ShaderMapBridgeStartX + 20;
   const page7ShaderMapBridgeEndX = mix(
     page6ShaderArrowCurrentEndX,
     page7SharedRenderBox.x,
-    page9CarryMorphProgress,
+    page89MorphProgress,
   );
   const page7SharedTestId =
     settledPage89Progress > 0.72 ? "page9-shared-resource-box" : "page6-inline-resource-box";
@@ -162,25 +162,35 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     page6ShaderMapCenterX,
     boxBottom(page6ShaderMapBox),
   );
-  const page9LegacyBridgeOpacity =
+  // Keep ShaderMap -> SharedCode as one continuous carrier during page8->page9
+  // instead of fading between two unrelated edges.
+  const page9BridgeMorphProgress = easeInOutCubic(
+    clamp01((page9BoxSwitchProgress - 0.02) / 0.3),
+  );
+  const page9BridgeStartX = mix(
+    page9LegacyBridgeStart.x,
+    page9BottomBridgeStart.x,
+    page9BridgeMorphProgress,
+  );
+  const page9BridgeStartY = mix(
+    page9LegacyBridgeStart.y,
+    page9BottomBridgeStart.y,
+    page9BridgeMorphProgress,
+  );
+  const page9BridgeLaneY = mix(
+    boxCenterY(page7SharedRenderBox) + 6,
+    page9SharedEntryY,
+    page9BridgeMorphProgress,
+  );
+  const page9BridgeOpacity =
     page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
-      ? page7LookupBridgeOpacity * (1 - easeInOutCubic(clamp01((page9BoxSwitchProgress - 0.04) / 0.28)))
+      ? page7LookupBridgeOpacity
       : 0;
-  const page9BottomBridgeOpacity =
-    page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow"
-      ? page7LookupBridgeOpacity * easeInOutCubic(clamp01((page9BoxSwitchProgress - 0.08) / 0.24))
-      : 0;
-  const page9LegacyBridgePath = polylinePath([
-    {x: page9LegacyBridgeStart.x, y: page9LegacyBridgeStart.y},
-    {x: page9LegacyBridgeStart.x + 12, y: page9LegacyBridgeStart.y},
-    {x: page9SharedEntryPreX, y: boxCenterY(page7SharedRenderBox)},
-    {x: page9SharedEntryX, y: boxCenterY(page7SharedRenderBox)},
-  ]);
-  const page9BottomBridgePath = polylinePath([
-    {x: page9BottomBridgeStart.x, y: page9BottomBridgeStart.y},
-    {x: page9BottomBridgeStart.x, y: page9SharedEntryY},
-    {x: page9SharedEntryPreX, y: page9SharedEntryY},
-    {x: page9SharedEntryX, y: page9SharedEntryY},
+  const page9BridgePath = polylinePath([
+    {x: page9BridgeStartX, y: page9BridgeStartY},
+    {x: page9BridgeStartX, y: page9BridgeLaneY},
+    {x: page9SharedEntryPreX, y: page9BridgeLaneY},
+    {x: page9SharedEntryX, y: page9BridgeLaneY},
   ]);
   const page7BridgePath = polylinePath([
     {x: page7ShaderMapBridgeStartX, y: page7ShaderMapBridgeStartY},
@@ -188,59 +198,41 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
     {x: page7ShaderMapBridgeStubX, y: page7ShaderMapBridgeEndY},
     {x: page7ShaderMapBridgeEndX, y: page7ShaderMapBridgeEndY},
   ]);
+  const shaderMapBridgeArrow =
+    page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" ? (
+      page9BridgeOpacity > 0.001 ? (
+        <StrokeArrow
+          testId="page9-shadermap-to-sharedcode-arrow"
+          d={page9BridgePath}
+          stroke={wireStroke}
+          opacity={page9BridgeOpacity}
+          tipX={page9SharedEntryX}
+          tipY={page9BridgeLaneY}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.6}
+          underlayOpacity={0.1}
+          headSize={9}
+        />
+      ) : null
+    ) : page7LookupBridgeOpacity > 0.001 ? (
+      <StrokeArrow
+        testId={page7BridgeTestId}
+        d={page7BridgePath}
+        stroke={wireStroke}
+        opacity={page7LookupBridgeOpacity}
+        tipX={page7ShaderMapBridgeEndX}
+        tipY={page7ShaderMapBridgeEndY}
+        direction="right"
+        shaftWidth={3}
+        underlayWidth={5.6}
+        underlayOpacity={0.1}
+        headSize={9}
+      />
+    ) : null;
 
   return (
     <>
-      {page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" &&
-      page9LegacyBridgeOpacity > 0.001 ? (
-        <StrokeArrow
-          d={page9LegacyBridgePath}
-          stroke={wireStroke}
-          opacity={page9LegacyBridgeOpacity}
-          tipX={page9SharedEntryX}
-          tipY={boxCenterY(page7SharedRenderBox)}
-          direction="right"
-          shaftWidth={3}
-          underlayWidth={5.6}
-          underlayOpacity={0.1}
-          headSize={9}
-        />
-      ) : null}
-
-      {page7BridgeTestId === "page9-shadermap-to-sharedcode-arrow" &&
-      page9BottomBridgeOpacity > 0.001 ? (
-        <StrokeArrow
-          testId="page9-shadermap-to-sharedcode-arrow"
-          d={page9BottomBridgePath}
-          stroke={wireStroke}
-          opacity={page9BottomBridgeOpacity}
-          tipX={page9SharedEntryX}
-          tipY={page9SharedEntryY}
-          direction="right"
-          shaftWidth={3}
-          underlayWidth={5.6}
-          underlayOpacity={0.1}
-          headSize={9}
-        />
-      ) : null}
-
-      {page7BridgeTestId !== "page9-shadermap-to-sharedcode-arrow" &&
-      page7LookupBridgeOpacity > 0.001 ? (
-        <StrokeArrow
-          testId={page7BridgeTestId}
-          d={page7BridgePath}
-          stroke={wireStroke}
-          opacity={page7LookupBridgeOpacity}
-          tipX={page7ShaderMapBridgeEndX}
-          tipY={page7ShaderMapBridgeEndY}
-          direction="right"
-          shaftWidth={3}
-          underlayWidth={5.6}
-          underlayOpacity={0.1}
-          headSize={9}
-        />
-      ) : null}
-
       {page7FShaderOpacity > 0.001 ? (
         <g
           data-testid={page7FShaderTestId}
@@ -493,6 +485,8 @@ export function Page07Scene({scene}: {scene: SceneModel}) {
           ) : null}
         </>
       ) : null}
+
+      {shaderMapBridgeArrow}
     </>
   );
 }
