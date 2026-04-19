@@ -95,6 +95,8 @@ const LOOP_PAGE24_FRAME = loopFrame("page_24");
 const LOOP_PAGE25_FRAME = loopFrame("page_25");
 const LOOP_PAGE26_FRAME = loopFrame("page_26");
 const LOOP_PAGE27_FRAME = loopFrame("page_27");
+const LOOP_PAGE28_FRAME = loopFrame("page_28");
+const LOOP_PAGE29_FRAME = loopFrame("page_29");
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
 const PAGE15_SUPPLEMENT_IMAGE_BOX = {x: 46, y: 52, width: 1188, height: 430, radius: 28};
@@ -138,6 +140,43 @@ const PAGE17_STABLE_UPIPE_TARGET_BOX = {
   height: 116,
   radius: 24,
 };
+const ENDING_ENGINEERING_LINKS = [
+  {
+    title: "PSO Precaching for Unreal Engine",
+    subtitle: "Unreal Engine 官方文档 / dev.epicgames.com",
+    href: "https://dev.epicgames.com/documentation/unreal-engine/pso-precaching-for-unreal-engine",
+  },
+  {
+    title: "PSO 小实验",
+    subtitle: "知乎专栏 / zhuanlan.zhihu.com",
+    href: "https://zhuanlan.zhihu.com/p/1935414815096021431",
+  },
+] as const;
+const ENDING_CULTURE_LINKS: ReadonlyArray<{
+  title: string;
+  subtitle: string;
+  href?: string;
+}> = [
+  {
+    title: "《银河帝国》",
+    subtitle: "艾萨克·阿西莫夫",
+  },
+  {
+    title: "《反杜林论》",
+    subtitle: "弗里德里希·恩格斯",
+  },
+  {
+    title: "马克思主义哲学",
+    subtitle: "沈枯燥 / 哔哩哔哩",
+    href: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",
+  },
+] as const;
+const ZHUANGZI_CLOSING_LINES = [
+  "今子有大树，患其无用，何不树之于无何有之乡，",
+  "广莫之野，彷徨乎无为其侧，逍遥乎寝卧其下。",
+  "不夭斤斧，物无害者，",
+  "无所可用，安所困苦哉！",
+] as const;
 const PAGE17_EXAMPLE_CARD = {x: 100, y: 400, width: 1080, height: 220, radius: 22};
 const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
@@ -1540,19 +1579,6 @@ function Page16Placeholder({
   const hashTokenBox = boxFromCenter(PAGE16_EXAMPLE_HASH_CENTER, 154, 40, 14);
   const key1Box = boxFromCenter(PAGE16_EXAMPLE_KEY1_CENTER, 154, 40, 14);
   const key2Box = boxFromCenter(PAGE16_EXAMPLE_KEY2_CENTER, 154, 40, 14);
-  const stableKeyTableBox = {
-    x: 706,
-    y: 416,
-    width: 420,
-    height: 188,
-    radius: 16,
-  };
-  const stableKeyRows: Array<{field: string; sample: string}> = [
-    {field: "ShaderType", sample: "BasePassPS (待补)"},
-    {field: "VertexFactory", sample: "LocalVF (待补)"},
-    {field: "MaterialDomain", sample: "Surface (待补)"},
-    {field: "PermutationId", sample: "0x**** (待补)"},
-  ];
   const recToExpandPoints = [
     {x: right(recBox) + 10, y: sharedCenter.y},
     {x: sharedCenter.x - 18, y: sharedCenter.y},
@@ -1680,101 +1706,6 @@ function Page16Placeholder({
         headSize={9}
         testId="page16-expand-to-stablepc-arrow"
       />
-      <g opacity={noteOpacity}>
-        <StageBox
-          box={stableKeyTableBox}
-          fill="rgba(255, 251, 246, 0.9)"
-          stroke="rgba(92, 106, 118, 0.22)"
-          strokeWidth={1.6}
-        />
-        <line
-          x1={stableKeyTableBox.x + 12}
-          x2={stableKeyTableBox.x + stableKeyTableBox.width - 12}
-          y1={stableKeyTableBox.y + 44}
-          y2={stableKeyTableBox.y + 44}
-          stroke="rgba(92, 106, 118, 0.28)"
-          strokeWidth={1.4}
-        />
-        <line
-          x1={stableKeyTableBox.x + 196}
-          x2={stableKeyTableBox.x + 196}
-          y1={stableKeyTableBox.y + 44}
-          y2={stableKeyTableBox.y + stableKeyTableBox.height - 14}
-          stroke="rgba(92, 106, 118, 0.2)"
-          strokeWidth={1.2}
-        />
-        <text
-          x={stableKeyTableBox.x + 16}
-          y={stableKeyTableBox.y + 24}
-          fill={scene.apiStroke}
-          fontSize="20"
-          fontWeight="780"
-          textAnchor="start"
-          dominantBaseline="middle"
-        >
-          ShaderStableKey 关键参数
-        </text>
-        <text
-          x={stableKeyTableBox.x + 16}
-          y={stableKeyTableBox.y + 62}
-          fill="rgba(34, 48, 61, 0.74)"
-          fontSize="19"
-          fontWeight="760"
-          textAnchor="start"
-          dominantBaseline="middle"
-        >
-          字段
-        </text>
-        <text
-          x={stableKeyTableBox.x + 206}
-          y={stableKeyTableBox.y + 62}
-          fill="rgba(34, 48, 61, 0.74)"
-          fontSize="19"
-          fontWeight="760"
-          textAnchor="start"
-          dominantBaseline="middle"
-        >
-          示例值（待补）
-        </text>
-        {stableKeyRows.map((row, index) => {
-          const rowCenterY = stableKeyTableBox.y + 62 + (index + 1) * 30;
-          const separatorY = stableKeyTableBox.y + 74 + index * 30;
-          return (
-            <g key={row.field}>
-              <line
-                x1={stableKeyTableBox.x + 12}
-                x2={stableKeyTableBox.x + stableKeyTableBox.width - 12}
-                y1={separatorY}
-                y2={separatorY}
-                stroke="rgba(92, 106, 118, 0.16)"
-                strokeWidth={1}
-              />
-              <text
-                x={stableKeyTableBox.x + 16}
-                y={rowCenterY}
-                fill={scene.apiStroke}
-                fontSize="18"
-                fontWeight="700"
-                textAnchor="start"
-                dominantBaseline="middle"
-              >
-                {row.field}
-              </text>
-              <text
-                x={stableKeyTableBox.x + 206}
-                y={rowCenterY}
-                fill="rgba(34, 48, 61, 0.74)"
-                fontSize="17"
-                fontWeight="650"
-                textAnchor="start"
-                dominantBaseline="middle"
-              >
-                {row.sample}
-              </text>
-            </g>
-          );
-        })}
-      </g>
       <ArrowLabelPill
         x={(sharedCenter.x + stablePcBox.x - 10) / 2 + 4}
         y={sharedCenter.y - 26}
@@ -3279,6 +3210,215 @@ function Page27Placeholder({
   );
 }
 
+function EndingLinkItem({
+  x,
+  y,
+  title,
+  subtitle,
+  href,
+}: {
+  x: number;
+  y: number;
+  title: string;
+  subtitle: string;
+  href?: string;
+}) {
+  const titleNode = (
+    <text
+      x={x}
+      y={y}
+      fill="#21303d"
+      fontSize="25"
+      fontWeight="780"
+      textAnchor="start"
+      dominantBaseline="middle"
+      textDecoration={href ? "underline" : undefined}
+    >
+      {title}
+    </text>
+  );
+
+  return (
+    <g>
+      {href ? (
+        <a href={href} target="_blank" rel="noreferrer">
+          {titleNode}
+        </a>
+      ) : (
+        titleNode
+      )}
+      <text
+        x={x}
+        y={y + 32}
+        fill="rgba(34, 48, 61, 0.72)"
+        fontSize="19"
+        fontWeight="650"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {subtitle}
+      </text>
+    </g>
+  );
+}
+
+function Page28ReadingPlaceholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 148, y: 188, width: 454, height: 368, radius: 30};
+  const rightCard = {x: 678, y: 188, width: 454, height: 368, radius: 30};
+  const footerBox = {x: 212, y: 588, width: 856, height: 54, radius: 22};
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y="118"
+        fill={scene.apiStroke}
+        fontSize="34"
+        fontWeight="820"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        第 28 页：延伸阅读 / 另一些推荐
+      </text>
+      <StageBox
+        box={leftCard}
+        fill="rgba(255, 252, 247, 0.96)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={rightCard}
+        fill="rgba(255, 252, 247, 0.96)"
+        stroke={scene.nodeStroke}
+        strokeWidth={2.4}
+      />
+      <StageBox
+        box={footerBox}
+        fill="rgba(255, 250, 242, 0.92)"
+        stroke="rgba(102, 118, 132, 0.28)"
+        strokeWidth={1.8}
+      />
+      <text
+        x={leftCard.x + 34}
+        y={leftCard.y + 40}
+        fill="rgba(214, 102, 48, 0.96)"
+        fontSize="20"
+        fontWeight="830"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        工程延伸
+      </text>
+      {ENDING_ENGINEERING_LINKS.map((item, index) => (
+        <EndingLinkItem
+          key={item.title}
+          x={leftCard.x + 34}
+          y={leftCard.y + 106 + index * 116}
+          title={item.title}
+          subtitle={item.subtitle}
+          href={item.href}
+        />
+      ))}
+      <text
+        x={rightCard.x + 34}
+        y={rightCard.y + 40}
+        fill="rgba(214, 102, 48, 0.96)"
+        fontSize="20"
+        fontWeight="830"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        书与视频
+      </text>
+      {ENDING_CULTURE_LINKS.map((item, index) => (
+        <EndingLinkItem
+          key={item.title}
+          x={rightCard.x + 34}
+          y={rightCard.y + 106 + index * 92}
+          title={item.title}
+          subtitle={item.subtitle}
+          href={item.href}
+        />
+      ))}
+      <text
+        x={centerX(footerBox)}
+        y={centerY(footerBox)}
+        fill="rgba(34, 48, 61, 0.74)"
+        fontSize="21"
+        fontWeight="680"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        如果这次分享只够把问题打开，那这几条路径可以继续往下走。
+      </text>
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page29QuotePlaceholder({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.12, 0.92, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y="126"
+        fill="rgba(214, 102, 48, 0.92)"
+        fontSize="20"
+        fontWeight="820"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        《庄子·逍遥游》
+      </text>
+      {ZHUANGZI_CLOSING_LINES.map((line, index) => (
+        <text
+          key={line}
+          x={centerX(PLACEHOLDER_BOARD)}
+          y={254 + index * 84}
+          fill="#22303d"
+          fontSize={index < 2 ? "34" : "36"}
+          fontWeight={index < 2 ? "720" : "780"}
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {line}
+        </text>
+      ))}
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y="620"
+        fill="rgba(34, 48, 61, 0.56)"
+        fontSize="18"
+        fontWeight="640"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        以此作为这次分享的最后一句。
+      </text>
+    </PlaceholderBoardShell>
+  );
+}
+
 export function Page10Scene({scene}: {scene: SceneModel}) {
   const frame = scene.frame;
   const page09ImageReveal = settledSegmentProgress(
@@ -3391,6 +3531,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE26_FRAME,
     LOOP_PAGE27_FRAME,
   );
+  const page28PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE27_FRAME,
+    LOOP_PAGE28_FRAME,
+  );
+  const page29PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE28_FRAME,
+    LOOP_PAGE29_FRAME,
+  );
   const page14PlaceholderVisible = resolveWindowProgress(
     page14PlaceholderReveal,
     0.08,
@@ -3481,6 +3631,18 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.88,
     easeInOutCubic,
   );
+  const page28PlaceholderVisible = resolveWindowProgress(
+    page28PlaceholderReveal,
+    0.08,
+    0.88,
+    easeInOutCubic,
+  );
+  const page29PlaceholderVisible = resolveWindowProgress(
+    page29PlaceholderReveal,
+    0.08,
+    0.92,
+    easeInOutCubic,
+  );
   const page09ImageVisible = resolveWindowProgress(
     page09ImageReveal,
     0.08,
@@ -3518,6 +3680,10 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     1 - resolveWindowProgress(page26PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
   const page26OverlayExit =
     1 - resolveWindowProgress(page27PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page27OverlayExit =
+    1 - resolveWindowProgress(page28PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page28OverlayExit =
+    1 - resolveWindowProgress(page29PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
   const page13ImageOverlayExit =
     1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page15ImageOverlayExit =
@@ -3531,7 +3697,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page24PlaceholderFocus = page24PlaceholderVisible * page24OverlayExit;
   const page25PlaceholderFocus = page25PlaceholderVisible * page25OverlayExit;
   const page26PlaceholderFocus = page26PlaceholderVisible * page26OverlayExit;
-  const page27PlaceholderFocus = page27PlaceholderVisible;
+  const page27PlaceholderFocus = page27PlaceholderVisible * page27OverlayExit;
+  const page28PlaceholderFocus = page28PlaceholderVisible * page28OverlayExit;
+  const page29PlaceholderFocus = page29PlaceholderVisible;
   const page13ImageFocus = page13ImageVisible * page13ImageOverlayExit;
   const page15ImageFocus = page15ImageVisible * page15ImageOverlayExit;
   const page18ImageFocus = page18ImageVisible * page18ImageOverlayExit;
@@ -4923,6 +5091,20 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           scene={scene}
           opacity={page27PlaceholderFocus}
           entryProgress={page27PlaceholderReveal}
+        />
+      ) : null}
+      {page28PlaceholderFocus > 0.001 ? (
+        <Page28ReadingPlaceholder
+          scene={scene}
+          opacity={page28PlaceholderFocus}
+          entryProgress={page28PlaceholderReveal}
+        />
+      ) : null}
+      {page29PlaceholderFocus > 0.001 ? (
+        <Page29QuotePlaceholder
+          scene={scene}
+          opacity={page29PlaceholderFocus}
+          entryProgress={page29PlaceholderReveal}
         />
       ) : null}
       <Page09EvidenceNotes scene={scene} opacity={page09ImageFocus} />

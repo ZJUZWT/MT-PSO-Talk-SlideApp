@@ -35,7 +35,9 @@ export type StoryStepId =
   | "page_24"
   | "page_25"
   | "page_26"
-  | "page_27";
+  | "page_27"
+  | "page_28"
+  | "page_29";
 
 export type StorySession = {
   id: string;
@@ -46,6 +48,14 @@ export type StorySession = {
 export type StoryLink = {
   label: string;
   url: string;
+};
+
+export type StoryDataTable = {
+  title: string;
+  rows: Array<{
+    label: string;
+    value: string;
+  }>;
 };
 
 export type StoryStep = {
@@ -64,6 +74,7 @@ export type StoryStep = {
   codeLegend?: Array<{label: string; color: string}>;
   apiListTitle?: string;
   apiList?: Array<{id: number; label: string}>;
+  notesDataTable?: StoryDataTable;
   focusColorKey?: string;
 };
 

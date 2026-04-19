@@ -73,4 +73,5 @@ describe("app.css regressions", () => {
     expect(apiLineAfterRule).toMatch(/border-top:\s*3px solid var\(--accent\);/);
     expect(apiLineAfterRule).toMatch(/border-right:\s*3px solid var\(--accent\);/);
   });
+
 });

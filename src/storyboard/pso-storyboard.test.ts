@@ -36,6 +36,8 @@ describe("masterStoryboard", () => {
       "page_25",
       "page_26",
       "page_27",
+      "page_28",
+      "page_29",
     ]);
   });
 
@@ -79,6 +81,8 @@ describe("masterStoryboard", () => {
     const page25 = requireStep("page_25");
     const page26 = requireStep("page_26");
     const page27 = requireStep("page_27");
+    const page28 = requireStep("page_28");
+    const page29 = requireStep("page_29");
 
     expect(page01.label).toContain("最小模型");
     expect(page01.caption).toContain("最小骨架");
@@ -180,12 +184,26 @@ describe("masterStoryboard", () => {
     expect(page16.manuscript).toContain("stablepc.csv");
     expect(page16.manuscript).toContain("expand");
     expect(page16.manuscript).toContain("stable");
+    expect(page16.notesDataTable?.title).toBe("ShaderStableKey 样例");
+    expect(page16.notesDataTable?.rows).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: "Asset",
+          value: "Material /Game/MyActor/MyMaterial.MyMaterial",
+        }),
+        expect.objectContaining({
+          label: "VFType",
+          value: "FLocalVertexFactory",
+        }),
+      ]),
+    );
     expect(page17.label).toContain("Build");
     expect(page17.manuscript).toContain("当前");
     expect(page17.manuscript).toContain("scl.csv");
     expect(page17.manuscript).toContain("stablepc.csv");
     expect(page17.manuscript).toContain("stable.upipelinecache");
     expect(page17.manuscript).toContain("build");
+    expect(page15.notesDataTable).toBeUndefined();
     expect(page18.label).toContain("闭环");
     expect(page18.manuscript).toContain("stable.upipelinecache");
     expect(page18.manuscript).toContain("闭合");
@@ -225,5 +243,17 @@ describe("masterStoryboard", () => {
     expect(page27.label).toContain("策略 4");
     expect(page27.manuscript).toContain("OpenGL");
     expect(page27.manuscript).toContain("Metal");
+    expect(page28.label).toContain("延伸阅读");
+    expect(page28.manuscript).toContain("PSO 小实验");
+    expect(page28.manuscript).toContain("PSO Precaching for Unreal Engine");
+    expect(page28.manuscript).toContain("银河帝国");
+    expect(page28.manuscript).toContain("艾萨克·阿西莫夫");
+    expect(page28.manuscript).toContain("反杜林论");
+    expect(page28.manuscript).toContain("弗里德里希·恩格斯");
+    expect(page28.manuscript).toContain("马克思主义哲学");
+    expect(page29.label).toContain("逍遥游");
+    expect(page29.manuscript).toContain("今子有大树");
+    expect(page29.manuscript).toContain("无何有之乡");
+    expect(page29.manuscript).toContain("安所困苦哉");
   });
 });

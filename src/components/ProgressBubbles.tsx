@@ -10,6 +10,19 @@ type ProgressBubblesProps = {
   } | null;
 };
 
+function resolveSessionColorToken(
+  stepId: WorkbenchState["stepId"],
+  sessions: WorkbenchState["sessions"],
+) {
+  const sessionIndex = sessions.findIndex((session) => session.stepIds.includes(stepId));
+
+  if (sessionIndex === -1) {
+    return "session-neutral";
+  }
+
+  return `session-${sessionIndex + 1}`;
+}
+
 function resolveShellWidth(label: string, sizeMode: string) {
   if (sizeMode === "expanded" || sizeMode === "expanding") {
     return Math.max(176, Math.min(292, 116 + label.length * 8));
@@ -53,12 +66,14 @@ export function ProgressBubbles({
           const isCompactVisual = sizeMode === "compact" || sizeMode === "collapsing";
           const bubbleHeight = resolveBubbleHeight(sizeMode);
           const shapeMode = isCompactVisual ? "dot" : "pill";
+          const sessionColorToken = resolveSessionColorToken(step.id, state.sessions);
 
           return (
             <li
               key={step.id}
               className="progress-step-shell"
               data-step-id={step.id}
+              data-session-color={sessionColorToken}
               data-state={bubbleState}
               data-layout={isCompactVisual ? "compact" : "inline"}
               data-size-mode={sizeMode}
@@ -74,6 +89,7 @@ export function ProgressBubbles({
                 data-state={bubbleState}
                 data-size-mode={sizeMode}
                 data-shape-mode={shapeMode}
+                data-session-color={sessionColorToken}
                 data-compact={isCompactVisual ? "true" : "false"}
                 data-single-line={isCompact ? "false" : "true"}
                 style={

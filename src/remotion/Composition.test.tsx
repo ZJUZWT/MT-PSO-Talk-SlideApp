@@ -57,6 +57,8 @@ const LEGACY_STEP_FRAME_MAP = {
   page_25: 1824,
   page_26: 1914,
   page_27: 2004,
+  page_28: 2094,
+  page_29: 2184,
 } as const;
 
 function remapLegacyFrame(legacyFrame: number) {
@@ -2995,5 +2997,31 @@ describe("MyComposition", () => {
     expect(dataVulkanRow).toBeDefined();
     expect(page5Material).toBeUndefined();
     expect(page5Cooked).toBeUndefined();
+  });
+
+  it("renders page 28 as a two-column recommendation ending page", () => {
+    setLegacyFrame(2094);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(
+      findTextNodes(container, "第 28 页：延伸阅读 / 另一些推荐")[0],
+    ).toBeDefined();
+    expect(findTextNodes(container, "工程延伸")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO 小实验")[0]).toBeDefined();
+    expect(findTextNodes(container, "《银河帝国》")[0]).toBeDefined();
+    expect(findTextNodes(container, "《反杜林论》")[0]).toBeDefined();
+    expect(findTextNodes(container, "马克思主义哲学")[0]).toBeDefined();
+  });
+
+  it("renders page 29 as a quote-only closing page", () => {
+    setLegacyFrame(2184);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findTextNodes(container, "《庄子·逍遥游》")[0]).toBeDefined();
+    expect(
+      findTextNodes(container, "今子有大树，患其无用，何不树之于无何有之乡，")[0],
+    ).toBeDefined();
+    expect(findTextNodes(container, "无所可用，安所困苦哉！")[0]).toBeDefined();
   });
 });

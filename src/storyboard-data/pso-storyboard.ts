@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences. Pages 28-29 close with reading recommendations and a final Zhuangzi quote.",
   sessions: [
     {
       id: "s1-foundation",
@@ -49,8 +49,8 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "s6-optimization-notes",
-      label: "Session 6 · 预留优化方向",
-      stepIds: ["page_24", "page_25", "page_26", "page_27"],
+      label: "Session 6 · 优化方向与结尾收束",
+      stepIds: ["page_24", "page_25", "page_26", "page_27", "page_28", "page_29"],
     },
   ],
   steps: [
@@ -537,6 +537,63 @@ export const masterStoryboard: Storyboard = {
           url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/optimizing-rendering-with-pso-caches-in-unreal-engine",
         },
       ],
+      notesDataTable: {
+        title: "ShaderStableKey 样例",
+        rows: [
+          {
+            label: "Asset",
+            value: "Material /Game/MyActor/MyMaterial.MyMaterial",
+          },
+          {
+            label: "ShaderType",
+            value: "TMobileBasePassVSFNoLightMapPolicyHDRLinear64",
+          },
+          {
+            label: "ShaderClass",
+            value: "MeshMaterial",
+          },
+          {
+            label: "MaterialDomain",
+            value: "MD_Surface",
+          },
+          {
+            label: "FeatureLevel",
+            value: "ES3_1",
+          },
+          {
+            label: "QualityLevel",
+            value: "Num",
+          },
+          {
+            label: "TargetFrequency",
+            value: "SF_Vertex",
+          },
+          {
+            label: "TargetPlatform",
+            value: "GLSL_ES3_1_ANDROID",
+          },
+          {
+            label: "VFType",
+            value: "FLocalVertexFactory",
+          },
+          {
+            label: "PermutationId",
+            value: "Perm_0",
+          },
+          {
+            label: "PipelineHash",
+            value: "0000000000000000000000000000000000000000",
+          },
+          {
+            label: "KeyHash",
+            value: "1318167498",
+          },
+          {
+            label: "OutputHash",
+            value: "770BF39593DD7BE95F23F2C8AF5D759BD6F8A1D3",
+          },
+        ],
+      },
       notes:
         "第十六页是 expand 专用说明页。观众此时最容易困惑的是：既然 `rec.upipelinecache` 里已经有 `ShaderHash + State`，为什么还需要一份 `scl.csv`？这一页要明确回答：Hash 不是跨版本稳定身份，历史 `scl.csv` 才能把旧 Hash 提升回 StableKey 视角。并且这里的 stable 指的是语义稳定，不是编译结果或 hash 本身稳定。",
       focusTarget: "Expand",
@@ -829,6 +886,60 @@ export const masterStoryboard: Storyboard = {
         "最后把最容易误读的点说清：Metal 和 OpenGL 的差异，来自状态模型本身。",
       manuscript:
         "第二十七页不做价值判断，只做来源解释。OpenGL 的部分状态更偏驱动隐式管理，而 Metal 的状态组合更显式，因而在编译数量、缓存命中和观测统计上会呈现不同分布。也就是说，差异的根因是状态来源路径不同，而不是单一 API 的优劣标签。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_28",
+      label: "延伸阅读与另一些推荐",
+      caption:
+        "在工程资料之外，再给出一组延长这次分享阅读路径的入口。",
+      keyPoints: [
+        "工程延伸先给 Unreal Engine 官方 PSO 文档和我的 PSO 小实验。",
+        "书和视频不直接解释 PSO，但会补足“怎么看工程问题”的视角。",
+      ],
+      relatedLinks: [
+        {
+          label: "PSO Precaching for Unreal Engine",
+          url: "https://dev.epicgames.com/documentation/unreal-engine/pso-precaching-for-unreal-engine",
+        },
+        {
+          label: "PSO 小实验",
+          url: "https://zhuanlan.zhihu.com/p/1935414815096021431",
+        },
+        {
+          label: "沈枯燥：马克思主义哲学",
+          url: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",
+        },
+      ],
+      notes:
+        "这一页作为分享收束前的推荐页，左侧放工程资料，右侧放书和视频，尽量保持结构简洁并直接展示真实链接。",
+      focusTarget: "Further Reading",
+      timingHint:
+        "延续上一页的收束感，整页淡入即可，不再引入复杂拓扑或大规模节点运动。",
+      intro:
+        "如果这次分享只够把问题打开，那么最后想给出几条继续往下走的路。",
+      manuscript:
+        "第二十八页作为延伸阅读与另一些推荐。工程相关部分放两项：Unreal Engine 官方的 `PSO Precaching for Unreal Engine` 文档，以及我的 `PSO 小实验`。书和视频部分放三项：`《银河帝国》`，艾萨克·阿西莫夫；`《反杜林论》`，弗里德里希·恩格斯；以及沈枯燥老师的 `马克思主义哲学` 视频。它们不都直接解释 PSO，但会帮助我继续理解工程、系统和问题意识。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_29",
+      label: "《逍遥游》",
+      caption:
+        "最后不再补工程细节，只留下一个更松弛也更大的收束。",
+      keyPoints: [
+        "收尾页只保留引句与出处，不再引入新信息。",
+        "情绪从优化技巧回到对“有用 / 无用”的重新理解。",
+      ],
+      notes:
+        "这是一个纯收束页，画面尽量极简，只保留庄子的引句和出处，给分享留下最后一个停顿。",
+      focusTarget: "Closing Quote",
+      timingHint:
+        "整页采用淡入停留，不再插入新的解释块，让观众把注意力放在引句本身。",
+      intro:
+        "到最后，我更想把这次分享留在一个开放的地方，而不是一个结论句上。",
+      manuscript:
+        "第二十九页只保留《庄子·逍遥游》的引句：`今子有大树，患其无用，何不树之于无何有之乡，广莫之野，彷徨乎无为其侧，逍遥乎寝卧其下。不夭斤斧，物无害者，无所可用，安所困苦哉！` 这页不再解释，只作为整场分享的最后收束。",
       focusColorKey: "shared",
     },
   ],

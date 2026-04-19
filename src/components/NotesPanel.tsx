@@ -151,6 +151,28 @@ function ApiListPanel({
   );
 }
 
+function NotesDataTable({
+  title,
+  rows,
+}: {
+  title: string;
+  rows: Array<{label: string; value: string}>;
+}) {
+  return (
+    <section className="notes-section notes-data-table-panel" aria-label={title}>
+      <p className="notes-section-label">{title}</p>
+      <dl className="notes-data-table">
+        {rows.map((row) => (
+          <div key={`${row.label}-${row.value}`} className="notes-data-row">
+            <dt className="notes-data-key">{row.label}</dt>
+            <dd className="notes-data-value">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function NotesCard({
   step,
   sessionInfo,
@@ -198,6 +220,13 @@ function NotesCard({
         <ApiListPanel
           title={step.apiListTitle ?? "涉及 API / 文件"}
           items={apiItems}
+        />
+      ) : null}
+
+      {step.notesDataTable ? (
+        <NotesDataTable
+          title={step.notesDataTable.title}
+          rows={step.notesDataTable.rows}
         />
       ) : null}
 
