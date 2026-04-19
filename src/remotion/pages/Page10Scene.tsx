@@ -87,7 +87,7 @@ const LOOP_PAGE17_FRAME = loopFrame("page_17");
 const LOOP_PAGE18_FRAME = loopFrame("page_18");
 const LOOP_PAGE18_IMAGE_FRAME = loopFrame("page_18_img");
 const LOOP_PAGE19_FRAME = loopFrame("page_19");
-const LOOP_PAGE20_FRAME = loopFrame("page_20");
+const LOOP_PAGE19_TO_PAGE21_HANDOFF_FRAME = LOOP_PAGE19_FRAME;
 const LOOP_PAGE21_FRAME = loopFrame("page_21");
 const LOOP_PAGE22_FRAME = loopFrame("page_22");
 const LOOP_PAGE23_FRAME = loopFrame("page_23");
@@ -182,32 +182,24 @@ const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
 const PAGE17_HASHA_CENTER = {x: 1004, y: 508};
 const PAGE17_HASHB_CENTER = {x: 1004, y: 556};
-const PAGE19_STABLE_TARGET_BOX = {
-  x: 470,
-  y: 132,
-  width: 340,
-  height: 104,
-  radius: 26,
-};
-const PAGE19_PRECOMPILE_BOX = {x: 534, y: 312, width: 212, height: 70, radius: 20};
-const PAGE19_BYTECODE_TARGET_BOX = {
-  x: 452,
-  y: 500,
-  width: 376,
-  height: 90,
-  radius: 24,
-};
-const PAGE19_TAKEAWAY_BOX = {x: 220, y: 604, width: 840, height: 34, radius: 14};
-const PAGE19_OPENGL_BOX = {x: 150, y: 266, width: 316, height: 170, radius: 26};
-const PAGE19_METAL_BOX = {x: 814, y: 266, width: 316, height: 170, radius: 26};
-const PAGE1920_MEMORY_START_BOX = {x: 775, y: 168, width: 320, height: 392, radius: 30};
-const PAGE1920_MEMORY_END_BOX = {x: 195, y: 168, width: 320, height: 392, radius: 30};
-const PAGE1920_MEMORY_ROW_WIDTH = 258;
-const PAGE1920_MEMORY_ROW_HEIGHT = 66;
-const PAGE1920_MEMORY_ROW_RADIUS = 16;
-const PAGE1920_MEMORY_ROW_LEFT_INSET = 31;
-const PAGE1920_MEMORY_ROW_TOP_INSET = 75;
-const PAGE1920_MEMORY_ROW_GAP = 36;
+const PAGE19_MAIN_AXIS_Y = 360;
+const PAGE19_STABLE_BOX = {x: 56, y: 322, width: 220, height: 76, radius: 24};
+const PAGE19_UE_GROUP_BOX = {x: 300, y: 220, width: 208, height: 280, radius: 28};
+const PAGE19_UE_ROW_1 = {x: 341, y: 286, width: 126, height: 34, radius: 14};
+const PAGE19_UE_ROW_2 = {x: 341, y: 372, width: 126, height: 34, radius: 14};
+const PAGE19_UE_ROW_3 = {x: 341, y: 458, width: 126, height: 34, radius: 14};
+const PAGE19_GPU_AXIS_X = 620;
+const PAGE19_VERTEX_CENTER = {x: 620, y: 250};
+const PAGE19_GPU_LABEL_Y = 360;
+const PAGE19_GPU_PIXELS = {x: 590, y: 410};
+const PAGE19_MEMORY_BOX = {x: 710, y: 196, width: 228, height: 328, radius: 28};
+const PAGE19_MEMORY_GL_BOX = {x: 730, y: 248, width: 188, height: 56, radius: 16};
+const PAGE19_MEMORY_VK_BOX = {x: 730, y: 352, width: 188, height: 56, radius: 16};
+const PAGE19_MEMORY_MT_BOX = {x: 730, y: 454, width: 188, height: 60, radius: 16};
+const PAGE19_DISK_BOX = {x: 970, y: 196, width: 190, height: 328, radius: 28};
+const PAGE19_DISK_GL_BOX = {x: 989, y: 250, width: 152, height: 50, radius: 14};
+const PAGE19_DISK_VK_BOX = {x: 989, y: 354, width: 152, height: 50, radius: 14};
+const PAGE19_DISK_MT_BOX = {x: 989, y: 456, width: 152, height: 50, radius: 14};
 
 function centerX(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -237,39 +229,6 @@ function boxFromCenter(
     width,
     height,
     radius,
-  };
-}
-
-function page1920MemoryRowBox(memoryBox: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  radius: number;
-}, rowIndex: number) {
-  return {
-    x: memoryBox.x + PAGE1920_MEMORY_ROW_LEFT_INSET,
-    y:
-      memoryBox.y +
-      PAGE1920_MEMORY_ROW_TOP_INSET +
-      rowIndex * (PAGE1920_MEMORY_ROW_HEIGHT + PAGE1920_MEMORY_ROW_GAP),
-    width: PAGE1920_MEMORY_ROW_WIDTH,
-    height: PAGE1920_MEMORY_ROW_HEIGHT,
-    radius: PAGE1920_MEMORY_ROW_RADIUS,
-  };
-}
-
-function page1920MemoryRows(memoryBox: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  radius: number;
-}) {
-  return {
-    gl: page1920MemoryRowBox(memoryBox, 0),
-    vk: page1920MemoryRowBox(memoryBox, 1),
-    mt: page1920MemoryRowBox(memoryBox, 2),
   };
 }
 
@@ -2219,138 +2178,166 @@ function Page19Placeholder({
   scene,
   opacity,
   entryProgress,
-  exitProgress,
 }: {
   scene: SceneModel;
   opacity: number;
   entryProgress: number;
-  exitProgress: number;
 }) {
   const ACCENT = scene.apiStroke;
   const NODE_STROKE = scene.nodeStroke;
   const CARD_FILL = scene.neutralFill;
   const SOFT_FILL = scene.focusFill;
   const TEXT = "#22303d";
-
-  const routeReveal = resolveWindowProgress(entryProgress, 0.1, 0.8, easeOutQuint);
-  const transitionT = clamp01(exitProgress);
-  const sharedTravel = resolveWindowProgress(transitionT, 0.08, 0.92, easeInOutCubic);
-  const leftLaneExit = resolveWindowProgress(transitionT, 0.16, 0.84, easeInOutCubic);
-  const leftLaneShiftX = mix(0, -320, leftLaneExit);
-  const sharedHandoff = resolveWindowProgress(transitionT, 0.46, 0.58, easeInOutCubic);
+  const groupReveal = resolveWindowProgress(entryProgress, 0.08, 0.44, easeOutQuint);
+  const routeReveal = resolveWindowProgress(entryProgress, 0.2, 0.72, easeOutQuint);
+  const diskReveal = resolveWindowProgress(entryProgress, 0.34, 0.84, easeOutQuint);
   const localOpacity = opacity;
-  const leftLaneOpacity =
-    localOpacity * (1 - resolveWindowProgress(transitionT, 0.62, 0.84, easeInOutCubic));
-  const sharedOpacity = sharedHandoff < 0.5 ? localOpacity : 0;
-  const bridgeOpacity =
-    localOpacity * (1 - resolveWindowProgress(transitionT, 0.58, 0.8, easeInOutCubic));
+  const leftBandOpacity = localOpacity * groupReveal;
+  const gpuOpacity =
+    localOpacity * resolveWindowProgress(entryProgress, 0.22, 0.58, easeOutQuint);
+  const memoryOpacity =
+    localOpacity * resolveWindowProgress(entryProgress, 0.28, 0.64, easeOutQuint);
+  const diskOpacity = localOpacity * diskReveal;
 
-  const baseCacheBox = {x: 185, y: 314, width: 300, height: 92, radius: 24};
-  const basePrecompileBox = {x: 505, y: 314, width: 210, height: 92, radius: 22};
-  const cacheBox = {...baseCacheBox, x: baseCacheBox.x + leftLaneShiftX};
-  const precompileBox = {
-    ...basePrecompileBox,
-    x: basePrecompileBox.x + leftLaneShiftX,
-  };
-  const memoryBox = mixBox(
-    PAGE1920_MEMORY_START_BOX,
-    PAGE1920_MEMORY_END_BOX,
-    sharedTravel,
-  );
-  const memoryRows = page1920MemoryRows(memoryBox);
-  const memoryGlBox = memoryRows.gl;
-  const memoryVkBox = memoryRows.vk;
-  const memoryMtBox = memoryRows.mt;
-
-  const cacheToPrecompilePoints = [
-    {x: right(cacheBox) + 12, y: centerY(cacheBox)},
-    {x: precompileBox.x - 12, y: centerY(precompileBox)},
+  const stableToUePoints = [
+    {x: right(PAGE19_STABLE_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
+    {x: PAGE19_UE_GROUP_BOX.x - 12, y: PAGE19_MAIN_AXIS_Y},
   ];
-  const precompileLeadX = right(precompileBox) + 12;
-  const precompileToGlPoints = [
-    {x: precompileLeadX, y: centerY(memoryGlBox)},
-    {x: memoryBox.x - 12, y: centerY(memoryGlBox)},
+  const ueToGpuPoints = [
+    {x: right(PAGE19_UE_GROUP_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
+    {x: PAGE19_GPU_AXIS_X - 54, y: PAGE19_MAIN_AXIS_Y},
   ];
-  const precompileToVkPoints = [
-    {x: precompileLeadX, y: centerY(memoryVkBox)},
-    {x: memoryBox.x - 12, y: centerY(memoryVkBox)},
+  const gpuVertexToTextPoints = [
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_VERTEX_CENTER.y + 54},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y - 24},
   ];
-  const precompileToMtPoints = [
-    {x: precompileLeadX, y: centerY(memoryMtBox)},
-    {x: memoryBox.x - 12, y: centerY(memoryMtBox)},
+  const gpuTextToPixelsPoints = [
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y + 24},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_PIXELS.y - 10},
+  ];
+  const gpuToMemPoints = [
+    {x: PAGE19_GPU_AXIS_X + 56, y: PAGE19_MAIN_AXIS_Y},
+    {x: PAGE19_MEMORY_BOX.x - 12, y: PAGE19_MAIN_AXIS_Y},
   ];
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
       <g opacity={localOpacity}>
-        <g opacity={leftLaneOpacity}>
+        <g opacity={leftBandOpacity}>
+          <ArtifactNode
+            scene={scene}
+            box={PAGE19_STABLE_BOX}
+            label="stable.upipelinecache"
+            opacity={leftBandOpacity}
+            labelFontSize={21}
+            emphasized
+          />
+
           <StageBox
-            box={cacheBox}
-            fill={CARD_FILL}
+            box={PAGE19_UE_GROUP_BOX}
+            fill={SOFT_FILL}
             stroke={ACCENT}
             strokeWidth={2.8}
           />
           <text
-            x={centerX(cacheBox)}
-            y={centerY(cacheBox)}
+            x={centerX(PAGE19_UE_GROUP_BOX)}
+            y={PAGE19_UE_GROUP_BOX.y + 24}
             fill={TEXT}
-            fontSize="24"
+            fontSize="26"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
           >
-            stable.upipelinecache
+            UE PSO
           </text>
-
           <StageBox
-            box={precompileBox}
+            box={PAGE19_UE_ROW_1}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.3}
+            strokeWidth={2.1}
+            label="PSO 1"
+            labelSize={20}
+            labelWeight={760}
           />
-          <text
-            x={centerX(precompileBox)}
-            y={centerY(precompileBox)}
-            fill={TEXT}
-            fontSize="24"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            预编译
-          </text>
-
-          <StrokeArrow
-            d={horizontalPath(
-              right(cacheBox) + 12,
-            precompileBox.x - 12,
-            centerY(cacheBox),
-          )}
-            stroke={ACCENT}
-            opacity={leftLaneOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, leftLaneOpacity)}
-            dashArray={revealDashArray(cacheToPrecompilePoints, routeReveal)}
-            tipX={precompileBox.x - 12}
-            tipY={centerY(cacheBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
+          <StageBox
+            box={PAGE19_UE_ROW_2}
+            fill={CARD_FILL}
+            stroke={NODE_STROKE}
+            strokeWidth={2.1}
+            label="PSO 2"
+            labelSize={20}
+            labelWeight={760}
+          />
+          <StageBox
+            box={PAGE19_UE_ROW_3}
+            fill={CARD_FILL}
+            stroke={NODE_STROKE}
+            strokeWidth={2.1}
+            label="PSO ..."
+            labelSize={20}
+            labelWeight={760}
           />
         </g>
 
-        <g opacity={sharedOpacity}>
-          <StageBox
-            box={memoryBox}
-            fill={SOFT_FILL}
-            stroke={ACCENT}
-            strokeWidth={3}
+        <g opacity={gpuOpacity}>
+          <VertexTriangles
+            cx={PAGE19_VERTEX_CENTER.x}
+            cy={PAGE19_VERTEX_CENTER.y}
+            opacity={gpuOpacity}
+            scale={0.42}
           />
           <text
-            x={centerX(memoryBox)}
-            y={memoryBox.y + 24}
+            x={PAGE19_VERTEX_CENTER.x}
+            y={PAGE19_VERTEX_CENTER.y + 40}
             fill={TEXT}
-            fontSize="26"
+            fontSize="18"
+            fontWeight="720"
+            textAnchor="middle"
+          >
+            VertexData
+          </text>
+          <text
+            x={PAGE19_GPU_AXIS_X}
+            y={PAGE19_GPU_LABEL_Y}
+            fill={TEXT}
+            fontSize="44"
+            fontWeight="800"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            GPU
+          </text>
+          <PixelGrid
+            x={PAGE19_GPU_PIXELS.x}
+            y={PAGE19_GPU_PIXELS.y}
+            opacity={gpuOpacity}
+            scale={0.76}
+            revealProgress={1}
+          />
+          <text
+            x={PAGE19_GPU_AXIS_X}
+            y={PAGE19_GPU_PIXELS.y + 82}
+            fill={TEXT}
+            fontSize="18"
+            fontWeight="720"
+            textAnchor="middle"
+          >
+            Pixels
+          </text>
+        </g>
+
+        <g opacity={memoryOpacity}>
+          <StageBox
+            box={PAGE19_MEMORY_BOX}
+            fill={SOFT_FILL}
+            stroke={ACCENT}
+            strokeWidth={2.8}
+          />
+          <text
+            x={centerX(PAGE19_MEMORY_BOX)}
+            y={PAGE19_MEMORY_BOX.y + 24}
+            fill={TEXT}
+            fontSize="25"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -2359,517 +2346,244 @@ function Page19Placeholder({
           </text>
 
           <StageBox
-            box={memoryGlBox}
+            box={PAGE19_MEMORY_GL_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2.1}
           />
-          <text
-            x={centerX(memoryGlBox)}
-            y={centerY(memoryGlBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            OpenGL PSO
-          </text>
+          <StackedLabel
+            x={centerX(PAGE19_MEMORY_GL_BOX)}
+            y={centerY(PAGE19_MEMORY_GL_BOX) + 1}
+            lines={["OpenGL", "Program Binary"]}
+            fontSize={19}
+            fontWeight={760}
+            lineGap={18}
+          />
 
           <StageBox
-            box={memoryVkBox}
+            box={PAGE19_MEMORY_VK_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2.1}
           />
-          <text
-            x={centerX(memoryVkBox)}
-            y={centerY(memoryVkBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            Vulkan PSO
-          </text>
+          <StackedLabel
+            x={centerX(PAGE19_MEMORY_VK_BOX)}
+            y={centerY(PAGE19_MEMORY_VK_BOX) + 1}
+            lines={["Vulkan", "Pipeline Cache"]}
+            fontSize={19}
+            fontWeight={760}
+            lineGap={18}
+          />
 
           <StageBox
-            box={memoryMtBox}
+            box={PAGE19_MEMORY_MT_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2.1}
           />
-          <text
-            x={centerX(memoryMtBox)}
-            y={centerY(memoryMtBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="780"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            Metal PSO
-          </text>
+          <StackedLabel
+            x={centerX(PAGE19_MEMORY_MT_BOX)}
+            y={centerY(PAGE19_MEMORY_MT_BOX) + 1}
+            lines={["Metal", "Binary Archive", "系统管理"]}
+            fontSize={16}
+            fontWeight={760}
+            lineGap={14}
+          />
         </g>
 
-        <StrokeArrow
-          d={horizontalPath(
-            precompileLeadX,
-            memoryBox.x - 12,
-            centerY(memoryGlBox),
-          )}
-          stroke={ACCENT}
-          opacity={bridgeOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, bridgeOpacity)}
-          dashArray={revealDashArray(precompileToGlPoints, routeReveal)}
-          tipX={memoryBox.x - 12}
-          tipY={centerY(memoryGlBox)}
-          direction="right"
-          shaftWidth={2.5}
-          underlayWidth={4.7}
-          headSize={7}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            precompileLeadX,
-            memoryBox.x - 12,
-            centerY(memoryVkBox),
-          )}
-          stroke={ACCENT}
-          opacity={bridgeOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, bridgeOpacity)}
-          dashArray={revealDashArray(precompileToVkPoints, routeReveal)}
-          tipX={memoryBox.x - 12}
-          tipY={centerY(memoryVkBox)}
-          direction="right"
-          shaftWidth={2.5}
-          underlayWidth={4.7}
-          headSize={7}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            precompileLeadX,
-            memoryBox.x - 12,
-            centerY(memoryMtBox),
-          )}
-          stroke={ACCENT}
-          opacity={bridgeOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, bridgeOpacity)}
-          dashArray={revealDashArray(precompileToMtPoints, routeReveal)}
-          tipX={memoryBox.x - 12}
-          tipY={centerY(memoryMtBox)}
-          direction="right"
-          shaftWidth={2.5}
-          underlayWidth={4.7}
-          headSize={7}
-        />
-      </g>
-    </PlaceholderBoardShell>
-  );
-}
-
-function Page20Placeholder({
-  scene,
-  opacity,
-  entryProgress,
-}: {
-  scene: SceneModel;
-  opacity: number;
-  entryProgress: number;
-}) {
-  const ACCENT = scene.apiStroke;
-  const NODE_STROKE = scene.nodeStroke;
-  const CARD_FILL = scene.neutralFill;
-  const SOFT_FILL = scene.focusFill;
-  const TEXT = "#22303d";
-
-  const routeReveal = resolveWindowProgress(entryProgress, 0.12, 0.86, easeOutQuint);
-  const transitionT = clamp01(entryProgress);
-  const sharedTravel = resolveWindowProgress(transitionT, 0.08, 0.92, easeInOutCubic);
-  const rightLaneEnter = resolveWindowProgress(transitionT, 0.18, 0.88, easeInOutCubic);
-  const rightLaneShiftX = mix(420, 0, rightLaneEnter);
-  const sharedHandoff = resolveWindowProgress(transitionT, 0.46, 0.58, easeInOutCubic);
-  const localOpacity = opacity;
-  const rightBandOpacity =
-    localOpacity * resolveWindowProgress(transitionT, 0.54, 0.72, easeOutQuint);
-  const sharedOpacity = sharedHandoff >= 0.5 ? localOpacity : 0;
-  const invalidationOpacity =
-    rightBandOpacity * resolveWindowProgress(transitionT, 0.66, 0.9, easeOutQuint);
-
-  const memoryBox = mixBox(
-    PAGE1920_MEMORY_START_BOX,
-    PAGE1920_MEMORY_END_BOX,
-    sharedTravel,
-  );
-  const memoryRows = page1920MemoryRows(memoryBox);
-  const memoryGlBox = memoryRows.gl;
-  const memoryVkBox = memoryRows.vk;
-  const memoryMtBox = memoryRows.mt;
-  const apiGlBox = {x: 595 + rightLaneShiftX, y: memoryGlBox.y, width: 200, height: 66, radius: 16};
-  const apiVkBox = {x: 595 + rightLaneShiftX, y: memoryVkBox.y, width: 200, height: 66, radius: 16};
-  const apiMtBox = {x: 595 + rightLaneShiftX, y: memoryMtBox.y, width: 200, height: 66, radius: 16};
-  const fileGlBox = {x: 885 + rightLaneShiftX, y: memoryGlBox.y, width: 200, height: 66, radius: 16};
-  const fileVkBox = {x: 885 + rightLaneShiftX, y: memoryVkBox.y, width: 200, height: 66, radius: 16};
-  const fileMtBox = {x: 885 + rightLaneShiftX, y: memoryMtBox.y, width: 200, height: 66, radius: 16};
-  const invalidationBox = {x: 170, y: 522, width: 940, height: 88, radius: 22};
-
-  const glToApiPoints = [
-    {x: right(memoryGlBox) + 12, y: centerY(memoryGlBox)},
-    {x: apiGlBox.x - 12, y: centerY(apiGlBox)},
-  ];
-  const vkToApiPoints = [
-    {x: right(memoryVkBox) + 12, y: centerY(memoryVkBox)},
-    {x: apiVkBox.x - 12, y: centerY(apiVkBox)},
-  ];
-  const mtToApiPoints = [
-    {x: right(memoryMtBox) + 12, y: centerY(memoryMtBox)},
-    {x: apiMtBox.x - 12, y: centerY(apiMtBox)},
-  ];
-  const apiToGlFilePoints = [
-    {x: right(apiGlBox) + 12, y: centerY(apiGlBox)},
-    {x: fileGlBox.x - 12, y: centerY(fileGlBox)},
-  ];
-  const apiToVkFilePoints = [
-    {x: right(apiVkBox) + 12, y: centerY(apiVkBox)},
-    {x: fileVkBox.x - 12, y: centerY(fileVkBox)},
-  ];
-  const apiToMtFilePoints = [
-    {x: right(apiMtBox) + 12, y: centerY(apiMtBox)},
-    {x: fileMtBox.x - 12, y: centerY(fileMtBox)},
-  ];
-
-  return (
-    <PlaceholderBoardShell opacity={opacity}>
-      <g opacity={localOpacity}>
-        <g opacity={sharedOpacity}>
+        <g opacity={diskOpacity}>
           <StageBox
-            box={memoryBox}
+            box={PAGE19_DISK_BOX}
             fill={SOFT_FILL}
             stroke={ACCENT}
-            strokeWidth={3}
+            strokeWidth={2.8}
           />
           <text
-            x={centerX(memoryBox)}
-            y={memoryBox.y + 24}
+            x={centerX(PAGE19_DISK_BOX)}
+            y={PAGE19_DISK_BOX.y + 24}
             fill={TEXT}
-            fontSize="26"
+            fontSize="23"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
           >
-            内存中 PSO
+            硬盘中的 PSO
           </text>
-
           <StageBox
-            box={memoryGlBox}
+            box={PAGE19_DISK_GL_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2}
           />
-          <text
-            x={centerX(memoryGlBox)}
-            y={centerY(memoryGlBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            OpenGL PSO
-          </text>
-
+          <StackedLabel
+            x={centerX(PAGE19_DISK_GL_BOX)}
+            y={centerY(PAGE19_DISK_GL_BOX) + 1}
+            lines={["Program Binary", "Cache"]}
+            fontSize={16}
+            fontWeight={760}
+            lineGap={15}
+          />
           <StageBox
-            box={memoryVkBox}
+            box={PAGE19_DISK_VK_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2}
+            label="VulkanPSO.cache"
+            labelSize={15}
+            labelWeight={760}
           />
-          <text
-            x={centerX(memoryVkBox)}
-            y={centerY(memoryVkBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            Vulkan PSO
-          </text>
-
           <StageBox
-            box={memoryMtBox}
+            box={PAGE19_DISK_MT_BOX}
             fill={CARD_FILL}
             stroke={NODE_STROKE}
-            strokeWidth={2.4}
+            strokeWidth={2}
           />
-          <text
-            x={centerX(memoryMtBox)}
-            y={centerY(memoryMtBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="780"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            Metal PSO
-          </text>
+          <StackedLabel
+            x={centerX(PAGE19_DISK_MT_BOX)}
+            y={centerY(PAGE19_DISK_MT_BOX) + 1}
+            lines={["BinaryArchive", "functions.data"]}
+            fontSize={15}
+            fontWeight={760}
+            lineGap={14}
+          />
         </g>
 
-        <g opacity={rightBandOpacity}>
-          <StageBox
-            box={apiGlBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.2}
-          />
-          <text
-            x={centerX(apiGlBox)}
-            y={centerY(apiGlBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            ProgramBinary
-          </text>
-
-          <StageBox
-            box={apiVkBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.2}
-          />
-          <text
-            x={centerX(apiVkBox)}
-            y={centerY(apiVkBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            PipelineCache
-          </text>
-
-          <StageBox
-            box={apiMtBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.2}
-          />
-          <text
-            x={centerX(apiMtBox)}
-            y={centerY(apiMtBox)}
-            fill={TEXT}
-            fontSize="20"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            系统管理
-          </text>
-
-          <StageBox
-            box={fileGlBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.4}
-          />
-          <text
-            x={centerX(fileGlBox)}
-            y={centerY(fileGlBox)}
-            fill={TEXT}
-            fontSize="18"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            ProgramBinaryCache
-          </text>
-
-          <StageBox
-            box={fileVkBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.4}
-          />
-          <text
-            x={centerX(fileVkBox)}
-            y={centerY(fileVkBox)}
-            fill={TEXT}
-            fontSize="18"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            VulkanPSO.cache
-          </text>
-
-          <StageBox
-            box={fileMtBox}
-            fill={CARD_FILL}
-            stroke={NODE_STROKE}
-            strokeWidth={2.4}
-          />
-          <text
-            x={centerX(fileMtBox)}
-            y={centerY(fileMtBox)}
-            fill={TEXT}
-            fontSize="18"
-            fontWeight="760"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            functions.data
-          </text>
-
-          <g opacity={invalidationOpacity}>
-            <StageBox
-              box={invalidationBox}
-              fill="rgba(255, 244, 233, 0.96)"
-              stroke={ACCENT}
-              strokeWidth={2.6}
-            />
-            <text
-              x={invalidationBox.x + 18}
-              y={invalidationBox.y + 20}
-              fill={ACCENT}
-              fontSize="17"
-              fontWeight="800"
-              textAnchor="start"
-              dominantBaseline="middle"
-            >
-              提示：本地 PSO 缓存可能失效
-            </text>
-            <text
-              x={invalidationBox.x + 18}
-              y={invalidationBox.y + 44}
-              fill="rgba(34, 48, 61, 0.8)"
-              fontSize="14"
-              fontWeight="700"
-              textAnchor="start"
-              dominantBaseline="middle"
-            >
-              常见触发：OS 版本、GPU 驱动版本、芯片代际、图形 API/FeatureLevel、引擎或 Shader 格式版本变化。
-            </text>
-            <text
-              x={invalidationBox.x + 18}
-              y={invalidationBox.y + 66}
-              fill="rgba(34, 48, 61, 0.8)"
-              fontSize="14"
-              fontWeight="700"
-              textAnchor="start"
-              dominantBaseline="middle"
-            >
-              失效表现：缓存命中下降后触发重新编译，或旧二进制在当前环境不可加载。
-            </text>
-          </g>
-
-          <StrokeArrow
-            d={horizontalPath(
-              right(memoryGlBox) + 12,
-              apiGlBox.x - 12,
-              centerY(memoryGlBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(glToApiPoints, routeReveal)}
-            tipX={apiGlBox.x - 12}
-            tipY={centerY(memoryGlBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-          <StrokeArrow
-            d={horizontalPath(
-              right(memoryVkBox) + 12,
-              apiVkBox.x - 12,
-              centerY(memoryVkBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(vkToApiPoints, routeReveal)}
-            tipX={apiVkBox.x - 12}
-            tipY={centerY(memoryVkBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-          <StrokeArrow
-            d={horizontalPath(
-              right(memoryMtBox) + 12,
-              apiMtBox.x - 12,
-              centerY(memoryMtBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(mtToApiPoints, routeReveal)}
-            tipX={apiMtBox.x - 12}
-            tipY={centerY(memoryMtBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-          <StrokeArrow
-            d={horizontalPath(
-              right(apiGlBox) + 12,
-              fileGlBox.x - 12,
-              centerY(apiGlBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(apiToGlFilePoints, routeReveal)}
-            tipX={fileGlBox.x - 12}
-            tipY={centerY(apiGlBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-          <StrokeArrow
-            d={horizontalPath(
-              right(apiVkBox) + 12,
-              fileVkBox.x - 12,
-              centerY(apiVkBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(apiToVkFilePoints, routeReveal)}
-            tipX={fileVkBox.x - 12}
-            tipY={centerY(apiVkBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-          <StrokeArrow
-            d={horizontalPath(
-              right(apiMtBox) + 12,
-              fileMtBox.x - 12,
-              centerY(apiMtBox),
-            )}
-            stroke={ACCENT}
-            opacity={rightBandOpacity}
-            headOpacity={revealHeadOpacity(routeReveal, rightBandOpacity)}
-            dashArray={revealDashArray(apiToMtFilePoints, routeReveal)}
-            tipX={fileMtBox.x - 12}
-            tipY={centerY(apiMtBox)}
-            direction="right"
-            shaftWidth={2.8}
-            underlayWidth={5}
-            headSize={8}
-          />
-        </g>
+        <StrokeArrow
+          d={horizontalPath(
+            right(PAGE19_STABLE_BOX) + 12,
+            PAGE19_UE_GROUP_BOX.x - 12,
+            PAGE19_MAIN_AXIS_Y,
+          )}
+          stroke={ACCENT}
+          opacity={leftBandOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, leftBandOpacity)}
+          dashArray={revealDashArray(stableToUePoints, routeReveal)}
+          tipX={PAGE19_UE_GROUP_BOX.x - 12}
+          tipY={PAGE19_MAIN_AXIS_Y}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={horizontalPath(
+            right(PAGE19_UE_GROUP_BOX) + 12,
+            PAGE19_GPU_AXIS_X - 54,
+            PAGE19_MAIN_AXIS_Y,
+          )}
+          stroke={ACCENT}
+          opacity={gpuOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
+          dashArray={revealDashArray(ueToGpuPoints, routeReveal)}
+          tipX={PAGE19_GPU_AXIS_X - 54}
+          tipY={PAGE19_MAIN_AXIS_Y}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={verticalPath(
+            PAGE19_GPU_AXIS_X,
+            PAGE19_VERTEX_CENTER.y + 54,
+            PAGE19_GPU_LABEL_Y - 24,
+          )}
+          stroke={scene.wireStroke}
+          opacity={gpuOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
+          dashArray={revealDashArray(gpuVertexToTextPoints, routeReveal)}
+          tipX={PAGE19_GPU_AXIS_X}
+          tipY={PAGE19_GPU_LABEL_Y - 24}
+          direction="down"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={verticalPath(
+            PAGE19_GPU_AXIS_X,
+            PAGE19_GPU_LABEL_Y + 24,
+            PAGE19_GPU_PIXELS.y - 10,
+          )}
+          stroke={scene.wireStroke}
+          opacity={gpuOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
+          dashArray={revealDashArray(gpuTextToPixelsPoints, routeReveal)}
+          tipX={PAGE19_GPU_AXIS_X}
+          tipY={PAGE19_GPU_PIXELS.y - 10}
+          direction="down"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={horizontalPath(
+            PAGE19_GPU_AXIS_X + 56,
+            PAGE19_MEMORY_BOX.x - 12,
+            PAGE19_MAIN_AXIS_Y,
+          )}
+          stroke={ACCENT}
+          opacity={memoryOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, memoryOpacity)}
+          dashArray={revealDashArray(gpuToMemPoints, routeReveal)}
+          tipX={PAGE19_MEMORY_BOX.x - 12}
+          tipY={PAGE19_MAIN_AXIS_Y}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={horizontalPath(
+            right(PAGE19_MEMORY_GL_BOX) + 8,
+            PAGE19_DISK_GL_BOX.x - 8,
+            centerY(PAGE19_MEMORY_GL_BOX),
+          )}
+          stroke={scene.wireStroke}
+          opacity={diskOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
+          dashArray="10 8"
+          tipX={PAGE19_DISK_GL_BOX.x - 8}
+          tipY={centerY(PAGE19_MEMORY_GL_BOX)}
+          direction="right"
+          shaftWidth={2.4}
+          underlayWidth={4.4}
+          headSize={6.4}
+        />
+        <StrokeArrow
+          d={horizontalPath(
+            right(PAGE19_MEMORY_VK_BOX) + 8,
+            PAGE19_DISK_VK_BOX.x - 8,
+            centerY(PAGE19_MEMORY_VK_BOX),
+          )}
+          stroke={scene.wireStroke}
+          opacity={diskOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
+          dashArray="10 8"
+          tipX={PAGE19_DISK_VK_BOX.x - 8}
+          tipY={centerY(PAGE19_MEMORY_VK_BOX)}
+          direction="right"
+          shaftWidth={2.4}
+          underlayWidth={4.4}
+          headSize={6.4}
+        />
+        <StrokeArrow
+          d={horizontalPath(
+            right(PAGE19_MEMORY_MT_BOX) + 8,
+            PAGE19_DISK_MT_BOX.x - 8,
+            centerY(PAGE19_MEMORY_MT_BOX),
+          )}
+          stroke={scene.wireStroke}
+          opacity={diskOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
+          dashArray="10 8"
+          tipX={PAGE19_DISK_MT_BOX.x - 8}
+          tipY={centerY(PAGE19_MEMORY_MT_BOX)}
+          direction="right"
+          shaftWidth={2.4}
+          underlayWidth={4.4}
+          headSize={6.4}
+        />
       </g>
     </PlaceholderBoardShell>
   );
@@ -3491,14 +3205,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE18_IMAGE_FRAME,
     LOOP_PAGE19_FRAME,
   );
-  const page20PlaceholderReveal = settledSegmentProgress(
-    frame,
-    LOOP_PAGE19_FRAME,
-    LOOP_PAGE20_FRAME,
-  );
   const page21PlaceholderReveal = settledSegmentProgress(
     frame,
-    LOOP_PAGE20_FRAME,
+    LOOP_PAGE19_TO_PAGE21_HANDOFF_FRAME,
     LOOP_PAGE21_FRAME,
   );
   const page22PlaceholderReveal = settledSegmentProgress(
@@ -3583,12 +3292,6 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.86,
     easeInOutCubic,
   );
-  const page20PlaceholderVisible = resolveWindowProgress(
-    page20PlaceholderReveal,
-    0.08,
-    0.88,
-    easeInOutCubic,
-  );
   const page21PlaceholderVisible = resolveWindowProgress(
     page21PlaceholderReveal,
     0.08,
@@ -3662,35 +3365,29 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page16OverlayExit = 1 - page17CarrierVisible;
   const page17OverlayExit =
     1 - resolveWindowProgress(page18Reveal, 0.08, 0.3, easeInOutCubic);
+  // Exit the outgoing placeholder only after the next one is materially visible.
+  // Using reveal here creates a brief valley where neither card is strong enough
+  // and the legacy loop stage flashes back through.
+  const page19OverlayExit =
+    1 - resolveWindowProgress(page21PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page14PlaceholderFocus = page14PlaceholderVisible * page14OverlayExit;
   const page16PlaceholderFocus = page16PlaceholderVisible * page16OverlayExit;
   const page17PlaceholderFocus = page17CarrierVisible * page17OverlayExit;
-  const page19PlaceholderFocus = page19PlaceholderVisible;
-  const page20OverlayExit =
-    1 - resolveWindowProgress(page21PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page21OverlayExit =
-    1 - resolveWindowProgress(page22PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page22OverlayExit =
-    1 - resolveWindowProgress(page23PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page23OverlayExit =
-    1 - resolveWindowProgress(page24PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page24OverlayExit =
-    1 - resolveWindowProgress(page25PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page25OverlayExit =
-    1 - resolveWindowProgress(page26PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page26OverlayExit =
-    1 - resolveWindowProgress(page27PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page27OverlayExit =
-    1 - resolveWindowProgress(page28PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page28OverlayExit =
-    1 - resolveWindowProgress(page29PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
+  const page19PlaceholderFocus = page19PlaceholderVisible * page19OverlayExit;
+  const page21OverlayExit = 1 - page22PlaceholderVisible;
+  const page22OverlayExit = 1 - page23PlaceholderVisible;
+  const page23OverlayExit = 1 - page24PlaceholderVisible;
+  const page24OverlayExit = 1 - page25PlaceholderVisible;
+  const page25OverlayExit = 1 - page26PlaceholderVisible;
+  const page26OverlayExit = 1 - page27PlaceholderVisible;
+  const page27OverlayExit = 1 - page28PlaceholderVisible;
+  const page28OverlayExit = 1 - page29PlaceholderVisible;
   const page13ImageOverlayExit =
     1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page15ImageOverlayExit =
     1 - resolveWindowProgress(page15Reveal, 0.02, 0.2, easeInOutCubic);
   const page18ImageOverlayExit =
-    1 - resolveWindowProgress(page19PlaceholderReveal, 0.08, 0.3, easeInOutCubic);
-  const page20PlaceholderFocus = page20PlaceholderVisible * page20OverlayExit;
+    1 - resolveWindowProgress(page19PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page21PlaceholderFocus = page21PlaceholderVisible * page21OverlayExit;
   const page22PlaceholderFocus = page22PlaceholderVisible * page22OverlayExit;
   const page23PlaceholderFocus = page23PlaceholderVisible * page23OverlayExit;
@@ -3992,7 +3689,6 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page17PlaceholderFocus,
     page18ImageFocus,
     page19PlaceholderFocus,
-    page20PlaceholderFocus,
     page21PlaceholderFocus,
     page22PlaceholderFocus,
     page23PlaceholderFocus,
@@ -4000,6 +3696,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page25PlaceholderFocus,
     page26PlaceholderFocus,
     page27PlaceholderFocus,
+    page28PlaceholderFocus,
+    page29PlaceholderFocus,
   );
   const placeholderStageFade = resolveWindowProgress(
     placeholderFocus,
@@ -4015,14 +3713,17 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page17PlaceholderFocus,
     page18ImageFocus,
     page19PlaceholderFocus,
-    page20PlaceholderFocus,
-    page21PlaceholderFocus,
-    page22PlaceholderFocus,
-    page23PlaceholderFocus,
-    page24PlaceholderFocus,
-    page25PlaceholderFocus,
-    page26PlaceholderFocus,
-    page27PlaceholderFocus,
+    // Keep the legacy loop stage fully suppressed across the late one-page
+    // placeholder chain, including the handoff valley between adjacent cards.
+    page21PlaceholderVisible,
+    page22PlaceholderVisible,
+    page23PlaceholderVisible,
+    page24PlaceholderVisible,
+    page25PlaceholderVisible,
+    page26PlaceholderVisible,
+    page27PlaceholderVisible,
+    page28PlaceholderVisible,
+    page29PlaceholderVisible,
   );
   const onepageStageSuppression = resolveWindowProgress(
     onepageHold,
@@ -5034,14 +4735,6 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           scene={scene}
           opacity={page19PlaceholderFocus}
           entryProgress={page19PlaceholderVisible}
-          exitProgress={page20PlaceholderReveal}
-        />
-      ) : null}
-      {page20PlaceholderFocus > 0.001 ? (
-        <Page20Placeholder
-          scene={scene}
-          opacity={page20PlaceholderFocus}
-          entryProgress={page20PlaceholderReveal}
         />
       ) : null}
       {page21PlaceholderFocus > 0.001 ? (

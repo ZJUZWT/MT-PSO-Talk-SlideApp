@@ -28,7 +28,6 @@ describe("masterStoryboard", () => {
       "page_18",
       "page_18_img",
       "page_19",
-      "page_20",
       "page_21",
       "page_22",
       "page_23",
@@ -39,6 +38,13 @@ describe("masterStoryboard", () => {
       "page_28",
       "page_29",
     ]);
+  });
+
+  it("keeps session 4 focused on expand / build / merged precompile in one step", () => {
+    expect(
+      masterStoryboard.sessions?.find((session) => session.id === "s4-stable-precompile")
+        ?.stepIds,
+    ).toEqual(["page_16", "page_17", "page_18", "page_18_img", "page_19"]);
   });
 
   it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the split expand/build loop chapter after SharedCode", () => {
@@ -73,7 +79,6 @@ describe("masterStoryboard", () => {
     const page18 = requireStep("page_18");
     const page18Img = requireStep("page_18_img");
     const page19 = requireStep("page_19");
-    const page20 = requireStep("page_20");
     const page21 = requireStep("page_21");
     const page22 = requireStep("page_22");
     const page23 = requireStep("page_23");
@@ -212,11 +217,16 @@ describe("masterStoryboard", () => {
     expect(page18Img.manuscript).toContain("高峰");
     expect(page19.label).toContain("预编译");
     expect(page19.manuscript).toContain("stable.upipelinecache");
-    expect(page19.manuscript).toContain("预编译");
-    expect(page19.manuscript).toContain("编译");
-    expect(page20.label).toContain("持久化");
-    expect(page20.manuscript).toContain("内存中 PSO");
-    expect(page20.manuscript).toContain("ProgramBinary");
+    expect(page19.manuscript).toContain("UE PSO");
+    expect(page19.manuscript).not.toContain("UE PSO x N");
+    expect(page19.manuscript).toContain("VertexData");
+    expect(page19.manuscript).toContain("Pixels");
+    expect(page19.manuscript).toContain("PSO 1");
+    expect(page19.manuscript).toContain("内存中 PSO");
+    expect(page19.manuscript).toContain("Program Binary");
+    expect(page19.manuscript).toContain("Pipeline Cache");
+    expect(page19.manuscript).toContain("Binary Archive");
+    expect(page19.manuscript).toContain("functions.data");
     expect(page21.label).toContain("缓存有效性");
     expect(page21.manuscript).toContain("stable.upipelinecache");
     expect(page21.manuscript).toContain("驱动");

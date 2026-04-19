@@ -23,7 +23,6 @@ export const PAGE_16_FRAME = resolveRemotionStepFrame("page_16");
 export const PAGE_17_FRAME = resolveRemotionStepFrame("page_17");
 export const PAGE_18_FRAME = resolveRemotionStepFrame("page_18");
 export const PAGE_19_FRAME = resolveRemotionStepFrame("page_19");
-export const PAGE_20_FRAME = resolveRemotionStepFrame("page_20");
 export const PAGE_21_FRAME = resolveRemotionStepFrame("page_21");
 export const PAGE_22_FRAME = resolveRemotionStepFrame("page_22");
 export const PAGE_23_FRAME = resolveRemotionStepFrame("page_23");

@@ -123,6 +123,19 @@ function effectiveOpacity(node: Element | null) {
   return opacity;
 }
 
+function findVisibleLegacyLoopNodes(container: Element) {
+  return [
+    ...findSvgTextNodesByContent(container, "rec.upipelinecache"),
+    ...findSvgTextNodesByContent(container, "stablepc.csv"),
+    ...findSvgTextNodesByContent(container, ".scl.csv"),
+    ...findSvgTextNodesByContent(container, ".ushaderbytecode"),
+    ...findSvgTextNodesByContent(container, "stable."),
+    ...findSvgTextNodesByContent(container, "upipelinecache"),
+    ...findSvgTextNodesByContent(container, "expand"),
+    ...findSvgTextNodesByContent(container, "cook"),
+  ].filter((node) => effectiveOpacity(node) > 0.08);
+}
+
 function findTextNodes(container: HTMLElement, label: string) {
   const normalizedLabel = normalizeText(label);
 
@@ -2646,19 +2659,27 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
 
     unmount18();
-    setLegacyFrame(1086);
+    mockFrame = resolveRemotionStepFrame("page_19") + 60;
     const {container: page19Container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findSvgTextNodesByContent(page19Container, "Precompile").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "OpenGL").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Metal").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
     expect(
-      findSvgTextNodesByContent(
-        page19Container,
-        "预编译后本地存放: Metal 多自动缓存, OpenGL 常需手动管理 Program Binary",
-      ).length,
+      findSvgTextNodesByContent(page19Container, "stable.upipelinecache").length,
     ).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "UEPSO x N").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "GPU").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "内存中 PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "OpenGL").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Program Binary").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Vulkan").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Pipeline Cache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Metal").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Binary Archive").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "系统管理").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "硬盘中的 PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Program Binary").length).toBeGreaterThanOrEqual(2);
+    expect(findSvgTextNodesByContent(page19Container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "functions.data").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "Precompile").length).toBe(0);
   });
 
   it("restores page 13 before page 15 starts growing the rec return route", () => {
@@ -2671,6 +2692,123 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBe(0);
     expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
     expect(container.querySelector('[data-testid="page10-phone-shell"]')).not.toBeNull();
+  });
+
+  it("renders merged page 19 as one centered precompile-to-cache diagram", () => {
+    mockFrame = resolveRemotionStepFrame("page_19") + 8;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const uePsoLabel = findSvgTextNodesByContent(container, "UE PSO")[0];
+    const gpuLabel = findSvgTextNodesByContent(container, "GPU")[0];
+    const pso1Label = findSvgTextNodesByContent(container, "PSO 1")[0];
+    const pso2Label = findSvgTextNodesByContent(container, "PSO 2")[0];
+    const rawTextContent = Array.from(container.querySelectorAll("text")).map(
+      (node) => node.textContent?.trim(),
+    );
+
+    expect(findSvgTextNodesByContent(container, "stable.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "UE PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "UE PSO x N").length).toBe(0);
+    expect(rawTextContent).toContain("UE PSO");
+    expect(findSvgTextNodesByContent(container, "GPU").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "VertexData").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Pixels").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "PSO 1").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "PSO 2").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "PSO ...").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "UE 1").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "UE 2").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "内存中 PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "OpenGL").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Program Binary").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Vulkan").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Pipeline Cache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Metal").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Binary Archive").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "系统管理").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "硬盘中的 PSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Program Binary").length).toBeGreaterThanOrEqual(2);
+    expect(findSvgTextNodesByContent(container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "functions.data").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Precompile").length).toBe(0);
+    expect(fontSizeOf(uePsoLabel)).toBeGreaterThanOrEqual(26);
+    expect(fontSizeOf(gpuLabel)).toBeGreaterThanOrEqual(44);
+    expect(fontSizeOf(pso1Label)).toBeGreaterThanOrEqual(20);
+    expect(fontSizeOf(pso2Label)).toBeGreaterThanOrEqual(20);
+  });
+
+  it("keeps the page 18 image handoff from flashing back to the old loop stage", () => {
+    mockFrame = 2238;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visiblePrecompileImage = Array.from(container.querySelectorAll("image")).filter(
+      (node) =>
+        node.getAttribute("href") === "/supplement/pso-precompile-smooth-peak.png" &&
+        effectiveOpacity(node) > 0.08,
+    );
+    const visiblePage19Nodes = [
+      ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
+      ...findSvgTextNodesByContent(container, "UE PSO"),
+      ...findSvgTextNodesByContent(container, "内存中 PSO"),
+    ].filter((node) => effectiveOpacity(node) > 0.08);
+
+    expect(findVisibleLegacyLoopNodes(container).length).toBe(0);
+    expect(visiblePrecompileImage.length + visiblePage19Nodes.length).toBeGreaterThan(0);
+  });
+
+  it("keeps the page 19 to page 21 handoff from flashing back to the old loop stage", () => {
+    mockFrame = 2332;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visiblePage19Nodes = [
+      ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
+      ...findSvgTextNodesByContent(container, "UE PSO"),
+      ...findSvgTextNodesByContent(container, "内存中 PSO"),
+    ].filter((node) => effectiveOpacity(node) > 0.08);
+    const visiblePage21Nodes = [
+      ...findSvgTextNodesByContent(container, "这一页讲什么"),
+      ...findSvgTextNodesByContent(container, "和下一页怎么衔接"),
+    ].filter((node) => effectiveOpacity(node) > 0.08);
+
+    expect(findVisibleLegacyLoopNodes(container).length).toBe(0);
+    expect(visiblePage19Nodes.length + visiblePage21Nodes.length).toBeGreaterThan(0);
+  });
+
+  it("keeps page 28 free from visible loop-stage nodes behind the reading board", () => {
+    setLegacyFrame(2094);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visibleLegacyNodes = findVisibleLegacyLoopNodes(container);
+
+    expect(visibleLegacyNodes.length).toBe(0);
+  });
+
+  it("keeps page 29 free from visible loop-stage nodes behind the closing quote", () => {
+    setLegacyFrame(2184);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visibleLegacyNodes = findVisibleLegacyLoopNodes(container);
+
+    expect(visibleLegacyNodes.length).toBe(0);
+  });
+
+  it("keeps strategy placeholder handoffs free from visible loop-stage nodes", () => {
+    for (const frame of [2528, 2600, 2670, 2724, 2795, 2866]) {
+      mockFrame = frame;
+      const {container, unmount} = render(<MyComposition variantId="bus-clean" />);
+      const visibleLegacyNodes = findVisibleLegacyLoopNodes(container);
+
+      expect(visibleLegacyNodes.length, `frame ${frame}`).toBe(0);
+      unmount();
+    }
+  });
+
+  it("keeps frame 2724 on placeholder content instead of blanking to the old loop stage", () => {
+    mockFrame = 2724;
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const visiblePlaceholderHeadings = findSvgTextNodesByContent(container, "这一页讲什么").filter(
+      (node) => effectiveOpacity(node) > 0.08,
+    );
+    const visibleBridgeHeadings = findSvgTextNodesByContent(container, "和下一页怎么衔接").filter(
+      (node) => effectiveOpacity(node) > 0.08,
+    );
+
+    expect(visiblePlaceholderHeadings.length + visibleBridgeHeadings.length).toBeGreaterThan(0);
   });
 
   it("settles the old stable loop on page 18 after the inserted placeholder pages", () => {

@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-20 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences. Pages 28-29 close with reading recommendations and a final Zhuangzi quote.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-19 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints before ending on one merged precompile/persistence page. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences. Pages 28-29 close with reading recommendations and a final Zhuangzi quote.",
   sessions: [
     {
       id: "s1-foundation",
@@ -40,7 +40,7 @@ export const masterStoryboard: Storyboard = {
     {
       id: "s4-stable-precompile",
       label: "Session 4 · Expand / Build / 预编译",
-      stepIds: ["page_16", "page_17", "page_18", "page_18_img", "page_19", "page_20"],
+      stepIds: ["page_16", "page_17", "page_18", "page_18_img", "page_19"],
     },
     {
       id: "s5-awareness-bridge",
@@ -671,24 +671,34 @@ export const masterStoryboard: Storyboard = {
       intro:
         "闭环讲完，先看结果图，再进入预编译分解。",
       manuscript:
-        "这页给出“预编译解决高峰”的结果证据。目的是先让听众看见收益，再进入 page19 去讲 stable 缓存如何进入内存 PSO、page20 再讲如何持久化。这样观众会更容易接受后面的机制细节。",
+        "这页给出“预编译解决高峰”的结果证据。目的是先让听众看见收益，再进入 page19 去讲 stable 缓存如何一路进入内存 PSO，并继续映射到各个 API 的本地缓存表达。这样观众会更容易接受后面的机制细节。",
       focusColorKey: "shared",
     },
     {
       id: "page_19",
-      label: "预编译：stable 缓存入内存 PSO",
+      label: "预编译：stable 缓存进入内存与硬盘 PSO",
       caption:
-        "先讲第一段：stable.upipelinecache 被批次消费，转成 API 侧内存中 PSO。",
+        "把原 page19 和 page20 压成一页：stable.upipelinecache 先批次展开成 UE PSO，再进入 GPU、内存中 PSO，并继续落到 OpenGL / Vulkan / Metal 的本地缓存表达。",
       keyPoints: [
         "输入来自 stable.upipelinecache。",
-        "这一页只讲“进入内存 PSO”，先不展开持久化差异。",
+        "UE PSO 统一收口到和 page14 一致的 VertexData / GPU / Pixels 竖链，再进入内存中 PSO。",
+        "OpenGL / Vulkan / Metal 在内存态与本地缓存态的载体不同。",
       ],
-      apiHighlights: ["stable.upipelinecache", "Precompile", "内存中 PSO"],
+      apiHighlights: [
+        "stable.upipelinecache",
+        "UE PSO",
+        "GPU",
+        "内存中 PSO",
+        "Program Binary",
+        "Pipeline Cache",
+        "Binary Archive",
+        "functions.data",
+      ],
       notes:
-        "第十九页只保留左半段流程图：`stable.upipelinecache -> 预编译 -> 内存中 PSO`。这页不塞 API 细节，不塞对比表，只建立输入到内存态的直线语义。",
+        "第十九页现在是合并页：主脊柱保持成 `stable.upipelinecache -> UE PSO -> VertexData / GPU / Pixels -> 内存中 PSO`，右侧再并列展开 OpenGL / Vulkan / Metal 三行节点，并用三条水平虚线分别指向磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 与 `BinaryArchive / functions.data`。",
       focusTarget: "Precompile",
       timingHint:
-        "让 page18 缩退后，先拉出左半页，强调直线主链，不做复杂注释。",
+        "让 page18 缩退后先拉出合并主链，保留一小段停留，再把 page21 作为下一段 awareness page 淡入，不再单独插入 page20。",
       relatedLinks: [
         {
           label: "知乎：Program Binary / 预编译缓存",
@@ -696,37 +706,9 @@ export const masterStoryboard: Storyboard = {
         },
       ],
       intro:
-        "闭环成立后，先回答预编译第一问：稳定缓存如何进入运行时内存态。",
+        "闭环成立后，直接把预编译的两段逻辑压成一张图：稳定缓存怎么被批次消费、落到内存对象，又如何对应到各类本地缓存表达。",
       manuscript:
-        "第十九页把问题拆开。先只看第一段：`stable.upipelinecache` 进入预编译批次后，分别落到 API 侧的内存中 PSO。这一步解决的是“输入组织到内存对象”的转换，不讨论落盘，不讨论数量差异。画面上保持主链直线，避免视觉负担。",
-      focusColorKey: "shared",
-    },
-    {
-      id: "page_20",
-      label: "预编译：内存 PSO 持久化",
-      caption:
-        "再讲第二段：内存中 PSO 如何落盘，以及 OpenGL / Vulkan / Metal 的持久化路径差异。",
-      keyPoints: [
-        "OpenGL / Vulkan 常见引擎侧导出路径更显式。",
-        "Metal 多由系统管理，最终编译数量与行为统计常不同。",
-        "本地缓存并非永久有效：OS / 驱动 / GPU 芯片代际 / 图形栈版本变化都可能触发失效。",
-      ],
-      apiHighlights: ["OpenGL", "Vulkan", "Metal", "ProgramBinaryCache", "VulkanPSO.cache", "functions.data"],
-      relatedLinks: [
-        {
-          label: "Metal Pipeline State（Apple）",
-          url: "https://developer.apple.com/documentation/metal/mtlrenderpipelinestate",
-        },
-      ],
-      notes:
-        "第二十页承接第十九页的 `内存中 PSO`，只画右半段：`内存中 PSO -> API 导出路径 -> 磁盘缓存`。采用三条平行直线，并在底部加一条“缓存失效条件”提示，不引入额外分支。",
-      focusTarget: "Precompile Persist",
-      timingHint:
-        "从 page19 到 page20 采用横向推入，保留共享锚点语义，减少透明度闪烁。",
-      intro:
-        "第一段讲完了输入如何变成内存态，第二段补齐“如何持久化”和“为何数量不同”。",
-      manuscript:
-        "第二十页只做一件事：把第十九页的 `内存中 PSO` 往右继续推，得到三条 API 的持久化路径。OpenGL 对应 ProgramBinary 类缓存，Vulkan 对应 PipelineCache 类缓存，而 Metal 通常更多由系统托管。即使输入都来自稳定缓存，这三条路径的显式程度不同，最终统计到的预编译数量和命中行为也会不同。这里要加一个特别提示：本地缓存不是永久有效，操作系统版本、GPU 驱动版本、芯片代际、图形 API/FeatureLevel 或引擎 shader 格式版本发生变化时，都可能导致缓存失效。失效后常见表现是缓存命中下降并触发重新编译，或者旧二进制直接不可加载。",
+        "第十九页把原来的两段问题压成一条主图来讲。左边的 `stable.upipelinecache` 先在引擎侧展开成 `UE PSO`，组内再用 `PSO 1 / PSO 2 / PSO ...` 表示批次对象，随后统一收口到和 page14 一致的 `VertexData -> GPU -> Pixels` 竖向线路，进入右侧的 `内存中 PSO` 组。接着同一页继续把三种 API 的持久化差异并列画出来：OpenGL 节点里写 `Program Binary`，Vulkan 节点里写 `Pipeline Cache`，Metal 节点里写 `Binary Archive / 系统管理`。它们再分别用三条水平虚线，指向最右侧磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 和 `BinaryArchive / functions.data`。这样观众在一页里就能顺着同一条中轴读完“稳定缓存 -> UE 批次 -> GPU -> 内存态 -> 本地缓存态”的完整逻辑。",
       focusColorKey: "shared",
     },
     {
@@ -745,7 +727,7 @@ export const masterStoryboard: Storyboard = {
         "先讲边界，再讲理解，避免听众把 PSO Cache 误解成“默认必开且永久有效”。",
       focusTarget: "Cache Validity",
       timingHint:
-        "从 page20 推入后，先讲收集与启动压力，再落到环境失效边界。",
+        "从合并后的 page19 推入后，先讲收集与启动压力，再落到环境失效边界。",
       intro:
         "进入策略页之前，先把缓存有效性边界讲透。",
       manuscript:
