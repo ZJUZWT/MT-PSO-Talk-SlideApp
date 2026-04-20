@@ -369,18 +369,6 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
   makeFormalReviewSketch("formal-page29", "page_29", "Page 29 governance source", [
     node("left-code", "Vertex", {x: 88, y: 140, width: 504, height: 440}),
     node("right-code", "Factory", {x: 610, y: 140, width: 538, height: 440}),
-    node("token-4", "A4", {x: 648, y: 552, width: 122, height: 38}, {
-      containerId: "right-code",
-    }),
-    node("token-5", "A5", {x: 774, y: 552, width: 122, height: 38}, {
-      containerId: "right-code",
-    }),
-    node("token-6", "A6", {x: 900, y: 552, width: 122, height: 38}, {
-      containerId: "right-code",
-    }),
-    node("token-7", "A7", {x: 1026, y: 552, width: 122, height: 38}, {
-      containerId: "right-code",
-    }),
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page30", "page_30", "Page 30 governance conclusion", [

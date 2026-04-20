@@ -91,6 +91,173 @@ describe("geometryMetrics", () => {
     expect(metrics.minNodeGap).toBe(0);
   });
 
+  it("uses explicit tree entities to detect sibling collisions", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [],
+        edges: [],
+        ...({
+          entities: [
+            {
+              id: "parent",
+              kind: "container",
+              label: "Parent",
+              x: 120,
+              y: 120,
+              width: 360,
+              height: 240,
+            },
+            {
+              id: "left-child",
+              kind: "card",
+              label: "Left Child",
+              parentId: "parent",
+              x: 160,
+              y: 180,
+              width: 180,
+              height: 90,
+            },
+            {
+              id: "right-child",
+              kind: "card",
+              label: "Right Child",
+              parentId: "parent",
+              x: 300,
+              y: 210,
+              width: 180,
+              height: 90,
+            },
+          ],
+        } as unknown as Partial<GeometrySketchDefinition>),
+      }),
+    );
+
+    expect(metrics.overlapCount).toBe(1);
+    expect((metrics as Record<string, unknown>).siblingOverlapCount).toBe(1);
+    expect(metrics.minNodeGap).toBe(0);
+  });
+
+  it("counts free text collisions separately from generic sibling overlap", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [],
+        edges: [],
+        entities: [
+          {
+            id: "loop-card",
+            kind: "container",
+            label: "Loop Card",
+            x: 120,
+            y: 120,
+            width: 400,
+            height: 220,
+          },
+          {
+            id: "loop-caption",
+            kind: "text",
+            label: "Loop caption",
+            parentId: "loop-card",
+            x: 140,
+            y: 210,
+            width: 220,
+            height: 24,
+          },
+          {
+            id: "metrics-node",
+            kind: "card",
+            label: "Metrics",
+            parentId: "loop-card",
+            x: 300,
+            y: 196,
+            width: 120,
+            height: 60,
+          },
+        ],
+      }),
+    );
+
+    expect(metrics.siblingOverlapCount).toBe(1);
+    expect(metrics.freeTextCollisionCount).toBe(1);
+  });
+
+  it("counts edge label collisions separately from generic sibling overlap", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [],
+        edges: [],
+        entities: [
+          {
+            id: "loop-card",
+            kind: "container",
+            label: "Loop Card",
+            x: 120,
+            y: 120,
+            width: 400,
+            height: 220,
+          },
+          {
+            id: "flow-label",
+            kind: "edgeLabel",
+            label: "Artifact -> Metrics",
+            parentId: "loop-card",
+            x: 180,
+            y: 190,
+            width: 180,
+            height: 24,
+          },
+          {
+            id: "metrics-node",
+            kind: "card",
+            label: "Metrics",
+            parentId: "loop-card",
+            x: 280,
+            y: 176,
+            width: 120,
+            height: 60,
+          },
+        ],
+      }),
+    );
+
+    expect(metrics.siblingOverlapCount).toBe(1);
+    expect(metrics.edgeLabelCollisionCount).toBe(1);
+  });
+
+  it("uses explicit tree entities to detect child containment overflow", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [],
+        edges: [],
+        ...({
+          entities: [
+            {
+              id: "parent",
+              kind: "container",
+              label: "Parent",
+              x: 120,
+              y: 120,
+              width: 240,
+              height: 160,
+            },
+            {
+              id: "escaped-child",
+              kind: "text",
+              label: "Escaped Child",
+              parentId: "parent",
+              x: 310,
+              y: 170,
+              width: 100,
+              height: 40,
+            },
+          ],
+        } as unknown as Partial<GeometrySketchDefinition>),
+      }),
+    );
+
+    expect((metrics as Record<string, unknown>).childOutOfBoundsCount).toBe(1);
+    expect((metrics as Record<string, unknown>).maxChildOverflowPx).toBeGreaterThan(0);
+  });
+
   it("ignores intentional container-child overlap", () => {
     const metrics = collectGeometryMetrics(
       makeSketch({
@@ -797,5 +964,51 @@ describe("geometryScorePolicy", () => {
     const scores = scoreGeometryMetrics(metrics);
 
     expect(scores.blockerOpen).toBe(true);
+  });
+
+  it("opens a blocker when a child escapes its parent container", () => {
+    const scores = scoreGeometryMetrics({
+      overlapCount: 0,
+      siblingOverlapCount: 0,
+      maxSiblingOverlapArea: 0,
+      childOutOfBoundsCount: 1,
+      maxChildOverflowPx: 22,
+      minContainmentPad: -12,
+      freeTextCollisionCount: 0,
+      edgeLabelCollisionCount: 0,
+      crossingCount: 0,
+      nodePierceCount: 0,
+      badEndpointCount: 0,
+      primaryLineBendCount: 0,
+      avoidableBendCount: 0,
+      edgeOverlapCount: 0,
+      hookTurnCount: 0,
+      shortSegmentCount: 0,
+      detourEdgeCount: 0,
+      maxDetourRatio: 0,
+      offCenterAnchorCount: 0,
+      cornerAnchorCount: 0,
+      textOverflowCount: 0,
+      maxTextOverflowPx: 0,
+      minRenderedFontPx: 24,
+      minNodeGap: 40,
+      minMargin: 48,
+      topMargin: 48,
+      rightMargin: 48,
+      bottomMargin: 48,
+      leftMargin: 48,
+      minSideClearance: 56,
+      crampedNodeCount: 0,
+      minInternalPadding: 18,
+      minInternalTopPadding: 18,
+      minInternalRightPadding: 18,
+      minInternalBottomPadding: 18,
+      minInternalLeftPadding: 18,
+      crampedInternalNodeCount: 0,
+      leftRightMassDelta: 0.08,
+    });
+
+    expect(scores.blockerOpen).toBe(true);
+    expect(scores.layoutDensity).toBeLessThanOrEqual(2);
   });
 });

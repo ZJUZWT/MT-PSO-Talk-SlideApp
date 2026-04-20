@@ -11,6 +11,7 @@ import {
 } from "../geometry/geometry";
 import type {SceneModel} from "../model/scene-model-types";
 import {resolveRemotionStepFrame} from "../embed";
+import {resolveRemotionPublicAssetHref} from "../publicAssetPath";
 import {Page01Scene} from "./Page01Scene";
 import {Page02Scene} from "./Page02Scene";
 import {
@@ -1247,6 +1248,7 @@ function LateImageCard({
   titleOutside?: boolean;
 }) {
   const inset = titleOutside ? 8 : 16;
+  const resolvedHref = resolveRemotionPublicAssetHref(href);
   const imageBox = {
     x: box.x + inset,
     y: box.y + (titleOutside ? inset : 40),
@@ -1308,7 +1310,7 @@ function LateImageCard({
         fill="rgba(246, 242, 236, 0.96)"
       />
       <image
-        href={href}
+        href={resolvedHref}
         x={imageBox.x}
         y={imageBox.y}
         width={imageBox.width}
@@ -1343,6 +1345,7 @@ function LateBareImage({
   preserveAspectRatio?: string;
   titleFontSize?: number;
 }) {
+  const resolvedHref = resolveRemotionPublicAssetHref(href);
   const geometryBoxX = title ? box.x - 8 : box.x;
   const geometryBoxWidth = box.width + (title ? 16 : 0);
   const geometryBoxTop = title ? box.y - 40 : box.y;
@@ -1393,7 +1396,7 @@ function LateBareImage({
         </text>
       ) : null}
       <image
-        href={href}
+        href={resolvedHref}
         x={box.x}
         y={box.y}
         width={box.width}
@@ -1428,6 +1431,7 @@ function SupplementImageOverlay({
     return null;
   }
 
+  const resolvedHref = resolveRemotionPublicAssetHref(href);
   const reveal = easeOutQuint(clamp01(opacity));
   const overlayScale = mix(0.97, 1, reveal);
 
@@ -1461,7 +1465,7 @@ function SupplementImageOverlay({
       ) : null}
       <image
         data-testid={imageTestId}
-        href={href}
+        href={resolvedHref}
         x={box.x}
         y={box.y}
         width={box.width}
@@ -4920,21 +4924,6 @@ function Page29GovernanceSourcePage({
           codeFontSize={15.5}
           lineHeight={25}
         />
-        {["ATTRIBUTE4", "ATTRIBUTE5", "ATTRIBUTE6", "ATTRIBUTE7"].map((label, index) => {
-          const box = {x: 648 + index * 126, y: 552, width: 122, height: 38, radius: 19};
-          return (
-            <MicroToken
-              key={label}
-              scene={scene}
-              box={box}
-              label={label}
-              opacity={panelOpacity}
-              geometryNodeId={`token-${index + 4}`}
-              fontSize={15.5}
-              accent={index === 0}
-            />
-          );
-        })}
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}

@@ -1,4 +1,8 @@
-import type {GeometrySketchDefinition, SketchNode} from "../render/geometry-sketch-types";
+import type {
+  GeometryEntity,
+  GeometrySketchDefinition,
+  SketchNode,
+} from "../render/geometry-sketch-types";
 import {
   resolveGeometryContainerIds,
   shouldAuditGeometryNodeTypography,
@@ -28,12 +32,21 @@ export type BrowserGeometryTextProbeNode = {
   };
 };
 
+export type BrowserGeometryEntityProbeEntity = {
+  entityId: string;
+  kind: GeometryEntity["kind"];
+  label: string;
+  bounds: Bounds;
+  textBounds?: Bounds;
+};
+
 export type BrowserGeometryTextProbe = {
   sketchId?: string;
   stepId?: string;
   sourceUrl?: string;
   probeNodeId?: string;
   nodes: BrowserGeometryTextProbeNode[];
+  entities?: BrowserGeometryEntityProbeEntity[];
 };
 
 type CollectBrowserGeometryTextProbeArgs = {
@@ -104,6 +117,22 @@ function resolveNodeBounds(nodeElement: Element): Bounds | null {
   }
 
   return null;
+}
+
+function resolveElementBounds(element: Element): Bounds | null {
+  if (typeof (element as SVGGraphicsElement).getBBox === "function") {
+    const bbox = (element as SVGGraphicsElement).getBBox();
+    if (bbox.width > 0 || bbox.height > 0) {
+      return {
+        x: roundMetric(bbox.x),
+        y: roundMetric(bbox.y),
+        width: roundMetric(bbox.width),
+        height: roundMetric(bbox.height),
+      };
+    }
+  }
+
+  return resolveNodeBounds(element);
 }
 
 function unionTextBounds(textElements: SVGGraphicsElement[]) {
@@ -190,6 +219,37 @@ function isMeasurableTextElement(
   return typeof (element as SVGGraphicsElement).getBBox === "function";
 }
 
+function toGeometryEntity(node: SketchNode): GeometryEntity {
+  return {
+    id: node.id,
+    kind: node.renderStyle === "textOnly" ? "text" : "card",
+    label: node.label,
+    parentId: node.containerId,
+    x: node.x,
+    y: node.y,
+    width: node.width,
+    height: node.height,
+    tone: node.tone,
+    shape: node.shape,
+    renderStyle: node.renderStyle,
+    textRotationDeg: node.textRotationDeg,
+    labelLines: node.labelLines,
+    textRuns: node.textRuns,
+    fontSizeOverride: node.fontSizeOverride,
+    fontWeightOverride: node.fontWeightOverride,
+    textStrokeWidth: node.textStrokeWidth,
+    textColorOverride: node.textColorOverride,
+  };
+}
+
+function resolveProbeEntities(sketch: GeometrySketchDefinition) {
+  if (sketch.entities && sketch.entities.length > 0) {
+    return sketch.entities;
+  }
+
+  return sketch.nodes.map(toGeometryEntity);
+}
+
 export function collectBrowserGeometryTextProbe({
   root,
   sketch,
@@ -262,10 +322,60 @@ export function collectBrowserGeometryTextProbe({
         },
       ];
     });
+  const entities = resolveProbeEntities(sketch).flatMap((entity) => {
+    const entityElement = root.querySelector(
+      [
+        `[data-geometry-entity-id="${entity.id}"]`,
+        `[data-geometry-node-id="${entity.id}"]`,
+        `[data-node-id="${entity.id}"]`,
+      ].join(", "),
+    );
+
+    if (!entityElement) {
+      return [];
+    }
+
+    const bounds = resolveElementBounds(entityElement);
+    if (!bounds) {
+      return [];
+    }
+
+    const textElements = Array.from(
+      entityElement.querySelectorAll('[data-geometry-node-text="1"], text'),
+    ).filter(isMeasurableTextElement);
+    const entityIsTextElement =
+      entityElement.tagName.toLowerCase() === "text" && isMeasurableTextElement(entityElement);
+
+    if (entityIsTextElement) {
+      textElements.unshift(entityElement as SVGGraphicsElement);
+    }
+
+    const textBounds = unionTextBounds(textElements);
+
+    return [
+      {
+        entityId: entity.id,
+        kind: entity.kind,
+        label: entity.label ?? "",
+        bounds,
+        ...(textBounds
+          ? {
+              textBounds: {
+                x: roundMetric(textBounds.x),
+                y: roundMetric(textBounds.y),
+                width: roundMetric(textBounds.width),
+                height: roundMetric(textBounds.height),
+              },
+            }
+          : {}),
+      },
+    ];
+  });
 
   return {
     sketchId: sketch.id,
     probeNodeId,
     nodes,
+    entities,
   };
 }

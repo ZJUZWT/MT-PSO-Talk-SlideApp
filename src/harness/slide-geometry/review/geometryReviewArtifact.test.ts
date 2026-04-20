@@ -2,6 +2,7 @@ import {describe, expect, it} from "vitest";
 import {page09R1Sketch} from "../contracts/page09-r1";
 import {page14R1Sketch} from "../contracts/page14-r1";
 import {page15R1Sketch} from "../contracts/page15-r1";
+import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
 import type {BrowserGeometryTextProbe} from "./browserGeometryTextProbe";
 import {
   isGeometrySketchId,
@@ -272,5 +273,150 @@ describe("geometryReviewArtifact", () => {
     expect(artifact.metrics.maxTextOverflowPx).toBe(56.1);
     expect(artifact.scores.blockerOpen).toBe(true);
     expect(artifact.verdict).toBe("Fit overflowing labels before critic pass");
+  });
+
+  it("uses real browser entity bounds when computing tree collisions", () => {
+    const sketch: GeometrySketchDefinition = {
+      id: "tree-browser-probe",
+      label: "Tree Browser Probe",
+      stepId: "page_31",
+      contract: {
+        pageGoal: "Browser truth drives overlap",
+        receiverPlane: "Loop card",
+        primaryLine: "Browser -> Metrics",
+        keepStable: "None",
+        newChange: "Entity bounds",
+        doNot: "None",
+      },
+      entities: [
+        {
+          id: "loop-card",
+          kind: "container",
+          label: "Loop Card",
+          x: 120,
+          y: 120,
+          width: 420,
+          height: 180,
+        },
+        {
+          id: "browser-caption",
+          kind: "text",
+          label: "Browser Caption",
+          parentId: "loop-card",
+          x: 150,
+          y: 180,
+          width: 80,
+          height: 24,
+        },
+        {
+          id: "metrics-node",
+          kind: "card",
+          label: "Metrics",
+          parentId: "loop-card",
+          x: 280,
+          y: 176,
+          width: 88,
+          height: 32,
+        },
+      ],
+      nodes: [],
+      edges: [],
+    };
+    const browserTextProbe: BrowserGeometryTextProbe = {
+      sketchId: "tree-browser-probe",
+      nodes: [],
+      entities: [
+        {
+          entityId: "loop-card",
+          kind: "container",
+          label: "Loop Card",
+          bounds: {
+            x: 120,
+            y: 120,
+            width: 420,
+            height: 180,
+          },
+        },
+        {
+          entityId: "browser-caption",
+          kind: "text",
+          label: "Browser Caption",
+          bounds: {
+            x: 150,
+            y: 180,
+            width: 170,
+            height: 24,
+          },
+        },
+        {
+          entityId: "metrics-node",
+          kind: "card",
+          label: "Metrics",
+          bounds: {
+            x: 280,
+            y: 176,
+            width: 88,
+            height: 32,
+          },
+        },
+      ],
+    };
+
+    const artifact = buildGeometryReviewArtifact(sketch, {
+      browserTextProbe,
+    });
+
+    expect(artifact.metrics.siblingOverlapCount).toBe(1);
+    expect(artifact.metrics.overlapCount).toBe(1);
+    expect(artifact.metrics.maxSiblingOverlapArea).toBeGreaterThan(0);
+    expect(artifact.scores.blockerOpen).toBe(true);
+    expect(artifact.verdict).toBe("Remove layout overlaps before critic pass");
+  });
+
+  it("surfaces parent containment overflow in the review verdict", () => {
+    const sketch: GeometrySketchDefinition = {
+      id: "tree-containment-probe",
+      label: "Tree Containment Probe",
+      stepId: "page_31",
+      contract: {
+        pageGoal: "Containment overflow opens blocker",
+        receiverPlane: "Loop card",
+        primaryLine: "Containment -> Verdict",
+        keepStable: "None",
+        newChange: "Containment metrics",
+        doNot: "None",
+      },
+      entities: [
+        {
+          id: "loop-card",
+          kind: "container",
+          label: "Loop Card",
+          x: 120,
+          y: 120,
+          width: 260,
+          height: 120,
+        },
+        {
+          id: "escaped-child",
+          kind: "card",
+          label: "",
+          parentId: "loop-card",
+          x: 320,
+          y: 156,
+          width: 100,
+          height: 48,
+        },
+      ],
+      nodes: [],
+      edges: [],
+    };
+
+    const artifact = buildGeometryReviewArtifact(sketch);
+
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(1);
+    expect(artifact.scores.blockerOpen).toBe(true);
+    expect(artifact.verdict).toBe(
+      "Keep children inside parent containers before critic pass",
+    );
   });
 });

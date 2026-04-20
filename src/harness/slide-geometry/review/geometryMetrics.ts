@@ -1,5 +1,6 @@
 import {REMOTION_PLAYER_CONFIG} from "../../../remotion/embed";
 import type {
+  GeometryEntity,
   GeometrySketchDefinition,
   SketchEdge,
   SketchNode,
@@ -12,9 +13,17 @@ import {
   resolveGeometryTypographyMeasurement,
   shouldAuditGeometryNodeTypography,
 } from "../render/geometryText";
+import type {BrowserGeometryTextProbe} from "./browserGeometryTextProbe";
 
 export type GeometryMetrics = {
   overlapCount: number;
+  siblingOverlapCount: number;
+  maxSiblingOverlapArea: number;
+  childOutOfBoundsCount: number;
+  maxChildOverflowPx: number;
+  minContainmentPad: number;
+  freeTextCollisionCount: number;
+  edgeLabelCollisionCount: number;
   crossingCount: number;
   nodePierceCount: number;
   badEndpointCount: number;
@@ -118,6 +127,8 @@ type Segment = {
 };
 
 const EPSILON = 0.0001;
+const TREE_OVERLAP_AREA_EPSILON = 4;
+const TREE_CONTAINMENT_EPSILON = 1.5;
 
 function toRect(node: SketchNode): Rect {
   return {
@@ -156,6 +167,106 @@ function isPointJunction(node: SketchNode) {
     node.width <= 12 &&
     node.height <= 12
   );
+}
+
+function toSketchNode(entity: GeometryEntity): SketchNode {
+  return {
+    id: entity.id,
+    label: entity.label ?? "",
+    containerId: entity.parentId,
+    x: entity.x,
+    y: entity.y,
+    width: entity.width,
+    height: entity.height,
+    tone: entity.tone,
+    shape: entity.shape,
+    renderStyle: entity.renderStyle,
+    textRotationDeg: entity.textRotationDeg,
+    labelLines: entity.labelLines,
+    textRuns: entity.textRuns,
+    fontSizeOverride: entity.fontSizeOverride,
+    fontWeightOverride: entity.fontWeightOverride,
+    textStrokeWidth: entity.textStrokeWidth,
+    textColorOverride: entity.textColorOverride,
+  };
+}
+
+function resolveGeometryLayoutNodes(sketch: GeometrySketchDefinition) {
+  if (sketch.entities && sketch.entities.length > 0) {
+    return sketch.entities.map(toSketchNode);
+  }
+
+  return sketch.nodes;
+}
+
+function resolveGeometryEntityKinds(sketch: GeometrySketchDefinition) {
+  if (sketch.entities && sketch.entities.length > 0) {
+    return new Map(sketch.entities.map((entity) => [entity.id, entity.kind]));
+  }
+
+  return new Map(
+    sketch.nodes.map((node) => [
+      node.id,
+      node.renderStyle === "textOnly" ? "text" : "card",
+    ]),
+  );
+}
+
+function resolveGeometryLayoutSketch(
+  sketch: GeometrySketchDefinition,
+): GeometrySketchDefinition {
+  const nodes = resolveGeometryLayoutNodes(sketch);
+  if (nodes === sketch.nodes) {
+    return sketch;
+  }
+
+  return {
+    ...sketch,
+    nodes,
+  };
+}
+
+function applyBrowserTruthToLayoutSketch(
+  sketch: GeometrySketchDefinition,
+  browserTextProbe?: BrowserGeometryTextProbe | null,
+): GeometrySketchDefinition {
+  if (!browserTextProbe) {
+    return sketch;
+  }
+
+  const browserBoundsById = new Map<string, {x: number; y: number; width: number; height: number}>();
+
+  for (const entity of browserTextProbe.entities ?? []) {
+    browserBoundsById.set(entity.entityId, entity.bounds);
+  }
+
+  for (const node of browserTextProbe.nodes) {
+    if (!browserBoundsById.has(node.nodeId)) {
+      browserBoundsById.set(node.nodeId, node.nodeBounds);
+    }
+  }
+
+  if (browserBoundsById.size === 0) {
+    return sketch;
+  }
+
+  return {
+    ...sketch,
+    nodes: sketch.nodes.map((node) => {
+      const bounds = browserBoundsById.get(node.id);
+      if (!bounds) {
+        return node;
+      }
+
+      return {
+        ...node,
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+      };
+    }),
+  };
 }
 
 function isOverlap(a: Rect, b: Rect) {
@@ -197,6 +308,17 @@ function rectGap(a: Rect, b: Rect) {
   const dy = Math.max(a.top - b.bottom, b.top - a.bottom, 0);
 
   return Math.hypot(dx, dy);
+}
+
+function rectOverlapArea(a: Rect, b: Rect) {
+  const overlapWidth = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+  const overlapHeight = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+
+  return overlapWidth * overlapHeight;
+}
+
+function isSiblingPair(a: SketchNode, b: SketchNode) {
+  return (a.containerId ?? null) === (b.containerId ?? null);
 }
 
 function edgePoints(edge: SketchEdge) {
@@ -896,11 +1018,18 @@ function leftRightMassDelta(nodes: SketchNode[]) {
 
 export function collectGeometryMetrics(
   sketch: GeometrySketchDefinition,
+  options: {
+    browserTextProbe?: BrowserGeometryTextProbe | null;
+  } = {},
 ): GeometryMetrics {
-  const textOverflows = collectGeometryTextOverflows(sketch);
-  const containerIds = resolveGeometryContainerIds(sketch);
-  const nodeInternalPaddings = collectNodeInternalPaddings(sketch);
-  const minRenderedFontPx = sketch.nodes.reduce((min, node) => {
+  const layoutSketch = applyBrowserTruthToLayoutSketch(
+    resolveGeometryLayoutSketch(sketch),
+    options.browserTextProbe,
+  );
+  const textOverflows = collectGeometryTextOverflows(layoutSketch);
+  const containerIds = resolveGeometryContainerIds(layoutSketch);
+  const nodeInternalPaddings = collectNodeInternalPaddings(layoutSketch);
+  const minRenderedFontPx = layoutSketch.nodes.reduce((min, node) => {
     if (!shouldAuditGeometryNodeTypography(node)) {
       return min;
     }
@@ -915,29 +1044,81 @@ export function collectGeometryMetrics(
 
     return Math.min(min, measurement.renderedFontPx);
   }, Number.POSITIVE_INFINITY);
-  const rects = sketch.nodes.map(toRect);
-  const margins = directionalMargins(sketch);
-  const nodeDirectionalClearances = collectNodeDirectionalClearances(sketch);
-  const pierceRects = sketch.nodes
+  const rects = layoutSketch.nodes.map(toRect);
+  const margins = directionalMargins(layoutSketch);
+  const nodeDirectionalClearances = collectNodeDirectionalClearances(layoutSketch);
+  const pierceRects = layoutSketch.nodes
     .filter((node) => !containerIds.has(node.id) && !isPointJunction(node))
     .map(toRect);
-  const edgeRouteMetrics = collectEdgeRouteMetrics(sketch);
-  const edgeAnchorMetrics = collectEdgeAnchorMetrics(sketch);
-  const nodeMap = new Map(sketch.nodes.map((node) => [node.id, node]));
-  let overlapCount = 0;
+  const edgeRouteMetrics = collectEdgeRouteMetrics(layoutSketch);
+  const edgeAnchorMetrics = collectEdgeAnchorMetrics(layoutSketch);
+  const nodeMap = new Map(layoutSketch.nodes.map((node) => [node.id, node]));
+  const entityKinds = resolveGeometryEntityKinds(sketch);
+  let siblingOverlapCount = 0;
+  let maxSiblingOverlapArea = 0;
+  let childOutOfBoundsCount = 0;
+  let maxChildOverflowPx = 0;
+  let minContainmentPad = Number.POSITIVE_INFINITY;
+  let freeTextCollisionCount = 0;
+  let edgeLabelCollisionCount = 0;
   let minNodeGap = Number.POSITIVE_INFINITY;
 
   for (let i = 0; i < rects.length; i += 1) {
     for (let j = i + 1; j < rects.length; j += 1) {
-      if (isContainerPair(sketch.nodes[i]!, sketch.nodes[j]!, nodeMap)) {
+      if (isContainerPair(layoutSketch.nodes[i]!, layoutSketch.nodes[j]!, nodeMap)) {
         continue;
       }
 
       const gap = rectGap(rects[i]!, rects[j]!);
-      if (gap === 0) {
-        overlapCount += 1;
+      if (isSiblingPair(layoutSketch.nodes[i]!, layoutSketch.nodes[j]!)) {
+        if (gap === 0) {
+          const overlapArea = rectOverlapArea(rects[i]!, rects[j]!);
+          if (overlapArea > TREE_OVERLAP_AREA_EPSILON) {
+            siblingOverlapCount += 1;
+            maxSiblingOverlapArea = Math.max(maxSiblingOverlapArea, overlapArea);
+            const leftKind = entityKinds.get(layoutSketch.nodes[i]!.id);
+            const rightKind = entityKinds.get(layoutSketch.nodes[j]!.id);
+            if (leftKind === "text" || rightKind === "text") {
+              freeTextCollisionCount += 1;
+            }
+            if (leftKind === "edgeLabel" || rightKind === "edgeLabel") {
+              edgeLabelCollisionCount += 1;
+            }
+          }
+        }
+        minNodeGap = Math.min(minNodeGap, gap);
       }
-      minNodeGap = Math.min(minNodeGap, gap);
+    }
+  }
+
+  for (const node of layoutSketch.nodes) {
+    if (!node.containerId) {
+      continue;
+    }
+
+    const parent = nodeMap.get(node.containerId);
+    if (!parent) {
+      continue;
+    }
+
+    const nodeRect = toRect(node);
+    const parentRect = toRect(parent);
+    const overflowLeft = Math.max(0, parentRect.left - nodeRect.left);
+    const overflowRight = Math.max(0, nodeRect.right - parentRect.right);
+    const overflowTop = Math.max(0, parentRect.top - nodeRect.top);
+    const overflowBottom = Math.max(0, nodeRect.bottom - parentRect.bottom);
+    const overflowTotal = overflowLeft + overflowRight + overflowTop + overflowBottom;
+    const tightestPad = Math.min(
+      nodeRect.left - parentRect.left,
+      parentRect.right - nodeRect.right,
+      nodeRect.top - parentRect.top,
+      parentRect.bottom - nodeRect.bottom,
+    );
+
+    minContainmentPad = Math.min(minContainmentPad, tightestPad);
+    if (overflowTotal > TREE_CONTAINMENT_EPSILON) {
+      childOutOfBoundsCount += 1;
+      maxChildOverflowPx = Math.max(maxChildOverflowPx, overflowTotal);
     }
   }
   const primaryEdges = sketch.edges.filter((edge) => edge.tone === "primary");
@@ -968,7 +1149,16 @@ export function collectGeometryMetrics(
   ]);
 
   return {
-    overlapCount,
+    overlapCount: siblingOverlapCount,
+    siblingOverlapCount,
+    maxSiblingOverlapArea: Number(maxSiblingOverlapArea.toFixed(1)),
+    childOutOfBoundsCount,
+    maxChildOverflowPx: Number(maxChildOverflowPx.toFixed(1)),
+    minContainmentPad: Number.isFinite(minContainmentPad)
+      ? Number(minContainmentPad.toFixed(1))
+      : 0,
+    freeTextCollisionCount,
+    edgeLabelCollisionCount,
     crossingCount: edgeRouteMetrics.reduce(
       (sum, metric) => sum + metric.crossingCount,
       0,
@@ -1009,7 +1199,7 @@ export function collectGeometryMetrics(
     ),
     minRenderedFontPx: Number.isFinite(minRenderedFontPx) ? minRenderedFontPx : 0,
     minNodeGap: Number.isFinite(minNodeGap) ? minNodeGap : 0,
-    minMargin: minMargin(sketch.nodes),
+    minMargin: minMargin(layoutSketch.nodes),
     topMargin: Number(margins.topMargin.toFixed(1)),
     rightMargin: Number(margins.rightMargin.toFixed(1)),
     bottomMargin: Number(margins.bottomMargin.toFixed(1)),
@@ -1044,6 +1234,6 @@ export function collectGeometryMetrics(
     crampedInternalNodeCount: nodeInternalPaddings.filter(
       (padding) => padding.tightest < 10,
     ).length,
-    leftRightMassDelta: leftRightMassDelta(sketch.nodes),
+    leftRightMassDelta: leftRightMassDelta(layoutSketch.nodes),
   };
 }

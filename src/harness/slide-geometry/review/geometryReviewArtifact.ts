@@ -159,6 +159,10 @@ function resolveVerdict(
       return "Fit overflowing labels before critic pass";
     }
 
+    if (metrics.childOutOfBoundsCount > 0) {
+      return "Keep children inside parent containers before critic pass";
+    }
+
     if (metrics.overlapCount > 0) {
       return "Remove layout overlaps before critic pass";
     }
@@ -531,7 +535,9 @@ export function buildGeometryReviewArtifact(
   const nodeTextMetrics = resolveNodeTextMetrics(sketch, options.browserTextProbe);
   const textOverflows = nodeTextMetrics.filter((nodeMetric) => nodeMetric.overflowPx > 0);
   const metrics = {
-    ...collectGeometryMetrics(sketch),
+    ...collectGeometryMetrics(sketch, {
+      browserTextProbe: options.browserTextProbe,
+    }),
     ...summarizeNodeTextMetrics(nodeTextMetrics),
   };
   const nodeDirectionalClearances = collectNodeDirectionalClearances(sketch);

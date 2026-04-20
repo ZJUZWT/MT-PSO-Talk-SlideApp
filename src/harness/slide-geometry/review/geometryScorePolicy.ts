@@ -15,7 +15,11 @@ function clampScore(value: number) {
 }
 
 function scoreLayoutDensity(metrics: GeometryMetrics) {
-  if (metrics.overlapCount > 0 || metrics.textOverflowCount > 0) {
+  if (
+    metrics.overlapCount > 0 ||
+    metrics.textOverflowCount > 0 ||
+    metrics.childOutOfBoundsCount > 0
+  ) {
     return 2;
   }
 
@@ -49,6 +53,18 @@ function scoreLayoutDensity(metrics: GeometryMetrics) {
   }
 
   if (metrics.crampedInternalNodeCount >= 2) {
+    score -= 1;
+  }
+
+  if (metrics.freeTextCollisionCount > 0) {
+    score -= 2;
+  }
+
+  if (metrics.edgeLabelCollisionCount > 0) {
+    score -= 2;
+  }
+
+  if (metrics.minContainmentPad < 8) {
     score -= 1;
   }
 
@@ -223,6 +239,7 @@ export function scoreGeometryMetrics(
   return {
     blockerOpen:
       metrics.overlapCount > 0 ||
+      metrics.childOutOfBoundsCount > 0 ||
       metrics.crossingCount > 0 ||
       metrics.nodePierceCount > 0 ||
       metrics.textOverflowCount > 0,

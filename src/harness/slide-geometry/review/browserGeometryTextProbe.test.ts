@@ -1,4 +1,5 @@
 import {describe, expect, it} from "vitest";
+import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
 import {page14ContractR1Sketch} from "../contracts/page14-contract-r1";
 import {collectBrowserGeometryTextProbe} from "./browserGeometryTextProbe";
 
@@ -62,5 +63,92 @@ describe("collectBrowserGeometryTextProbe", () => {
       leftPaddingPx: 13.6,
       tightestPaddingPx: 12.8,
     });
+  });
+
+  it("collects entity bounds for explicit tree entities", () => {
+    const sketch: GeometrySketchDefinition = {
+      id: "entity-probe-sketch",
+      label: "Entity Probe Sketch",
+      stepId: "page_31",
+      contract: {
+        pageGoal: "Probe entity bounds",
+        receiverPlane: "Loop card",
+        primaryLine: "Probe -> Bounds",
+        keepStable: "None",
+        newChange: "Entity bbox",
+        doNot: "None",
+      },
+      entities: [
+        {
+          id: "loop-card",
+          kind: "container",
+          label: "Loop Card",
+          x: 100,
+          y: 120,
+          width: 240,
+          height: 80,
+        },
+        {
+          id: "loop-caption",
+          kind: "text",
+          label: "Loop Caption",
+          parentId: "loop-card",
+          x: 110,
+          y: 140,
+          width: 160,
+          height: 24,
+        },
+      ],
+      nodes: [],
+      edges: [],
+    };
+
+    document.body.innerHTML = `
+      <svg>
+        <g data-geometry-entity-id="loop-card">
+          <rect x="100" y="120" width="240" height="80"></rect>
+        </g>
+        <text data-geometry-entity-id="loop-caption" font-size="24">Loop fact</text>
+      </svg>
+    `;
+
+    const caption = document.querySelector(
+      '[data-geometry-entity-id="loop-caption"]',
+    ) as SVGGraphicsElement | null;
+    if (!caption) {
+      throw new Error("Expected loop caption entity");
+    }
+
+    caption.getBBox = () => createSvgRect(110, 140, 160, 24);
+
+    const probe = collectBrowserGeometryTextProbe({
+      root: document,
+      sketch,
+    });
+
+    expect((probe as Record<string, unknown>).entities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          entityId: "loop-card",
+          kind: "container",
+          bounds: {
+            x: 100,
+            y: 120,
+            width: 240,
+            height: 80,
+          },
+        }),
+        expect.objectContaining({
+          entityId: "loop-caption",
+          kind: "text",
+          bounds: {
+            x: 110,
+            y: 140,
+            width: 160,
+            height: 24,
+          },
+        }),
+      ]),
+    );
   });
 });

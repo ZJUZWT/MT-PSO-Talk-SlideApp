@@ -11,6 +11,15 @@ export type SketchContract = {
 
 export type SketchNodeTone = "default" | "receiver" | "muted";
 export type SketchNodeShape = "roundedRect" | "circle";
+export type GeometryEntityKind =
+  | "container"
+  | "card"
+  | "text"
+  | "edgeLabel"
+  | "image"
+  | "caption"
+  | "junction"
+  | "decorative";
 
 export type SketchTextRun = {
   text: string;
@@ -44,6 +53,30 @@ export type SketchNode = {
   textColorOverride?: string;
 };
 
+export type GeometryEntity = {
+  id: string;
+  kind: GeometryEntityKind;
+  label?: string;
+  parentId?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  tone?: SketchNodeTone;
+  shape?: SketchNodeShape;
+  renderStyle?: "default" | "outline" | "textOnly";
+  textRotationDeg?: number;
+  labelLines?: string[];
+  textRuns?: SketchTextRun[];
+  fontSizeOverride?: number;
+  fontWeightOverride?: number;
+  textStrokeWidth?: number;
+  textColorOverride?: string;
+  participatesInSiblingCollision?: boolean;
+  participatesInParentContainment?: boolean;
+  measurementMode?: "formula" | "browser" | "hybrid";
+};
+
 export type SketchPoint = {
   x: number;
   y: number;
@@ -72,6 +105,7 @@ export type GeometrySketchDefinition = {
   label: string;
   stepId: StoryStepId;
   contract: SketchContract;
+  entities?: GeometryEntity[];
   nodes: SketchNode[];
   edges: SketchEdge[];
   referenceImage?: {

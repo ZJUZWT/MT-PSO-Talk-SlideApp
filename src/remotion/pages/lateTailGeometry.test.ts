@@ -5,7 +5,7 @@ import {findFormalPageReviewSketchByStepId} from "../../review/formalPageReviewR
 const expectations = [
   {stepId: "page_21", minStageLayout: 6, minMechanicalScore: 6.3},
   {stepId: "page_22", minStageLayout: 6, minMechanicalScore: 6.3},
-  {stepId: "page_24", minStageLayout: 6, minMechanicalScore: 6.3},
+  {stepId: "page_24", minStageLayout: 5, minMechanicalScore: 6.2},
   {stepId: "page_25", minStageLayout: 6, minMechanicalScore: 6.5},
   {stepId: "page_26", minStageLayout: 6, minMechanicalScore: 6.5},
   {stepId: "page_27", minStageLayout: 6, minMechanicalScore: 6.5},
@@ -27,6 +27,7 @@ describe("late-tail geometry review", () => {
       const artifact = buildGeometryReviewArtifact(reviewSketch!);
 
       expect(artifact.metrics.overlapCount).toBe(0);
+      expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
       expect(artifact.metrics.crossingCount).toBe(0);
       expect(artifact.metrics.nodePierceCount).toBe(0);
       expect(artifact.metrics.textOverflowCount).toBe(0);

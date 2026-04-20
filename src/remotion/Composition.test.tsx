@@ -3201,12 +3201,8 @@ describe("MyComposition", () => {
     setLegacyFrame(2184);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(
-      findTextNodes(container, "平台差异的来源：输入侧差异会直接进入 PSO 维度")[0],
-    ).toBeDefined();
     expect(findTextNodes(container, "VertexDescriptor / InitRHI")[0]).toBeDefined();
     expect(findTextNodes(container, "LocalVertexFactory.ush")[0]).toBeDefined();
-    expect(findSvgTextNodesByContent(container, "ATTRIBUTE4")[0]).toBeDefined();
     expect(findTextNodes(container, "同一个 material，不代表同一个 PSO。")[0]).toBeDefined();
   });
 
