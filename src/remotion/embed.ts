@@ -10,7 +10,7 @@ export type RemotionWorkbenchProps = {
 export const REMOTION_PLAYER_CONFIG = {
   compositionWidth: 1280,
   compositionHeight: 720,
-  durationInFrames: 3294,
+  durationInFrames: 3680,
   fps: 60,
 } as const;
 
@@ -41,13 +41,16 @@ const STEP_FRAME_MAP: Record<StoryStepId, number> = {
   page_19: 2314,
   page_21: 2389,
   page_22: 2460,
-  page_23: 2531,
-  page_24: 2602,
-  page_25: 2673,
-  page_26: 2744,
-  page_27: 2815,
-  page_28: 2903,
-  page_29: 2983,
+  page_24: 2531,
+  page_25: 2602,
+  page_26: 2673,
+  page_27: 2744,
+  page_28: 2822,
+  page_29: 2902,
+  page_30: 2973,
+  page_31: 3044,
+  page_32: 3115,
+  page_33: 3195,
 };
 
 export function resolveRemotionStepFrame(stepId: StoryStepId): number {

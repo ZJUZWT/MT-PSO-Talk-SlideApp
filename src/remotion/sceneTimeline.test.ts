@@ -6,7 +6,7 @@ import {
 } from "./sceneTimeline";
 
 describe("remotion timeline", () => {
-  it("extends the canonical step sequence through page 29", () => {
+  it("extends the canonical step sequence through page 33", () => {
     expect(REMOTION_STEP_SEQUENCE).toEqual([
       "page_01",
       "page_02",
@@ -34,17 +34,20 @@ describe("remotion timeline", () => {
       "page_19",
       "page_21",
       "page_22",
-      "page_23",
       "page_24",
       "page_25",
       "page_26",
       "page_27",
       "page_28",
       "page_29",
+      "page_30",
+      "page_31",
+      "page_32",
+      "page_33",
     ]);
   });
 
-  it("assigns frame anchors for the placeholder-expanded loop chapter after SharedCode", () => {
+  it("assigns retimed frame anchors for the late-tail chapter after SharedCode", () => {
     expect(resolveRemotionStepFrame("page_04")).toBe(288);
     expect(resolveRemotionStepFrame("page_04_data")).toBe(348);
     expect(resolveRemotionStepFrame("page_05")).toBe(492);
@@ -68,13 +71,16 @@ describe("remotion timeline", () => {
     expect(resolveRemotionStepFrame("page_19")).toBe(2314);
     expect(resolveRemotionStepFrame("page_21")).toBe(2389);
     expect(resolveRemotionStepFrame("page_22")).toBe(2460);
-    expect(resolveRemotionStepFrame("page_23")).toBe(2531);
-    expect(resolveRemotionStepFrame("page_24")).toBe(2602);
-    expect(resolveRemotionStepFrame("page_25")).toBe(2673);
-    expect(resolveRemotionStepFrame("page_26")).toBe(2744);
-    expect(resolveRemotionStepFrame("page_27")).toBe(2815);
-    expect(resolveRemotionStepFrame("page_28")).toBe(2903);
-    expect(resolveRemotionStepFrame("page_29")).toBe(2983);
+    expect(resolveRemotionStepFrame("page_24")).toBe(2531);
+    expect(resolveRemotionStepFrame("page_25")).toBe(2602);
+    expect(resolveRemotionStepFrame("page_26")).toBe(2673);
+    expect(resolveRemotionStepFrame("page_27")).toBe(2744);
+    expect(resolveRemotionStepFrame("page_28")).toBe(2822);
+    expect(resolveRemotionStepFrame("page_29")).toBe(2902);
+    expect(resolveRemotionStepFrame("page_30")).toBe(2973);
+    expect(resolveRemotionStepFrame("page_31")).toBe(3044);
+    expect(resolveRemotionStepFrame("page_32")).toBe(3115);
+    expect(resolveRemotionStepFrame("page_33")).toBe(3195);
   });
 
   it("builds scene windows across the placeholder-expanded loop segment", () => {
@@ -156,38 +162,50 @@ describe("remotion timeline", () => {
     });
     expect(resolveRemotionSceneWindow(2526)).toMatchObject({
       fromStepId: "page_22",
-      toStepId: "page_23",
-    });
-    expect(resolveRemotionSceneWindow(2597)).toMatchObject({
-      fromStepId: "page_23",
       toStepId: "page_24",
     });
-    expect(resolveRemotionSceneWindow(2668)).toMatchObject({
+    expect(resolveRemotionSceneWindow(2597)).toMatchObject({
       fromStepId: "page_24",
       toStepId: "page_25",
     });
-    expect(resolveRemotionSceneWindow(2739)).toMatchObject({
+    expect(resolveRemotionSceneWindow(2668)).toMatchObject({
       fromStepId: "page_25",
       toStepId: "page_26",
     });
-    expect(resolveRemotionSceneWindow(2810)).toMatchObject({
+    expect(resolveRemotionSceneWindow(2739)).toMatchObject({
       fromStepId: "page_26",
       toStepId: "page_27",
     });
-    expect(resolveRemotionSceneWindow(2870)).toMatchObject({
+    expect(resolveRemotionSceneWindow(2810)).toMatchObject({
       fromStepId: "page_27",
       toStepId: "page_28",
     });
-    expect(resolveRemotionSceneWindow(2950)).toMatchObject({
+    expect(resolveRemotionSceneWindow(2870)).toMatchObject({
       fromStepId: "page_28",
       toStepId: "page_29",
     });
+    expect(resolveRemotionSceneWindow(2950)).toMatchObject({
+      fromStepId: "page_29",
+      toStepId: "page_30",
+    });
+    expect(resolveRemotionSceneWindow(3000)).toMatchObject({
+      fromStepId: "page_30",
+      toStepId: "page_31",
+    });
+    expect(resolveRemotionSceneWindow(3080)).toMatchObject({
+      fromStepId: "page_31",
+      toStepId: "page_32",
+    });
+    expect(resolveRemotionSceneWindow(3160)).toMatchObject({
+      fromStepId: "page_32",
+      toStepId: "page_33",
+    });
   });
 
-  it("keeps enough total duration for a settled page 29 hold", () => {
-    expect(resolveRemotionStepFrame("page_29")).toBeLessThan(3135);
-    expect(resolveRemotionStepFrame("page_29")).toBeGreaterThan(
-      resolveRemotionStepFrame("page_28"),
+  it("keeps enough total duration for a settled page 33 hold", () => {
+    expect(resolveRemotionStepFrame("page_33")).toBeLessThan(3500);
+    expect(resolveRemotionStepFrame("page_33")).toBeGreaterThan(
+      resolveRemotionStepFrame("page_32"),
     );
   });
 });

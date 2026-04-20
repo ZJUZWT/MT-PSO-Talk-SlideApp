@@ -11,6 +11,7 @@ import {ControlBar} from "./components/ControlBar";
 import {NotesPanel} from "./components/NotesPanel";
 import {ProgressBubbles} from "./components/ProgressBubbles";
 import {ReviewHud} from "./components/ReviewHud";
+import {resolveGeometryReviewSurface} from "./review/geometryReviewSurface";
 import {StageFrame} from "./components/StageFrame";
 import {REMOTION_PLAYER_CONFIG, resolveRemotionStepFrame} from "./remotion/embed";
 import {
@@ -47,11 +48,9 @@ const PANEL_LAYOUT = {
 
 type InitialWorkbenchQuery = {
   captureEnabled: boolean;
-  captureHeight: number;
   capturePostUrl: string | null;
   captureScope: CaptureScope;
   captureTransport: "post" | null;
-  captureWidth: number;
   controlsCollapsed: boolean;
   debugFrame: number | null;
   mode: "story" | "sketch";
@@ -60,7 +59,7 @@ type InitialWorkbenchQuery = {
   probeType: "geometry-text" | null;
   reviewMode: boolean;
   sketchId: string | null;
-  surface: "workbench" | "stage";
+  surface: "workbench";
   stepId: typeof DEFAULT_STEP_ID;
   variantId: typeof DEFAULT_VARIANT_ID;
 };
@@ -100,18 +99,16 @@ function parseDebugFrame(value: string | null): number | null {
 }
 
 function parseCaptureScope(value: string | null): CaptureScope {
-  return value === "stage" ? "stage" : "page";
+  return "page";
 }
 
 function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
   if (typeof window === "undefined") {
     return {
       captureEnabled: false,
-      captureHeight: 720,
       capturePostUrl: null,
       captureScope: "page",
       captureTransport: null,
-      captureWidth: 1280,
       controlsCollapsed: true,
       debugFrame: null,
       mode: "story",
@@ -137,11 +134,9 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
 
   return {
     captureEnabled: parseBooleanFlag(params.get("capture")),
-    captureHeight: parsePositiveInt(params.get("captureHeight"), 720),
     capturePostUrl: params.get("capturePostUrl"),
     captureScope: parseCaptureScope(params.get("captureScope")),
     captureTransport: params.get("captureTransport") === "post" ? "post" : null,
-    captureWidth: parsePositiveInt(params.get("captureWidth"), 1280),
     controlsCollapsed: !parseBooleanFlag(params.get("controls")),
     debugFrame: parseDebugFrame(params.get("debugFrame")),
     mode: sketchMode ? "sketch" : "story",
@@ -152,7 +147,7 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
     probeType: params.get("probe") === "geometry-text" ? "geometry-text" : null,
     reviewMode: parseBooleanFlag(params.get("review")),
     sketchId: initialSketch?.id ?? null,
-    surface: params.get("surface") === "stage" ? "stage" : "workbench",
+    surface: "workbench",
     stepId: isStoryStepId(stepParam)
       ? stepParam
       : initialSketch?.stepId ?? DEFAULT_STEP_ID,
@@ -187,13 +182,6 @@ export function App() {
         : null,
     [initialQueryState.sketchId],
   );
-  const sketchReviewArtifact = useMemo(
-    () =>
-      isReviewMode && sketchDefinition
-        ? buildGeometryReviewArtifact(sketchDefinition)
-        : null,
-    [isReviewMode, sketchDefinition],
-  );
   const state = useWorkbenchState({
     stepId: initialQueryState.stepId,
     variantId: initialQueryState.variantId,
@@ -217,9 +205,6 @@ export function App() {
   const capturePostUrl = initialQueryState.capturePostUrl;
   const captureScope = initialQueryState.captureScope;
   const captureTransport = initialQueryState.captureTransport;
-  const captureSurface = initialQueryState.surface;
-  const captureHeight = initialQueryState.captureHeight;
-  const captureWidth = initialQueryState.captureWidth;
   const settledStepIdRef = useRef(state.stepId);
   const latestTargetStepIdRef = useRef(state.stepId);
   const motionPreset = useMemo(
@@ -227,6 +212,24 @@ export function App() {
       MOTION_PRESETS.find((preset) => preset.id === motionPresetId) ??
       MOTION_PRESETS[2],
     [motionPresetId],
+  );
+  const activeReviewSurface = useMemo(
+    () =>
+      isReviewMode
+        ? resolveGeometryReviewSurface({
+            stageMode,
+            sketchId: sketchDefinition?.id ?? null,
+            stepId: state.stepId,
+          })
+        : null,
+    [isReviewMode, sketchDefinition, stageMode, state.stepId],
+  );
+  const mechanicalReviewArtifact = useMemo(
+    () =>
+      activeReviewSurface
+        ? buildGeometryReviewArtifact(activeReviewSurface.sketch)
+        : null,
+    [activeReviewSurface],
   );
   const notesBaseMs = Math.round(
     NOTES_TRANSITION_BASE_MS / NOTES_BASELINE_SPEED_FACTOR,
@@ -282,12 +285,6 @@ export function App() {
       params.set("review", "1");
     }
 
-    if (captureSurface === "stage") {
-      params.set("surface", "stage");
-      params.set("captureWidth", String(captureWidth));
-      params.set("captureHeight", String(captureHeight));
-    }
-
     const nextQuery = params.toString();
     const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
     window.history.replaceState({}, "", nextUrl);
@@ -296,9 +293,6 @@ export function App() {
     debugFrame,
     isReviewMode,
     motionPreset.id,
-    captureSurface,
-    captureHeight,
-    captureWidth,
     sketchDefinition,
     state.stepId,
     state.variantId,
@@ -410,10 +404,6 @@ export function App() {
   }, [state]);
 
   useLayoutEffect(() => {
-    if (captureSurface === "stage") {
-      return;
-    }
-
     latestTargetStepIdRef.current = state.stepId;
     const settledStepId = settledStepIdRef.current;
 
@@ -445,7 +435,7 @@ export function App() {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [captureSurface, state.stepId, state.steps, stepNavigationMode, stepTransitionMs]);
+  }, [state.stepId, state.steps, stepNavigationMode, stepTransitionMs]);
 
   useEffect(() => {
     if (!captureEnabled || captureTransport !== "post" || !capturePostUrl) {
@@ -456,18 +446,8 @@ export function App() {
       return;
     }
 
-    const target =
-      captureSurface === "stage"
-        ? captureTargetRef.current
-        : captureScope === "stage"
-          ? stageCaptureTargetRef.current
-          : captureTargetRef.current;
-    const targetId =
-      captureSurface === "stage"
-        ? "capture-stage-shell"
-        : captureScope === "stage"
-          ? "stage-runtime"
-          : "workbench-shell";
+    const target = captureTargetRef.current;
+    const targetId = "workbench-shell";
 
     if (!target) {
       return;
@@ -485,7 +465,7 @@ export function App() {
 
           await postImageBlobToEndpoint(imageBlob, {
             postUrl: capturePostUrl,
-            scope: captureScope,
+            scope: "page",
             sourceUrl: window.location.href,
             targetId,
           });
@@ -503,33 +483,7 @@ export function App() {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [captureEnabled, capturePostUrl, captureScope, captureSurface, captureTransport]);
-
-  if (captureSurface === "stage") {
-    return (
-      <div
-        className="capture-stage-shell"
-        ref={captureTargetRef}
-        data-stage-mode={stageMode}
-        style={
-          {
-            "--capture-stage-height": `${captureHeight}px`,
-            "--capture-stage-width": `${captureWidth}px`,
-          } as CSSProperties
-        }
-      >
-        <StageFrame
-          state={state}
-          jumpToStepInstant={stepNavigationMode === "instant"}
-          motionDurationScale={motionPreset.durationScale}
-          runtimeRef={stageCaptureTargetRef}
-          runtimeOnly
-          sketchDefinition={sketchDefinition}
-          debugFrame={debugFrame}
-        />
-      </div>
-    );
-  }
+  }, [captureEnabled, capturePostUrl, captureScope, captureTransport]);
 
   return (
     <div
@@ -599,9 +553,10 @@ export function App() {
       </main>
       {isReviewMode ? (
         <ReviewHud
+          captureTargetRef={captureTargetRef}
+          mechanicalReviewArtifact={mechanicalReviewArtifact}
+          reviewSource={activeReviewSurface?.reviewSource ?? null}
           reviewUrl={reviewUrl}
-          sketchReviewArtifact={sketchReviewArtifact}
-          stageTargetRef={stageCaptureTargetRef}
           state={state}
         />
       ) : null}

@@ -30,13 +30,16 @@ describe("masterStoryboard", () => {
       "page_19",
       "page_21",
       "page_22",
-      "page_23",
       "page_24",
       "page_25",
       "page_26",
       "page_27",
       "page_28",
       "page_29",
+      "page_30",
+      "page_31",
+      "page_32",
+      "page_33",
     ]);
   });
 
@@ -81,13 +84,16 @@ describe("masterStoryboard", () => {
     const page19 = requireStep("page_19");
     const page21 = requireStep("page_21");
     const page22 = requireStep("page_22");
-    const page23 = requireStep("page_23");
     const page24 = requireStep("page_24");
     const page25 = requireStep("page_25");
     const page26 = requireStep("page_26");
     const page27 = requireStep("page_27");
     const page28 = requireStep("page_28");
     const page29 = requireStep("page_29");
+    const page30 = requireStep("page_30");
+    const page31 = requireStep("page_31");
+    const page32 = requireStep("page_32");
+    const page33 = requireStep("page_33");
 
     expect(page01.label).toContain("最小模型");
     expect(page01.caption).toContain("最小骨架");
@@ -239,31 +245,59 @@ describe("masterStoryboard", () => {
     expect(page22.manuscript).toContain("PSO Cache");
     expect(page22.manuscript).toContain("不会消失");
     expect(page22.manuscript).toContain("只会转移");
-    expect(page23.label).toContain("优化章节导入");
-    expect(page23.manuscript).toContain("四个策略");
-    expect(page24.label).toContain("策略 1");
+    expect(page24.label).toContain("改资源形态");
     expect(page24.manuscript).toContain("压缩");
-    expect(page24.manuscript).toContain("解压");
-    expect(page25.label).toContain("策略 2");
+    expect(page24.manuscript).toContain("Precompute");
+    expect(page24.manuscript).toContain("Algorithm");
+    expect(page24.manuscript).toContain("PCA");
+    expect(page24.manuscript).toContain("模型");
+    expect(page25.label).toContain("改存储位置");
     expect(page25.manuscript).toContain("LRU");
     expect(page25.manuscript).toContain("mmap");
-    expect(page26.label).toContain("策略 3");
-    expect(page26.manuscript).toContain("多线程");
-    expect(page26.manuscript).toContain("UsageMask");
-    expect(page27.label).toContain("策略 4");
-    expect(page27.manuscript).toContain("OpenGL");
-    expect(page27.manuscript).toContain("Metal");
-    expect(page28.label).toContain("延伸阅读");
-    expect(page28.manuscript).toContain("PSO 小实验");
-    expect(page28.manuscript).toContain("PSO Precaching for Unreal Engine");
-    expect(page28.manuscript).toContain("银河帝国");
-    expect(page28.manuscript).toContain("艾萨克·阿西莫夫");
-    expect(page28.manuscript).toContain("反杜林论");
-    expect(page28.manuscript).toContain("弗里德里希·恩格斯");
-    expect(page28.manuscript).toContain("马克思主义哲学");
-    expect(page29.label).toContain("逍遥游");
-    expect(page29.manuscript).toContain("今子有大树");
-    expect(page29.manuscript).toContain("无何有之乡");
-    expect(page29.manuscript).toContain("安所困苦哉");
+    expect(page25.manuscript).toContain("SQL");
+    expect(page26.label).toContain("改发生时机");
+    expect(page26.manuscript).toContain("Game UsageMask");
+    expect(page26.manuscript).toContain("Compile UsageMask");
+    expect(page26.manuscript).toContain("地图 A");
+    expect(page27.label).toContain("改执行方式");
+    expect(page27.manuscript).toContain("SIMD");
+    expect(page27.manuscript).toContain("GPU");
+    expect(page27.manuscript).toContain("warp divergence");
+    expect(page28.label).toContain("平台差异的表象");
+    expect(page28.manuscript).toContain("OpenGL");
+    expect(page28.manuscript).toContain("iOS");
+    expect(page28.manuscript).toContain("平台差异");
+    expect(page29.label).toContain("平台差异的来源");
+    expect(page29.manuscript).toContain("VertexDescriptor");
+    expect(page29.manuscript).toContain("ATTRIBUTE4");
+    expect(page29.manuscript).toContain("LocalVertexFactory");
+    expect(page30.label).toContain("前置治理决定上限");
+    expect(page30.manuscript).toContain("RenderDoc");
+    expect(page30.manuscript).toContain("color buffer");
+    expect(page30.manuscript).toContain("前置治理");
+    expect(page31.label).toContain("Harness");
+    expect(page31.manuscript).toContain("geometryReviewArtifact");
+    expect(page31.manuscript).toContain("geometryMetrics");
+    expect(page31.manuscript).toContain("geometryScorePolicy");
+    expect(page31.manuscript).toContain("CI/CD");
+    expect(page31.manuscript).toContain("loss function");
+    expect(page31.manuscript).toContain("反馈系统");
+    expect(page31.manuscript).toContain("压缩");
+    expect(page31.manuscript).toContain("node_move");
+    expect(page31.manuscript).toContain("allowedMaxSec");
+    expect(page32.label).toContain("延伸阅读");
+    expect(page32.manuscript).toContain("PSO 小实验");
+    expect(page32.manuscript).toContain("PSO Precaching for Unreal Engine");
+    expect(page32.manuscript).toContain("银河帝国");
+    expect(page32.manuscript).toContain("艾萨克·阿西莫夫");
+    expect(page32.manuscript).toContain("反杜林论");
+    expect(page32.manuscript).toContain("弗里德里希·恩格斯");
+    expect(page32.manuscript).toContain("马克思主义哲学");
+    expect(page32.manuscript).toContain("星际拓荒");
+    expect(page32.manuscript).toContain("Type Help");
+    expect(page33.label).toContain("逍遥游");
+    expect(page33.manuscript).toContain("今子有大树");
+    expect(page33.manuscript).toContain("无何有之乡");
+    expect(page33.manuscript).toContain("安所困苦哉");
   });
 });

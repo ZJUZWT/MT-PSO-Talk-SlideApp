@@ -90,14 +90,19 @@ const LOOP_PAGE19_FRAME = loopFrame("page_19");
 const LOOP_PAGE19_TO_PAGE21_HANDOFF_FRAME = LOOP_PAGE19_FRAME;
 const LOOP_PAGE21_FRAME = loopFrame("page_21");
 const LOOP_PAGE22_FRAME = loopFrame("page_22");
-const LOOP_PAGE23_FRAME = loopFrame("page_23");
 const LOOP_PAGE24_FRAME = loopFrame("page_24");
 const LOOP_PAGE25_FRAME = loopFrame("page_25");
 const LOOP_PAGE26_FRAME = loopFrame("page_26");
 const LOOP_PAGE27_FRAME = loopFrame("page_27");
 const LOOP_PAGE28_FRAME = loopFrame("page_28");
 const LOOP_PAGE29_FRAME = loopFrame("page_29");
+const LOOP_PAGE30_FRAME = loopFrame("page_30");
+const LOOP_PAGE31_FRAME = loopFrame("page_31");
+const LOOP_PAGE32_FRAME = loopFrame("page_32");
+const LOOP_PAGE33_FRAME = loopFrame("page_33");
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
+const LATE_INLINE_TITLE_REMOVAL_SHIFT_Y = -52;
+const LATE_CLOSING_QUOTE_SHIFT_Y = -42;
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
 const PAGE15_SUPPLEMENT_IMAGE_BOX = {x: 46, y: 52, width: 1188, height: 430, radius: 28};
 const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};
@@ -151,6 +156,11 @@ const ENDING_ENGINEERING_LINKS = [
     subtitle: "知乎专栏 / zhuanlan.zhihu.com",
     href: "https://zhuanlan.zhihu.com/p/1935414815096021431",
   },
+  {
+    title: "UE项目优化：PSO Cache",
+    subtitle: "查力鹏 / imzlp.com",
+    href: "https://imzlp.com/posts/24336/",
+  },
 ] as const;
 const ENDING_CULTURE_LINKS: ReadonlyArray<{
   title: string;
@@ -170,6 +180,23 @@ const ENDING_CULTURE_LINKS: ReadonlyArray<{
     subtitle: "沈枯燥 / 哔哩哔哩",
     href: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",
   },
+  {
+    title: "重读资本论",
+    subtitle: "王德峰 / 哔哩哔哩",
+    href: "https://www.bilibili.com/list/ml2680793867?oid=938973897&bvid=BV1wT4y1r78r",
+  },
+] as const;
+const ENDING_GAME_LINKS = [
+  {
+    title: "星际拓荒",
+    subtitle: "Outer Wilds / Mobius Digital / Steam",
+    href: "https://store.steampowered.com/app/753640/Outer_Wilds/",
+  },
+  {
+    title: "Type Help",
+    subtitle: "William Rous / itch.io",
+    href: "https://william-rous.itch.io/type-help",
+  },
 ] as const;
 const ZHUANGZI_CLOSING_LINES = [
   "今子有大树，患其无用，何不树之于无何有之乡，",
@@ -177,29 +204,177 @@ const ZHUANGZI_CLOSING_LINES = [
   "不夭斤斧，物无害者，",
   "无所可用，安所困苦哉！",
 ] as const;
+const COMPRESSION_SUMMARY_ROWS = [
+  {
+    algorithm: "Brotli",
+    ratio: "25.43x",
+    windows: "366.2 / 0.47",
+    macos: "296.2 / 0.32",
+    android: "1.34",
+    ios: "0.37",
+  },
+  {
+    algorithm: "LZ4",
+    ratio: "15.59x",
+    windows: "2.9 / 0.14",
+    macos: "2.1 / 0.05",
+    android: "0.26",
+    ios: "0.04",
+  },
+  {
+    algorithm: "Noop",
+    ratio: "1.00x",
+    windows: "0.4 / 0.08",
+    macos: "0.6 / 0.03",
+    android: "0.19",
+    ios: "0.03",
+  },
+  {
+    algorithm: "Oodle Kraken",
+    ratio: "20.39x",
+    windows: "1.4 / 0.17",
+    macos: "1.6 / 0.14",
+    android: "0.63",
+    ios: "0.15",
+  },
+  {
+    algorithm: "Oodle Leviathan",
+    ratio: "27.00x",
+    windows: "2.7 / 0.14",
+    macos: "3.4 / 0.11",
+    android: "0.47",
+    ios: "0.11",
+  },
+  {
+    algorithm: "Oodle Mermaid",
+    ratio: "15.01x",
+    windows: "1.6 / 0.16",
+    macos: "1.8 / 0.14",
+    android: "0.55",
+    ios: "0.12",
+  },
+  {
+    algorithm: "Oodle Selkie",
+    ratio: "7.89x",
+    windows: "1.4 / 0.15",
+    macos: "1.5 / 0.08",
+    android: "0.39",
+    ios: "0.08",
+  },
+  {
+    algorithm: "Snappy",
+    ratio: "10.32x",
+    windows: "1.1 / 0.33",
+    macos: "0.8 / 0.13",
+    android: "0.54",
+    ios: "0.12",
+  },
+  {
+    algorithm: "zlib",
+    ratio: "21.46x",
+    windows: "4.9 / 0.51",
+    macos: "4.6 / 0.43",
+    android: "1.45",
+    ios: "0.43",
+  },
+  {
+    algorithm: "zstd",
+    ratio: "24.83x",
+    windows: "77.3 / 0.31",
+    macos: "34.9 / 0.12",
+    android: "0.40",
+    ios: "0.09",
+  },
+] as const;
+const VERTEX_DESCRIPTOR_CODE_LINES = [
+  "FString FVertexElement::ToString() const",
+  "{",
+  "  return FString::Printf(TEXT(\"<%u %u %u %u %u %u>\")",
+  "    , uint32(StreamIndex), uint32(Offset), uint32(Type)",
+  "    , uint32(AttributeIndex), uint32(Stride)",
+  "    , uint32(bUseInstanceIndex));",
+  "}",
+  "struct FVertexFactoryInput",
+  "void FLocalVertexFactory::InitRHI()",
+] as const;
+const LOCAL_VERTEX_FACTORY_CODE_LINES = [
+  "struct FVertexFactoryInput",
+  "{",
+  "#if NUM_MATERIAL_TEXCOORDS_VERTEX > 1",
+  "  float4 PackedTexCoords4[...] : ATTRIBUTE4;",
+  "#endif",
+  "#if NUM_MATERIAL_TEXCOORDS_VERTEX == 1",
+  "  float2 PackedTexCoords2 : ATTRIBUTE4;",
+  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 3",
+  "  float2 PackedTexCoords2 : ATTRIBUTE5;",
+  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 5",
+  "  float2 PackedTexCoords2 : ATTRIBUTE6;",
+  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 7",
+  "  float2 PackedTexCoords2 : ATTRIBUTE7;",
+  "#endif",
+  "}",
+] as const;
+const HARNESS_CHAIN_LABELS = [
+  "geometryReviewArtifact",
+  "geometryMetrics",
+  "geometryScorePolicy",
+] as const;
+const HARNESS_FORMULA_LINES = [
+  "node_move = clamp(180 + distancePx*0.95, 180, 960)",
+  "edge_grow = clamp(140 + lengthPx*0.75, 140, 840)",
+  "fade_in / fade_out = 220 ms",
+  "allowedMaxSec = requiredSec * 1.35",
+] as const;
+const HARNESS_GATES = [
+  "overlap = 0",
+  "crossing = 0",
+  "nodePierce = 0",
+  "textOverflow = 0",
+] as const;
+const PARALLEL_NOTES = [
+  "同步成本",
+  "共享状态",
+  "任务粒度",
+  "warp divergence",
+  "bank conflict",
+] as const;
+const STRATEGY_ALGORITHM_LINES = [
+  "PCA 也是一种压缩",
+  "模型把原过程压进参数里",
+  "查表 / 预处理减少在线计算",
+] as const;
+const PAGE24_GDC_LINK_LABEL = "参考：GDC Vault / ML / Physics / Kolmogorov";
+const PAGE24_GDC_LINK_URL =
+  "https://www.gdcvault.com/play/1026713/Machine-Learning-Physics-Simulation-Kolmogorov";
+const GOVERNANCE_DIMENSION_TOKENS = [
+  "UV",
+  "Vertex Decl",
+  "Material",
+  "Color Buffer",
+] as const;
 const PAGE17_EXAMPLE_CARD = {x: 100, y: 400, width: 1080, height: 220, radius: 22};
 const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
 const PAGE17_HASHA_CENTER = {x: 1004, y: 508};
 const PAGE17_HASHB_CENTER = {x: 1004, y: 556};
 const PAGE19_MAIN_AXIS_Y = 360;
-const PAGE19_STABLE_BOX = {x: 56, y: 322, width: 220, height: 76, radius: 24};
-const PAGE19_UE_GROUP_BOX = {x: 300, y: 220, width: 208, height: 280, radius: 28};
-const PAGE19_UE_ROW_1 = {x: 341, y: 286, width: 126, height: 34, radius: 14};
-const PAGE19_UE_ROW_2 = {x: 341, y: 372, width: 126, height: 34, radius: 14};
-const PAGE19_UE_ROW_3 = {x: 341, y: 458, width: 126, height: 34, radius: 14};
-const PAGE19_GPU_AXIS_X = 620;
-const PAGE19_VERTEX_CENTER = {x: 620, y: 250};
+const PAGE19_STABLE_BOX = {x: 44, y: 302, width: 208, height: 116, radius: 26};
+const PAGE19_UE_GROUP_BOX = {x: 280, y: 184, width: 192, height: 352, radius: 30};
+const PAGE19_UE_ROW_1 = {x: 312, y: 270, width: 128, height: 48, radius: 16};
+const PAGE19_UE_ROW_2 = {x: 312, y: 358, width: 128, height: 48, radius: 16};
+const PAGE19_UE_ROW_3 = {x: 312, y: 446, width: 128, height: 48, radius: 16};
+const PAGE19_GPU_AXIS_X = 582;
+const PAGE19_VERTEX_CENTER = {x: 582, y: 200};
 const PAGE19_GPU_LABEL_Y = 360;
-const PAGE19_GPU_PIXELS = {x: 590, y: 410};
-const PAGE19_MEMORY_BOX = {x: 710, y: 196, width: 228, height: 328, radius: 28};
-const PAGE19_MEMORY_GL_BOX = {x: 730, y: 248, width: 188, height: 56, radius: 16};
-const PAGE19_MEMORY_VK_BOX = {x: 730, y: 352, width: 188, height: 56, radius: 16};
-const PAGE19_MEMORY_MT_BOX = {x: 730, y: 454, width: 188, height: 60, radius: 16};
-const PAGE19_DISK_BOX = {x: 970, y: 196, width: 190, height: 328, radius: 28};
-const PAGE19_DISK_GL_BOX = {x: 989, y: 250, width: 152, height: 50, radius: 14};
-const PAGE19_DISK_VK_BOX = {x: 989, y: 354, width: 152, height: 50, radius: 14};
-const PAGE19_DISK_MT_BOX = {x: 989, y: 456, width: 152, height: 50, radius: 14};
+const PAGE19_GPU_PIXELS = {x: 548, y: 458};
+const PAGE19_MEMORY_BOX = {x: 688, y: 150, width: 272, height: 420, radius: 32};
+const PAGE19_MEMORY_GL_BOX = {x: 712, y: 204, width: 224, height: 76, radius: 18};
+const PAGE19_MEMORY_VK_BOX = {x: 712, y: 326, width: 224, height: 76, radius: 18};
+const PAGE19_MEMORY_MT_BOX = {x: 712, y: 444, width: 224, height: 100, radius: 18};
+const PAGE19_DISK_BOX = {x: 986, y: 150, width: 216, height: 420, radius: 32};
+const PAGE19_DISK_GL_BOX = {x: 1008, y: 205, width: 172, height: 74, radius: 16};
+const PAGE19_DISK_VK_BOX = {x: 1008, y: 327, width: 172, height: 74, radius: 16};
+const PAGE19_DISK_MT_BOX = {x: 1008, y: 445, width: 172, height: 96, radius: 16};
 
 function centerX(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -715,6 +890,429 @@ function PlaceholderBoardShell({
       transform={`translate(${centerX(PLACEHOLDER_BOARD)} ${centerY(PLACEHOLDER_BOARD)}) scale(${boardScale}) translate(${-centerX(PLACEHOLDER_BOARD)} ${-centerY(PLACEHOLDER_BOARD)})`}
     >
       {children}
+    </g>
+  );
+}
+
+function LateBoardTitle({
+  scene,
+  title,
+  subtitle,
+  opacity,
+}: {
+  scene: SceneModel;
+  title: string;
+  subtitle?: string;
+  opacity: number;
+}) {
+  return (
+    <g opacity={opacity}>
+      <text
+        x={centerX(PLACEHOLDER_BOARD)}
+        y="54"
+        fill={scene.apiStroke}
+        fontSize="35"
+        fontWeight="820"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {title}
+      </text>
+      {subtitle ? (
+        <text
+          x={centerX(PLACEHOLDER_BOARD)}
+          y="88"
+          fill="rgba(34, 48, 61, 0.56)"
+          fontSize="18"
+          fontWeight="700"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          {subtitle}
+        </text>
+      ) : null}
+    </g>
+  );
+}
+
+function LateInfoCard({
+  scene,
+  box,
+  title,
+  lines,
+  opacity,
+  accent = false,
+  compact = false,
+  titleFontSize = 18,
+  bodyFontSize,
+  lineGapOverride,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title: string;
+  lines: readonly string[];
+  opacity: number;
+  accent?: boolean;
+  compact?: boolean;
+  titleFontSize?: number;
+  bodyFontSize?: number;
+  lineGapOverride?: number;
+}) {
+  const lineGap = lineGapOverride ?? (compact ? 22 : 26);
+  const fontSize = bodyFontSize ?? (compact ? 16 : 18);
+
+  return (
+    <g opacity={opacity}>
+      <StageBox
+        box={box}
+        fill={accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 255, 255, 0.9)"}
+        stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
+        strokeWidth={accent ? 2.8 : 2.1}
+      />
+      <text
+        x={box.x + 20}
+        y={box.y + 26}
+        fill={accent ? scene.apiStroke : "#22303d"}
+        fontSize={titleFontSize}
+        fontWeight="820"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {title}
+      </text>
+      {lines.map((line, index) => (
+        <text
+          key={`${title}-${line}-${index}`}
+          x={box.x + 20}
+          y={box.y + 58 + index * lineGap}
+          fill="rgba(34, 48, 61, 0.82)"
+          fontSize={fontSize}
+          fontWeight={index === 0 ? "720" : "670"}
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function LateFooterBar({
+  scene,
+  text,
+  opacity,
+}: {
+  scene: SceneModel;
+  text: string;
+  opacity: number;
+}) {
+  const footerBox = {x: 164, y: 608, width: 948, height: 50, radius: 22};
+
+  return (
+    <g opacity={opacity}>
+      <StageBox
+        box={footerBox}
+        fill="rgba(255, 248, 240, 0.92)"
+        stroke="rgba(92, 106, 118, 0.24)"
+        strokeWidth={1.8}
+      />
+      <text
+        x={centerX(footerBox)}
+        y={centerY(footerBox)}
+        fill="rgba(34, 48, 61, 0.76)"
+        fontSize="20"
+        fontWeight="700"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        {text}
+      </text>
+    </g>
+  );
+}
+
+function LateLeadCard({
+  scene,
+  box,
+  eyebrow,
+  headline,
+  bodyLines,
+  opacity,
+  accent = false,
+  headlineFontSize = 31,
+  bodyFontSize = 17.5,
+  bodyLineGap = 25,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  eyebrow: string;
+  headline: string;
+  bodyLines: readonly string[];
+  opacity: number;
+  accent?: boolean;
+  headlineFontSize?: number;
+  bodyFontSize?: number;
+  bodyLineGap?: number;
+}) {
+  const headlineY = box.y + 104;
+  const bodyStartY = box.y + 178;
+
+  return (
+    <g opacity={opacity}>
+      <StageBox
+        box={box}
+        fill={accent ? "rgba(255, 248, 240, 0.94)" : "rgba(255, 255, 255, 0.92)"}
+        stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.4)"}
+        strokeWidth={accent ? 2.5 : 2.1}
+      />
+      <text
+        x={box.x + 22}
+        y={box.y + 28}
+        fill={scene.apiStroke}
+        fontSize="19"
+        fontWeight="820"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {eyebrow}
+      </text>
+      <text
+        x={box.x + 22}
+        y={headlineY}
+        fill="#22303d"
+        fontSize={headlineFontSize}
+        fontWeight="820"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {headline}
+      </text>
+      {bodyLines.map((line, index) => (
+        <text
+          key={`${eyebrow}-${line}-${index}`}
+          x={box.x + 22}
+          y={bodyStartY + index * bodyLineGap}
+          fill="rgba(34, 48, 61, 0.78)"
+          fontSize={bodyFontSize}
+          fontWeight={index === 0 ? "740" : "680"}
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {line}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+function LateCodeCard({
+  scene,
+  box,
+  title,
+  lines,
+  opacity,
+  titleFontSize = 17,
+  codeFontSize = 14,
+  lineHeight = 19,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title: string;
+  lines: readonly string[];
+  opacity: number;
+  titleFontSize?: number;
+  codeFontSize?: number;
+  lineHeight?: number;
+}) {
+  return (
+    <g opacity={opacity}>
+      <StageBox
+        box={box}
+        fill="rgba(249, 247, 244, 0.96)"
+        stroke="rgba(92, 106, 118, 0.36)"
+        strokeWidth={2}
+      />
+      <text
+        x={box.x + 18}
+        y={box.y + 24}
+        fill={scene.apiStroke}
+        fontSize={titleFontSize}
+        fontWeight="820"
+        textAnchor="start"
+        dominantBaseline="middle"
+      >
+        {title}
+      </text>
+      {lines.map((line, index) => {
+        const isAttributeLine = /ATTRIBUTE[4-7]/.test(line);
+        return (
+          <text
+            key={`${title}-code-${index}`}
+            x={box.x + 18}
+            y={box.y + 54 + index * lineHeight}
+            fill={isAttributeLine ? scene.apiStroke : "#22303d"}
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize={isAttributeLine ? `${codeFontSize + 0.5}` : `${codeFontSize}`}
+            fontWeight={isAttributeLine ? "780" : "650"}
+            textAnchor="start"
+            dominantBaseline="middle"
+          >
+            {line}
+          </text>
+        );
+      })}
+    </g>
+  );
+}
+
+function LateImageCard({
+  scene,
+  box,
+  title,
+  href,
+  clipId,
+  opacity,
+  preserveAspectRatio = "xMidYMid meet",
+  titleOutside = false,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title: string;
+  href: string;
+  clipId: string;
+  opacity: number;
+  preserveAspectRatio?: string;
+  titleOutside?: boolean;
+}) {
+  const inset = titleOutside ? 8 : 16;
+  const imageBox = {
+    x: box.x + inset,
+    y: box.y + (titleOutside ? inset : 40),
+    width: box.width - inset * 2,
+    height: box.height - (titleOutside ? inset * 2 : 56),
+    radius: Math.max(10, box.radius - 8),
+  };
+
+  return (
+    <g opacity={opacity}>
+      <defs>
+        <clipPath id={clipId}>
+          <rect
+            x={imageBox.x}
+            y={imageBox.y}
+            width={imageBox.width}
+            height={imageBox.height}
+            rx={imageBox.radius}
+          />
+        </clipPath>
+      </defs>
+      <StageBox
+        box={box}
+        fill="rgba(255, 255, 255, 0.92)"
+        stroke="rgba(92, 106, 118, 0.34)"
+        strokeWidth={2}
+      />
+      {titleOutside ? (
+        <text
+          x={box.x}
+          y={box.y - 16}
+          fill={scene.apiStroke}
+          fontSize="17"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {title}
+        </text>
+      ) : (
+        <text
+          x={box.x + 18}
+          y={box.y + 22}
+          fill={scene.apiStroke}
+          fontSize="17"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {title}
+        </text>
+      )}
+      <rect
+        x={imageBox.x}
+        y={imageBox.y}
+        width={imageBox.width}
+        height={imageBox.height}
+        rx={imageBox.radius}
+        fill="rgba(246, 242, 236, 0.96)"
+      />
+      <image
+        href={href}
+        x={imageBox.x}
+        y={imageBox.y}
+        width={imageBox.width}
+        height={imageBox.height}
+        preserveAspectRatio={preserveAspectRatio}
+        clipPath={`url(#${clipId})`}
+      />
+    </g>
+  );
+}
+
+function LateBareImage({
+  scene,
+  box,
+  title,
+  href,
+  clipId,
+  opacity,
+  preserveAspectRatio = "xMidYMid meet",
+  titleFontSize = 17,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title?: string;
+  href: string;
+  clipId: string;
+  opacity: number;
+  preserveAspectRatio?: string;
+  titleFontSize?: number;
+}) {
+  return (
+    <g opacity={opacity}>
+      <defs>
+        <clipPath id={clipId}>
+          <rect
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
+            rx={box.radius}
+          />
+        </clipPath>
+      </defs>
+      {title ? (
+        <text
+          x={box.x}
+          y={box.y - 18}
+          fill={scene.apiStroke}
+          fontSize={titleFontSize}
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          {title}
+        </text>
+      ) : null}
+      <image
+        href={href}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        preserveAspectRatio={preserveAspectRatio}
+        clipPath={`url(#${clipId})`}
+      />
     </g>
   );
 }
@@ -2208,12 +2806,12 @@ function Page19Placeholder({
     {x: PAGE19_GPU_AXIS_X - 54, y: PAGE19_MAIN_AXIS_Y},
   ];
   const gpuVertexToTextPoints = [
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_VERTEX_CENTER.y + 54},
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y - 24},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_VERTEX_CENTER.y + 52},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y - 32},
   ];
   const gpuTextToPixelsPoints = [
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y + 24},
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_PIXELS.y - 10},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y + 32},
+    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_PIXELS.y - 12},
   ];
   const gpuToMemPoints = [
     {x: PAGE19_GPU_AXIS_X + 56, y: PAGE19_MAIN_AXIS_Y},
@@ -2227,9 +2825,9 @@ function Page19Placeholder({
           <ArtifactNode
             scene={scene}
             box={PAGE19_STABLE_BOX}
-            label="stable.upipelinecache"
+            lines={["stable.", "upipelinecache"]}
             opacity={leftBandOpacity}
-            labelFontSize={21}
+            labelFontSize={20}
             emphasized
           />
 
@@ -2241,9 +2839,9 @@ function Page19Placeholder({
           />
           <text
             x={centerX(PAGE19_UE_GROUP_BOX)}
-            y={PAGE19_UE_GROUP_BOX.y + 24}
+            y={PAGE19_UE_GROUP_BOX.y + 28}
             fill={TEXT}
-            fontSize="26"
+            fontSize="31"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -2256,7 +2854,7 @@ function Page19Placeholder({
             stroke={NODE_STROKE}
             strokeWidth={2.1}
             label="PSO 1"
-            labelSize={20}
+            labelSize={23}
             labelWeight={760}
           />
           <StageBox
@@ -2265,7 +2863,7 @@ function Page19Placeholder({
             stroke={NODE_STROKE}
             strokeWidth={2.1}
             label="PSO 2"
-            labelSize={20}
+            labelSize={23}
             labelWeight={760}
           />
           <StageBox
@@ -2274,7 +2872,7 @@ function Page19Placeholder({
             stroke={NODE_STROKE}
             strokeWidth={2.1}
             label="PSO ..."
-            labelSize={20}
+            labelSize={23}
             labelWeight={760}
           />
         </g>
@@ -2284,23 +2882,13 @@ function Page19Placeholder({
             cx={PAGE19_VERTEX_CENTER.x}
             cy={PAGE19_VERTEX_CENTER.y}
             opacity={gpuOpacity}
-            scale={0.42}
+            scale={0.62}
           />
-          <text
-            x={PAGE19_VERTEX_CENTER.x}
-            y={PAGE19_VERTEX_CENTER.y + 40}
-            fill={TEXT}
-            fontSize="18"
-            fontWeight="720"
-            textAnchor="middle"
-          >
-            VertexData
-          </text>
           <text
             x={PAGE19_GPU_AXIS_X}
             y={PAGE19_GPU_LABEL_Y}
             fill={TEXT}
-            fontSize="44"
+            fontSize="52"
             fontWeight="800"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -2311,19 +2899,9 @@ function Page19Placeholder({
             x={PAGE19_GPU_PIXELS.x}
             y={PAGE19_GPU_PIXELS.y}
             opacity={gpuOpacity}
-            scale={0.76}
+            scale={1.08}
             revealProgress={1}
           />
-          <text
-            x={PAGE19_GPU_AXIS_X}
-            y={PAGE19_GPU_PIXELS.y + 82}
-            fill={TEXT}
-            fontSize="18"
-            fontWeight="720"
-            textAnchor="middle"
-          >
-            Pixels
-          </text>
         </g>
 
         <g opacity={memoryOpacity}>
@@ -2335,9 +2913,9 @@ function Page19Placeholder({
           />
           <text
             x={centerX(PAGE19_MEMORY_BOX)}
-            y={PAGE19_MEMORY_BOX.y + 24}
+            y={PAGE19_MEMORY_BOX.y + 28}
             fill={TEXT}
-            fontSize="25"
+            fontSize="30"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -2355,9 +2933,9 @@ function Page19Placeholder({
             x={centerX(PAGE19_MEMORY_GL_BOX)}
             y={centerY(PAGE19_MEMORY_GL_BOX) + 1}
             lines={["OpenGL", "Program Binary"]}
-            fontSize={19}
+            fontSize={22}
             fontWeight={760}
-            lineGap={18}
+            lineGap={20}
           />
 
           <StageBox
@@ -2370,9 +2948,9 @@ function Page19Placeholder({
             x={centerX(PAGE19_MEMORY_VK_BOX)}
             y={centerY(PAGE19_MEMORY_VK_BOX) + 1}
             lines={["Vulkan", "Pipeline Cache"]}
-            fontSize={19}
+            fontSize={22}
             fontWeight={760}
-            lineGap={18}
+            lineGap={20}
           />
 
           <StageBox
@@ -2385,9 +2963,9 @@ function Page19Placeholder({
             x={centerX(PAGE19_MEMORY_MT_BOX)}
             y={centerY(PAGE19_MEMORY_MT_BOX) + 1}
             lines={["Metal", "Binary Archive", "系统管理"]}
-            fontSize={16}
+            fontSize={18}
             fontWeight={760}
-            lineGap={14}
+            lineGap={16}
           />
         </g>
 
@@ -2400,9 +2978,9 @@ function Page19Placeholder({
           />
           <text
             x={centerX(PAGE19_DISK_BOX)}
-            y={PAGE19_DISK_BOX.y + 24}
+            y={PAGE19_DISK_BOX.y + 28}
             fill={TEXT}
-            fontSize="23"
+            fontSize="28"
             fontWeight="780"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -2419,9 +2997,9 @@ function Page19Placeholder({
             x={centerX(PAGE19_DISK_GL_BOX)}
             y={centerY(PAGE19_DISK_GL_BOX) + 1}
             lines={["Program Binary", "Cache"]}
-            fontSize={16}
+            fontSize={20}
             fontWeight={760}
-            lineGap={15}
+            lineGap={18}
           />
           <StageBox
             box={PAGE19_DISK_VK_BOX}
@@ -2429,7 +3007,7 @@ function Page19Placeholder({
             stroke={NODE_STROKE}
             strokeWidth={2}
             label="VulkanPSO.cache"
-            labelSize={15}
+            labelSize={19}
             labelWeight={760}
           />
           <StageBox
@@ -2442,9 +3020,9 @@ function Page19Placeholder({
             x={centerX(PAGE19_DISK_MT_BOX)}
             y={centerY(PAGE19_DISK_MT_BOX) + 1}
             lines={["BinaryArchive", "functions.data"]}
-            fontSize={15}
+            fontSize={18}
             fontWeight={760}
-            lineGap={14}
+            lineGap={16}
           />
         </g>
 
@@ -2485,15 +3063,15 @@ function Page19Placeholder({
         <StrokeArrow
           d={verticalPath(
             PAGE19_GPU_AXIS_X,
-            PAGE19_VERTEX_CENTER.y + 54,
-            PAGE19_GPU_LABEL_Y - 24,
+            PAGE19_VERTEX_CENTER.y + 52,
+            PAGE19_GPU_LABEL_Y - 32,
           )}
           stroke={scene.wireStroke}
           opacity={gpuOpacity}
           headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
           dashArray={revealDashArray(gpuVertexToTextPoints, routeReveal)}
           tipX={PAGE19_GPU_AXIS_X}
-          tipY={PAGE19_GPU_LABEL_Y - 24}
+          tipY={PAGE19_GPU_LABEL_Y - 32}
           direction="down"
           shaftWidth={3}
           underlayWidth={5.5}
@@ -2502,15 +3080,15 @@ function Page19Placeholder({
         <StrokeArrow
           d={verticalPath(
             PAGE19_GPU_AXIS_X,
-            PAGE19_GPU_LABEL_Y + 24,
-            PAGE19_GPU_PIXELS.y - 10,
+            PAGE19_GPU_LABEL_Y + 32,
+            PAGE19_GPU_PIXELS.y - 12,
           )}
           stroke={scene.wireStroke}
           opacity={gpuOpacity}
           headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
           dashArray={revealDashArray(gpuTextToPixelsPoints, routeReveal)}
           tipX={PAGE19_GPU_AXIS_X}
-          tipY={PAGE19_GPU_PIXELS.y - 10}
+          tipY={PAGE19_GPU_PIXELS.y - 12}
           direction="down"
           shaftWidth={3}
           underlayWidth={5.5}
@@ -2732,24 +3310,69 @@ function Page21Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 96, y: 146, width: 596, height: 402, radius: 28};
+  const rightCard1 = {x: 720, y: 146, width: 408, height: 114, radius: 24};
+  const rightCard2 = {x: 720, y: 280, width: 408, height: 114, radius: 24};
+  const rightCard3 = {x: 720, y: 414, width: 408, height: 134, radius: 24};
+
   return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 21 页：PSO 缓存有效性边界"
-      goalLines={[
-        "收集策略必须“少而全”：如果暴力 Permute，PSO 数量会指数膨胀。",
-        "启动时一次性 Open stable.upipelinecache，会把内存和时长压力集中到首启。",
-        "OpenGL 与现代 API 的状态模型不同，缓存结构与命中形态天然不同。",
-        "OS / 驱动 / 芯片 / API 变化都可能导致本地缓存失效并触发重编译。",
-      ]}
-      bridgeLines={[
-        "下一页切到“我的理解”：用一句话收束 PSO 与 PSO Cache 的关系。",
-        "先把本质讲清，再进入后面的 4 个优化策略页。",
-      ]}
-      showTitle={false}
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <LateLeadCard
+          scene={scene}
+          box={leftCard}
+          eyebrow="PSO 缓存有效性边界"
+          headline="缓存效果由四个边界共同决定"
+          bodyLines={[
+            "PSO Cache 不是默认必开、永久有效的银弹。",
+            "它是否值回票价，要同时看收集、首启、状态模型和环境稳定性。",
+            "边界讲清以后，后面的策略页才不会被误读成“默认正确”。",
+          ]}
+          opacity={panelOpacity}
+          accent
+          headlineFontSize={30}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard1}
+          title="收集边界"
+          lines={["少而全，别暴力 Permute。", "PSO 组合一旦指数增长，缓存本身就会失控。"]}
+          opacity={panelOpacity}
+          compact
+          accent
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard2}
+          title="首启边界"
+          lines={["stable.upipelinecache 往往集中在启动阶段 Open。", "首次进入时长和内存压力会被整体前置。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard3}
+          title="平台 / 环境边界"
+          lines={[
+            "OpenGL 与现代 API 的状态模型天然不同。",
+            "OS / Driver / GPU / API 变化都可能让本地缓存失效并重编译。",
+          ]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+          lineGapOverride={21}
+        />
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="边界讲清，后面的策略页才不会被误读成默认正确。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
@@ -2762,24 +3385,75 @@ function Page22Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 96, y: 146, width: 596, height: 402, radius: 28};
+  const rightCard1 = {x: 720, y: 146, width: 408, height: 114, radius: 24};
+  const rightCard2 = {x: 720, y: 280, width: 408, height: 114, radius: 24};
+  const rightCard3 = {x: 720, y: 414, width: 408, height: 134, radius: 24};
+
   return (
-    <NarrativeTypesetPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      kicker="我的理解 / PSO Cache 本质"
-      bodyLines={[
-        "PSO 是对象，PSO Cache 是工程方法。",
-        "它本质是用启动时间 + 内存空间，换运行时卡顿率。",
-        "预编译的 PSO 不会消失，只会转移。",
-        "工程优先级通常先保运行时帧稳定，再压首次启动时长。",
-      ]}
-      footer="PSO Cache 依赖 Shader 数据链路，本质是工程折中而不是“零代价优化”。"
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <LateLeadCard
+          scene={scene}
+          box={leftCard}
+          eyebrow="核心判断"
+          headline="预编译的 PSO 不会消失，只会转移。"
+          bodyLines={[
+            "它把运行时卡顿改写成启动成本与内存成本。",
+            "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
+            "理解这一点，后面的策略页才能统一落在“工程取舍”上。",
+          ]}
+          opacity={panelOpacity}
+          accent
+          headlineFontSize={29}
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard1}
+          title="对象"
+          lines={["PSO 是要被创建、绑定、命中的运行时对象。"]}
+          opacity={panelOpacity}
+          compact
+          accent
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard2}
+          title="方法"
+          lines={["PSO Cache 是围绕 Shader / 状态收集、保存、预热的工程方法。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={16.5}
+          lineGapOverride={20}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard3}
+          title="工程取舍"
+          lines={[
+            "优先把运行时尖峰换掉，再慢慢回收首启和空间开销。",
+            "它不是零代价优化，只是把代价换到更容易管理的位置。",
+          ]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+          lineGapOverride={21}
+        />
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="PSO Cache 是工程方法，不是让代价凭空消失的魔法。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
-function Page23Placeholder({
+function Page24StrategyPage({
   scene,
   opacity,
   entryProgress,
@@ -2788,27 +3462,213 @@ function Page23Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 98, y: 148, width: 732, height: 418, radius: 28};
+  const rightCard1 = {x: 856, y: 148, width: 300, height: 118, radius: 24};
+  const rightCard2 = {x: 856, y: 286, width: 300, height: 118, radius: 24};
+  const rightCard3 = {x: 856, y: 424, width: 300, height: 142, radius: 24};
+  const tableTop = leftCard.y + 82;
+  const tableColumns = [
+    {label: "算法", x: leftCard.x + 22},
+    {label: "压缩率", x: leftCard.x + 188},
+    {label: "Windows 压/解", x: leftCard.x + 294},
+    {label: "macOS 压/解", x: leftCard.x + 458},
+    {label: "Android 解", x: leftCard.x + 618},
+    {label: "iOS 解", x: leftCard.x + 704},
+  ] as const;
+
   return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 23 页：优化策略导入"
-      goalLines={[
-        "从这里开始不再重复流程，而是专注“怎么优化这套工程方法”。",
-        "我们把优化拆成 4 个策略：时间换空间、IO换空间、延迟处理、API差异建模。",
-        "每页只讲一个策略，避免把实现细节堆在同一页。",
-      ]}
-      bridgeLines={[
-        "下一页进入策略 1：时间换空间（压缩/解压链路取舍）。",
-        "之后按策略 2 -> 3 -> 4 顺序推进并收束。",
-      ]}
-      showTitle={false}
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox
+          box={leftCard}
+          fill="rgba(255, 255, 255, 0.92)"
+          stroke="rgba(92, 106, 118, 0.4)"
+          strokeWidth={2.1}
+        />
+        <text
+          x={leftCard.x + 20}
+          y={leftCard.y + 24}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          release/results 聚合实测：10 种算法 / 4 平台 / pso_like
+        </text>
+        <text
+          x={right(leftCard) - 20}
+          y={leftCard.y + 24}
+          fill="rgba(34, 48, 61, 0.56)"
+          fontSize="14.5"
+          fontWeight="760"
+          textAnchor="end"
+          dominantBaseline="middle"
+        >
+          单位：桌面 = 压/解(ms)；移动端 = 解压(ms)
+        </text>
+        {tableColumns.map((column) => (
+          <text
+            key={column.label}
+            x={column.x}
+            y={tableTop}
+            fill="rgba(34, 48, 61, 0.56)"
+            fontSize="14.5"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+          >
+            {column.label}
+          </text>
+        ))}
+        {COMPRESSION_SUMMARY_ROWS.map((row, index) => {
+          const y = tableTop + 30 + index * 25.5;
+          return (
+            <g key={`${row.algorithm}-${index}`}>
+              <line
+                x1={leftCard.x + 16}
+                y1={y + 14}
+                x2={right(leftCard) - 16}
+                y2={y + 14}
+                stroke="rgba(92, 106, 118, 0.12)"
+                strokeWidth={1}
+              />
+              <text
+                x={tableColumns[0].x}
+                y={y}
+                fill="#22303d"
+                fontSize="15.5"
+                fontWeight="760"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.algorithm}
+              </text>
+              <text
+                x={tableColumns[1].x}
+                y={y}
+                fill="rgba(34, 48, 61, 0.76)"
+                fontSize="15"
+                fontWeight="680"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.ratio}
+              </text>
+              <text
+                x={tableColumns[2].x}
+                y={y}
+                fill="rgba(34, 48, 61, 0.76)"
+                fontSize="15"
+                fontWeight="680"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.windows}
+              </text>
+              <text
+                x={tableColumns[3].x}
+                y={y}
+                fill="rgba(34, 48, 61, 0.76)"
+                fontSize="15"
+                fontWeight="680"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.macos}
+              </text>
+              <text
+                x={tableColumns[4].x}
+                y={y}
+                fill="rgba(34, 48, 61, 0.76)"
+                fontSize="15"
+                fontWeight="680"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.android}
+              </text>
+              <text
+                x={tableColumns[5].x}
+                y={y}
+                fill="rgba(34, 48, 61, 0.76)"
+                fontSize="15"
+                fontWeight="680"
+                textAnchor="start"
+                dominantBaseline="middle"
+              >
+                {row.ios}
+              </text>
+            </g>
+          );
+        })}
+        <text
+          x={leftCard.x + 20}
+          y={leftCard.y + 392}
+          fill="rgba(34, 48, 61, 0.68)"
+          fontSize="15.5"
+          fontWeight="680"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          可以看到：压缩率高的算法并不一定压得快，但移动端解压通常仍然足够便宜。
+        </text>
+        <LateInfoCard
+          scene={scene}
+          box={rightCard1}
+          title="Compression"
+          lines={["直接改资源形态", "体积更小，但解压和恢复要额外付时间。"]}
+          opacity={panelOpacity}
+          accent
+          compact
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard2}
+          title="Precompute / Preload"
+          lines={["先占空间再换时间", "Lightmap、LUT、Precache 都属于这类。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard3}
+          title="Algorithm"
+          lines={["改表示 / 改求解路径", ...STRATEGY_ALGORITHM_LINES]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={16}
+          lineGapOverride={20}
+        />
+        <a href={PAGE24_GDC_LINK_URL} target="_blank" rel="noreferrer">
+          <text
+            x={rightCard3.x + 20}
+            y={587}
+            fill={scene.apiStroke}
+            fontSize="14"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+            textDecoration="underline"
+          >
+            {PAGE24_GDC_LINK_LABEL}
+          </text>
+        </a>
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="优化未必是发明新算法，也可能只是把时间和空间重新分配了一次。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
-function Page24Placeholder({
+function Page25StoragePage({
   scene,
   opacity,
   entryProgress,
@@ -2817,27 +3677,161 @@ function Page24Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 96, y: 146, width: 596, height: 402, radius: 28};
+  const rightCard1 = {x: 720, y: 146, width: 408, height: 114, radius: 24};
+  const rightCard2 = {x: 720, y: 280, width: 408, height: 114, radius: 24};
+  const rightCard3 = {x: 720, y: 414, width: 408, height: 134, radius: 24};
+  const memoryBox = {x: leftCard.x + 24, y: leftCard.y + 76, width: 252, height: 228, radius: 24};
+  const diskBox = {x: leftCard.x + 320, y: leftCard.y + 76, width: 252, height: 228, radius: 24};
+  const memoryHotBox = {x: memoryBox.x + 18, y: memoryBox.y + 54, width: 216, height: 52, radius: 18};
+  const memorySwapBox = {x: memoryBox.x + 18, y: memoryBox.y + 122, width: 216, height: 74, radius: 18};
+  const diskMapBox = {x: diskBox.x + 18, y: diskBox.y + 54, width: 216, height: 52, radius: 18};
+  const diskCarrierBox = {x: diskBox.x + 18, y: diskBox.y + 122, width: 216, height: 74, radius: 18};
+
   return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 24 页：策略 1（时间换空间）"
-      goalLines={[
-        "核心问题：是否保留 Code 压缩。压缩节省空间，但解压会消耗时间。",
-        "这是典型的“时间换空间”：把体积和存储压力换成启动阶段 CPU 时间。",
-        "决策方法：先看瓶颈画像，再选压缩级别，而不是一刀切开关。",
-      ]}
-      bridgeLines={[
-        "下一页进入策略 2：IO换空间（mmap + LRU）。",
-        "后续可补压缩比、解压时长和首帧时间的实测对照。",
-      ]}
-      showTitle={false}
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox
+          box={leftCard}
+          fill="rgba(255, 255, 255, 0.92)"
+          stroke="rgba(92, 106, 118, 0.4)"
+          strokeWidth={2.1}
+        />
+        <text
+          x={leftCard.x + 18}
+          y={leftCard.y + 24}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          PSO 内落地：选取逻辑 + 映射机制 + 外存载体
+        </text>
+        <StageBox box={memoryBox} fill="rgba(255, 248, 240, 0.9)" stroke={scene.apiStroke} strokeWidth={2.2} />
+        <StageBox box={diskBox} fill="rgba(249, 247, 244, 0.94)" stroke="rgba(92, 106, 118, 0.42)" strokeWidth={2} />
+        <text x={centerX(memoryBox)} y={memoryBox.y + 22} fill="#22303d" fontSize="18" fontWeight="780" textAnchor="middle" dominantBaseline="middle">
+          内存驻留区
+        </text>
+        <text x={centerX(diskBox)} y={diskBox.y + 22} fill="#22303d" fontSize="18" fontWeight="780" textAnchor="middle" dominantBaseline="middle">
+          外存 / IO
+        </text>
+        <StageBox
+          box={memoryHotBox}
+          fill="rgba(248, 236, 226, 0.96)"
+          stroke={scene.apiStroke}
+          strokeWidth={2.4}
+        />
+        <StageBox
+          box={memorySwapBox}
+          fill="rgba(255, 251, 246, 0.94)"
+          stroke="rgba(92, 106, 118, 0.42)"
+          strokeWidth={1.9}
+        />
+        <StageBox
+          box={diskMapBox}
+          fill="rgba(255, 251, 246, 0.94)"
+          stroke="rgba(92, 106, 118, 0.42)"
+          strokeWidth={1.9}
+        />
+        <StageBox
+          box={diskCarrierBox}
+          fill="rgba(255, 251, 246, 0.94)"
+          stroke="rgba(92, 106, 118, 0.42)"
+          strokeWidth={1.9}
+        />
+        <text x={centerX(memoryHotBox)} y={centerY(memoryHotBox)} fill={scene.apiStroke} fontSize="18" fontWeight="760" textAnchor="middle" dominantBaseline="middle">
+          高频常驻
+        </text>
+        <text x={centerX(memorySwapBox)} y={memorySwapBox.y + 24} fill="#22303d" fontSize="17" fontWeight="740" textAnchor="middle" dominantBaseline="middle">
+          可替换缓存
+        </text>
+        <text x={centerX(memorySwapBox)} y={memorySwapBox.y + 46} fill="rgba(34, 48, 61, 0.7)" fontSize="14" fontWeight="650" textAnchor="middle" dominantBaseline="middle">
+          谁该留下，谁该换出
+        </text>
+        <text x={centerX(diskMapBox)} y={centerY(diskMapBox)} fill="#22303d" fontSize="17" fontWeight="740" textAnchor="middle" dominantBaseline="middle">
+          映射视图 / 虚拟内存
+        </text>
+        <text x={centerX(diskCarrierBox)} y={diskCarrierBox.y + 24} fill="#22303d" fontSize="17" fontWeight="740" textAnchor="middle" dominantBaseline="middle">
+          文件 / SQL / KV
+        </text>
+        <text x={centerX(diskCarrierBox)} y={diskCarrierBox.y + 46} fill="rgba(34, 48, 61, 0.7)" fontSize="14" fontWeight="650" textAnchor="middle" dominantBaseline="middle">
+          外存只是承载面
+        </text>
+        <StrokeArrow
+          d={horizontalPath(right(memoryBox) + 12, diskBox.x - 12, memoryBox.y + 96)}
+          stroke={scene.apiStroke}
+          opacity={panelOpacity}
+          headOpacity={panelOpacity}
+          tipX={diskBox.x - 12}
+          tipY={memoryBox.y + 96}
+          direction="right"
+          shaftWidth={2.8}
+          underlayWidth={5.2}
+          headSize={7}
+        />
+        <StrokeArrow
+          d={horizontalPath(right(memoryBox) + 12, diskBox.x - 12, memoryBox.y + 170)}
+          stroke={scene.apiStroke}
+          opacity={panelOpacity}
+          headOpacity={panelOpacity}
+          tipX={right(memoryBox) + 12}
+          tipY={memoryBox.y + 170}
+          direction="left"
+          shaftWidth={2.8}
+          underlayWidth={5.2}
+          headSize={7}
+        />
+        <text x={centerX(leftCard)} y={memoryBox.y + 78} fill="rgba(34, 48, 61, 0.7)" fontSize="15.5" fontWeight="720" textAnchor="middle" dominantBaseline="middle">
+          换出
+        </text>
+        <text x={centerX(leftCard)} y={memoryBox.y + 154} fill="rgba(34, 48, 61, 0.7)" fontSize="15.5" fontWeight="720" textAnchor="middle" dominantBaseline="middle">
+          按需回填
+        </text>
+        <text x={leftCard.x + 28} y={leftCard.y + 374} fill="rgba(34, 48, 61, 0.72)" fontSize="17" fontWeight="700" textAnchor="start" dominantBaseline="middle">
+          LRU 只是“谁先走”的规则；mmap / paging 才是“怎么回来”的路径。
+        </text>
+        <LateInfoCard
+          scene={scene}
+          box={rightCard1}
+          title="选取逻辑"
+          lines={["LRU / Clock / Pin", "决定谁该留下，谁该转去外存。"]}
+          opacity={panelOpacity}
+          compact
+          accent
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard2}
+          title="映射机制"
+          lines={["mmap / paging / 虚拟内存", "决定外存数据如何重新回到地址空间。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard3}
+          title="外存载体"
+          lines={["file / SQL / KV / spill", "IO 只是承载面，关键看访问形态和回填成本。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="IO 换空间不是单点技巧，而是一套“选取 + 回填 + 外存”的组合方法。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
-function Page25Placeholder({
+function Page26TimingPage({
   scene,
   opacity,
   entryProgress,
@@ -2846,27 +3840,119 @@ function Page25Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 96, y: 146, width: 566, height: 402, radius: 28};
+  const rightCard1 = {x: 690, y: 146, width: 426, height: 114, radius: 24};
+  const rightCard2 = {x: 690, y: 280, width: 426, height: 114, radius: 24};
+  const rightCard3 = {x: 690, y: 414, width: 426, height: 134, radius: 24};
+  const gameMaskBox = {x: leftCard.x + 24, y: leftCard.y + 62, width: 228, height: 212, radius: 22};
+  const compileMaskBox = {x: leftCard.x + 276, y: leftCard.y + 62, width: 266, height: 212, radius: 22};
+  const compileBanner = {x: leftCard.x + 24, y: leftCard.y + 298, width: 518, height: 60, radius: 18};
+
   return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 25 页：策略 2（IO换空间）"
-      goalLines={[
-        "IO换空间的典型做法：mmap 按需映射 + LRU 保留热数据。",
-        "目标是减少随机读与重复拷贝，把慢 IO 压成可控内存占用。",
-        "同类策略还包括 ring/circular，但本页先锁定 mmap 与 LRU 两个主轴。",
-      ]}
-      bridgeLines={[
-        "下一页进入策略 3：延迟处理（UsageMask）。",
-        "后续可补命中率、缺页与加载时长三组对比图。",
-      ]}
-      showTitle={false}
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox
+          box={leftCard}
+          fill="rgba(255, 255, 255, 0.92)"
+          stroke="rgba(92, 106, 118, 0.4)"
+          strokeWidth={2.1}
+        />
+        <text
+          x={leftCard.x + 18}
+          y={leftCard.y + 24}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          双 UsageMask：收集与编译解耦
+        </text>
+        <StageBox box={gameMaskBox} fill="rgba(255, 248, 240, 0.92)" stroke={scene.apiStroke} strokeWidth={2.2} />
+        <StageBox box={compileMaskBox} fill="rgba(249, 247, 244, 0.94)" stroke="rgba(92, 106, 118, 0.42)" strokeWidth={2.1} />
+        <text x={centerX(gameMaskBox)} y={gameMaskBox.y + 24} fill="#22303d" fontSize="18" fontWeight="800" textAnchor="middle" dominantBaseline="middle">
+          Game UsageMask
+        </text>
+        <text x={centerX(compileMaskBox)} y={compileMaskBox.y + 24} fill="#22303d" fontSize="18" fontWeight="800" textAnchor="middle" dominantBaseline="middle">
+          Compile UsageMask
+        </text>
+        {[
+          {label: "地图 A", game: "●", compile: "●"},
+          {label: "地图 B", game: "·", compile: "●"},
+        ].map((row, index) => {
+          const y = gameMaskBox.y + 92 + index * 64;
+          return (
+            <g key={`mask-row-${row.label}`}>
+              <text x={leftCard.x + 44} y={y} fill="#22303d" fontSize="20" fontWeight="760" textAnchor="start" dominantBaseline="middle">
+                {row.label}
+              </text>
+              <text x={gameMaskBox.x + 168} y={y} fill={scene.apiStroke} fontSize="28" fontWeight="820" textAnchor="middle" dominantBaseline="middle">
+                {row.game}
+              </text>
+              <text x={compileMaskBox.x + 186} y={y} fill={scene.apiStroke} fontSize="28" fontWeight="820" textAnchor="middle" dominantBaseline="middle">
+                {row.compile}
+              </text>
+            </g>
+          );
+        })}
+        <StageBox
+          box={compileBanner}
+          fill="rgba(248, 236, 226, 0.92)"
+          stroke={scene.apiStroke}
+          strokeWidth={2}
+        />
+        <text
+          x={centerX(compileBanner)}
+          y={centerY(compileBanner)}
+          fill={scene.apiStroke}
+          fontSize="18"
+          fontWeight="760"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          下载资源 && 编译 可以并行隐藏
+        </text>
+        <LateInfoCard
+          scene={scene}
+          box={rightCard1}
+          title="Lazy Load"
+          lines={["延迟的是资源加载", "不用时不付成本，要用时再触发。"]}
+          opacity={panelOpacity}
+          compact
+          accent
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard2}
+          title="Streaming"
+          lines={["延迟的是内容驻留", "世界分区或区域进入内存都属于这一类。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightCard3}
+          title="Deferred / Async Compile"
+          lines={["延迟的是编译成本", "编译可能迟到，但不必和收集强绑定。"]}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={17}
+        />
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="这里优化的不是“做不做”，而是“什么时候做”。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
-function Page26Placeholder({
+function Page27ParallelPage({
   scene,
   opacity,
   entryProgress,
@@ -2875,52 +3961,115 @@ function Page26Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 26 页：策略 3（延迟处理 / UsageMask）"
-      goalLines={[
-        "有些计算“必须做”但“现在不一定用得到”，这类任务适合延迟处理。",
-        "UsageMask 的作用是按使用场景筛选编译集合，避免一次性全量计算。",
-        "先做集合剪枝，再做并行加速，通常比单纯加线程更稳。",
-      ]}
-      bridgeLines={[
-        "下一页进入策略 4：深入理解 Metal 与 OpenGL 差异来源。",
-        "后续可补 UsageMask 命中率与延迟触发统计图。",
-      ]}
-      showTitle={false}
-    />
-  );
-}
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 94, y: 144, width: 604, height: 406, radius: 28};
+  const rightTop = {x: 726, y: 144, width: 398, height: 158, radius: 24};
+  const rightBottom = {x: 726, y: 322, width: 398, height: 228, radius: 24};
+  const queueBox = {x: leftCard.x + 34, y: leftCard.y + 98, width: 148, height: 160, radius: 22};
+  const workerBoxes = [
+    {x: leftCard.x + 252, y: leftCard.y + 84, width: 128, height: 62, radius: 18},
+    {x: leftCard.x + 252, y: leftCard.y + 160, width: 128, height: 62, radius: 18},
+    {x: leftCard.x + 252, y: leftCard.y + 236, width: 128, height: 62, radius: 18},
+  ];
+  const doneBox = {x: leftCard.x + 446, y: leftCard.y + 126, width: 132, height: 126, radius: 22};
+  const spectrumY = leftCard.y + 344;
 
-function Page27Placeholder({
-  scene,
-  opacity,
-  entryProgress,
-}: {
-  scene: SceneModel;
-  opacity: number;
-  entryProgress: number;
-}) {
   return (
-    <TextOnlyPlaceholder
-      scene={scene}
-      opacity={opacity}
-      entryProgress={entryProgress}
-      title="第 27 页：策略 4（Metal vs OpenGL 差异）"
-      goalLines={[
-        "研究 API 差异不是站队，而是反推“PSO 为什么会长成现在这样”。",
-        "Metal 与 OpenGL 在状态来源与显式程度上的差异，会直接影响编译数量与命中分布。",
-        "把差异研究清楚，才能反补前面三条策略的边界条件。",
-      ]}
-      bridgeLines={[
-        "这一页作为策略章节收束，后续可接实测数据或 Q&A。",
-        "本页先文本占位，等你给案例后再加图。",
-      ]}
-      showTitle={false}
-    />
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox box={leftCard} fill="rgba(255, 255, 255, 0.92)" stroke="rgba(92, 106, 118, 0.4)" strokeWidth={2.1} />
+        <text x={leftCard.x + 18} y={leftCard.y + 24} fill={scene.apiStroke} fontSize="20" fontWeight="820" textAnchor="start" dominantBaseline="middle">
+          预编译任务天然适合并行
+        </text>
+        <StageBox box={queueBox} fill="rgba(255, 248, 240, 0.92)" stroke={scene.apiStroke} strokeWidth={2.2} />
+        <StackedLabel x={centerX(queueBox)} y={centerY(queueBox)} lines={["Single", "Queue"]} fontSize={24} fontWeight={780} lineGap={21} />
+        {workerBoxes.map((box, index) => (
+          <g key={`worker-${index}`}>
+            <StageBox box={box} fill="rgba(249, 247, 244, 0.94)" stroke="rgba(92, 106, 118, 0.4)" strokeWidth={2} />
+            <text x={centerX(box)} y={centerY(box)} fill="#22303d" fontSize="20" fontWeight="760" textAnchor="middle" dominantBaseline="middle">
+              {`Worker ${index + 1}`}
+            </text>
+          </g>
+        ))}
+        <StageBox box={doneBox} fill="rgba(249, 247, 244, 0.94)" stroke="rgba(92, 106, 118, 0.4)" strokeWidth={2} />
+        <StackedLabel x={centerX(doneBox)} y={centerY(doneBox)} lines={["More", "Throughput"]} fontSize={22} fontWeight={780} lineGap={18} />
+        {workerBoxes.map((box) => (
+          <StrokeArrow
+            key={`queue-arrow-${box.x}-${box.y}`}
+            d={horizontalPath(right(queueBox) + 8, box.x - 8, centerY(box))}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            headOpacity={panelOpacity}
+            tipX={box.x - 8}
+            tipY={centerY(box)}
+            direction="right"
+            shaftWidth={2.5}
+            underlayWidth={4.8}
+            headSize={6.6}
+          />
+        ))}
+        {workerBoxes.map((box) => (
+          <StrokeArrow
+            key={`done-arrow-${box.x}-${box.y}`}
+            d={horizontalPath(right(box) + 8, doneBox.x - 8, centerY(box))}
+            stroke="rgba(92, 106, 118, 0.74)"
+            opacity={panelOpacity}
+            headOpacity={panelOpacity}
+            tipX={doneBox.x - 8}
+            tipY={centerY(box)}
+            direction="right"
+            shaftWidth={2.4}
+            underlayWidth={4.4}
+            headSize={6.4}
+          />
+        ))}
+        {["SIMD", "Thread", "GPU"].map((label, index) => {
+          const box = {x: leftCard.x + 46 + index * 174, y: spectrumY, width: 136, height: 42, radius: 20};
+          return <FloatingPill key={label} scene={scene} box={box} label={label} opacity={panelOpacity} accent={index === 1} />;
+        })}
+        <LateInfoCard
+          scene={scene}
+          box={rightTop}
+          title="适用特征"
+          lines={["独立", "重复", "规则", "可拆"]}
+          opacity={panelOpacity}
+          compact
+          accent
+          bodyFontSize={18}
+          lineGapOverride={24}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={rightBottom}
+          title="注意事项"
+          lines={PARALLEL_NOTES}
+          opacity={panelOpacity}
+          compact
+          bodyFontSize={18}
+          lineGapOverride={26}
+        />
+        <a href="https://zhuanlan.zhihu.com/p/384272799" target="_blank" rel="noreferrer">
+          <text
+            x={rightTop.x + 18}
+            y={rightBottom.y + rightBottom.height - 18}
+            fill={scene.apiStroke}
+            fontSize="15"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+            textDecoration="underline"
+          >
+            CUDA 补充链接
+          </text>
+        </a>
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="并行不是改业务逻辑，而是在合适的任务上换一种执行方式。"
+        />
+      </g>
+    </PlaceholderBoardShell>
   );
 }
 
@@ -2930,19 +4079,25 @@ function EndingLinkItem({
   title,
   subtitle,
   href,
+  titleFontSize = 24,
+  subtitleFontSize = 17,
+  subtitleOffset = 28,
 }: {
   x: number;
   y: number;
   title: string;
   subtitle: string;
   href?: string;
+  titleFontSize?: number;
+  subtitleFontSize?: number;
+  subtitleOffset?: number;
 }) {
   const titleNode = (
     <text
       x={x}
       y={y}
       fill="#21303d"
-      fontSize="25"
+      fontSize={titleFontSize}
       fontWeight="780"
       textAnchor="start"
       dominantBaseline="middle"
@@ -2963,9 +4118,9 @@ function EndingLinkItem({
       )}
       <text
         x={x}
-        y={y + 32}
+        y={y + subtitleOffset}
         fill="rgba(34, 48, 61, 0.72)"
-        fontSize="19"
+        fontSize={subtitleFontSize}
         fontWeight="650"
         textAnchor="start"
         dominantBaseline="middle"
@@ -2976,7 +4131,7 @@ function EndingLinkItem({
   );
 }
 
-function Page28ReadingPlaceholder({
+function Page28GovernanceSurfacePage({
   scene,
   opacity,
   entryProgress,
@@ -2987,99 +4142,501 @@ function Page28ReadingPlaceholder({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 148, y: 188, width: 454, height: 368, radius: 30};
-  const rightCard = {x: 678, y: 188, width: 454, height: 368, radius: 30};
-  const footerBox = {x: 212, y: 588, width: 856, height: 54, radius: 22};
+  const sampleAImage = {x: 96, y: 172, width: 500, height: 148, radius: 18};
+  const sampleBImage = {x: 96, y: 348, width: 500, height: 148, radius: 18};
+  const rightCard = {x: 620, y: 160, width: 550, height: 390, radius: 24};
+  const shaderBox = {x: rightCard.x + 24, y: rightCard.y + 72, width: 502, height: 54, radius: 18};
+  const stateBoxes = [
+    {
+      title: "Vertex Decl / Input Layout",
+      detail: "输入布局、ATTRIBUTE、stride",
+      box: {x: rightCard.x + 24, y: rightCard.y + 156, width: 248, height: 60, radius: 18},
+      accent: true,
+    },
+    {
+      title: "Render Targets / Formats",
+      detail: "RT / color buffer / format",
+      box: {x: rightCard.x + 278, y: rightCard.y + 156, width: 248, height: 60, radius: 18},
+      accent: false,
+    },
+    {
+      title: "Depth / Stencil",
+      detail: "depth test / stencil state",
+      box: {x: rightCard.x + 24, y: rightCard.y + 232, width: 248, height: 60, radius: 18},
+      accent: false,
+    },
+    {
+      title: "Blend / Rasterizer",
+      detail: "blend mode / cull / fill mode",
+      box: {x: rightCard.x + 278, y: rightCard.y + 232, width: 248, height: 60, radius: 18},
+      accent: false,
+    },
+    {
+      title: "Primitive / Samples / Pass",
+      detail: "primitive type / MSAA / render pass",
+      box: {x: rightCard.x + 24, y: rightCard.y + 308, width: 502, height: 56, radius: 18},
+      accent: false,
+    },
+  ] as const;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="118"
-        fill={scene.apiStroke}
-        fontSize="34"
-        fontWeight="820"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        第 28 页：延伸阅读 / 另一些推荐
-      </text>
-      <StageBox
-        box={leftCard}
-        fill="rgba(255, 252, 247, 0.96)"
-        stroke={scene.nodeStroke}
-        strokeWidth={2.4}
-      />
-      <StageBox
-        box={rightCard}
-        fill="rgba(255, 252, 247, 0.96)"
-        stroke={scene.nodeStroke}
-        strokeWidth={2.4}
-      />
-      <StageBox
-        box={footerBox}
-        fill="rgba(255, 250, 242, 0.92)"
-        stroke="rgba(102, 118, 132, 0.28)"
-        strokeWidth={1.8}
-      />
-      <text
-        x={leftCard.x + 34}
-        y={leftCard.y + 40}
-        fill="rgba(214, 102, 48, 0.96)"
-        fontSize="20"
-        fontWeight="830"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        工程延伸
-      </text>
-      {ENDING_ENGINEERING_LINKS.map((item, index) => (
-        <EndingLinkItem
-          key={item.title}
-          x={leftCard.x + 34}
-          y={leftCard.y + 106 + index * 116}
-          title={item.title}
-          subtitle={item.subtitle}
-          href={item.href}
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <LateBareImage
+          scene={scene}
+          box={sampleAImage}
+          title="样本 A"
+          href="/supplement/ogl-mtl/opengl-compile-count.png"
+          clipId="page28-sample-a"
+          opacity={panelOpacity}
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={17}
         />
-      ))}
-      <text
-        x={rightCard.x + 34}
-        y={rightCard.y + 40}
-        fill="rgba(214, 102, 48, 0.96)"
-        fontSize="20"
-        fontWeight="830"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        书与视频
-      </text>
-      {ENDING_CULTURE_LINKS.map((item, index) => (
-        <EndingLinkItem
-          key={item.title}
-          x={rightCard.x + 34}
-          y={rightCard.y + 106 + index * 92}
-          title={item.title}
-          subtitle={item.subtitle}
-          href={item.href}
+        <LateBareImage
+          scene={scene}
+          box={sampleBImage}
+          title="样本 B"
+          href="/supplement/ogl-mtl/ios-compile-count.png"
+          clipId="page28-sample-b"
+          opacity={panelOpacity}
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={17}
         />
-      ))}
-      <text
-        x={centerX(footerBox)}
-        y={centerY(footerBox)}
-        fill="rgba(34, 48, 61, 0.74)"
-        fontSize="21"
-        fontWeight="680"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        如果这次分享只够把问题打开，那这几条路径可以继续往下走。
-      </text>
+        <StageBox
+          box={rightCard}
+          fill="rgba(255, 255, 255, 0.92)"
+          stroke="rgba(92, 106, 118, 0.38)"
+          strokeWidth={2}
+        />
+        <text
+          x={rightCard.x + 22}
+          y={rightCard.y + 26}
+          fill={scene.apiStroke}
+          fontSize="22"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          PSO = Shader + State
+        </text>
+        <text
+          x={rightCard.x + 22}
+          y={rightCard.y + 52}
+          fill="rgba(34, 48, 61, 0.78)"
+          fontSize="17.5"
+          fontWeight="720"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          Shader / Function 只是其中一块，真正会让 PSO 分叉的还有整套 state。
+        </text>
+        <StageBox
+          box={shaderBox}
+          fill="rgba(248, 236, 226, 0.94)"
+          stroke={scene.apiStroke}
+          strokeWidth={2.4}
+        />
+        <text
+          x={centerX(shaderBox)}
+          y={centerY(shaderBox)}
+          fill={scene.apiStroke}
+          fontSize="19"
+          fontWeight="780"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          Shader / Program / Function
+        </text>
+        <text
+          x={rightCard.x + 24}
+          y={rightCard.y + 138}
+          fill="rgba(34, 48, 61, 0.72)"
+          fontSize="16.5"
+          fontWeight="720"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          State 里常见会收什么
+        </text>
+        {stateBoxes.map((item) => (
+          <g key={item.title}>
+            <StageBox
+              box={item.box}
+              fill={item.accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 251, 246, 0.94)"}
+              stroke={item.accent ? scene.apiStroke : "rgba(92, 106, 118, 0.38)"}
+              strokeWidth={item.accent ? 2.3 : 1.9}
+            />
+            <text
+              x={item.box.x + 16}
+              y={item.box.y + 20}
+              fill={item.accent ? scene.apiStroke : "#22303d"}
+              fontSize="17"
+              fontWeight="770"
+              textAnchor="start"
+              dominantBaseline="middle"
+            >
+              {item.title}
+            </text>
+            <text
+              x={item.box.x + 16}
+              y={item.box.y + 42}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="15"
+              fontWeight="670"
+              textAnchor="start"
+              dominantBaseline="middle"
+            >
+              {item.detail}
+            </text>
+          </g>
+        ))}
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="仅仅 state 里的这些维度，就足以让“同样内容”在不同平台上分叉成不同 PSO。"
+        />
+      </g>
     </PlaceholderBoardShell>
   );
 }
 
-function Page29QuotePlaceholder({
+function Page29GovernanceSourcePage({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCode = {x: 94, y: 140, width: 492, height: 440, radius: 26};
+  const rightCode = {x: 610, y: 140, width: 538, height: 440, radius: 26};
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <LateCodeCard
+          scene={scene}
+          box={leftCode}
+          title="VertexDescriptor / InitRHI"
+          lines={VERTEX_DESCRIPTOR_CODE_LINES}
+          opacity={panelOpacity}
+          titleFontSize={19}
+          codeFontSize={15.5}
+          lineHeight={25}
+        />
+        <LateCodeCard
+          scene={scene}
+          box={rightCode}
+          title="LocalVertexFactory.ush"
+          lines={LOCAL_VERTEX_FACTORY_CODE_LINES}
+          opacity={panelOpacity}
+          titleFontSize={19}
+          codeFontSize={15.5}
+          lineHeight={25}
+        />
+        {["ATTRIBUTE4", "ATTRIBUTE5", "ATTRIBUTE6", "ATTRIBUTE7"].map((label, index) => {
+          const box = {x: 690 + index * 108, y: 552, width: 98, height: 36, radius: 18};
+          return <MicroToken key={label} scene={scene} box={box} label={label} opacity={panelOpacity} accent={index === 0} />;
+        })}
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="同一个 material，不代表同一个 PSO。"
+        />
+      </g>
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page30GovernanceConclusionPage({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftImage = {x: 86, y: 144, width: 516, height: 292, radius: 18};
+  const rightImage = {x: 678, y: 144, width: 516, height: 292, radius: 18};
+  const noteCard = {x: 88, y: 458, width: 1104, height: 92, radius: 24};
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <LateBareImage
+          scene={scene}
+          box={leftImage}
+          title={undefined}
+          href="/supplement/ogl-mtl/uv-stride4-ia.png"
+          clipId="page30-uv4"
+          opacity={panelOpacity}
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={18}
+        />
+        <LateBareImage
+          scene={scene}
+          box={rightImage}
+          title={undefined}
+          href="/supplement/ogl-mtl/uv-stride8-ia.png"
+          clipId="page30-uv8"
+          opacity={panelOpacity}
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={18}
+        />
+        <LateInfoCard
+          scene={scene}
+          box={noteCard}
+          title="治理结论"
+          lines={[
+            "只要 stride / declaration 改了，后面往往就不再是同一组 PSO。",
+            "除了 UV / declaration，color buffer 等状态也会继续影响结果。",
+          ]}
+          opacity={panelOpacity}
+          compact
+          accent
+          titleFontSize={21}
+          bodyFontSize={17.5}
+        />
+        {GOVERNANCE_DIMENSION_TOKENS.map((label, index) => {
+          const tokenBox = {
+            x: noteCard.x + 18 + index * 270,
+            y: 566,
+            width: 190,
+            height: 36,
+            radius: 14,
+          };
+          return (
+            <MicroToken
+              key={`governance-dimension-${label}`}
+              scene={scene}
+              box={tokenBox}
+              label={label}
+              opacity={panelOpacity}
+              accent={index === 1}
+            />
+          );
+        })}
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="最好的优化不是后置补救，而是前面就把输入约束好。"
+        />
+      </g>
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page31HarnessPage({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 92, y: 138, width: 512, height: 418, radius: 28};
+  const rightCard = {x: 634, y: 138, width: 528, height: 418, radius: 28};
+  const chainBoxes = HARNESS_CHAIN_LABELS.map((label, index) => ({
+    label,
+    box: {x: leftCard.x + 34, y: leftCard.y + 72 + index * 108, width: 444, height: 60, radius: 20},
+  }));
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox box={leftCard} fill="rgba(255, 255, 255, 0.92)" stroke="rgba(92, 106, 118, 0.4)" strokeWidth={2.1} />
+        <StageBox box={rightCard} fill="rgba(255, 255, 255, 0.92)" stroke="rgba(92, 106, 118, 0.4)" strokeWidth={2.1} />
+        <text x={leftCard.x + 18} y={leftCard.y + 24} fill={scene.apiStroke} fontSize="20" fontWeight="820" textAnchor="start" dominantBaseline="middle">
+          评分链路
+        </text>
+        {chainBoxes.map(({label, box}, index) => (
+          <g key={label}>
+            <StageBox box={box} fill={index === 0 ? "rgba(248, 236, 226, 0.96)" : "rgba(249, 247, 244, 0.94)"} stroke={index === 0 ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"} strokeWidth={index === 0 ? 2.3 : 2} />
+            <text x={centerX(box)} y={centerY(box)} fill={index === 0 ? scene.apiStroke : "#22303d"} fontSize="20" fontWeight="770" textAnchor="middle" dominantBaseline="middle">
+              {label}
+            </text>
+            {index < chainBoxes.length - 1 ? (
+              <StrokeArrow
+                d={verticalPath(centerX(box), bottom(box) + 6, chainBoxes[index + 1]!.box.y - 8)}
+                stroke={scene.apiStroke}
+                opacity={panelOpacity}
+                headOpacity={panelOpacity}
+                tipX={centerX(box)}
+                tipY={chainBoxes[index + 1]!.box.y - 8}
+                direction="down"
+                shaftWidth={2.5}
+                underlayWidth={4.8}
+                headSize={6.8}
+              />
+            ) : null}
+          </g>
+        ))}
+        <text x={leftCard.x + 34} y={leftCard.y + 382} fill="rgba(34, 48, 61, 0.72)" fontSize="17.5" fontWeight="700" textAnchor="start" dominantBaseline="middle">
+          三层 Review：整体布局 / 模块空间结构 / 单节点与单边
+        </text>
+        <text x={rightCard.x + 18} y={rightCard.y + 24} fill={scene.apiStroke} fontSize="20" fontWeight="820" textAnchor="start" dominantBaseline="middle">
+          数学约束
+        </text>
+        {HARNESS_FORMULA_LINES.map((line, index) => (
+          <text
+            key={line}
+            x={rightCard.x + 18}
+            y={rightCard.y + 74 + index * 38}
+            fill="#22303d"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="16.5"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+          >
+            {line}
+          </text>
+        ))}
+        {HARNESS_GATES.map((label, index) => {
+          const box = {x: rightCard.x + 22 + (index % 2) * 244, y: rightCard.y + 252 + Math.floor(index / 2) * 56, width: 220, height: 40, radius: 18};
+          return <MicroToken key={label} scene={scene} box={box} label={label} opacity={panelOpacity} accent={index === 0} />;
+        })}
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          text="我们不是主观调图，而是先走数学约束，再做图像复核。"
+        />
+      </g>
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page32ReadingPage({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const leftCard = {x: 84, y: 136, width: 504, height: 356, radius: 30};
+  const rightCard = {x: 628, y: 136, width: 504, height: 356, radius: 30};
+  const gameCard = {x: 84, y: 526, width: 1048, height: 116, radius: 24};
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <StageBox
+          box={leftCard}
+          fill="rgba(255, 252, 247, 0.96)"
+          stroke={scene.nodeStroke}
+          strokeWidth={2.4}
+        />
+        <StageBox
+          box={rightCard}
+          fill="rgba(255, 252, 247, 0.96)"
+          stroke={scene.nodeStroke}
+          strokeWidth={2.4}
+        />
+        <text
+          x={leftCard.x + 34}
+          y={leftCard.y + 42}
+          fill="rgba(214, 102, 48, 0.96)"
+          fontSize="23"
+          fontWeight="830"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          工程延伸
+        </text>
+        {ENDING_ENGINEERING_LINKS.map((item, index) => (
+          <EndingLinkItem
+            key={item.title}
+            x={leftCard.x + 34}
+            y={leftCard.y + 112 + index * 78}
+            title={item.title}
+            subtitle={item.subtitle}
+            href={item.href}
+            titleFontSize={22}
+            subtitleFontSize={15.5}
+            subtitleOffset={24}
+          />
+        ))}
+        <text
+          x={rightCard.x + 34}
+          y={rightCard.y + 42}
+          fill="rgba(214, 102, 48, 0.96)"
+          fontSize="23"
+          fontWeight="830"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          书与视频
+        </text>
+        {ENDING_CULTURE_LINKS.map((item, index) => (
+          <EndingLinkItem
+            key={item.title}
+            x={rightCard.x + 34}
+            y={rightCard.y + 108 + index * 60}
+            title={item.title}
+            subtitle={item.subtitle}
+            href={item.href}
+            titleFontSize={21}
+            subtitleFontSize={15.5}
+            subtitleOffset={23}
+          />
+        ))}
+        <StageBox
+          box={gameCard}
+          fill="rgba(255, 252, 247, 0.96)"
+          stroke={scene.nodeStroke}
+          strokeWidth={2.2}
+        />
+        <text
+          x={gameCard.x + 34}
+          y={gameCard.y + 26}
+          fill="rgba(214, 102, 48, 0.96)"
+          fontSize="22"
+          fontWeight="830"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          推荐游戏
+        </text>
+        <line
+          x1={centerX(gameCard)}
+          y1={gameCard.y + 20}
+          x2={centerX(gameCard)}
+          y2={gameCard.y + gameCard.height - 20}
+          stroke="rgba(92, 106, 118, 0.26)"
+          strokeWidth="1.6"
+        />
+        {ENDING_GAME_LINKS.map((item, index) => (
+          <EndingLinkItem
+            key={item.title}
+            x={gameCard.x + 34 + index * 512}
+            y={gameCard.y + 68}
+            title={item.title}
+            subtitle={item.subtitle}
+            href={item.href}
+            titleFontSize={20}
+            subtitleFontSize={15}
+            subtitleOffset={21}
+          />
+        ))}
+      </g>
+    </PlaceholderBoardShell>
+  );
+}
+
+function Page33QuotePage({
   scene,
   opacity,
   entryProgress,
@@ -3093,42 +4650,33 @@ function Page29QuotePlaceholder({
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="126"
-        fill="rgba(214, 102, 48, 0.92)"
-        fontSize="20"
-        fontWeight="820"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        《庄子·逍遥游》
-      </text>
-      {ZHUANGZI_CLOSING_LINES.map((line, index) => (
+      <g transform={`translate(0 ${LATE_CLOSING_QUOTE_SHIFT_Y})`}>
+        {ZHUANGZI_CLOSING_LINES.map((line, index) => (
+          <text
+            key={line}
+            x={centerX(PLACEHOLDER_BOARD)}
+            y={196 + index * 86}
+            fill="#22303d"
+            fontSize={index < 2 ? "44" : "48"}
+            fontWeight={index < 2 ? "730" : "790"}
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {line}
+          </text>
+        ))}
         <text
-          key={line}
           x={centerX(PLACEHOLDER_BOARD)}
-          y={254 + index * 84}
-          fill="#22303d"
-          fontSize={index < 2 ? "34" : "36"}
-          fontWeight={index < 2 ? "720" : "780"}
+          y="594"
+          fill="rgba(34, 48, 61, 0.56)"
+          fontSize="21"
+          fontWeight="640"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          {line}
+          以此作为这次分享的最后一句。
         </text>
-      ))}
-      <text
-        x={centerX(PLACEHOLDER_BOARD)}
-        y="620"
-        fill="rgba(34, 48, 61, 0.56)"
-        fontSize="18"
-        fontWeight="640"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        以此作为这次分享的最后一句。
-      </text>
+      </g>
     </PlaceholderBoardShell>
   );
 }
@@ -3215,14 +4763,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE21_FRAME,
     LOOP_PAGE22_FRAME,
   );
-  const page23PlaceholderReveal = settledSegmentProgress(
-    frame,
-    LOOP_PAGE22_FRAME,
-    LOOP_PAGE23_FRAME,
-  );
   const page24PlaceholderReveal = settledSegmentProgress(
     frame,
-    LOOP_PAGE23_FRAME,
+    LOOP_PAGE22_FRAME,
     LOOP_PAGE24_FRAME,
   );
   const page25PlaceholderReveal = settledSegmentProgress(
@@ -3249,6 +4792,26 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     frame,
     LOOP_PAGE28_FRAME,
     LOOP_PAGE29_FRAME,
+  );
+  const page30PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE29_FRAME,
+    LOOP_PAGE30_FRAME,
+  );
+  const page31PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE30_FRAME,
+    LOOP_PAGE31_FRAME,
+  );
+  const page32PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE31_FRAME,
+    LOOP_PAGE32_FRAME,
+  );
+  const page33PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE32_FRAME,
+    LOOP_PAGE33_FRAME,
   );
   const page14PlaceholderVisible = resolveWindowProgress(
     page14PlaceholderReveal,
@@ -3304,12 +4867,6 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.88,
     easeInOutCubic,
   );
-  const page23PlaceholderVisible = resolveWindowProgress(
-    page23PlaceholderReveal,
-    0.08,
-    0.88,
-    easeInOutCubic,
-  );
   const page24PlaceholderVisible = resolveWindowProgress(
     page24PlaceholderReveal,
     0.08,
@@ -3346,6 +4903,30 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.92,
     easeInOutCubic,
   );
+  const page30PlaceholderVisible = resolveWindowProgress(
+    page30PlaceholderReveal,
+    0.08,
+    0.9,
+    easeInOutCubic,
+  );
+  const page31PlaceholderVisible = resolveWindowProgress(
+    page31PlaceholderReveal,
+    0.08,
+    0.9,
+    easeInOutCubic,
+  );
+  const page32PlaceholderVisible = resolveWindowProgress(
+    page32PlaceholderReveal,
+    0.08,
+    0.9,
+    easeInOutCubic,
+  );
+  const page33PlaceholderVisible = resolveWindowProgress(
+    page33PlaceholderReveal,
+    0.08,
+    0.92,
+    easeInOutCubic,
+  );
   const page09ImageVisible = resolveWindowProgress(
     page09ImageReveal,
     0.08,
@@ -3375,13 +4956,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page17PlaceholderFocus = page17CarrierVisible * page17OverlayExit;
   const page19PlaceholderFocus = page19PlaceholderVisible * page19OverlayExit;
   const page21OverlayExit = 1 - page22PlaceholderVisible;
-  const page22OverlayExit = 1 - page23PlaceholderVisible;
-  const page23OverlayExit = 1 - page24PlaceholderVisible;
+  const page22OverlayExit = 1 - page24PlaceholderVisible;
   const page24OverlayExit = 1 - page25PlaceholderVisible;
   const page25OverlayExit = 1 - page26PlaceholderVisible;
   const page26OverlayExit = 1 - page27PlaceholderVisible;
   const page27OverlayExit = 1 - page28PlaceholderVisible;
   const page28OverlayExit = 1 - page29PlaceholderVisible;
+  const page29OverlayExit = 1 - page30PlaceholderVisible;
+  const page30OverlayExit = 1 - page31PlaceholderVisible;
+  const page31OverlayExit = 1 - page32PlaceholderVisible;
+  const page32OverlayExit = 1 - page33PlaceholderVisible;
   const page13ImageOverlayExit =
     1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page15ImageOverlayExit =
@@ -3390,13 +4974,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     1 - resolveWindowProgress(page19PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page21PlaceholderFocus = page21PlaceholderVisible * page21OverlayExit;
   const page22PlaceholderFocus = page22PlaceholderVisible * page22OverlayExit;
-  const page23PlaceholderFocus = page23PlaceholderVisible * page23OverlayExit;
   const page24PlaceholderFocus = page24PlaceholderVisible * page24OverlayExit;
   const page25PlaceholderFocus = page25PlaceholderVisible * page25OverlayExit;
   const page26PlaceholderFocus = page26PlaceholderVisible * page26OverlayExit;
   const page27PlaceholderFocus = page27PlaceholderVisible * page27OverlayExit;
   const page28PlaceholderFocus = page28PlaceholderVisible * page28OverlayExit;
-  const page29PlaceholderFocus = page29PlaceholderVisible;
+  const page29PlaceholderFocus = page29PlaceholderVisible * page29OverlayExit;
+  const page30PlaceholderFocus = page30PlaceholderVisible * page30OverlayExit;
+  const page31PlaceholderFocus = page31PlaceholderVisible * page31OverlayExit;
+  const page32PlaceholderFocus = page32PlaceholderVisible * page32OverlayExit;
+  const page33PlaceholderFocus = page33PlaceholderVisible;
   const page13ImageFocus = page13ImageVisible * page13ImageOverlayExit;
   const page15ImageFocus = page15ImageVisible * page15ImageOverlayExit;
   const page18ImageFocus = page18ImageVisible * page18ImageOverlayExit;
@@ -3691,13 +5278,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page19PlaceholderFocus,
     page21PlaceholderFocus,
     page22PlaceholderFocus,
-    page23PlaceholderFocus,
     page24PlaceholderFocus,
     page25PlaceholderFocus,
     page26PlaceholderFocus,
     page27PlaceholderFocus,
     page28PlaceholderFocus,
     page29PlaceholderFocus,
+    page30PlaceholderFocus,
+    page31PlaceholderFocus,
+    page32PlaceholderFocus,
+    page33PlaceholderFocus,
   );
   const placeholderStageFade = resolveWindowProgress(
     placeholderFocus,
@@ -3717,13 +5307,16 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     // placeholder chain, including the handoff valley between adjacent cards.
     page21PlaceholderVisible,
     page22PlaceholderVisible,
-    page23PlaceholderVisible,
     page24PlaceholderVisible,
     page25PlaceholderVisible,
     page26PlaceholderVisible,
     page27PlaceholderVisible,
     page28PlaceholderVisible,
     page29PlaceholderVisible,
+    page30PlaceholderVisible,
+    page31PlaceholderVisible,
+    page32PlaceholderVisible,
+    page33PlaceholderVisible,
   );
   const onepageStageSuppression = resolveWindowProgress(
     onepageHold,
@@ -4751,53 +6344,74 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           entryProgress={page22PlaceholderReveal}
         />
       ) : null}
-      {page23PlaceholderFocus > 0.001 ? (
-        <Page23Placeholder
-          scene={scene}
-          opacity={page23PlaceholderFocus}
-          entryProgress={page23PlaceholderReveal}
-        />
-      ) : null}
       {page24PlaceholderFocus > 0.001 ? (
-        <Page24Placeholder
+        <Page24StrategyPage
           scene={scene}
           opacity={page24PlaceholderFocus}
           entryProgress={page24PlaceholderReveal}
         />
       ) : null}
       {page25PlaceholderFocus > 0.001 ? (
-        <Page25Placeholder
+        <Page25StoragePage
           scene={scene}
           opacity={page25PlaceholderFocus}
           entryProgress={page25PlaceholderReveal}
         />
       ) : null}
       {page26PlaceholderFocus > 0.001 ? (
-        <Page26Placeholder
+        <Page26TimingPage
           scene={scene}
           opacity={page26PlaceholderFocus}
           entryProgress={page26PlaceholderReveal}
         />
       ) : null}
       {page27PlaceholderFocus > 0.001 ? (
-        <Page27Placeholder
+        <Page27ParallelPage
           scene={scene}
           opacity={page27PlaceholderFocus}
           entryProgress={page27PlaceholderReveal}
         />
       ) : null}
       {page28PlaceholderFocus > 0.001 ? (
-        <Page28ReadingPlaceholder
+        <Page28GovernanceSurfacePage
           scene={scene}
           opacity={page28PlaceholderFocus}
           entryProgress={page28PlaceholderReveal}
         />
       ) : null}
       {page29PlaceholderFocus > 0.001 ? (
-        <Page29QuotePlaceholder
+        <Page29GovernanceSourcePage
           scene={scene}
           opacity={page29PlaceholderFocus}
           entryProgress={page29PlaceholderReveal}
+        />
+      ) : null}
+      {page30PlaceholderFocus > 0.001 ? (
+        <Page30GovernanceConclusionPage
+          scene={scene}
+          opacity={page30PlaceholderFocus}
+          entryProgress={page30PlaceholderReveal}
+        />
+      ) : null}
+      {page31PlaceholderFocus > 0.001 ? (
+        <Page31HarnessPage
+          scene={scene}
+          opacity={page31PlaceholderFocus}
+          entryProgress={page31PlaceholderReveal}
+        />
+      ) : null}
+      {page32PlaceholderFocus > 0.001 ? (
+        <Page32ReadingPage
+          scene={scene}
+          opacity={page32PlaceholderFocus}
+          entryProgress={page32PlaceholderReveal}
+        />
+      ) : null}
+      {page33PlaceholderFocus > 0.001 ? (
+        <Page33QuotePage
+          scene={scene}
+          opacity={page33PlaceholderFocus}
+          entryProgress={page33PlaceholderReveal}
         />
       ) : null}
       <Page09EvidenceNotes scene={scene} opacity={page09ImageFocus} />

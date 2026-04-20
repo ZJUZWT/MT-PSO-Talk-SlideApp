@@ -391,6 +391,31 @@ describe("App", () => {
     );
   });
 
+  it("releases progress bubble focus after click so arrow keys keep navigating", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const progressButton = screen.getByRole("button", {name: /Go to page_03:/});
+
+    await user.click(progressButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
+    });
+
+    const keyTarget =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : document.body;
+
+    fireEvent.keyDown(keyTarget, {key: "ArrowRight", bubbles: true});
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("Vulkan");
+    });
+  });
+
   it("renders the progress rail with one current step and fourteen compact future steps", () => {
     render(<App />);
 
@@ -596,19 +621,16 @@ describe("App", () => {
     expect(screen.getByText("Geometry Sketch")).toBeInTheDocument();
   });
 
-  it("renders a stage-only capture surface when requested by query param", () => {
+  it("ignores stage-only surface query params and keeps the full workbench", () => {
     window.history.replaceState({}, "", "/?step=page_09&surface=stage");
 
     render(<App />);
 
-    expect(document.querySelector(".capture-stage-shell")).toBeInTheDocument();
+    expect(document.querySelector(".capture-stage-shell")).not.toBeInTheDocument();
+    expect(document.querySelector(".workbench-shell")).toBeInTheDocument();
     expect(document.querySelector(".stage-runtime")).toBeInTheDocument();
-    expect(screen.queryByLabelText("Speaker notes")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Workbench controls")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Review HUD")).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", {name: "复制当前页面截图"}),
-    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Speaker notes")).toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "Show controls"})).toBeInTheDocument();
   });
 
   it("renders a fact-bound sketch review instead of manual self-scoring", () => {
@@ -632,6 +654,18 @@ describe("App", () => {
     ).toBeGreaterThanOrEqual(7);
     expect(screen.getByText("Open the layout before critic pass")).toBeInTheDocument();
     expect(screen.queryByLabelText("Blocker")).not.toBeInTheDocument();
+  });
+
+  it("renders a fact-bound formal review for story pages that expose formal review surfaces", () => {
+    window.history.replaceState({}, "", "/?step=page_31&review=1");
+
+    render(<App />);
+
+    expect(screen.getByText("Fact-bound formal review")).toBeInTheDocument();
+    expect(screen.getByText("Top next fixes")).toBeInTheDocument();
+    expect(screen.getByText("Minimum node gap")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Blocker")).not.toBeInTheDocument();
+    expect(screen.queryByText(/manual only/i)).not.toBeInTheDocument();
   });
 
   it("lets the review HUD jump straight to another page without opening the main controls", async () => {
@@ -703,7 +737,7 @@ describe("App", () => {
     expect(screen.getByText("已下载 PNG")).toBeInTheDocument();
   });
 
-  it("captures only the stage runtime from the review HUD button", async () => {
+  it("captures the full workbench from the review HUD button", async () => {
     const user = userEvent.setup();
     const imageBlob = new Blob(["png"], {type: "image/png"});
     const downloadClickMock = vi.fn();
@@ -725,11 +759,11 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", {name: "复制当前舞台截图"}));
+    await user.click(screen.getByRole("button", {name: "复制当前页面截图"}));
 
     await waitFor(() => {
       expect(toBlobMock).toHaveBeenCalledWith(
-        document.querySelector(".stage-runtime"),
+        document.querySelector(".workbench-shell"),
         expect.objectContaining({
           cacheBust: true,
           pixelRatio: 2,
@@ -742,7 +776,7 @@ describe("App", () => {
     });
   });
 
-  it("captures only the sketch stage runtime while in sketch mode", async () => {
+  it("captures the full workbench while in sketch mode from the review HUD button", async () => {
     const user = userEvent.setup();
     const imageBlob = new Blob(["png"], {type: "image/png"});
     const downloadClickMock = vi.fn();
@@ -768,11 +802,11 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", {name: "复制当前舞台截图"}));
+    await user.click(screen.getByRole("button", {name: "复制当前页面截图"}));
 
     await waitFor(() => {
       expect(toBlobMock).toHaveBeenCalledWith(
-        document.querySelector('.stage-runtime[data-stage-mode="sketch"]'),
+        document.querySelector(".workbench-shell"),
         expect.objectContaining({
           cacheBust: true,
           pixelRatio: 2,
@@ -819,7 +853,7 @@ describe("App", () => {
     });
   });
 
-  it("auto-exports the sketch stage runtime to a capture endpoint when requested by query params", async () => {
+  it("ignores stage capture query params and auto-exports the full workbench", async () => {
     const imageBlob = new Blob(["png"], {type: "image/png"});
     const fetchMock = vi.fn().mockResolvedValue({ok: true});
     toBlobMock.mockResolvedValue(imageBlob);
@@ -834,7 +868,7 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(toBlobMock).toHaveBeenCalledWith(
-        document.querySelector('.stage-runtime[data-stage-mode="sketch"]'),
+        document.querySelector(".workbench-shell"),
         expect.objectContaining({
           cacheBust: true,
           pixelRatio: 2,
@@ -844,7 +878,7 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining("scope=stage"),
+        expect.stringContaining("scope=page"),
         expect.objectContaining({
           body: imageBlob,
           method: "POST",

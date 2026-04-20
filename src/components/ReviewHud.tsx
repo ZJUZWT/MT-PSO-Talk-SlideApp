@@ -3,15 +3,17 @@ import {useMemo, useState} from "react";
 import {
   GEOMETRY_METRIC_META,
   GEOMETRY_SCORE_META,
-  buildGeometryReviewArtifact,
   formatGeometryMetricValue,
+  type GeometryReviewArtifact,
 } from "../harness/slide-geometry/review/geometryReviewArtifact";
+import type {GeometryReviewSurfaceSource} from "../review/geometryReviewSurface";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 import {CaptureClipboardButton} from "./CaptureClipboardButton";
 
 type ReviewHudProps = {
-  sketchReviewArtifact?: ReturnType<typeof buildGeometryReviewArtifact> | null;
-  stageTargetRef: RefObject<HTMLDivElement | null>;
+  captureTargetRef: RefObject<HTMLDivElement | null>;
+  mechanicalReviewArtifact?: GeometryReviewArtifact | null;
+  reviewSource?: GeometryReviewSurfaceSource | null;
   reviewUrl: string;
   state: WorkbenchState;
 };
@@ -63,8 +65,9 @@ function resolveReviewVerdict(scores: ReviewScores) {
 }
 
 export function ReviewHud({
-  sketchReviewArtifact,
-  stageTargetRef,
+  captureTargetRef,
+  mechanicalReviewArtifact,
+  reviewSource,
   reviewUrl,
   state,
 }: ReviewHudProps) {
@@ -79,6 +82,8 @@ export function ReviewHud({
   const reviewVerdict = useMemo(() => {
     return resolveReviewVerdict(activeScores);
   }, [activeScores]);
+  const reviewSurfaceLabel =
+    reviewSource === "formal" ? "Fact-bound formal review" : "Fact-bound sketch review";
 
   return (
     <aside
@@ -125,11 +130,11 @@ export function ReviewHud({
       </div>
 
       <CaptureClipboardButton
-        ariaLabel="复制当前舞台截图"
-        buttonText="复制当前舞台截图"
+        ariaLabel="复制当前页面截图"
+        buttonText="复制当前页面截图"
         stepId={state.stepId}
-        targetRef={stageTargetRef}
-        title="复制当前舞台截图"
+        targetRef={captureTargetRef}
+        title="复制当前页面截图"
         variant="inline"
       />
 
@@ -144,12 +149,12 @@ export function ReviewHud({
         />
       </label>
 
-      {sketchReviewArtifact ? (
+      {mechanicalReviewArtifact ? (
         <>
-          <section className="review-detail-panel" aria-label="Sketch review facts">
-            <p className="review-hud-summary-copy">Fact-bound sketch review</p>
+          <section className="review-detail-panel" aria-label="Mechanical review facts">
+            <p className="review-hud-summary-copy">{reviewSurfaceLabel}</p>
             <div className="review-detail-grid">
-              {sketchReviewArtifact.facts.map((fact) => (
+              {mechanicalReviewArtifact.facts.map((fact) => (
                 <div key={fact.label} className="review-detail-card">
                   <span className="review-score-label">{fact.label}</span>
                   <span className="review-detail-value">{fact.value}</span>
@@ -158,7 +163,7 @@ export function ReviewHud({
             </div>
           </section>
 
-          <section className="review-detail-panel" aria-label="Sketch review metrics">
+          <section className="review-detail-panel" aria-label="Mechanical review metrics">
             <p className="review-hud-summary-copy">Measured geometry</p>
             <div className="review-detail-grid">
               {GEOMETRY_METRIC_META.map((metric) => (
@@ -167,7 +172,7 @@ export function ReviewHud({
                   <span className="review-detail-value">
                     {formatGeometryMetricValue(
                       metric.id,
-                      sketchReviewArtifact.metrics[metric.id],
+                      mechanicalReviewArtifact.metrics[metric.id],
                     )}
                   </span>
                 </div>
@@ -175,20 +180,20 @@ export function ReviewHud({
             </div>
           </section>
 
-          <section className="review-detail-panel" aria-label="Sketch review scores">
+          <section className="review-detail-panel" aria-label="Mechanical review scores">
             <p className="review-hud-summary-copy">Mechanical score bands</p>
             <div className="review-detail-grid">
               <div className="review-detail-card">
                 <span className="review-score-label">Blockers open</span>
                 <span className="review-detail-value">
-                  {sketchReviewArtifact.scores.blockerOpen ? "Yes" : "No"}
+                  {mechanicalReviewArtifact.scores.blockerOpen ? "Yes" : "No"}
                 </span>
               </div>
               {GEOMETRY_SCORE_META.map((score) => (
                 <div key={score.id} className="review-detail-card">
                   <span className="review-score-label">{score.label}</span>
                   <span className="review-detail-value">
-                    {sketchReviewArtifact.scores[score.id]} / 10
+                    {mechanicalReviewArtifact.scores[score.id]} / 10
                   </span>
                 </div>
               ))}
@@ -198,15 +203,15 @@ export function ReviewHud({
           <div className="review-hud-summary">
             <p className="review-hud-summary-copy">Mechanical floor</p>
             <output className="review-hud-score" aria-label="Mechanical Score">
-              {sketchReviewArtifact.mechanicalScore.toFixed(1)} / 10.0
+              {mechanicalReviewArtifact.mechanicalScore.toFixed(1)} / 10.0
             </output>
-            <p className="review-hud-verdict">{sketchReviewArtifact.verdict}</p>
+            <p className="review-hud-verdict">{mechanicalReviewArtifact.verdict}</p>
           </div>
 
           <section className="review-detail-panel" aria-label="Top next fixes">
             <p className="review-hud-summary-copy">Top next fixes</p>
             <ol className="review-fix-list">
-              {sketchReviewArtifact.topFixes.map((fix) => (
+              {mechanicalReviewArtifact.topFixes.map((fix) => (
                 <li key={fix} className="review-fix-item">
                   {fix}
                 </li>

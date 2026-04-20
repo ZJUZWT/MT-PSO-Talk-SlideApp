@@ -4,7 +4,7 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-19 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints before ending on one merged precompile/persistence page. Pages 21-23 are awareness transition pages to summarize what was covered, emphasize why PSO cache is a runtime problem front-loading strategy, and anchor with Supplement evidence. Pages 24-27 then cover practical optimization placeholders: code compression tradeoff, cache strategy, compile acceleration, and API-state-source differences. Pages 28-29 close with reading recommendations and a final Zhuangzi quote.",
+    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-19 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints before ending on one merged precompile/persistence page. Pages 21-22 summarize PSO 与 PSO Cache 的边界与理解，pages 24-27 lift four concrete optimization strategies, pages 28-30 turn to platform governance, page 31 explains the project harness and mathematical constraints, and pages 32-33 close with reading recommendations and a final Zhuangzi quote.",
   sessions: [
     {
       id: "s1-foundation",
@@ -45,12 +45,23 @@ export const masterStoryboard: Storyboard = {
     {
       id: "s5-awareness-bridge",
       label: "Session 5 · 总结与风险认知",
-      stepIds: ["page_21", "page_22", "page_23"],
+      stepIds: ["page_21", "page_22"],
     },
     {
       id: "s6-optimization-notes",
-      label: "Session 6 · 优化方向与结尾收束",
-      stepIds: ["page_24", "page_25", "page_26", "page_27", "page_28", "page_29"],
+      label: "Session 6 · 优化方向、治理与结尾收束",
+      stepIds: [
+        "page_24",
+        "page_25",
+        "page_26",
+        "page_27",
+        "page_28",
+        "page_29",
+        "page_30",
+        "page_31",
+        "page_32",
+        "page_33",
+      ],
     },
   ],
   steps: [
@@ -715,169 +726,238 @@ export const masterStoryboard: Storyboard = {
       id: "page_21",
       label: "PSO 缓存有效性边界",
       caption:
-        "先把缓存边界讲清：收集、启动 Open、API 状态模型与环境失效共同决定缓存效果。",
+        "改成和后面一致的 summary 板式：左主卡收束结论，右侧三卡分别讲收集、首启、平台/环境边界。",
       keyPoints: [
-        "运行时收集策略必须“少而全”，否则数量会指数增长。",
-        "启动阶段一次性 Open stable.upipelinecache，压力会集中到首启。",
-        "OpenGL 与现代 API 的状态模型不同，缓存结构与命中形态天然不同。",
-        "OS / 驱动 / 芯片 / API 变化都可能导致缓存失效并触发重编译。",
+        "左主卡先给一句话结论：缓存效果由四个边界共同决定。",
+        "右侧第一卡讲收集边界：少而全，别暴力 Permute。",
+        "右侧第二卡讲首启边界：stable.upipelinecache 会把压力集中到首启。",
+        "右侧第三卡讲平台 / 环境边界：API 状态模型和环境变化都可能让缓存失效。",
       ],
       apiHighlights: ["Permute Shader State", "stable.upipelinecache Open/Load", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
       notes:
-        "先讲边界，再讲理解，避免听众把 PSO Cache 误解成“默认必开且永久有效”。",
+        "外层工作台不变，只把板内结构统一成后面策略页的“左主卡 + 右侧三卡 + footer”。",
       focusTarget: "Cache Validity",
       timingHint:
-        "从合并后的 page19 推入后，先讲收集与启动压力，再落到环境失效边界。",
+        "从合并后的 page19 推入后，先整体落 summary 板，再按阅读顺序讲左主卡和右侧三卡。",
       intro:
-        "进入策略页之前，先把缓存有效性边界讲透。",
+        "进入策略页之前，先用和后面一致的 summary 板式把缓存边界讲透。",
       manuscript:
-        "第二十一页先讲缓存有效性边界。收集策略要“少而全”，如果暴力 Permute Shader State 会指数膨胀。启动时一次性 Open stable.upipelinecache 又会把内存和时长压力集中到首启窗口。再加上 OpenGL 与现代 API 的状态模型差异，缓存结构与命中行为天然不同。最后强调环境边界：OS、驱动、芯片与 API/FeatureLevel 变化都可能触发缓存失效并重编译。",
+        "第二十一页现在改成和后面策略页一致的 summary 结构。左侧主卡先给一句总判断：缓存效果由四个边界共同决定，它不是默认必开、永久有效的银弹。右侧三张小卡再拆开讲：第一张是收集边界，强调少而全、别暴力 Permute；第二张是首启边界，说明 stable.upipelinecache 往往把内存和时长压力前置到启动窗口；第三张是平台 / 环境边界，说明 OpenGL 与现代 API 的状态模型不同，操作系统、驱动、芯片、GPU、API 变化也都可能让缓存失效并触发重编译。底部 footer 负责把结论收口：边界讲清，后面的策略页才不会被误读成默认正确。",
       focusColorKey: "shared",
     },
     {
       id: "page_22",
       label: "我的理解：PSO 与 PSO Cache",
       caption:
-        "PSO 是对象，PSO Cache 是工程方法，本质是代价转移而不是代价消失。",
+        "继续沿用后面策略页的版式：左主卡给核心判断，右侧三卡拆成对象、方法、工程取舍。",
       keyPoints: [
-        "PSO 是对象，PSO Cache 是工程方法。",
-        "PSO Cache 本质是用启动时间 + 内存空间，换运行时卡顿率。",
-        "它附属于 Shader，不是所有项目都必须启用；不开也可能跑得很好。",
-        "一句话收束：预编译的 PSO 不会消失，只会转移。",
+        "左主卡给一句话结论：预编译的 PSO 不会消失，只会转移。",
+        "右侧第一卡讲对象：PSO 是运行时对象。",
+        "右侧第二卡讲方法：PSO Cache 是围绕 Shader / 状态做的工程方法。",
+        "右侧第三卡讲工程取舍：优先换掉运行时尖峰，再回收首启与空间成本。",
       ],
       apiHighlights: ["Material", "SharedCode", ".rec.upipelinecache", "stable.upipelinecache", "ProgramBinary/PipelineCache"],
       notes:
-        "这页采用文字排版收束观点，不堆流程图节点。",
+        "这一页不再使用单大卡 typeset，而是跟 page24+ 统一成同一套 summary 板式。",
       focusTarget: "Bridge Summary",
       timingHint:
-        "从 page21 边界页推入后，先定义，再讲代价，最后落收束句。",
+        "从 page21 边界页推入后，先落左侧主判断，再顺着右侧三卡讲对象、方法和工程取舍。",
       intro:
-        "边界讲完后，回到一句可复述的核心理解。",
+        "边界讲完后，继续用同一套 summary 语法收束核心理解。",
       manuscript:
-        "第二十二页做观点收束：PSO 是对象，PSO Cache 是工程方法。它不是把问题消灭，而是把代价在时间维度上重分配，用启动时间和内存空间去换运行时卡顿率。这个方法附属于 Shader，不是所有项目都必须开启。最后用一句话结束：预编译的 PSO 不会消失，只会转移。",
-      focusColorKey: "shared",
-    },
-    {
-      id: "page_23",
-      label: "优化章节导入：四个策略",
-      caption:
-        "从这里开始进入策略章节，按 1~4 顺序拆解优化方向。",
-      keyPoints: [
-        "策略 1：时间换空间（压缩/解压取舍）。",
-        "策略 2：IO换空间（mmap / LRU）。",
-        "策略 3：延迟处理（UsageMask）。",
-        "策略 4：API 差异研究（Metal vs OpenGL）。",
-      ],
-      apiHighlights: [
-        "Strategy 1",
-        "Strategy 2",
-        "Strategy 3",
-        "Strategy 4",
-        "Optimization Roadmap",
-      ],
-      notes:
-        "这页不再展示数据表，改为策略导入页。",
-      focusTarget: "Strategy Overview",
-      timingHint:
-        "先报四个策略名称，再逐页展开。",
-      intro:
-        "讲完边界与理解后，切换到可执行策略。",
-      manuscript:
-        "第二十三页作为优化章节导入页，不再重复数据表。只做一件事：把后续四个策略给出清晰路线，防止观众在策略页里丢失主线。",
+        "第二十二页也改成和后面一致的 summary 板式。左侧主卡先把核心判断钉住：预编译的 PSO 不会消失，只会转移，它只是把运行时卡顿改写成启动成本和内存成本。右侧三张小卡分别拆成三个维度：`对象` 直接说明“PSO 是对象”，也就是那个被创建、绑定、命中的运行时对象；`方法` 说明 PSO Cache 是围绕 Shader / 状态收集、保存、预热的一套工程方法；`工程取舍` 则强调优先换掉运行时尖峰，再慢慢回收首启与空间开销。footer 最后再收一句：PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
       focusColorKey: "shared",
     },
     {
       id: "page_24",
-      label: "策略 1：时间换空间",
+      label: "改资源形态：时空互换",
       caption:
-        "压缩节省空间但会消耗解压时间，是否保留要看瓶颈位置。",
+        "压缩只是时空互换的一种；PCA、模型和算法设计，本质上也都在重新分配时间与空间。",
       keyPoints: [
-        "这是典型的时间换空间：用启动时间换包体和存储压力。",
-        "决策不做一刀切，要基于真实瓶颈画像选择压缩策略。",
+        "左侧用 4 台设备的压缩结果说明：空间省下来了，时间就会多付一点。",
+        "右侧把做法提升成三个一般方向：Compression、Precompute / Preload、Algorithm。",
+        "AI 方法也可以看成压缩：PCA 和 learned model 都是在用更紧的表示替代原过程。",
       ],
-      apiHighlights: ["Compressed Code", "Decompress", "Compile/Load"],
+      apiHighlights: ["Compression", "Precompute", "Preload", "Algorithm"],
       notes:
-        "这一页作为优化章节的第一张占位页，只回答一个问题：为什么我们要讨论“卸掉压缩”。不做绝对判断，强调这是瓶颈导向决策。",
+        "左侧保留真实压缩数据和一条存储 -> 解压 -> 编译/加载的链路；右侧不展开算法细节，只让观众意识到“时空互换不止压缩一种”，并补一个 GDC Vault 链接提示 AI / PCA 也可视作压缩。",
       focusTarget: "Compression Tradeoff",
       timingHint:
-        "由 page22 稳定落位后，左到右拉出 `Compressed -> Decompress -> Compile` 主轴，底部再补一条 `IO` 与 `CPU` 对冲结论条。",
+        "保留大板式 crossfade，左侧数据与右侧三张策略卡一起淡入，不做额外主图闪回。",
       intro:
-        "边界讲清之后，先从最直接的优化讨论开始：压缩到底要不要留。",
+        "边界讲清之后，先从最直接也最直观的一类优化开始：改资源形态。",
       manuscript:
-        "第二十四页先不谈复杂实现，只看一件事：`Code 压缩`。压缩通常能降低包体与 IO 压力，但运行时必须付出解压成本，这部分会直接占用启动阶段的 CPU 与内存带宽。如果当前平台瓶颈已经从 IO 转到了 CPU，那么“继续压缩”反而可能拉长首帧路径。因此这一步不是默认开启或默认关闭，而是基于瓶颈画像做取舍。",
+        "第二十四页先拿 `Compression` 举例。压缩确实能省空间，但解压、恢复和重新展开都要额外付出时间。左侧我会直接给 4 台设备在 `1 MiB pso_like` 数据上的真实结果；右侧再把它提升成一个更一般的策略族：`Compression` 是时间换空间，`Precompute / Preload` 是空间换时间，而 `Algorithm` 则代表更一般的时空互换。这里再补一句：AI 方法其实也可以视作压缩，例如 `PCA` 或模型，本质上都是把原过程压进一个更紧的表示。也就是说，压缩不是白赚，它只是把时间和空间重新分配了一次。旁边补一个 GDC Vault 参考：`Machine Learning, Physics Simulation, Kolmogorov`。",
       focusColorKey: "shared",
     },
     {
       id: "page_25",
-      label: "策略 2：IO换空间",
+      label: "改存储位置：让 IO 承担空间压力",
       caption:
-        "IO换空间的典型实践：mmap + LRU，减少随机读与重复拷贝。",
+        "这类方法的本质不是某一个单点算法，而是“选取逻辑 + 回填机制 + 外存载体”的组合。",
       keyPoints: [
-        "mmap 负责按需映射，LRU 负责保留热数据。",
-        "策略目标是把慢 IO 转成可控内存占用，而不是盲目堆缓存。",
+        "左侧用 PSO 里的 `LRU + mmap` 说明：不是所有内容都必须一直常驻内存。",
+        "右侧明确拆成 `Replacement Policy`、`Reload / Mapping`、`Storage Carrier` 三块。",
       ],
-      apiHighlights: ["BCache", "LRU", "mmap", "IO Budget", "Memory Budget"],
+      apiHighlights: ["LRU", "Clock", "Pin", "mmap", "paging", "SQL"],
       notes:
-        "这一页做策略占位，后续可把每个策略替换成项目里真实实现细节。现在先让观众理解“缓存调参是在做 IO/空间互换”。",
+        "这一页不讲成操作系统课，只强调我们在 PSO 里用的是一种具体实现，而更一般的方法是“选谁留下 + 怎么回来 + 落在哪”。",
       focusTarget: "Cache Strategy",
       timingHint:
-        "中心先出现 BCache，再从中心长出四个策略分支，最后底部落一句 `IO 换空间`。",
+        "左侧热冷分层与磁盘映射先显出，再从右侧依次补三组概念卡。",
       intro:
-        "如果要继续优化，第二层是缓存策略，而不是一味堆更多编译线程。",
+        "第二种常见做法不是改资源本身，而是改它放在哪里。",
       manuscript:
-        "第二十五页把 BCache 的思路先固定：这是一次典型的 IO 与空间交换。`LRU/LFU` 决定热数据保留，`mmap` 影响大对象读取与拷贝成本，`circular/ring` 影响顺序写入与回收。真正有效的方案不是把所有策略都开到最大，而是让策略与数据访问形态一致。",
+        "第二十五页用 `LRU + mmap` 来讲“改存储位置”。PSO 里真正落地的并不是某一个神奇算法，而是两件事一起做：先决定谁该留在内存，谁该换出去；再决定换出去以后如何被重新映射回来。`LRU`、`Clock`、`Pin` 这些属于 `Replacement Policy`，`mmap`、`paging` 属于 `Reload / Mapping`，而外存本身还可以是 `file`、`SQL` 或其他存储载体。我们这次只是用了其中一种组合。",
       focusColorKey: "shared",
     },
     {
       id: "page_26",
-      label: "策略 3：延迟处理（UsageMask）",
+      label: "改发生时机：收集与编译解耦",
       caption:
-        "有些计算必须做但不必现在做，UsageMask 用于按场景延迟处理。",
+        "这里优化的不是“做不做”，而是“什么时候做”。",
       keyPoints: [
-        "先做集合剪枝，再做并行执行，通常比直接堆线程更稳。",
-        "UsageMask 把“全量立即编译”改为“按需延迟编译”。",
+        "这一页要讲清 `Game UsageMask` 和 `Compile UsageMask` 的双 mask 设计。",
+        "地图 A / 地图 B 的例子用来说明：当前收集可以是 A，而编译可以提前覆盖 A + B。",
       ],
-      apiHighlights: ["Deferred Compile", "UsageMask", "Compile Queue", "Hot Path", "Cold Path"],
+      apiHighlights: [
+        "Game UsageMask",
+        "Compile UsageMask",
+        "Lazy Load",
+        "Streaming",
+        "Deferred Compile",
+      ],
       notes:
-        "这一页的占位重点是把“并行”和“剪枝”放在同一张图里，防止后续讲述偏成单一线程优化。",
+        "这一页不要混进并行处理，只强调“延迟的对象可以不同”，资源、驻留与编译都可以延迟。",
       focusTarget: "Compile Acceleration",
       timingHint:
-        "左侧先给 baseline 编译队列，右上长出多线程 worker，右下长出 UsageMask 分桶，最后在右端汇合到 reduced compile set。",
+        "左侧双 mask 框与地图 A/B 例子一起显出，右侧三张延迟处理卡最后补齐。",
       intro:
-        "第三层优化进入编译流程本身：我们既要更快执行，也要编得更少。",
+        "第三种思路不是改数据，也不是改位置，而是改它发生的时机。",
       manuscript:
-        "第二十六页把编译加速拆成两件事。第一是并行：通过多线程队列提高吞吐；第二是剪枝：通过 UsageMask 过滤不该在当前阶段编译的内容。只做并行而不减集合，常常会把开销搬到线程调度与资源竞争上。更稳定的路径是先减集合、再并行执行。",
+        "第二十六页要讲的是 `Game UsageMask` 和 `Compile UsageMask` 的解耦。玩家当前在地图 A 时，`Game UsageMask = A`，但 `Compile UsageMask` 可以是 `A + B`，这样收集逻辑和编译逻辑就不会互相打架。这个策略本质上是延迟处理：有些事不是不做，而是不在现在做。`Lazy Load` 延迟的是加载，`Streaming` 延迟的是驻留，而 `Deferred / Async Compile` 延迟的是编译成本的发生时机。",
       focusColorKey: "shared",
     },
     {
       id: "page_27",
-      label: "策略 4：Metal vs OpenGL 差异建模",
+      label: "改执行方式：并行化批处理任务",
       caption:
-        "深入研究 API 差异来源，反推为什么 PSO 数量和命中行为会不同。",
+        "当任务天然独立时，最有效的优化往往不是改逻辑，而是改执行方式。",
       keyPoints: [
-        "OpenGL 更偏隐式状态来源，Metal 更偏显式状态组合。",
-        "差异研究不是站队，而是为前面三条策略提供边界条件。",
+        "预编译任务批量、重复、规则、可拆，因此天然适合并行。",
+        "这一页同时给出适用特征和注意事项：同步成本、共享状态、任务粒度、warp divergence、bank conflict。",
       ],
-      apiHighlights: ["OpenGL PSO", "Metal PSO", "State Source"],
+      apiHighlights: ["SIMD", "Thread", "GPU", "warp divergence", "bank conflict"],
       notes:
-        "最后一页占位用于收束差异来源，后续可继续补充平台实测数据与口径说明。",
+        "并行页不要讲成硬件科普，只需要让观众记住‘适合并行的任务是什么样’以及‘并行并不免费’。",
       focusTarget: "State Source",
       timingHint:
-        "双栏同时落位：左 OpenGL，右 Metal，中间先出现 state-source 桥，再落底部结论条收束。",
+        "单线程队列先出现，再展开多 worker、SIMD、GPU 的并行谱系。",
       intro:
-        "最后把最容易误读的点说清：Metal 和 OpenGL 的差异，来自状态模型本身。",
+        "第四种思路是最工程化的一种：业务不变，但执行方式变了。",
       manuscript:
-        "第二十七页不做价值判断，只做来源解释。OpenGL 的部分状态更偏驱动隐式管理，而 Metal 的状态组合更显式，因而在编译数量、缓存命中和观测统计上会呈现不同分布。也就是说，差异的根因是状态来源路径不同，而不是单一 API 的优劣标签。",
+        "第二十七页讲的是 `SIMD`、线程并行和 `GPU` 并行。PSO 预编译这类任务往往很呆板，却很适合被拆开，因为它们通常相互独立、规则清楚、没有复杂顺序约束。真正要提醒的是并行的代价：同步成本、共享状态、任务粒度，以及更底层一点的 `warp divergence` 和 `bank conflict`。所以并行不是换业务逻辑，而是换执行方式。",
       focusColorKey: "shared",
     },
     {
       id: "page_28",
+      label: "平台差异的表象：同样内容，未必落成同一组 PSO",
+      caption:
+        "平台差异是真实存在的，因此 PSO 数量并不是一个完全平台无关的问题。",
+      keyPoints: [
+        "左侧两张真实截图先不点平台名字，让观众先看出“同样内容，结果不同”。",
+        "右侧把 `PSO = Shader + State` 拆开，说明 state 里本来就会收很多维度。",
+      ],
+      apiHighlights: ["截图 A", "截图 B", "PSO State", "Vertex Decl"],
+      notes:
+        "左侧上下堆两张匿名样本图，右侧放 `PSO = Shader + State` 结构卡，最后用底栏收口。",
+      focusTarget: "Platform Delta",
+      timingHint:
+        "两张截图先淡入，右侧 state 结构卡后补，不做背景切换。",
+      intro:
+        "前面讲的是后置优化，接下来切到更高一层的治理问题。",
+      manuscript:
+        "第二十八页先不急着把 `OpenGL`、`iOS / Metal` 这些平台名字写在画面里，而是把两张真实截图放在一起，让观众自己先看出平台差异。接着右边补一张 `PSO = Shader + State` 的结构卡，强调 PSO 不是只有 shader；`Vertex Decl / Input Layout`、`Render Targets`、`Depth / Stencil`、`Blend / Rasterizer`、`Primitive / Samples / Pass` 这些 state 维度，本来就都可能进入 PSO。这样一来，观众更容易接受：同样的业务内容，在不同平台上未必会落成同一组 PSO。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_29",
+      label: "平台差异的来源：输入侧差异会直接进入 PSO 维度",
+      caption:
+        "同一个 material，并不等于同一个 PSO。",
+      keyPoints: [
+        "这一页用 `VertexDescriptor`、`FVertexFactoryInput` 和 `ATTRIBUTE4 ~ ATTRIBUTE7` 的代码片段说明根因。",
+        "重点是解释：输入布局本身也会进入管线状态，因此输入侧差异会直接进入 PSO 维度。",
+      ],
+      apiHighlights: ["VertexDescriptor", "LocalVertexFactory", "ATTRIBUTE4", "ATTRIBUTE7"],
+      notes:
+        "这一页使用用户提供的两段代码：左侧是 VertexDescriptor / InitRHI，右侧是 LocalVertexFactory 的 shader 输入结构。",
+      focusTarget: "Vertex Layout",
+      timingHint:
+        "代码块一起淡入，底部总结条在后半段补上。",
+      intro:
+        "现象讲完以后，要补上原因层。",
+      manuscript:
+        "第二十九页用 `VertexDescriptor` 的格式化代码，以及 `LocalVertexFactory.ush` 里 `FVertexFactoryInput` 对 `ATTRIBUTE4 ~ ATTRIBUTE7` 的声明，去解释平台差异为什么会进入 PSO 维度。即使调用的是同一个 material，只要输入侧结构不同，例如 vertex declaration 不同，某些平台上就可能拆成不同的 PSO。换句话说，同一个 material，不代表同一个 PSO。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_30",
+      label: "前置治理决定上限：把问题消灭在项目输入侧",
+      caption:
+        "最好的优化不是后置补救，而是前置治理。",
+      keyPoints: [
+        "这一页用 IA / RenderDoc 类证据把结论收死：很多 PSO 问题不是运行时再优化出来的。",
+        "顶点格式、材质规范、平台预算、color buffer 等输入侧差异，往往先决定了上限。",
+      ],
+      apiHighlights: ["RenderDoc", "Vertex Layout", "Color Buffer", "Governance"],
+      notes:
+        "这页用两张 IA 截图配合治理清单，把前两页的现象和原因上升为结论。",
+      focusTarget: "Governance Upper Bound",
+      timingHint:
+        "图片先显，治理清单与底部结论条随后补齐。",
+      intro:
+        "现象和原因都讲完以后，最后落到真正的结论。",
+      manuscript:
+        "第三十页要把结论收紧：很多 PSO 问题，并不是运行时优化出来的，而是在资源输入、材质规范、顶点格式和平台约束阶段就已经决定了上限。IA / RenderDoc 的证据页只是把这个结论可视化。除了 UV 和 vertex declaration，`color buffer` 这类状态也会继续影响最终结果。这就是前置治理要解决的事：最好的优化，不是后面补救，而是前面就把输入约束好。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_31",
+      label: "项目 Harness 机制：先数学约束，再图像复核",
+      caption:
+        "Harness 不是孤立技巧，它和 CI/CD、loss function 一样，本质上都是把结果回送成下一轮改进信号的反馈系统。",
+      keyPoints: [
+        "Harness / CI/CD / loss function，本质上都是反馈系统，也是训练手段。",
+        "在这个项目里，这条反馈回路具体落成 `geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy`。",
+        "如果换一个第一性原理视角，它有点像把主观调图经验压成可复用、可优化的损失函数或约束系统。",
+      ],
+      apiHighlights: [
+        "geometryReviewArtifact",
+        "geometryMetrics",
+        "geometryScorePolicy",
+        "node_move",
+        "edge_grow",
+      ],
+      notes:
+        "这一页是推荐页前的项目内延伸阅读，既介绍 harness 机制，也把数学约束直接写给观众看。",
+      focusTarget: "Harness",
+      timingHint:
+        "左卡先从反馈系统与训练手段讲起，再落回项目里的评分链路；右卡继续承接公式和硬门槛。",
+      intro:
+        "如果再往下追问“这些页面和动画到底怎么被约束”，答案不仅是 harness，也是一套反馈系统。",
+      manuscript:
+        "第三十一页专门介绍项目里的 harness 机制，但这次不把它只讲成一套项目私货。更抽象一点看，harness、CI/CD、loss function，本质上都是反馈系统，也都是训练手段；它们共同做的事，都是把一次结果回送成下一轮调整的信号。落到这个项目里，这条反馈回路被写成 `geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy`：先把布局和动画抽成事实，再变成指标，再进入评分与门槛。就像有人会用第一性原理把深度学习理解成压缩算法一样，这里也可以把 harness 理解成把主观调图经验压缩成可复用、可优化的损失函数或约束系统。于是右侧那些公式就不是装饰，而是真正在把经验写成训练信号：动画时长按 `node_move = clamp(180 + distancePx*0.95, 180, 960)`、`edge_grow = clamp(140 + lengthPx*0.75, 140, 840)`、`fade_in / fade_out = 220ms` 计算，总时长的允许上限是 `allowedMaxSec = requiredSec * 1.35`；几何层面则要求 `overlap=0`、`crossing=0`、`nodePierce=0`、`textOverflow=0`。",
+      focusColorKey: "shared",
+    },
+    {
+      id: "page_32",
       label: "延伸阅读与另一些推荐",
       caption:
         "在工程资料之外，再给出一组延长这次分享阅读路径的入口。",
       keyPoints: [
-        "工程延伸先给 Unreal Engine 官方 PSO 文档和我的 PSO 小实验。",
-        "书和视频不直接解释 PSO，但会补足“怎么看工程问题”的视角。",
+        "工程延伸放三条：Unreal Engine 官方 PSO 文档、我的 PSO 小实验，以及查力鹏的 `UE项目优化：PSO Cache`。",
+        "书、视频和游戏一起补视角：`《银河帝国》`、`《反杜林论》`、沈枯燥的马克思主义哲学、王德峰的 `重读资本论`，以及 `星际拓荒`、`Type Help`。",
       ],
       relatedLinks: [
         {
@@ -889,23 +969,39 @@ export const masterStoryboard: Storyboard = {
           url: "https://zhuanlan.zhihu.com/p/1935414815096021431",
         },
         {
+          label: "UE项目优化：PSO Cache",
+          url: "https://imzlp.com/posts/24336/",
+        },
+        {
           label: "沈枯燥：马克思主义哲学",
           url: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",
         },
+        {
+          label: "王德峰：重读资本论",
+          url: "https://www.bilibili.com/list/ml2680793867?oid=938973897&bvid=BV1wT4y1r78r",
+        },
+        {
+          label: "星际拓荒（Outer Wilds）",
+          url: "https://store.steampowered.com/app/753640/Outer_Wilds/",
+        },
+        {
+          label: "Type Help",
+          url: "https://william-rous.itch.io/type-help",
+        },
       ],
       notes:
-        "这一页作为分享收束前的推荐页，左侧放工程资料，右侧放书和视频，尽量保持结构简洁并直接展示真实链接。",
+        "这一页作为分享收束前的推荐页，上方保留工程资料与书/视频双栏，下方补一条推荐游戏卡，继续直接展示真实链接。",
       focusTarget: "Further Reading",
       timingHint:
-        "延续上一页的收束感，整页淡入即可，不再引入复杂拓扑或大规模节点运动。",
+        "延续前一页的收束感，整页淡入即可，不再引入复杂拓扑或大规模节点运动。",
       intro:
-        "如果这次分享只够把问题打开，那么最后想给出几条继续往下走的路。",
+        "最后用一页轻一点的推荐，把阅读、视频和游戏入口都留给观众自己继续往下走。",
       manuscript:
-        "第二十八页作为延伸阅读与另一些推荐。工程相关部分放两项：Unreal Engine 官方的 `PSO Precaching for Unreal Engine` 文档，以及我的 `PSO 小实验`。书和视频部分放三项：`《银河帝国》`，艾萨克·阿西莫夫；`《反杜林论》`，弗里德里希·恩格斯；以及沈枯燥老师的 `马克思主义哲学` 视频。它们不都直接解释 PSO，但会帮助我继续理解工程、系统和问题意识。",
+        "第三十二页作为延伸阅读与另一些推荐。工程相关部分放三项：Unreal Engine 官方的 `PSO Precaching for Unreal Engine` 文档、我的 `PSO 小实验`，以及查力鹏写的 `UE项目优化：PSO Cache`。书和视频部分放四项：`《银河帝国》`，艾萨克·阿西莫夫；`《反杜林论》`，弗里德里希·恩格斯；沈枯燥老师的 `马克思主义哲学` 视频；以及王德峰老师的 `重读资本论`。下方再补一条推荐游戏：`星际拓荒（Outer Wilds）` 和 `Type Help`。它们不都直接解释 PSO，但会帮助我继续理解工程、系统、表达形式和问题意识；这一页本身只保留入口，不再额外补一句总结。",
       focusColorKey: "shared",
     },
     {
-      id: "page_29",
+      id: "page_33",
       label: "《逍遥游》",
       caption:
         "最后不再补工程细节，只留下一个更松弛也更大的收束。",
@@ -921,7 +1017,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "到最后，我更想把这次分享留在一个开放的地方，而不是一个结论句上。",
       manuscript:
-        "第二十九页只保留《庄子·逍遥游》的引句：`今子有大树，患其无用，何不树之于无何有之乡，广莫之野，彷徨乎无为其侧，逍遥乎寝卧其下。不夭斤斧，物无害者，无所可用，安所困苦哉！` 这页不再解释，只作为整场分享的最后收束。",
+        "第三十三页只保留《庄子·逍遥游》的引句：`今子有大树，患其无用，何不树之于无何有之乡，广莫之野，彷徨乎无为其侧，逍遥乎寝卧其下。不夭斤斧，物无害者，无所可用，安所困苦哉！` 这页不再解释，只作为整场分享的最后收束。",
       focusColorKey: "shared",
     },
   ],

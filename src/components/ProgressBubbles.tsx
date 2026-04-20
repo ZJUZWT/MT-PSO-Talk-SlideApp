@@ -99,6 +99,10 @@ export function ProgressBubbles({
                 }
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`Go to ${step.id}: ${step.label}`}
+                onPointerUp={(event) => {
+                  // Mouse/touch step jumps should not trap keyboard navigation on the bubble.
+                  event.currentTarget.blur();
+                }}
                 onClick={() => {
                   if (onStepJump) {
                     onStepJump(step.id);

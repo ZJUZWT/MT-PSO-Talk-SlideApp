@@ -13,7 +13,7 @@ type WriteClipboardDeps = {
   ClipboardItemCtor?: ClipboardItemConstructorLike | undefined;
 };
 
-export type CaptureScope = "page" | "stage";
+export type CaptureScope = "page";
 
 export type FetchLike = (
   input: string,

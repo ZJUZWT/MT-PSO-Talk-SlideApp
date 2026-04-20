@@ -32,6 +32,26 @@ function buildState(stepId: StoryStepId): WorkbenchState {
 }
 
 describe("NotesPanel", () => {
+  it("renders the page31 feedback-system framing in the left notes card", () => {
+    render(<NotesPanel state={buildState("page_31")} transition={null} />);
+
+    expect(
+      screen.getByText(
+        "Harness 不是孤立技巧，它和 CI/CD、loss function 一样，本质上都是把结果回送成下一轮改进信号的反馈系统。",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Harness / CI/CD / loss function，本质上都是反馈系统，也是训练手段。",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "如果换一个第一性原理视角，它有点像把主观调图经验压成可复用、可优化的损失函数或约束系统。",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("renders the page16 ShaderStableKey sample table in the notes column", () => {
     render(<NotesPanel state={buildState("page_16")} transition={null} />);
 

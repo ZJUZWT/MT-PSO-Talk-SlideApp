@@ -7,6 +7,8 @@
     "dev": "vite --host 127.0.0.1 --port 4173",
     "build": "tsc --noEmit && vite build",
     "build:pages": "BASE_PATH=${BASE_PATH:-/} tsc --noEmit && vite build",
+    "review:mechanical": "node ./node_modules/vite-node/vite-node.mjs scripts/reviewMechanicalSummary.ts",
+    "review:slides": "node ./node_modules/vite-node/vite-node.mjs scripts/reviewSlides.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
