@@ -71,6 +71,7 @@ export type StoryStep = {
   focusTarget: string;
   timingHint: string;
   intro?: string;
+  goalDetail?: string;
   manuscript?: string;
   codeSample?: string;
   codeLegend?: Array<{label: string; color: string}>;

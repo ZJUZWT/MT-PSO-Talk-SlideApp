@@ -97,6 +97,9 @@ describe("masterStoryboard", () => {
 
     expect(page01.label).toContain("最小模型");
     expect(page01.caption).toContain("最小骨架");
+    expect(page01.keyPoints).toContain(
+      "后面会提到的预编译着色器，也可以先理解成这条主轴的一次前置准备。",
+    );
     expect(page02.label).toContain("渲染语义");
     expect(page02.manuscript).toContain("VertexData");
     expect(page02.manuscript).toContain("GPU");
@@ -259,6 +262,9 @@ describe("masterStoryboard", () => {
     expect(page26.manuscript).toContain("Game UsageMask");
     expect(page26.manuscript).toContain("Compile UsageMask");
     expect(page26.manuscript).toContain("地图 A");
+    expect(page26.manuscript).toContain("地图 B 被下载");
+    expect(page26.manuscript).toContain("不是为了造出两套 PSO");
+    expect(page26.manuscript).toContain("仍然只有一种 `UsageMask` 表达");
     expect(page27.label).toContain("改执行方式");
     expect(page27.manuscript).toContain("SIMD");
     expect(page27.manuscript).toContain("GPU");
@@ -287,6 +293,7 @@ describe("masterStoryboard", () => {
     expect(page32.label).toContain("延伸阅读");
     expect(page32.manuscript).toContain("PSO 小实验");
     expect(page32.manuscript).toContain("PSO Precaching for Unreal Engine");
+    expect(page32.manuscript).toContain("Mesa 开源驱动");
     expect(page32.manuscript).toContain("银河帝国");
     expect(page32.manuscript).toContain("艾萨克·阿西莫夫");
     expect(page32.manuscript).toContain("反杜林论");

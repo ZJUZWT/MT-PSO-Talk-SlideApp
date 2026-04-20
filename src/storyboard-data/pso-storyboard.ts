@@ -72,6 +72,7 @@ export const masterStoryboard: Storyboard = {
       keyPoints: [
         "先让观众记住 Input -> f(x) -> Output 这条基础主轴。",
         "后续所有 API 与工程结构，都是这条主轴的展开。",
+        "后面会提到的预编译着色器，也可以先理解成这条主轴的一次前置准备。",
       ],
       notes:
         "第一页保持静态终态，不做入场动画。观众先记住这条最简单的主轴，后面我们再往这条主轴上加结构。",
@@ -86,19 +87,20 @@ export const masterStoryboard: Storyboard = {
     {
       id: "page_02",
       label: "把模型映射到渲染语义",
-      caption: "把抽象的 f(x) 具体化成 GPU，把输入和输出也换成更接近图形渲染语义的表达。",
+      caption: "把抽象的 f(x) 具体化成 GPU，把输入和输出换成渲染语义，并先轻轻埋下“GPU 可被参数配置”的伏笔。",
       keyPoints: [
         "Input 对应 VertexData，f(x) 对应 GPU，Output 对应 Pixels。",
         "三段位置保持不变，只替换语义，建立空间连续性。",
+        "GPU 上方先出现三个纯视觉 `U` 型接口，下一页再正式展开配置层。",
       ],
       notes:
-        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出。",
+        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出。GPU 上方只补三个很轻的 `U` 型接口提示，表示这个核心节点后面还会受参数影响，但这里先不把 page03 的配置层提前讲出来。",
       focusTarget: "GPU",
       timingHint: "让三处位置保持稳定，只让内容和轮廓形变。",
       intro:
         "现在开始把公式里的抽象变量替换成图形渲染里的真实角色。",
       manuscript:
-        "第一页我们只说 Input 经过 f(x) 变成 Output。到了这一页，Input 更具体地变成 VertexData，f(x) 更具体地变成 GPU，而 Output 也不再是抽象结果，而是最终的像素块。",
+        "第一页我们只说 Input 经过 f(x) 变成 Output。到了这一页，Input 更具体地变成 VertexData，f(x) 更具体地变成 GPU，而 Output 也不再是抽象结果，而是最终的像素块。同时，我会在 GPU 上方加三个很轻的 `U` 型接口提示，只让观众先隐约意识到：GPU 不是一个完全封闭的黑箱，它后面还会受一些参数和配置影响。但这一页先不展开这些参数是什么，真正的上方配置层留到第三页再正式长出来。",
       focusColorKey: "page_02",
     },
     {
@@ -745,6 +747,8 @@ export const masterStoryboard: Storyboard = {
       focusTarget: "Cache Validity",
       timingHint:
         "从合并后的 page19 推入后，先整体落 summary 板，再按阅读顺序讲左主卡和右侧三卡。",
+      goalDetail:
+        "这里的 PSO，可以先粗略理解成：进入游戏前会尽量预编译好的那组着色器与管线状态对象。",
       intro:
         "进入策略页之前，先用和后面一致的 summary 板式把缓存边界讲透。",
       manuscript:
@@ -755,23 +759,23 @@ export const masterStoryboard: Storyboard = {
       id: "page_22",
       label: "我的理解：PSO 与 PSO Cache",
       caption:
-        "继续沿用后面策略页的版式：左主卡给核心判断，右侧三卡拆成对象、方法、工程取舍。",
+        "继续沿用后面策略页的版式：左主卡先区分对象与方法，右侧三卡补依赖、代价和适用边界。",
       keyPoints: [
-        "左主卡给一句话结论：预编译的 PSO 不会消失，只会转移。",
-        "右侧第一卡讲对象：PSO 是运行时对象。",
-        "右侧第二卡讲方法：PSO Cache 是围绕 Shader / 状态做的工程方法。",
-        "右侧第三卡讲工程取舍：优先换掉运行时尖峰，再回收首启与空间成本。",
+        "左主卡先区分：PSO 是对象，PSO Cache 是方法。",
+        "它附属于 Shader，用启动时间 + 内存空间换运行时卡顿率。",
+        "右侧第二卡补依赖：Shader Module 要提供数据，.ushaderbytecode / .scl.csv 会参与。",
+        "右侧第三卡补代价与适用：不是所有项目都需要，而且代价往往比想象中更大。",
       ],
-      apiHighlights: ["Material", "SharedCode", ".rec.upipelinecache", "stable.upipelinecache", "ProgramBinary/PipelineCache"],
+      apiHighlights: ["PSO", "PSO Cache", "Shader Module", ".ushaderbytecode", ".scl.csv"],
       notes:
         "这一页不再使用单大卡 typeset，而是跟 page24+ 统一成同一套 summary 板式。",
       focusTarget: "Bridge Summary",
       timingHint:
-        "从 page21 边界页推入后，先落左侧主判断，再顺着右侧三卡讲对象、方法和工程取舍。",
+        "从 page21 边界页推入后，先落左侧主区分，再顺着右侧三卡讲依赖链、代价和适用边界。",
       intro:
         "边界讲完后，继续用同一套 summary 语法收束核心理解。",
       manuscript:
-        "第二十二页也改成和后面一致的 summary 板式。左侧主卡先把核心判断钉住：预编译的 PSO 不会消失，只会转移，它只是把运行时卡顿改写成启动成本和内存成本。这里也顺带和 page21 分工开：page21 讲的是“什么时候会失效”，page22 讲的是“这套工程应该怎么理解”。右侧三张小卡分别拆成三个维度：`对象` 直接说明“PSO 是对象”，也就是那个被创建、绑定、命中的运行时对象；`方法` 说明 PSO Cache 是围绕 Shader / 状态收集、保存、预热的一套工程方法；`工程取舍` 则强调优先换掉运行时尖峰，再慢慢回收首启与空间开销。footer 最后再收一句：PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
+        "第二十二页继续沿用和后面策略页一致的 summary 板式，但理解口径要更明确。左侧主卡先把最核心的区分钉住：`PSO 是对象，PSO Cache 是方法。` 也就是说，PSO 是那个真正会被创建、绑定、命中的运行时对象；而 PSO Cache 不是另一个神秘对象，它只是附属于 Shader 的一套工程安排，用启动时间和内存空间去换运行时卡顿率。这里也要顺手说明边界：没有 PSO Cache，项目也可能照样跑得很好，所以它不是每个项目都必须上的标准答案。右侧三张小卡再补三个维度：第一张把 `PSO` 明确定成对象；第二张讲 `PSO Cache` 对 Shader Module 的依赖，说明它要靠 Shader 侧提供的数据才能工作，像 `.ushaderbytecode` 和 `.scl.csv` 这样的文件就会参与进来；第三张讲代价与适用，强调这套方法并不是免费午餐，而且代价往往比想象中更大。footer 最后再收一句：`PSO` 的成本不会消失，只会转移。",
       focusColorKey: "shared",
     },
     {
@@ -819,29 +823,29 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_26",
-      label: "改发生时机：收集与编译解耦",
+      label: "改发生时机：按地图调度编译",
       caption:
-        "这里优化的不是“做不做”，而是“什么时候做”。",
+        "这里优化的不是“做不做”，而是把地图下载变成对应 PSO 的编译触发点。",
       keyPoints: [
-        "这一页要讲清 `Game UsageMask` 和 `Compile UsageMask` 的双 mask 设计。",
-        "地图 A / 地图 B 的例子用来说明：当前收集可以是 A，而编译可以提前覆盖 A + B。",
+        "主图先讲事件：当前在地图 A，地图 B 下载完成，于是开始编译地图 B 的 PSO。",
+        "再讲结果：`Game UsageMask = A`，`Compile UsageMask = A + B`；UE 原生 `UsageMask` 做不到，所以拆成 `Game` / `Compile` 两种语义。",
       ],
       apiHighlights: [
         "Game UsageMask",
         "Compile UsageMask",
-        "Lazy Load",
-        "Streaming",
-        "Deferred Compile",
+        "UE Native UsageMask",
+        "Per-Map Compile",
+        "Single Usage Expression",
       ],
       notes:
-        "这一页不要混进并行处理，只强调“延迟的对象可以不同”，资源、驻留与编译都可以延迟。",
+        "这一页不要让观众先猜 `mask` 本身。先读懂‘地图下载完成 -> 触发该图 PSO 编译’，再回到双 `UsageMask` 的必要性，而写回 PSO 时仍然只有一种 UsageMask 表达。",
       focusTarget: "Compile Acceleration",
       timingHint:
-        "左侧双 mask 框与地图 A/B 例子一起显出，右侧三张延迟处理卡最后补齐。",
+        "左侧先显事件链，再显 `Game = A / Compile = A + B` 对比；右侧最后补“原生不够 / 存储不变”。",
       intro:
-        "第三种思路不是改数据，也不是改位置，而是改它发生的时机。",
+        "第三种思路不是改数据，也不是改位置，而是把地图下载时刻变成对应 PSO 的编译触发点。",
       manuscript:
-        "第二十六页要讲的是 `Game UsageMask` 和 `Compile UsageMask` 的解耦。玩家当前在地图 A 时，`Game UsageMask = A`，但 `Compile UsageMask` 可以是 `A + B`，这样收集逻辑和编译逻辑就不会互相打架。这个策略本质上是延迟处理：有些事不是不做，而是不在现在做。`Lazy Load` 延迟的是加载，`Streaming` 延迟的是驻留，而 `Deferred / Async Compile` 延迟的是编译成本的发生时机。",
+        "第二十六页不要先从 `mask` 术语讲起，而要先从事件讲起：当前玩家在地图 A，这时地图 B 被下载完成，我们就希望立刻启动地图 B 对应的 PSO 编译。于是同一时刻会出现两个视角：站在当前游戏视角，`Game UsageMask = A`；站在编译调度视角，`Compile UsageMask = A + B`。双 `UsageMask` 不是为了造出两套 PSO，而是为了让这两个视角可以同时被表达。UE 原生的 `UsageMask` 只有一套语义，很难同时承担“当前游戏视角”和“编译调度视角”，所以我把它拆成了两种用法。但写回到 PSO 里的时候，仍然只有一种 `UsageMask` 表达，拆开的只是调度语义，不是两套持久化格式。",
       focusColorKey: "shared",
     },
     {
@@ -963,7 +967,7 @@ export const masterStoryboard: Storyboard = {
       caption:
         "在工程资料之外，再给出一组延长这次分享阅读路径的入口。",
       keyPoints: [
-        "工程延伸放三条：Unreal Engine 官方 PSO 文档、我的 PSO 小实验，以及查力鹏的 `UE项目优化：PSO Cache`。",
+        "工程延伸放四条：Unreal Engine 官方 PSO 文档、我的 PSO 小实验、查力鹏的 `UE项目优化：PSO Cache`，以及 `Mesa 开源驱动` 仓库。",
         "书、视频和游戏一起补视角：`《银河帝国》`、`《反杜林论》`、沈枯燥的马克思主义哲学、王德峰的 `重读资本论`，以及 `星际拓荒`、`Type Help`。",
       ],
       relatedLinks: [
@@ -978,6 +982,10 @@ export const masterStoryboard: Storyboard = {
         {
           label: "UE项目优化：PSO Cache",
           url: "https://imzlp.com/posts/24336/",
+        },
+        {
+          label: "Mesa 开源驱动",
+          url: "https://gitlab.freedesktop.org/mesa/mesa",
         },
         {
           label: "沈枯燥：马克思主义哲学",
@@ -1004,7 +1012,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "最后用一页轻一点的推荐，把阅读、视频和游戏入口都留给观众自己继续往下走。",
       manuscript:
-        "第三十二页作为延伸阅读与另一些推荐。工程相关部分放三项：Unreal Engine 官方的 `PSO Precaching for Unreal Engine` 文档、我的 `PSO 小实验`，以及查力鹏写的 `UE项目优化：PSO Cache`。书和视频部分放四项：`《银河帝国》`，艾萨克·阿西莫夫；`《反杜林论》`，弗里德里希·恩格斯；沈枯燥老师的 `马克思主义哲学` 视频；以及王德峰老师的 `重读资本论`。下方再补一条推荐游戏：`星际拓荒（Outer Wilds）` 和 `Type Help`。它们不都直接解释 PSO，但会帮助我继续理解工程、系统、表达形式和问题意识；这一页本身只保留入口，不再额外补一句总结。",
+        "第三十二页作为延伸阅读与另一些推荐。工程相关部分放四项：Unreal Engine 官方的 `PSO Precaching for Unreal Engine` 文档、我的 `PSO 小实验`、查力鹏写的 `UE项目优化：PSO Cache`，以及 `Mesa 开源驱动` 仓库。书和视频部分放四项：`《银河帝国》`，艾萨克·阿西莫夫；`《反杜林论》`，弗里德里希·恩格斯；沈枯燥老师的 `马克思主义哲学` 视频；以及王德峰老师的 `重读资本论`。下方再补一条推荐游戏：`星际拓荒（Outer Wilds）` 和 `Type Help`。它们不都直接解释 PSO，但会帮助我继续理解工程、系统、表达形式和问题意识；这一页本身只保留入口，不再额外补一句总结。",
       focusColorKey: "shared",
     },
     {

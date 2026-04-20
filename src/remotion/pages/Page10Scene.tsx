@@ -162,6 +162,11 @@ const ENDING_ENGINEERING_LINKS = [
     subtitle: "查力鹏 / imzlp.com",
     href: "https://imzlp.com/posts/24336/",
   },
+  {
+    title: "Mesa 开源驱动",
+    subtitle: "mesa / freedesktop.org / GitLab",
+    href: "https://gitlab.freedesktop.org/mesa/mesa",
+  },
 ] as const;
 const ENDING_CULTURE_LINKS: ReadonlyArray<{
   title: string;
@@ -353,24 +358,103 @@ const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
 const PAGE17_HASHA_CENTER = {x: 1004, y: 508};
 const PAGE17_HASHB_CENTER = {x: 1004, y: 556};
+const PAGE19_DIAGRAM_SHIFT_X = 64;
 const PAGE19_MAIN_AXIS_Y = 360;
-const PAGE19_STABLE_BOX = {x: 44, y: 302, width: 208, height: 116, radius: 26};
-const PAGE19_UE_GROUP_BOX = {x: 280, y: 184, width: 192, height: 352, radius: 30};
-const PAGE19_UE_ROW_1 = {x: 312, y: 270, width: 128, height: 48, radius: 16};
-const PAGE19_UE_ROW_2 = {x: 312, y: 358, width: 128, height: 48, radius: 16};
-const PAGE19_UE_ROW_3 = {x: 312, y: 446, width: 128, height: 48, radius: 16};
-const PAGE19_GPU_AXIS_X = 582;
-const PAGE19_VERTEX_CENTER = {x: 582, y: 200};
+const PAGE19_STABLE_BOX = {
+  x: 40 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 164,
+  width: 348,
+  height: 392,
+  radius: 30,
+};
+const PAGE19_UE_ROW_1 = {
+  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 268,
+  width: 284,
+  height: 56,
+  radius: 18,
+};
+const PAGE19_UE_ROW_2 = {
+  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 360,
+  width: 284,
+  height: 56,
+  radius: 18,
+};
+const PAGE19_UE_ROW_3 = {
+  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 452,
+  width: 284,
+  height: 56,
+  radius: 18,
+};
+const PAGE19_GPU_AXIS_X = 498 + PAGE19_DIAGRAM_SHIFT_X;
+const PAGE19_VERTEX_CENTER = {x: 498 + PAGE19_DIAGRAM_SHIFT_X, y: 200};
 const PAGE19_GPU_LABEL_Y = 360;
-const PAGE19_GPU_PIXELS = {x: 548, y: 458};
-const PAGE19_MEMORY_BOX = {x: 688, y: 150, width: 272, height: 420, radius: 32};
-const PAGE19_MEMORY_GL_BOX = {x: 712, y: 204, width: 224, height: 76, radius: 18};
-const PAGE19_MEMORY_VK_BOX = {x: 712, y: 326, width: 224, height: 76, radius: 18};
-const PAGE19_MEMORY_MT_BOX = {x: 712, y: 444, width: 224, height: 100, radius: 18};
-const PAGE19_DISK_BOX = {x: 986, y: 150, width: 216, height: 420, radius: 32};
-const PAGE19_DISK_GL_BOX = {x: 1008, y: 205, width: 172, height: 74, radius: 16};
-const PAGE19_DISK_VK_BOX = {x: 1006, y: 327, width: 176, height: 74, radius: 16};
-const PAGE19_DISK_MT_BOX = {x: 1008, y: 445, width: 172, height: 96, radius: 16};
+const PAGE19_GPU_BOX = {
+  x: 434 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 319,
+  width: 128,
+  height: 82,
+  radius: 18,
+};
+const PAGE19_GPU_PIXELS = {x: 464 + PAGE19_DIAGRAM_SHIFT_X, y: 458};
+const PAGE19_MEMORY_BOX = {
+  x: 606 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 150,
+  width: 240,
+  height: 420,
+  radius: 32,
+};
+const PAGE19_MEMORY_GL_BOX = {
+  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 204,
+  width: 200,
+  height: 76,
+  radius: 18,
+};
+const PAGE19_MEMORY_VK_BOX = {
+  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 326,
+  width: 200,
+  height: 76,
+  radius: 18,
+};
+const PAGE19_MEMORY_MT_BOX = {
+  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 444,
+  width: 200,
+  height: 100,
+  radius: 18,
+};
+const PAGE19_DISK_BOX = {
+  x: 888 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 150,
+  width: 208,
+  height: 420,
+  radius: 32,
+};
+const PAGE19_DISK_GL_BOX = {
+  x: 908 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 205,
+  width: 168,
+  height: 74,
+  radius: 16,
+};
+const PAGE19_DISK_VK_BOX = {
+  x: 905 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 327,
+  width: 174,
+  height: 74,
+  radius: 16,
+};
+const PAGE19_DISK_MT_BOX = {
+  x: 908 + PAGE19_DIAGRAM_SHIFT_X,
+  y: 445,
+  width: 168,
+  height: 96,
+  radius: 16,
+};
 
 function centerX(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -2911,13 +2995,9 @@ function Page19Placeholder({
     localOpacity * resolveWindowProgress(entryProgress, 0.28, 0.64, easeOutQuint);
   const diskOpacity = localOpacity * diskReveal;
 
-  const stableToUePoints = [
+  const stableToGpuPoints = [
     {x: right(PAGE19_STABLE_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
-    {x: PAGE19_UE_GROUP_BOX.x - 12, y: PAGE19_MAIN_AXIS_Y},
-  ];
-  const ueToGpuPoints = [
-    {x: right(PAGE19_UE_GROUP_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
-    {x: PAGE19_GPU_AXIS_X - 54, y: PAGE19_MAIN_AXIS_Y},
+    {x: PAGE19_GPU_BOX.x, y: PAGE19_MAIN_AXIS_Y},
   ];
   const gpuVertexToTextPoints = [
     {x: PAGE19_GPU_AXIS_X, y: PAGE19_VERTEX_CENTER.y + 52},
@@ -2928,40 +3008,44 @@ function Page19Placeholder({
     {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_PIXELS.y - 12},
   ];
   const gpuToMemPoints = [
-    {x: PAGE19_GPU_AXIS_X + 56, y: PAGE19_MAIN_AXIS_Y},
-    {x: PAGE19_MEMORY_BOX.x - 12, y: PAGE19_MAIN_AXIS_Y},
+    {x: right(PAGE19_GPU_BOX), y: PAGE19_MAIN_AXIS_Y},
+    {x: PAGE19_MEMORY_BOX.x, y: PAGE19_MAIN_AXIS_Y},
   ];
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
       <g opacity={localOpacity}>
         <g opacity={leftBandOpacity}>
-          <ArtifactNode
-            scene={scene}
-            box={PAGE19_STABLE_BOX}
-            lines={["stable.", "upipelinecache"]}
-            opacity={leftBandOpacity}
-            geometryNodeId="stable"
-            geometryNodeLabel="stable.upipelinecache"
-            labelFontSize={20}
-            emphasized
-          />
-
-          <g data-geometry-node-id="ue-group" data-geometry-node-label="UE PSO">
+          <g
+            data-geometry-node-id="stable"
+            data-geometry-node-label="stable.upipelinecache"
+          >
             <StageBox
-              box={PAGE19_UE_GROUP_BOX}
+              box={PAGE19_STABLE_BOX}
               fill={SOFT_FILL}
               stroke={ACCENT}
-              strokeWidth={2.8}
+              strokeWidth={3}
               markGeometryBox
             />
             <text
-              x={centerX(PAGE19_UE_GROUP_BOX)}
-              y={PAGE19_UE_GROUP_BOX.y + 28}
+              x={PAGE19_STABLE_BOX.x + 28}
+              y={PAGE19_STABLE_BOX.y + 38}
               fill={TEXT}
-              fontSize="31"
+              fontSize="20"
               fontWeight="780"
-              textAnchor="middle"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              stable.upipelinecache
+            </text>
+            <text
+              x={PAGE19_STABLE_BOX.x + 28}
+              y={PAGE19_STABLE_BOX.y + 74}
+              fill={ACCENT}
+              fontSize="22"
+              fontWeight="780"
+              textAnchor="start"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
@@ -3012,10 +3096,10 @@ function Page19Placeholder({
         <g opacity={gpuOpacity} data-geometry-node-id="gpu" data-geometry-node-label="GPU">
           <g data-geometry-node-box="1">
             <rect
-              x={518}
-              y={319}
-              width={128}
-              height={82}
+              x={PAGE19_GPU_BOX.x}
+              y={PAGE19_GPU_BOX.y}
+              width={PAGE19_GPU_BOX.width}
+              height={PAGE19_GPU_BOX.height}
               rx={18}
               fill="transparent"
               stroke="none"
@@ -3205,31 +3289,14 @@ function Page19Placeholder({
         <StrokeArrow
           d={horizontalPath(
             right(PAGE19_STABLE_BOX) + 12,
-            PAGE19_UE_GROUP_BOX.x - 12,
-            PAGE19_MAIN_AXIS_Y,
-          )}
-          stroke={ACCENT}
-          opacity={leftBandOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, leftBandOpacity)}
-          dashArray={revealDashArray(stableToUePoints, routeReveal)}
-          tipX={PAGE19_UE_GROUP_BOX.x - 12}
-          tipY={PAGE19_MAIN_AXIS_Y}
-          direction="right"
-          shaftWidth={3}
-          underlayWidth={5.5}
-          headSize={8}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_UE_GROUP_BOX) + 12,
-            PAGE19_GPU_AXIS_X - 54,
+            PAGE19_GPU_BOX.x,
             PAGE19_MAIN_AXIS_Y,
           )}
           stroke={ACCENT}
           opacity={gpuOpacity}
           headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
-          dashArray={revealDashArray(ueToGpuPoints, routeReveal)}
-          tipX={PAGE19_GPU_AXIS_X - 54}
+          dashArray={revealDashArray(stableToGpuPoints, routeReveal)}
+          tipX={PAGE19_GPU_BOX.x}
           tipY={PAGE19_MAIN_AXIS_Y}
           direction="right"
           shaftWidth={3}
@@ -3272,15 +3339,15 @@ function Page19Placeholder({
         />
         <StrokeArrow
           d={horizontalPath(
-            PAGE19_GPU_AXIS_X + 56,
-            PAGE19_MEMORY_BOX.x - 12,
+            right(PAGE19_GPU_BOX),
+            PAGE19_MEMORY_BOX.x,
             PAGE19_MAIN_AXIS_Y,
           )}
           stroke={ACCENT}
           opacity={memoryOpacity}
           headOpacity={revealHeadOpacity(routeReveal, memoryOpacity)}
           dashArray={revealDashArray(gpuToMemPoints, routeReveal)}
-          tipX={PAGE19_MEMORY_BOX.x - 12}
+          tipX={PAGE19_MEMORY_BOX.x}
           tipY={PAGE19_MAIN_AXIS_Y}
           direction="right"
           shaftWidth={3}
@@ -3588,24 +3655,24 @@ function Page22Placeholder({
         <LateLeadCard
           scene={scene}
           box={leftCard}
-          eyebrow="核心判断"
-          headline="预编译的 PSO 不会消失，只会转移。"
+          eyebrow="核心区分"
+          headline="PSO 是对象，PSO Cache 是方法。"
           bodyLines={[
-            "它把运行时卡顿改写成启动成本与内存成本。",
-            "page21 讲何时失效，page22 讲这套工程该怎么理解。",
-            "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
+            "它附属于 Shader，用启动时间 + 内存空间换运行时卡顿率。",
+            "没有 PSO Cache，项目也可能照样跑得很好。",
+            "所以它是手段，不是每个项目都必须上的答案。",
           ]}
           opacity={panelOpacity}
           geometryNodeId="left-card"
           accent
-          headlineFontSize={27}
+          headlineFontSize={26}
           bodyFontSize={17}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard1}
-          title="对象"
-          lines={["PSO 是要被创建、绑定、命中的运行时对象。"]}
+          title="PSO：对象"
+          lines={["被创建、绑定、命中的运行时对象。"]}
           opacity={panelOpacity}
           geometryNodeId="right-1"
           compact
@@ -3615,21 +3682,21 @@ function Page22Placeholder({
         <LateInfoCard
           scene={scene}
           box={rightCard2}
-          title="方法"
-          lines={["围绕 Shader / State 的收集、", "保存、预热方法。"]}
+          title="PSO Cache：方法"
+          lines={["依赖 Shader Module 提供数据；", ".ushaderbytecode / .scl.csv 会参与。"]}
           opacity={panelOpacity}
           geometryNodeId="right-2"
           compact
-          bodyFontSize={16}
+          bodyFontSize={15.5}
           lineGapOverride={20}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard3}
-          title="工程取舍"
+          title="代价 / 适用"
           lines={[
-            "先换掉运行时尖峰，",
-            "再回收首启和空间开销。",
+            "不是所有项目都需要它；",
+            "而且代价往往比想象中更大。",
           ]}
           opacity={panelOpacity}
           geometryNodeId="right-3"
@@ -3641,7 +3708,7 @@ function Page22Placeholder({
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="PSO Cache 是工程方法，不是让代价凭空消失的魔法。"
+          text="PSO 的成本不会消失，只会转移。"
         />
       </g>
     </PlaceholderBoardShell>
@@ -3659,11 +3726,11 @@ function Page24StrategyPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 98, y: 148, width: 748, height: 418, radius: 28};
-  const rightCard1 = {x: 868, y: 148, width: 308, height: 126, radius: 24};
-  const rightCard2 = {x: 868, y: 290, width: 308, height: 126, radius: 24};
-  const rightCard3 = {x: 868, y: 432, width: 308, height: 140, radius: 24};
-  const tableTop = leftCard.y + 82;
+  const leftCard = {x: 88, y: 142, width: 760, height: 430, radius: 28};
+  const rightCard1 = {x: 864, y: 142, width: 320, height: 130, radius: 24};
+  const rightCard2 = {x: 864, y: 286, width: 320, height: 130, radius: 24};
+  const rightCard3 = {x: 864, y: 430, width: 320, height: 144, radius: 24};
+  const tableTop = leftCard.y + 100;
   const tableColumns = [
     {label: "算法", x: leftCard.x + 22},
     {label: "压缩率", x: leftCard.x + 188},
@@ -3701,9 +3768,9 @@ function Page24StrategyPage({
           </text>
           <text
             x={right(leftCard) - 20}
-            y={leftCard.y + 24}
+            y={leftCard.y + 48}
             fill="rgba(34, 48, 61, 0.56)"
-            fontSize="14.5"
+            fontSize="13.5"
             fontWeight="760"
             textAnchor="end"
             dominantBaseline="middle"
@@ -4202,13 +4269,16 @@ function Page26TimingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 96, y: 146, width: 566, height: 402, radius: 28};
-  const rightCard1 = {x: 690, y: 146, width: 426, height: 114, radius: 24};
-  const rightCard2 = {x: 690, y: 280, width: 426, height: 114, radius: 24};
-  const rightCard3 = {x: 690, y: 414, width: 426, height: 134, radius: 24};
-  const gameMaskBox = {x: leftCard.x + 24, y: leftCard.y + 62, width: 228, height: 212, radius: 22};
-  const compileMaskBox = {x: leftCard.x + 276, y: leftCard.y + 62, width: 266, height: 212, radius: 22};
-  const compileBanner = {x: leftCard.x + 24, y: leftCard.y + 298, width: 518, height: 60, radius: 18};
+  const leftCard = {x: 96, y: 146, width: 640, height: 402, radius: 28};
+  const rightCard1 = {x: 760, y: 146, width: 356, height: 186, radius: 24};
+  const rightCard2 = {x: 760, y: 362, width: 356, height: 186, radius: 24};
+  const eventStrip = {x: leftCard.x + 24, y: leftCard.y + 58, width: 592, height: 92, radius: 22};
+  const eventCurrentBox = {x: eventStrip.x + 18, y: eventStrip.y + 28, width: 140, height: 46, radius: 15};
+  const eventDownloadBox = {x: eventStrip.x + 198, y: eventStrip.y + 28, width: 140, height: 46, radius: 15};
+  const eventCompileBox = {x: eventStrip.x + 378, y: eventStrip.y + 28, width: 196, height: 46, radius: 15};
+  const gameMaskBox = {x: leftCard.x + 24, y: leftCard.y + 168, width: 274, height: 148, radius: 22};
+  const compileMaskBox = {x: leftCard.x + 322, y: leftCard.y + 168, width: 294, height: 148, radius: 22};
+  const contextNote = {x: leftCard.x + 24, y: leftCard.y + 340, width: 592, height: 48, radius: 18};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -4234,7 +4304,106 @@ function Page26TimingPage({
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            双 UsageMask：收集与编译解耦
+            双 UsageMask：按地图调度编译
+          </text>
+          <g
+            data-geometry-node-id="event-strip"
+            data-geometry-node-label="Event Flow"
+          >
+            <StageBox
+              box={eventStrip}
+              fill="rgba(255, 248, 240, 0.86)"
+              stroke="rgba(92, 106, 118, 0.28)"
+              strokeWidth={1.9}
+              markGeometryBox
+            />
+            <text
+              x={eventStrip.x + 18}
+              y={eventStrip.y + 18}
+              fill={scene.apiStroke}
+              fontSize="16"
+              fontWeight="800"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              1. 先看事件
+            </text>
+            {[
+              {
+                box: eventCurrentBox,
+                lines: ["当前在", "地图 A"],
+              },
+              {
+                box: eventDownloadBox,
+                lines: ["地图 B", "下载完成"],
+              },
+              {
+                box: eventCompileBox,
+                lines: ["开始编译", "地图 B 的 PSO"],
+              },
+            ].map((item, index) => (
+              <g key={`page26-event-${index}`}>
+                <StageBox
+                  box={item.box}
+                  fill="rgba(255, 255, 255, 0.92)"
+                  stroke={index === 2 ? scene.apiStroke : "rgba(92, 106, 118, 0.34)"}
+                  strokeWidth={index === 2 ? 2.2 : 1.9}
+                  markGeometryBox
+                />
+                {item.lines.map((line, lineIndex) => (
+                  <text
+                    key={`${line}-${lineIndex}`}
+                    x={centerX(item.box)}
+                    y={item.box.y + 16 + lineIndex * 15}
+                    fill="#22303d"
+                    fontSize={lineIndex === 0 ? "15" : "17"}
+                    fontWeight={lineIndex === 0 ? "760" : "820"}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    data-geometry-node-text="1"
+                  >
+                    {line}
+                  </text>
+                ))}
+              </g>
+            ))}
+            <StrokeArrow
+              d={horizontalPath(right(eventCurrentBox) + 10, eventDownloadBox.x - 10, centerY(eventCurrentBox))}
+              stroke="rgba(92, 106, 118, 0.76)"
+              opacity={panelOpacity}
+              headOpacity={panelOpacity}
+              tipX={eventDownloadBox.x - 10}
+              tipY={centerY(eventCurrentBox)}
+              direction="right"
+              shaftWidth={2.4}
+              underlayWidth={4.2}
+              headSize={6.2}
+            />
+            <StrokeArrow
+              d={horizontalPath(right(eventDownloadBox) + 10, eventCompileBox.x - 10, centerY(eventDownloadBox))}
+              stroke={scene.apiStroke}
+              opacity={panelOpacity}
+              headOpacity={panelOpacity}
+              tipX={eventCompileBox.x - 10}
+              tipY={centerY(eventDownloadBox)}
+              direction="right"
+              shaftWidth={2.5}
+              underlayWidth={4.5}
+              headSize={6.6}
+            />
+          </g>
+          <text
+            x={leftCard.x + 24}
+            y={leftCard.y + 154}
+            fill="rgba(34, 48, 61, 0.72)"
+            fontSize="16"
+            fontWeight="780"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            2. 再看同一时刻的两个视角
           </text>
           <g
             data-geometry-node-id="game-mask"
@@ -4248,39 +4417,53 @@ function Page26TimingPage({
               markGeometryBox
             />
             <text
-              x={centerX(gameMaskBox)}
+              x={gameMaskBox.x + 20}
               y={gameMaskBox.y + 24}
-              fill="#22303d"
-              fontSize="18"
+              fill={scene.apiStroke}
+              fontSize="15"
               fontWeight="800"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              当前游戏视角
+            </text>
+            <text
+              x={centerX(gameMaskBox)}
+              y={gameMaskBox.y + 62}
+              fill="#22303d"
+              fontSize="23"
+              fontWeight="820"
               textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              Game UsageMask
+              Game UsageMask = A
             </text>
-            {[
-              {label: "地图 A", game: "●", compile: "●"},
-              {label: "地图 B", game: "·", compile: "●"},
-            ].map((row, index) => {
-              const y = gameMaskBox.y + 92 + index * 64;
-              return (
-                <g key={`mask-row-game-${row.label}`}>
-                  <text
-                    x={gameMaskBox.x + 168}
-                    y={y}
-                    fill={scene.apiStroke}
-                    fontSize="28"
-                    fontWeight="820"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    data-geometry-node-text="1"
-                  >
-                    {row.game}
-                  </text>
-                </g>
-              );
-            })}
+            <text
+              x={gameMaskBox.x + 20}
+              y={gameMaskBox.y + 98}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="16"
+              fontWeight="720"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              只表示当前游戏实际在用的地图。
+            </text>
+            <text
+              x={gameMaskBox.x + 20}
+              y={gameMaskBox.y + 120}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="16"
+              fontWeight="680"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              此时 B 还没进入当前游戏。
+            </text>
           </g>
           <g
             data-geometry-node-id="compile-mask"
@@ -4294,122 +4477,127 @@ function Page26TimingPage({
               markGeometryBox
             />
             <text
-              x={centerX(compileMaskBox)}
+              x={compileMaskBox.x + 20}
               y={compileMaskBox.y + 24}
-              fill="#22303d"
-              fontSize="18"
+              fill={scene.apiStroke}
+              fontSize="15"
               fontWeight="800"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              编译调度视角
+            </text>
+            <text
+              x={centerX(compileMaskBox)}
+              y={compileMaskBox.y + 62}
+              fill="#22303d"
+              fontSize="22"
+              fontWeight="820"
               textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              Compile UsageMask
+              Compile UsageMask = A + B
             </text>
-            {[
-              {label: "地图 A", game: "●", compile: "●"},
-              {label: "地图 B", game: "·", compile: "●"},
-            ].map((row, index) => {
-              const y = gameMaskBox.y + 92 + index * 64;
-              return (
-                <g key={`mask-row-compile-${row.label}`}>
-                  <text
-                    x={compileMaskBox.x + 186}
-                    y={y}
-                    fill={scene.apiStroke}
-                    fontSize="28"
-                    fontWeight="820"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    data-geometry-node-text="1"
-                  >
-                    {row.compile}
-                  </text>
-                </g>
-              );
-            })}
+            <text
+              x={compileMaskBox.x + 20}
+              y={compileMaskBox.y + 98}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="15.5"
+              fontWeight="720"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              地图 B 下载完成后，立刻把 B 加入编译调度。
+            </text>
+            <text
+              x={compileMaskBox.x + 20}
+              y={compileMaskBox.y + 120}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="15.5"
+              fontWeight="680"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              所以编译视角已经是 A + B。
+            </text>
           </g>
-          {[
-            {label: "地图 A", game: "●", compile: "●"},
-            {label: "地图 B", game: "·", compile: "●"},
-          ].map((row, index) => {
-            const y = gameMaskBox.y + 92 + index * 64;
-            return (
-              <text
-                key={`mask-row-label-${row.label}`}
-                x={leftCard.x + 44}
-                y={y}
-                fill="#22303d"
-                fontSize="20"
-                fontWeight="760"
-                textAnchor="start"
-                dominantBaseline="middle"
-                data-geometry-node-text="1"
-              >
-                {row.label}
-              </text>
-            );
-          })}
           <g
-            data-geometry-node-id="download-pill"
-            data-geometry-node-label="Download Compile"
+            data-geometry-node-id="context-note"
+            data-geometry-node-label="Two Views At Once"
           >
             <StageBox
-              box={compileBanner}
+              box={contextNote}
               fill="rgba(248, 236, 226, 0.92)"
               stroke={scene.apiStroke}
               strokeWidth={2}
               markGeometryBox
             />
             <text
-              x={centerX(compileBanner)}
-              y={centerY(compileBanner)}
+              x={centerX(contextNote)}
+              y={contextNote.y + 16}
               fill={scene.apiStroke}
-              fontSize="18"
+              fontSize="15.5"
               fontWeight="760"
               textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              下载资源 && 编译 可以并行隐藏
+              同一时刻要同时表达两种视角：
+            </text>
+            <text
+              x={centerX(contextNote)}
+              y={contextNote.y + 31}
+              fill={scene.apiStroke}
+              fontSize="16"
+              fontWeight="720"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              当前游戏 = A；编译调度 = A + B
             </text>
           </g>
         </g>
         <LateInfoCard
           scene={scene}
           box={rightCard1}
-          title="Lazy Load"
-          lines={["延迟的是资源加载", "不用时不付成本，要用时再触发。"]}
+          title="3. 为什么 UE 原生不够"
+          lines={[
+            "原生 UsageMask 只有一套语义。",
+            "它很难同时表示：",
+            "当前游戏视角 + 下载完成后的编译调度视角。",
+          ]}
           opacity={panelOpacity}
           geometryNodeId="right-1"
           compact
           accent
-          bodyFontSize={17}
+          bodyFontSize={15}
+          lineGapOverride={18}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard2}
-          title="Streaming"
-          lines={["延迟的是内容驻留", "世界分区或区域进入内存都属于这一类。"]}
+          title="4. 但 PSO 存储没变"
+          lines={[
+            "写回 PSO 时仍只有一种 UsageMask 表达。",
+            "拆开的只是调度语义。",
+            "不是两套 PSO，也不是两套持久化格式。",
+          ]}
           opacity={panelOpacity}
           geometryNodeId="right-2"
           compact
-          bodyFontSize={17}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard3}
-          title="Deferred / Async Compile"
-          lines={["延迟的是编译成本", "编译可能迟到，但不必和收集强绑定。"]}
-          opacity={panelOpacity}
-          geometryNodeId="right-3"
-          compact
-          bodyFontSize={17}
+          bodyFontSize={15}
+          lineGapOverride={18}
         />
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="这里优化的不是“做不做”，而是“什么时候做”。"
+          text="结论：拆的是调度语义，不是 PSO 的持久化格式。"
         />
       </g>
     </PlaceholderBoardShell>
@@ -5432,14 +5620,14 @@ function Page32ReadingPage({
             <EndingLinkItem
               key={item.title}
               x={leftCard.x + 34}
-              y={leftCard.y + 112 + index * 78}
+              y={leftCard.y + 108 + index * 62}
               title={item.title}
               subtitle={item.subtitle}
               href={item.href}
               markGeometryText
-              titleFontSize={22}
-              subtitleFontSize={15.5}
-              subtitleOffset={24}
+              titleFontSize={21}
+              subtitleFontSize={15}
+              subtitleOffset={22}
             />
           ))}
         </g>

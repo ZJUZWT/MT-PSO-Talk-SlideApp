@@ -209,12 +209,28 @@ function NotesCard({
           <ul className="notes-point-list">
             {keyPoints.map((point) => (
               <li key={`${step.id}-${point}`} className="notes-point-item">
-                {point}
+                <span
+                  className="notes-point-bullet"
+                  data-testid="notes-point-bullet"
+                  aria-hidden="true"
+                  style={{backgroundColor: "var(--ink)"}}
+                />
+                <span className="notes-point-copy">{point}</span>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+
+      <section className="notes-section">
+        <p className="notes-section-label">讲解目标</p>
+        <p className="notes-section-copy">{step.timingHint}</p>
+        {step.goalDetail ? (
+          <p className="notes-section-copy notes-section-copy--secondary">
+            {step.goalDetail}
+          </p>
+        ) : null}
+      </section>
 
       {apiItems.length > 0 ? (
         <ApiListPanel
@@ -229,11 +245,6 @@ function NotesCard({
           rows={step.notesDataTable.rows}
         />
       ) : null}
-
-      <section className="notes-section">
-        <p className="notes-section-label">讲解目标</p>
-        <p className="notes-section-copy">{step.timingHint}</p>
-      </section>
 
       {relatedLinks.length > 0 ? (
         <section className="notes-section" aria-label="相关链接">

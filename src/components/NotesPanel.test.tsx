@@ -32,6 +32,26 @@ function buildState(stepId: StoryStepId): WorkbenchState {
 }
 
 describe("NotesPanel", () => {
+  it("renders page21 with a goal-side PSO intro and explicit black bullets for key points", () => {
+    const {container} = render(
+      <NotesPanel state={buildState("page_21")} transition={null} />,
+    );
+
+    const goalDetail = screen.getByText(
+      "这里的 PSO，可以先粗略理解成：进入游戏前会尽量预编译好的那组着色器与管线状态对象。",
+    );
+    expect(goalDetail).toBeInTheDocument();
+
+    const bullets = container.querySelectorAll("[data-testid='notes-point-bullet']");
+    expect(bullets.length).toBe(4);
+    expect(bullets[0]).toHaveStyle("background-color: var(--ink)");
+
+    const apiPanelTitle = screen.getByText("涉及 API / 文件");
+    expect(goalDetail.compareDocumentPosition(apiPanelTitle)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
   it("renders the page31 harness loop framing in the left notes card", () => {
     render(<NotesPanel state={buildState("page_31")} transition={null} />);
 

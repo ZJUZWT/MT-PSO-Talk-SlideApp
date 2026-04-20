@@ -182,45 +182,45 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
   "page_22",
   "Page 22 narrative understanding of PSO cache",
   [
-    node("left-card", "预编译的 PSO 不会消失，只会转移。", {x: 88, y: 146, width: 600, height: 402}, {
+    node("left-card", "PSO 是对象，PSO Cache 是方法。", {x: 88, y: 146, width: 600, height: 402}, {
       textRuns: [
-        {text: "核心判断", x: 22, y: 28, fontSize: 19, fontWeight: 820},
+        {text: "核心区分", x: 22, y: 28, fontSize: 19, fontWeight: 820},
         {
-          text: "预编译的 PSO 不会消失，只会转移。",
+          text: "PSO 是对象，PSO Cache 是方法。",
           x: 22,
           y: 104,
-          fontSize: 28,
+          fontSize: 26,
           fontWeight: 820,
         },
         {
-          text: "它把运行时卡顿改写成启动成本与内存成本。",
+          text: "它附属于 Shader，用启动时间 + 内存空间换运行时卡顿率。",
           x: 22,
           y: 178,
           fontSize: 17,
           fontWeight: 740,
         },
         {
-          text: "page21 讲何时失效，page22 讲这套工程该怎么理解。",
+          text: "没有 PSO Cache，项目也可能照样跑得很好。",
           x: 22,
           y: 203,
           fontSize: 17,
           fontWeight: 680,
         },
         {
-          text: "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
+          text: "所以它是手段，不是每个项目都必须上的答案。",
           x: 22,
           y: 228,
           fontSize: 17,
           fontWeight: 680,
         },
       ],
-      fontSizeOverride: 28,
+      fontSizeOverride: 26,
     }),
-    node("right-1", "对象", {x: 712, y: 146, width: 424, height: 102}, {
+    node("right-1", "PSO：对象", {x: 712, y: 146, width: 424, height: 102}, {
       textRuns: [
-        {text: "对象", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {text: "PSO：对象", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "PSO 是要被创建、绑定、命中的运行时对象。",
+          text: "被创建、绑定、命中的运行时对象。",
           x: 20,
           y: 58,
           fontSize: 17,
@@ -228,37 +228,37 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
         },
       ],
     }),
-    node("right-2", "方法", {x: 712, y: 296, width: 424, height: 102}, {
+    node("right-2", "PSO Cache：方法", {x: 712, y: 296, width: 424, height: 102}, {
       textRuns: [
-        {text: "方法", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {text: "PSO Cache：方法", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "围绕 Shader / State 的收集、",
+          text: "依赖 Shader Module 提供数据；",
           x: 20,
           y: 58,
-          fontSize: 16,
+          fontSize: 15.5,
           fontWeight: 720,
         },
         {
-          text: "保存、预热方法。",
+          text: ".ushaderbytecode / .scl.csv 会参与。",
           x: 20,
           y: 78,
-          fontSize: 16,
+          fontSize: 15.5,
           fontWeight: 720,
         },
       ],
     }),
-    node("right-3", "工程取舍", {x: 712, y: 446, width: 424, height: 114}, {
+    node("right-3", "代价 / 适用", {x: 712, y: 446, width: 424, height: 114}, {
       textRuns: [
-        {text: "工程取舍", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {text: "代价 / 适用", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "先换掉运行时尖峰，",
+          text: "不是所有项目都需要它；",
           x: 20,
           y: 58,
           fontSize: 16.5,
           fontWeight: 720,
         },
         {
-          text: "再回收首启和空间开销。",
+          text: "而且代价往往比想象中更大。",
           x: 20,
           y: 79,
           fontSize: 16.5,
@@ -269,7 +269,7 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
     node("footer", "工程方法", {x: 164, y: 606, width: 948, height: 54}, {
       textRuns: [
         {
-          text: "PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
+          text: "PSO 的成本不会消失，只会转移。",
           x: 474,
           y: 27,
           fontSize: 20,
@@ -283,11 +283,11 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
 
 const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
   makeFormalReviewSketch("formal-page24", "page_24", "Page 24 strategy", [
-    node("table", "Compression Table", {x: 98, y: 148, width: 748, height: 418}),
-    node("card-1", "Compression", {x: 868, y: 148, width: 308, height: 126}),
-    node("card-2", "Precompute", {x: 868, y: 290, width: 308, height: 126}),
-    node("card-3", "Algorithm", {x: 868, y: 432, width: 308, height: 140}),
-    textNode("link", "GDC Link", {x: 884, y: 576, width: 360, height: 26}, {
+    node("table", "Compression Table", {x: 88, y: 142, width: 760, height: 430}),
+    node("card-1", "Compression", {x: 864, y: 142, width: 320, height: 130}),
+    node("card-2", "Precompute", {x: 864, y: 286, width: 320, height: 130}),
+    node("card-3", "Algorithm", {x: 864, y: 430, width: 320, height: 144}),
+    textNode("link", "GDC Link", {x: 880, y: 576, width: 360, height: 26}, {
       fontSizeOverride: 14,
     }),
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
@@ -306,19 +306,21 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page26", "page_26", "Page 26 timing", [
-    node("left-card", "Mask Decouple", {x: 96, y: 146, width: 566, height: 402}),
-    node("game-mask", "Game Mask", {x: 120, y: 208, width: 228, height: 212}, {
+    node("left-card", "Mask Decouple", {x: 96, y: 146, width: 640, height: 402}),
+    node("event-strip", "Event Flow", {x: 120, y: 204, width: 592, height: 92}, {
       containerId: "left-card",
     }),
-    node("compile-mask", "Compile Mask", {x: 372, y: 208, width: 266, height: 212}, {
+    node("game-mask", "Game Mask", {x: 120, y: 314, width: 274, height: 148}, {
       containerId: "left-card",
     }),
-    node("download-pill", "Download Compile", {x: 120, y: 444, width: 518, height: 60}, {
+    node("compile-mask", "Compile Mask", {x: 418, y: 314, width: 294, height: 148}, {
       containerId: "left-card",
     }),
-    node("right-1", "Lazy Load", {x: 690, y: 146, width: 426, height: 114}),
-    node("right-2", "Streaming", {x: 690, y: 280, width: 426, height: 114}),
-    node("right-3", "Deferred Compile", {x: 690, y: 414, width: 426, height: 134}),
+    node("context-note", "Two Views At Once", {x: 120, y: 486, width: 592, height: 48}, {
+      containerId: "left-card",
+    }),
+    node("right-1", "Why Native Fails", {x: 760, y: 146, width: 356, height: 186}),
+    node("right-2", "Single Expression", {x: 760, y: 362, width: 356, height: 186}),
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page27", "page_27", "Page 27 parallel", [

@@ -34,4 +34,12 @@ describe("page_19 vertical relief harness goals", () => {
     expect(artifact.metrics.topMargin).toBeLessThan(160);
     expect(artifact.metrics.bottomMargin).toBeLessThan(160);
   });
+
+  it("keeps the UE subtree inside stable while reducing the right-heavy imbalance", () => {
+    const artifact = buildGeometryReviewArtifact(page19R1Sketch);
+
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThanOrEqual(32);
+    expect(artifact.metrics.leftRightMassDelta).toBeLessThanOrEqual(0.21);
+  });
 });

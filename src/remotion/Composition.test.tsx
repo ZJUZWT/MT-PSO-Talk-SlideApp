@@ -435,6 +435,7 @@ describe("MyComposition", () => {
     expect(
       container.querySelector('[data-testid="pixel-grid"][opacity="1"]'),
     ).not.toBeNull();
+    expect(container.querySelectorAll('[data-testid="page2-gpu-slot"]').length).toBe(3);
     expect(
       Array.from(container.querySelectorAll("rect")).length,
     ).toBeGreaterThan(10);
@@ -474,6 +475,7 @@ describe("MyComposition", () => {
     expect(programGroup).toBeTruthy();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-testid="page2-gpu-slot"]').length).toBe(0);
     expect(orangeArrows.length).toBeGreaterThanOrEqual(4);
     expect(badge2).not.toBeNull();
     expect(opacityOf(badge2)).toBeGreaterThan(0.9);
@@ -2663,10 +2665,16 @@ describe("MyComposition", () => {
     mockFrame = resolveRemotionStepFrame("page_19") + 60;
     const {container: page19Container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findSvgTextNodesByContent(page19Container, "stable.upipelinecache").length).toBe(0);
-    expect(findSvgTextNodesByContent(page19Container, "stable.").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "UE PSO").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(page19Container, "stable.upipelinecache").some(
+        (node) => effectiveOpacity(node) > 0.16,
+      ),
+    ).toBe(true);
+    expect(
+      findSvgTextNodesByContent(page19Container, "UE PSO").some(
+        (node) => effectiveOpacity(node) > 0.16,
+      ),
+    ).toBe(true);
     expect(findSvgTextNodesByContent(page19Container, "UEPSO x N").length).toBe(0);
     expect(findSvgTextNodesByContent(page19Container, "GPU").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page19Container, "VertexData").length).toBe(0);
@@ -2701,9 +2709,12 @@ describe("MyComposition", () => {
   it("renders merged page 19 as one centered precompile-to-cache diagram", () => {
     mockFrame = resolveRemotionStepFrame("page_19") + 8;
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const stableLine1 = findSvgTextNodesByContent(container, "stable.")[0];
-    const stableLine2 = findSvgTextNodesByContent(container, "upipelinecache")[0];
-    const uePsoLabel = findSvgTextNodesByContent(container, "UE PSO")[0];
+    const stableTitle = findSvgTextNodesByContent(container, "stable.upipelinecache").find(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
+    const uePsoLabel = findSvgTextNodesByContent(container, "UE PSO").find(
+      (node) => effectiveOpacity(node) > 0.16,
+    );
     const gpuLabels = findSvgTextNodesByContent(container, "GPU");
     const memoryTitle = findSvgTextNodesByContent(container, "内存中 PSO")[0];
     const diskTitle = findSvgTextNodesByContent(container, "硬盘中的 PSO")[0];
@@ -2715,10 +2726,8 @@ describe("MyComposition", () => {
       (node) => node.textContent?.trim(),
     );
 
-    expect(findSvgTextNodesByContent(container, "stable.upipelinecache").length).toBe(0);
-    expect(stableLine1).toBeDefined();
-    expect(stableLine2).toBeDefined();
-    expect(findSvgTextNodesByContent(container, "UE PSO").length).toBeGreaterThanOrEqual(1);
+    expect(stableTitle).toBeDefined();
+    expect(uePsoLabel).toBeDefined();
     expect(findSvgTextNodesByContent(container, "UE PSO x N").length).toBe(0);
     expect(rawTextContent).toContain("UE PSO");
     expect(findSvgTextNodesByContent(container, "GPU").length).toBeGreaterThanOrEqual(1);
@@ -2744,7 +2753,8 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "functions.data").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Precompile").length).toBe(0);
-    expect(fontSizeOf(uePsoLabel)).toBeGreaterThanOrEqual(31);
+    expect(fontSizeOf(stableTitle)).toBeGreaterThanOrEqual(20);
+    expect(fontSizeOf(uePsoLabel)).toBeGreaterThanOrEqual(22);
     expect(Math.max(...gpuLabels.map((node) => fontSizeOf(node)))).toBeGreaterThanOrEqual(52);
     expect(fontSizeOf(memoryTitle)).toBeGreaterThanOrEqual(30);
     expect(fontSizeOf(diskTitle)).toBeGreaterThanOrEqual(28);
@@ -2763,8 +2773,7 @@ describe("MyComposition", () => {
         effectiveOpacity(node) > 0.08,
     );
     const visiblePage19Nodes = [
-      ...findSvgTextNodesByContent(container, "stable."),
-      ...findSvgTextNodesByContent(container, "upipelinecache"),
+      ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
       ...findSvgTextNodesByContent(container, "UE PSO"),
       ...findSvgTextNodesByContent(container, "内存中 PSO"),
     ].filter((node) => effectiveOpacity(node) > 0.08);
@@ -2777,8 +2786,7 @@ describe("MyComposition", () => {
     mockFrame = 2332;
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const visiblePage19Nodes = [
-      ...findSvgTextNodesByContent(container, "stable."),
-      ...findSvgTextNodesByContent(container, "upipelinecache"),
+      ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
       ...findSvgTextNodesByContent(container, "UE PSO"),
       ...findSvgTextNodesByContent(container, "内存中 PSO"),
     ].filter((node) => effectiveOpacity(node) > 0.08);
@@ -3195,6 +3203,50 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "PCA 也是一种压缩")[0]).toBeDefined();
     expect(findTextNodes(container, "模型把原过程压进参数里")[0]).toBeDefined();
     expect(findTextNodes(container, "参考：GDC Vault / ML / Physics / Kolmogorov")[0]).toBeDefined();
+  });
+
+  it("puts the page 24 unit note on its own row below the release/results title", () => {
+    setLegacyFrame(1734);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const title = findTextNodes(
+      container,
+      "release/results 聚合实测：10 种算法 / 4 平台 / pso_like",
+    )[0];
+    const unitNote = findTextNodes(
+      container,
+      "单位：桌面 = 压/解(ms)；移动端 = 解压(ms)",
+    )[0];
+    const firstColumn = findTextNodes(container, "算法")[0];
+
+    expect(title).toBeDefined();
+    expect(unitNote).toBeDefined();
+    expect(firstColumn).toBeDefined();
+    expect(textY(unitNote)).toBeGreaterThan(textY(title));
+    expect(textY(firstColumn)).toBeGreaterThan(textY(unitNote));
+  });
+
+  it("keeps page 24 enlarged enough for the table block and strategy cards to read comfortably", () => {
+    setLegacyFrame(1734);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const tableRect = container.querySelector('[data-geometry-node-id="table"] rect');
+    const card1Rect = container.querySelector(
+      '[data-geometry-node-id="card-1"] [data-geometry-node-box="1"] rect',
+    );
+    const card2Rect = container.querySelector(
+      '[data-geometry-node-id="card-2"] [data-geometry-node-box="1"] rect',
+    );
+    const card3Rect = container.querySelector(
+      '[data-geometry-node-id="card-3"] [data-geometry-node-box="1"] rect',
+    );
+
+    expect(rectMetrics(tableRect).width).toBeGreaterThanOrEqual(760);
+    expect(rectMetrics(tableRect).height).toBeGreaterThanOrEqual(430);
+    expect(rectMetrics(card1Rect).width).toBeGreaterThanOrEqual(320);
+    expect(rectMetrics(card2Rect).width).toBeGreaterThanOrEqual(320);
+    expect(rectMetrics(card3Rect).width).toBeGreaterThanOrEqual(320);
+    expect(rectMetrics(card3Rect).height).toBeGreaterThanOrEqual(144);
   });
 
   it("renders page 29 as the code-based governance source page", () => {

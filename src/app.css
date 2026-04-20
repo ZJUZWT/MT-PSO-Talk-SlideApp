@@ -551,23 +551,32 @@ select {
 }
 
 .notes-point-item {
-  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   margin: 0;
-  padding-left: 14px;
   color: var(--ink);
   font-size: 0.99rem;
   line-height: 1.58;
 }
 
-.notes-point-item::before {
-  content: "";
-  position: absolute;
-  top: 0.62em;
-  left: 0;
+.notes-point-bullet {
+  flex: 0 0 auto;
+  margin-top: 0.54em;
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: var(--accent);
+}
+
+.notes-point-copy {
+  flex: 1 1 auto;
+}
+
+.notes-section-copy--secondary {
+  margin-top: 8px;
+  color: color-mix(in srgb, var(--ink) 92%, white 8%);
+  font-size: 0.94rem;
+  line-height: 1.6;
 }
 
 .notes-link-list {
