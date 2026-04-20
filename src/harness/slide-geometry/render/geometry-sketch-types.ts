@@ -12,6 +12,18 @@ export type SketchContract = {
 export type SketchNodeTone = "default" | "receiver" | "muted";
 export type SketchNodeShape = "roundedRect" | "circle";
 
+export type SketchTextRun = {
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontWeight?: number;
+  textAnchor?: "start" | "middle" | "end";
+  dominantBaseline?: "middle";
+  textColor?: string;
+  textStrokeWidth?: number;
+};
+
 export type SketchNode = {
   id: string;
   label: string;
@@ -25,6 +37,7 @@ export type SketchNode = {
   renderStyle?: "default" | "outline" | "textOnly";
   textRotationDeg?: number;
   labelLines?: string[];
+  textRuns?: SketchTextRun[];
   fontSizeOverride?: number;
   fontWeightOverride?: number;
   textStrokeWidth?: number;

@@ -1,11 +1,10 @@
 import type {GeometrySketchDefinition} from "../render/geometry-sketch-types";
 import {
-  collectGeometryTextOverflows,
   resolveGeometryContainerIds,
-  resolveGeometryTextLayout,
-  resolveGeometryTextPadding,
+  resolveGeometryTypographyMeasurement,
   shouldAuditGeometryNodeTypography,
 } from "../render/geometryText";
+import type {BrowserGeometryTextProbe} from "./browserGeometryTextProbe";
 import type {
   GeometryEdgeAnchorMetric,
   GeometryEdgeRouteMetric,
@@ -51,6 +50,10 @@ export type GeometryReviewArtifact = {
   mechanicalScore: number;
   verdict: string;
   topFixes: string[];
+};
+
+type BuildGeometryReviewArtifactOptions = {
+  browserTextProbe?: BrowserGeometryTextProbe | null;
 };
 
 export const GEOMETRY_METRIC_META: Array<{
@@ -192,8 +195,9 @@ function buildTopFixes(
   scores: GeometryMetricScores,
   edgeAnchorMetrics: GeometryEdgeAnchorMetric[],
   edgeRouteMetrics: GeometryEdgeRouteMetric[],
+  nodeTextMetrics: GeometryNodeTextMetric[],
 ) {
-  const textOverflows = collectGeometryTextOverflows(sketch);
+  const textOverflows = nodeTextMetrics.filter((nodeMetric) => nodeMetric.overflowPx > 0);
   const fixes: string[] = [];
   const anchorIssues = edgeAnchorMetrics
     .flatMap((metric) => [
@@ -370,34 +374,167 @@ function buildTopFixes(
   return fixes.slice(0, 3);
 }
 
-export function buildGeometryReviewArtifact(
+function buildEstimatedNodeTextMetrics(
   sketch: GeometrySketchDefinition,
-): GeometryReviewArtifact {
-  const textOverflows = collectGeometryTextOverflows(sketch);
-  const metrics = collectGeometryMetrics(sketch);
-  const nodeDirectionalClearances = collectNodeDirectionalClearances(sketch);
+): GeometryNodeTextMetric[] {
   const containerIds = resolveGeometryContainerIds(sketch);
-  const nodeTextMetrics = sketch.nodes
+
+  return sketch.nodes
     .filter(shouldAuditGeometryNodeTypography)
     .map((node) => {
-      const textLayout = resolveGeometryTextLayout(node, containerIds.has(node.id));
-      const padding = resolveGeometryTextPadding(node, containerIds.has(node.id));
+      const measurement = resolveGeometryTypographyMeasurement(
+        node,
+        containerIds.has(node.id),
+      );
+      const padding = measurement.padding;
 
       return {
         nodeId: node.id,
         label: node.label,
-        renderedFontPx: Number(textLayout.fontSize.toFixed(1)),
-        renderedFontPt: Number(((textLayout.fontSize * 72) / 96).toFixed(1)),
-        lineCount: textLayout.lines.length,
-        overflowPx: textLayout.overflowPx,
+        renderedFontPx: Number(measurement.renderedFontPx.toFixed(1)),
+        renderedFontPt: Number(((measurement.renderedFontPx * 72) / 96).toFixed(1)),
+        lineCount: measurement.lineCount,
+        overflowPx: measurement.overflowPx,
         topPaddingPx: padding.top,
         rightPaddingPx: padding.right,
         bottomPaddingPx: padding.bottom,
         leftPaddingPx: padding.left,
         tightestPaddingPx: padding.tightest,
       };
-    })
+    });
+}
+
+function buildBrowserProbeNodeTextMetric(
+  nodeMetric: BrowserGeometryTextProbe["nodes"][number],
+): GeometryNodeTextMetric {
+  const overflowPx = Number(
+    Math.max(
+      -nodeMetric.topPaddingPx,
+      -nodeMetric.rightPaddingPx,
+      -nodeMetric.bottomPaddingPx,
+      -nodeMetric.leftPaddingPx,
+      0,
+    ).toFixed(1),
+  );
+
+  return {
+    nodeId: nodeMetric.nodeId,
+    label: nodeMetric.label,
+    renderedFontPx: Number(nodeMetric.fontSizePx.toFixed(1)),
+    renderedFontPt: Number(((nodeMetric.fontSizePx * 72) / 96).toFixed(1)),
+    lineCount: nodeMetric.lineCount,
+    overflowPx,
+    topPaddingPx: nodeMetric.topPaddingPx,
+    rightPaddingPx: nodeMetric.rightPaddingPx,
+    bottomPaddingPx: nodeMetric.bottomPaddingPx,
+    leftPaddingPx: nodeMetric.leftPaddingPx,
+    tightestPaddingPx: nodeMetric.tightestPaddingPx,
+  };
+}
+
+function resolveNodeTextMetrics(
+  sketch: GeometrySketchDefinition,
+  browserTextProbe?: BrowserGeometryTextProbe | null,
+): GeometryNodeTextMetric[] {
+  const estimatedMetrics = buildEstimatedNodeTextMetrics(sketch);
+  const browserMetricsByNodeId = new Map(
+    (browserTextProbe?.nodes ?? []).map((nodeMetric) => [
+      nodeMetric.nodeId,
+      buildBrowserProbeNodeTextMetric(nodeMetric),
+    ]),
+  );
+
+  return estimatedMetrics
+    .map((nodeMetric) => browserMetricsByNodeId.get(nodeMetric.nodeId) ?? nodeMetric)
     .sort((left, right) => left.renderedFontPx - right.renderedFontPx);
+}
+
+function summarizeNodeTextMetrics(
+  nodeTextMetrics: GeometryNodeTextMetric[],
+): Pick<
+  GeometryMetrics,
+  | "textOverflowCount"
+  | "maxTextOverflowPx"
+  | "minRenderedFontPx"
+  | "minInternalPadding"
+  | "minInternalTopPadding"
+  | "minInternalRightPadding"
+  | "minInternalBottomPadding"
+  | "minInternalLeftPadding"
+  | "crampedInternalNodeCount"
+> {
+  const overflowNodes = nodeTextMetrics.filter((nodeMetric) => nodeMetric.overflowPx > 0);
+  const renderedFonts = nodeTextMetrics
+    .map((nodeMetric) => nodeMetric.renderedFontPx)
+    .filter((fontPx) => fontPx > 0);
+
+  return {
+    textOverflowCount: overflowNodes.length,
+    maxTextOverflowPx: overflowNodes.reduce(
+      (max, nodeMetric) => Math.max(max, nodeMetric.overflowPx),
+      0,
+    ),
+    minRenderedFontPx:
+      renderedFonts.length > 0 ? Math.min(...renderedFonts) : 0,
+    minInternalPadding:
+      nodeTextMetrics.length > 0
+        ? Math.min(...nodeTextMetrics.map((nodeMetric) => nodeMetric.tightestPaddingPx))
+        : 0,
+    minInternalTopPadding:
+      nodeTextMetrics.length > 0
+        ? Math.min(...nodeTextMetrics.map((nodeMetric) => nodeMetric.topPaddingPx))
+        : 0,
+    minInternalRightPadding:
+      nodeTextMetrics.length > 0
+        ? Math.min(...nodeTextMetrics.map((nodeMetric) => nodeMetric.rightPaddingPx))
+        : 0,
+    minInternalBottomPadding:
+      nodeTextMetrics.length > 0
+        ? Math.min(...nodeTextMetrics.map((nodeMetric) => nodeMetric.bottomPaddingPx))
+        : 0,
+    minInternalLeftPadding:
+      nodeTextMetrics.length > 0
+        ? Math.min(...nodeTextMetrics.map((nodeMetric) => nodeMetric.leftPaddingPx))
+        : 0,
+    crampedInternalNodeCount: nodeTextMetrics.filter(
+      (nodeMetric) => nodeMetric.tightestPaddingPx < 10,
+    ).length,
+  };
+}
+
+function resolveTextMeasurementSource(
+  nodeTextMetrics: GeometryNodeTextMetric[],
+  browserTextProbe?: BrowserGeometryTextProbe | null,
+) {
+  const matchedNodeCount = nodeTextMetrics.filter((nodeMetric) =>
+    (browserTextProbe?.nodes ?? []).some(
+      (probeNodeMetric) => probeNodeMetric.nodeId === nodeMetric.nodeId,
+    ),
+  ).length;
+
+  if (matchedNodeCount <= 0) {
+    return "Formula-only geometry estimate";
+  }
+
+  const fallbackNodeCount = Math.max(0, nodeTextMetrics.length - matchedNodeCount);
+  if (fallbackNodeCount === 0) {
+    return `Front browser probe (${matchedNodeCount} nodes)`;
+  }
+
+  return `Front browser probe (${matchedNodeCount} nodes) + formula fallback (${fallbackNodeCount} nodes)`;
+}
+
+export function buildGeometryReviewArtifact(
+  sketch: GeometrySketchDefinition,
+  options: BuildGeometryReviewArtifactOptions = {},
+): GeometryReviewArtifact {
+  const nodeTextMetrics = resolveNodeTextMetrics(sketch, options.browserTextProbe);
+  const textOverflows = nodeTextMetrics.filter((nodeMetric) => nodeMetric.overflowPx > 0);
+  const metrics = {
+    ...collectGeometryMetrics(sketch),
+    ...summarizeNodeTextMetrics(nodeTextMetrics),
+  };
+  const nodeDirectionalClearances = collectNodeDirectionalClearances(sketch);
   const edgeAnchorMetrics = collectEdgeAnchorMetrics(sketch);
   const edgeRouteMetrics = collectEdgeRouteMetrics(sketch);
   const worstAnchors = edgeAnchorMetrics
@@ -467,6 +604,10 @@ export function buildGeometryReviewArtifact(
       {label: "Receiver plane", value: sketch.contract.receiverPlane},
       {label: "Primary line", value: sketch.contract.primaryLine},
       {
+        label: "Text measurement source",
+        value: resolveTextMeasurementSource(nodeTextMetrics, options.browserTextProbe),
+      },
+      {
         label: "Overflow labels",
         value:
           textOverflows.length > 0
@@ -513,13 +654,14 @@ export function buildGeometryReviewArtifact(
     edgeRouteMetrics,
     scores,
     mechanicalScore: resolveMechanicalScore(scores),
-    verdict: resolveVerdict(metrics, scores),
-    topFixes: buildTopFixes(
-      sketch,
-      metrics,
-      scores,
-      edgeAnchorMetrics,
-      edgeRouteMetrics,
-    ),
+      verdict: resolveVerdict(metrics, scores),
+      topFixes: buildTopFixes(
+        sketch,
+        metrics,
+        scores,
+        edgeAnchorMetrics,
+        edgeRouteMetrics,
+        nodeTextMetrics,
+      ),
   };
 }

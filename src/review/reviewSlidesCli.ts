@@ -11,11 +11,13 @@ export type ReviewSlidesCliArgs = {
   fromStepId: StoryStepId;
   outputDir: string;
   outputDirSuffix: string;
+  frontBrowserTextProbe: boolean;
 };
 
 export function parseReviewSlidesArgs(argv: string[]): ReviewSlidesCliArgs {
   let fromStepId: StoryStepId = "page_19";
   let outputDir = resolve(REPO_ROOT, `.${DEFAULT_OUTPUT_DIR_SUFFIX}`);
+  let frontBrowserTextProbe = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
@@ -38,11 +40,16 @@ export function parseReviewSlidesArgs(argv: string[]): ReviewSlidesCliArgs {
       index += 1;
       continue;
     }
+
+    if (token === "--front-browser-text-probe") {
+      frontBrowserTextProbe = true;
+    }
   }
 
   return {
     fromStepId,
     outputDir,
     outputDirSuffix: DEFAULT_OUTPUT_DIR_SUFFIX,
+    frontBrowserTextProbe,
   };
 }

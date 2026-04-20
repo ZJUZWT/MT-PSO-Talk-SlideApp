@@ -689,11 +689,12 @@ export const masterStoryboard: Storyboard = {
       id: "page_19",
       label: "预编译：stable 缓存进入内存与硬盘 PSO",
       caption:
-        "把原 page19 和 page20 压成一页：stable.upipelinecache 先批次展开成 UE PSO，再进入 GPU、内存中 PSO，并继续落到 OpenGL / Vulkan / Metal 的本地缓存表达。",
+        "把原 page19 和 page20 压成一页：stable.upipelinecache 先批次展开成 UE PSO，再进入 GPU、内存中 PSO，并继续落到 OpenGL / Vulkan / Metal 的本地缓存表达；Metal 的 Binary Archive 2 先打个问号。",
       keyPoints: [
         "输入来自 stable.upipelinecache。",
         "UE PSO 统一收口到和 page14 一致的 VertexData / GPU / Pixels 竖链，再进入内存中 PSO。",
         "OpenGL / Vulkan / Metal 在内存态与本地缓存态的载体不同。",
+        "Metal Binary Archive 2 先当作待验证分支，不先讲成确定答案。",
       ],
       apiHighlights: [
         "stable.upipelinecache",
@@ -715,25 +716,30 @@ export const masterStoryboard: Storyboard = {
           label: "知乎：Program Binary / 预编译缓存",
           url: "https://zhuanlan.zhihu.com/p/587988966",
         },
+        {
+          label: "知乎：Metal Binary Archive 2（先打问号）",
+          url: "https://zhuanlan.zhihu.com/p/587988966",
+        },
       ],
       intro:
         "闭环成立后，直接把预编译的两段逻辑压成一张图：稳定缓存怎么被批次消费、落到内存对象，又如何对应到各类本地缓存表达。",
       manuscript:
-        "第十九页把原来的两段问题压成一条主图来讲。左边的 `stable.upipelinecache` 先在引擎侧展开成 `UE PSO`，组内再用 `PSO 1 / PSO 2 / PSO ...` 表示批次对象，随后统一收口到和 page14 一致的 `VertexData -> GPU -> Pixels` 竖向线路，进入右侧的 `内存中 PSO` 组。接着同一页继续把三种 API 的持久化差异并列画出来：OpenGL 节点里写 `Program Binary`，Vulkan 节点里写 `Pipeline Cache`，Metal 节点里写 `Binary Archive / 系统管理`。它们再分别用三条水平虚线，指向最右侧磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 和 `BinaryArchive / functions.data`。这样观众在一页里就能顺着同一条中轴读完“稳定缓存 -> UE 批次 -> GPU -> 内存态 -> 本地缓存态”的完整逻辑。",
+        "第十九页把原来的两段问题压成一条主图来讲。左边的 `stable.upipelinecache` 先在引擎侧展开成 `UE PSO`，组内再用 `PSO 1 / PSO 2 / PSO ...` 表示批次对象，随后统一收口到和 page14 一致的 `VertexData -> GPU -> Pixels` 竖向线路，进入右侧的 `内存中 PSO` 组。接着同一页继续把三种 API 的持久化差异并列画出来：OpenGL 节点里写 `Program Binary`，Vulkan 节点里写 `Pipeline Cache`，Metal 节点里先保留 `Binary Archive / 系统管理` 这条主线，同时把 `Binary Archive 2` 先打个问号，提醒自己这条线在社区讨论里评价并不稳定，暂时不要讲成确定答案。它们再分别用三条水平虚线，指向最右侧磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 和 `BinaryArchive / functions.data`。这样观众在一页里就能顺着同一条中轴读完“稳定缓存 -> UE 批次 -> GPU -> 内存态 -> 本地缓存态”的完整逻辑。",
       focusColorKey: "shared",
     },
     {
       id: "page_21",
       label: "PSO 缓存有效性边界",
       caption:
-        "改成和后面一致的 summary 板式：左主卡收束结论，右侧三卡分别讲收集、首启、平台/环境边界。",
+        "改成和后面一致的 summary 板式：左主卡先回答“什么情况下会失效”，右侧三卡分别讲内容/状态、版本/构建、平台/环境边界。",
       keyPoints: [
-        "左主卡先给一句话结论：缓存效果由四个边界共同决定。",
-        "右侧第一卡讲收集边界：少而全，别暴力 Permute。",
-        "右侧第二卡讲首启边界：stable.upipelinecache 会把压力集中到首启。",
-        "右侧第三卡讲平台 / 环境边界：API 状态模型和环境变化都可能让缓存失效。",
+        "左主卡先给一句话结论：PSO 缓存失效，通常是内容或环境变了。",
+        "右侧第一卡讲内容 / 状态边界：Shader、Permute、Vertex Layout、Render State 一变，就不是同一个 PSO。",
+        "右侧第二卡讲版本 / 构建边界：SharedCode、codegen、Hash、scl 映射变化时，旧缓存往往要重建。",
+        "右侧第三卡讲平台 / 环境边界：OpenGL 与现代 API 的状态模型不同，OS / Driver / GPU / API 变化也会让本地缓存失效。",
+        "`stable.upipelinecache` 只能前移当前版本的可复用成本，不承诺跨版本、跨环境永远有效。",
       ],
-      apiHighlights: ["Permute Shader State", "stable.upipelinecache Open/Load", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
+      apiHighlights: ["Permute Shader State", "SharedCode / codegen / scl", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
       notes:
         "外层工作台不变，只把板内结构统一成后面策略页的“左主卡 + 右侧三卡 + footer”。",
       focusTarget: "Cache Validity",
@@ -742,7 +748,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "进入策略页之前，先用和后面一致的 summary 板式把缓存边界讲透。",
       manuscript:
-        "第二十一页现在改成和后面策略页一致的 summary 结构。左侧主卡先给一句总判断：缓存效果由四个边界共同决定，它不是默认必开、永久有效的银弹。右侧三张小卡再拆开讲：第一张是收集边界，强调少而全、别暴力 Permute；第二张是首启边界，说明 stable.upipelinecache 往往把内存和时长压力前置到启动窗口；第三张是平台 / 环境边界，说明 OpenGL 与现代 API 的状态模型不同，操作系统、驱动、芯片、GPU、API 变化也都可能让缓存失效并触发重编译。底部 footer 负责把结论收口：边界讲清，后面的策略页才不会被误读成默认正确。",
+        "第二十一页现在改成和后面策略页一致的 summary 结构，但重点先收回到“什么时候会失效”。左侧主卡先给一句总判断：PSO 缓存失效，通常是内容变了，或者环境变了；`stable.upipelinecache` 能做的是把当前版本里可复用的部分前移，不是承诺跨版本、跨环境永远有效。右侧三张小卡再拆开讲：第一张是内容 / 状态边界，强调 `Shader`、`Permute`、`Vertex Layout`、`Render State` 一旦变化，就已经不是同一个 PSO；第二张是版本 / 构建边界，说明 `SharedCode`、`codegen`、`Hash`、`scl` 映射一变，旧缓存通常就要重新 `expand / build`；第三张是平台 / 环境边界，说明 `OpenGL` 与现代 API 的状态模型不同，操作系统、驱动、芯片、GPU、API 变化也都可能让本地缓存失效并触发重编译。底部 footer 负责把结论收口：重点不是幻想缓存永不失效，而是分清哪些边界能复用，哪些边界必须重建。",
       focusColorKey: "shared",
     },
     {
@@ -765,7 +771,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "边界讲完后，继续用同一套 summary 语法收束核心理解。",
       manuscript:
-        "第二十二页也改成和后面一致的 summary 板式。左侧主卡先把核心判断钉住：预编译的 PSO 不会消失，只会转移，它只是把运行时卡顿改写成启动成本和内存成本。右侧三张小卡分别拆成三个维度：`对象` 直接说明“PSO 是对象”，也就是那个被创建、绑定、命中的运行时对象；`方法` 说明 PSO Cache 是围绕 Shader / 状态收集、保存、预热的一套工程方法；`工程取舍` 则强调优先换掉运行时尖峰，再慢慢回收首启与空间开销。footer 最后再收一句：PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
+        "第二十二页也改成和后面一致的 summary 板式。左侧主卡先把核心判断钉住：预编译的 PSO 不会消失，只会转移，它只是把运行时卡顿改写成启动成本和内存成本。这里也顺带和 page21 分工开：page21 讲的是“什么时候会失效”，page22 讲的是“这套工程应该怎么理解”。右侧三张小卡分别拆成三个维度：`对象` 直接说明“PSO 是对象”，也就是那个被创建、绑定、命中的运行时对象；`方法` 说明 PSO Cache 是围绕 Shader / 状态收集、保存、预热的一套工程方法；`工程取舍` 则强调优先换掉运行时尖峰，再慢慢回收首启与空间开销。footer 最后再收一句：PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
       focusColorKey: "shared",
     },
     {

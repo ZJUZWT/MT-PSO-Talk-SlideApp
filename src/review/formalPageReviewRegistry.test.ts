@@ -42,4 +42,21 @@ describe("formal page review registry", () => {
     expect(artifact.scores.stageLayout).toBeGreaterThanOrEqual(6);
     expect(artifact.mechanicalScore).toBeGreaterThanOrEqual(6.5);
   });
+
+  it("measures page_21 lead-card typography as multiple explicit runs", () => {
+    const page21 = findFormalPageReviewSketchByStepId("page_21");
+
+    expect(page21).toBeDefined();
+
+    const artifact = buildGeometryReviewArtifact(page21!);
+    const leadCard = artifact.nodeTextMetrics.find(
+      (nodeMetric) => nodeMetric.nodeId === "left-card",
+    );
+
+    expect(leadCard).toMatchObject({
+      nodeId: "left-card",
+      lineCount: 5,
+      overflowPx: 0,
+    });
+  });
 });

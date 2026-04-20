@@ -941,6 +941,7 @@ function LateInfoCard({
   title,
   lines,
   opacity,
+  geometryNodeId,
   accent = false,
   compact = false,
   titleFontSize = 18,
@@ -952,6 +953,7 @@ function LateInfoCard({
   title: string;
   lines: readonly string[];
   opacity: number;
+  geometryNodeId?: string;
   accent?: boolean;
   compact?: boolean;
   titleFontSize?: number;
@@ -962,13 +964,19 @@ function LateInfoCard({
   const fontSize = bodyFontSize ?? (compact ? 16 : 18);
 
   return (
-    <g opacity={opacity}>
-      <StageBox
-        box={box}
-        fill={accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 255, 255, 0.9)"}
-        stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
-        strokeWidth={accent ? 2.8 : 2.1}
-      />
+    <g
+      opacity={opacity}
+      data-geometry-node-id={geometryNodeId}
+      data-geometry-node-label={geometryNodeId ? title : undefined}
+    >
+      <g data-geometry-node-box={geometryNodeId ? "1" : undefined}>
+        <StageBox
+          box={box}
+          fill={accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 255, 255, 0.9)"}
+          stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
+          strokeWidth={accent ? 2.8 : 2.1}
+        />
+      </g>
       <text
         x={box.x + 20}
         y={box.y + 26}
@@ -977,6 +985,7 @@ function LateInfoCard({
         fontWeight="820"
         textAnchor="start"
         dominantBaseline="middle"
+        data-geometry-node-text={geometryNodeId ? "1" : undefined}
       >
         {title}
       </text>
@@ -990,6 +999,7 @@ function LateInfoCard({
           fontWeight={index === 0 ? "720" : "670"}
           textAnchor="start"
           dominantBaseline="middle"
+          data-geometry-node-text={geometryNodeId ? "1" : undefined}
         >
           {line}
         </text>
@@ -1002,21 +1012,29 @@ function LateFooterBar({
   scene,
   text,
   opacity,
+  geometryNodeId,
 }: {
   scene: SceneModel;
   text: string;
   opacity: number;
+  geometryNodeId?: string;
 }) {
   const footerBox = {x: 164, y: 608, width: 948, height: 50, radius: 22};
 
   return (
-    <g opacity={opacity}>
-      <StageBox
-        box={footerBox}
-        fill="rgba(255, 248, 240, 0.92)"
-        stroke="rgba(92, 106, 118, 0.24)"
-        strokeWidth={1.8}
-      />
+    <g
+      opacity={opacity}
+      data-geometry-node-id={geometryNodeId}
+      data-geometry-node-label={geometryNodeId ? text : undefined}
+    >
+      <g data-geometry-node-box={geometryNodeId ? "1" : undefined}>
+        <StageBox
+          box={footerBox}
+          fill="rgba(255, 248, 240, 0.92)"
+          stroke="rgba(92, 106, 118, 0.24)"
+          strokeWidth={1.8}
+        />
+      </g>
       <text
         x={centerX(footerBox)}
         y={centerY(footerBox)}
@@ -1025,6 +1043,7 @@ function LateFooterBar({
         fontWeight="700"
         textAnchor="middle"
         dominantBaseline="middle"
+        data-geometry-node-text={geometryNodeId ? "1" : undefined}
       >
         {text}
       </text>
@@ -1039,6 +1058,7 @@ function LateLeadCard({
   headline,
   bodyLines,
   opacity,
+  geometryNodeId,
   accent = false,
   headlineFontSize = 31,
   bodyFontSize = 17.5,
@@ -1050,6 +1070,7 @@ function LateLeadCard({
   headline: string;
   bodyLines: readonly string[];
   opacity: number;
+  geometryNodeId?: string;
   accent?: boolean;
   headlineFontSize?: number;
   bodyFontSize?: number;
@@ -1059,13 +1080,19 @@ function LateLeadCard({
   const bodyStartY = box.y + 178;
 
   return (
-    <g opacity={opacity}>
-      <StageBox
-        box={box}
-        fill={accent ? "rgba(255, 248, 240, 0.94)" : "rgba(255, 255, 255, 0.92)"}
-        stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.4)"}
-        strokeWidth={accent ? 2.5 : 2.1}
-      />
+    <g
+      opacity={opacity}
+      data-geometry-node-id={geometryNodeId}
+      data-geometry-node-label={geometryNodeId ? headline : undefined}
+    >
+      <g data-geometry-node-box={geometryNodeId ? "1" : undefined}>
+        <StageBox
+          box={box}
+          fill={accent ? "rgba(255, 248, 240, 0.94)" : "rgba(255, 255, 255, 0.92)"}
+          stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.4)"}
+          strokeWidth={accent ? 2.5 : 2.1}
+        />
+      </g>
       <text
         x={box.x + 22}
         y={box.y + 28}
@@ -1074,6 +1101,7 @@ function LateLeadCard({
         fontWeight="820"
         textAnchor="start"
         dominantBaseline="middle"
+        data-geometry-node-text={geometryNodeId ? "1" : undefined}
       >
         {eyebrow}
       </text>
@@ -1085,6 +1113,7 @@ function LateLeadCard({
         fontWeight="820"
         textAnchor="start"
         dominantBaseline="middle"
+        data-geometry-node-text={geometryNodeId ? "1" : undefined}
       >
         {headline}
       </text>
@@ -1098,6 +1127,7 @@ function LateLeadCard({
           fontWeight={index === 0 ? "740" : "680"}
           textAnchor="start"
           dominantBaseline="middle"
+          data-geometry-node-text={geometryNodeId ? "1" : undefined}
         >
           {line}
         </text>
@@ -1112,6 +1142,7 @@ function LateCodeCard({
   title,
   lines,
   opacity,
+  geometryNodeId,
   titleFontSize = 17,
   codeFontSize = 14,
   lineHeight = 19,
@@ -1121,18 +1152,25 @@ function LateCodeCard({
   title: string;
   lines: readonly string[];
   opacity: number;
+  geometryNodeId?: string;
   titleFontSize?: number;
   codeFontSize?: number;
   lineHeight?: number;
 }) {
   return (
-    <g opacity={opacity}>
-      <StageBox
-        box={box}
-        fill="rgba(249, 247, 244, 0.96)"
-        stroke="rgba(92, 106, 118, 0.36)"
-        strokeWidth={2}
-      />
+    <g
+      opacity={opacity}
+      data-geometry-node-id={geometryNodeId}
+      data-geometry-node-label={geometryNodeId ? title : undefined}
+    >
+      <g data-geometry-node-box={geometryNodeId ? "1" : undefined}>
+        <StageBox
+          box={box}
+          fill="rgba(249, 247, 244, 0.96)"
+          stroke="rgba(92, 106, 118, 0.36)"
+          strokeWidth={2}
+        />
+      </g>
       <text
         x={box.x + 18}
         y={box.y + 24}
@@ -1141,6 +1179,7 @@ function LateCodeCard({
         fontWeight="820"
         textAnchor="start"
         dominantBaseline="middle"
+        data-geometry-node-text={geometryNodeId ? "1" : undefined}
       >
         {title}
       </text>
@@ -1157,6 +1196,7 @@ function LateCodeCard({
             fontWeight={isAttributeLine ? "780" : "650"}
             textAnchor="start"
             dominantBaseline="middle"
+            data-geometry-node-text={geometryNodeId ? "1" : undefined}
           >
             {line}
           </text>
@@ -3312,10 +3352,10 @@ function Page21Placeholder({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 96, y: 146, width: 596, height: 402, radius: 28};
-  const rightCard1 = {x: 720, y: 146, width: 408, height: 114, radius: 24};
-  const rightCard2 = {x: 720, y: 280, width: 408, height: 114, radius: 24};
-  const rightCard3 = {x: 720, y: 414, width: 408, height: 134, radius: 24};
+  const leftCard = {x: 104, y: 146, width: 568, height: 402, radius: 28};
+  const rightCard1 = {x: 720, y: 146, width: 408, height: 102, radius: 24};
+  const rightCard2 = {x: 720, y: 296, width: 408, height: 102, radius: 24};
+  const rightCard3 = {x: 720, y: 446, width: 408, height: 114, radius: 24};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -3324,52 +3364,63 @@ function Page21Placeholder({
           scene={scene}
           box={leftCard}
           eyebrow="PSO 缓存有效性边界"
-          headline="缓存效果由四个边界共同决定"
+          headline="什么时候会失效？"
           bodyLines={[
-            "PSO Cache 不是默认必开、永久有效的银弹。",
-            "它是否值回票价，要同时看收集、首启、状态模型和环境稳定性。",
-            "边界讲清以后，后面的策略页才不会被误读成“默认正确”。",
+            "先问失效：不是所有缓存都能跨内容、跨版本、跨环境复用。",
+            "Shader / State 变了，或者 codegen / 映射 / 驱动变了，旧缓存就可能失效。",
+            "重点不是幻想永不失效，而是分清哪些能复用，哪些必须重建。",
           ]}
           opacity={panelOpacity}
+          geometryNodeId="left-card"
           accent
-          headlineFontSize={30}
+          headlineFontSize={25}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard1}
-          title="收集边界"
-          lines={["少而全，别暴力 Permute。", "PSO 组合一旦指数增长，缓存本身就会失控。"]}
+          title="内容 / 状态变了"
+          lines={[
+            "Shader、Permute、Vertex Layout、Render State 变化，",
+            "都会让它不再是同一个 PSO。",
+          ]}
           opacity={panelOpacity}
+          geometryNodeId="right-1"
           compact
           accent
-          bodyFontSize={17}
+          bodyFontSize={16.5}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard2}
-          title="首启边界"
-          lines={["stable.upipelinecache 往往集中在启动阶段 Open。", "首次进入时长和内存压力会被整体前置。"]}
+          title="版本 / 构建变了"
+          lines={[
+            "SharedCode、codegen、Hash、scl 映射一变，",
+            "旧缓存通常要重新 expand / build。",
+          ]}
           opacity={panelOpacity}
+          geometryNodeId="right-2"
           compact
-          bodyFontSize={17}
+          bodyFontSize={16.5}
         />
         <LateInfoCard
           scene={scene}
           box={rightCard3}
-          title="平台 / 环境边界"
+          title="环境变了"
           lines={[
-            "OpenGL 与现代 API 的状态模型天然不同。",
-            "OS / Driver / GPU / API 变化都可能让本地缓存失效并重编译。",
+            "OS / Driver / GPU / API 变化，本地缓存可能直接失效。",
+            "OpenGL / Vulkan / Metal 的持久化边界也不同。",
           ]}
           opacity={panelOpacity}
+          geometryNodeId="right-3"
           compact
-          bodyFontSize={17}
+          bodyFontSize={16.5}
           lineGapOverride={21}
         />
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
-          text="边界讲清，后面的策略页才不会被误读成默认正确。"
+          geometryNodeId="footer"
+          text="缓存不是永不失效，而是把可复用边界和重建边界讲清楚。"
         />
       </g>
     </PlaceholderBoardShell>
@@ -3387,10 +3438,10 @@ function Page22Placeholder({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 96, y: 146, width: 596, height: 402, radius: 28};
-  const rightCard1 = {x: 720, y: 146, width: 408, height: 114, radius: 24};
-  const rightCard2 = {x: 720, y: 280, width: 408, height: 114, radius: 24};
-  const rightCard3 = {x: 720, y: 414, width: 408, height: 134, radius: 24};
+  const leftCard = {x: 104, y: 146, width: 568, height: 402, radius: 28};
+  const rightCard1 = {x: 720, y: 146, width: 408, height: 102, radius: 24};
+  const rightCard2 = {x: 720, y: 296, width: 408, height: 102, radius: 24};
+  const rightCard3 = {x: 720, y: 446, width: 408, height: 114, radius: 24};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -3402,10 +3453,11 @@ function Page22Placeholder({
           headline="预编译的 PSO 不会消失，只会转移。"
           bodyLines={[
             "它把运行时卡顿改写成启动成本与内存成本。",
+            "page21 讲的是何时失效，page22 讲的是如何理解这套工程。",
             "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
-            "理解这一点，后面的策略页才能统一落在“工程取舍”上。",
           ]}
           opacity={panelOpacity}
+          geometryNodeId="left-card"
           accent
           headlineFontSize={29}
           bodyFontSize={17}
@@ -3416,6 +3468,7 @@ function Page22Placeholder({
           title="对象"
           lines={["PSO 是要被创建、绑定、命中的运行时对象。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-1"
           compact
           accent
           bodyFontSize={17}
@@ -3426,6 +3479,7 @@ function Page22Placeholder({
           title="方法"
           lines={["PSO Cache 是围绕 Shader / 状态收集、保存、预热的工程方法。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-2"
           compact
           bodyFontSize={16.5}
           lineGapOverride={20}
@@ -3439,6 +3493,7 @@ function Page22Placeholder({
             "它不是零代价优化，只是把代价换到更容易管理的位置。",
           ]}
           opacity={panelOpacity}
+          geometryNodeId="right-3"
           compact
           bodyFontSize={17}
           lineGapOverride={21}
@@ -3446,6 +3501,7 @@ function Page22Placeholder({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="PSO Cache 是工程方法，不是让代价凭空消失的魔法。"
         />
       </g>
@@ -3621,6 +3677,7 @@ function Page24StrategyPage({
           title="Compression"
           lines={["直接改资源形态", "体积更小，但解压和恢复要额外付时间。"]}
           opacity={panelOpacity}
+          geometryNodeId="card-1"
           accent
           compact
           bodyFontSize={17}
@@ -3631,6 +3688,7 @@ function Page24StrategyPage({
           title="Precompute / Preload"
           lines={["先占空间再换时间", "Lightmap、LUT、Precache 都属于这类。"]}
           opacity={panelOpacity}
+          geometryNodeId="card-2"
           compact
           bodyFontSize={17}
         />
@@ -3640,6 +3698,7 @@ function Page24StrategyPage({
           title="Algorithm"
           lines={["改表示 / 改求解路径", ...STRATEGY_ALGORITHM_LINES]}
           opacity={panelOpacity}
+          geometryNodeId="card-3"
           compact
           bodyFontSize={16}
           lineGapOverride={20}
@@ -3661,6 +3720,7 @@ function Page24StrategyPage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="优化未必是发明新算法，也可能只是把时间和空间重新分配了一次。"
         />
       </g>
@@ -3799,6 +3859,7 @@ function Page25StoragePage({
           title="选取逻辑"
           lines={["LRU / Clock / Pin", "决定谁该留下，谁该转去外存。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-1"
           compact
           accent
           bodyFontSize={17}
@@ -3809,6 +3870,7 @@ function Page25StoragePage({
           title="映射机制"
           lines={["mmap / paging / 虚拟内存", "决定外存数据如何重新回到地址空间。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-2"
           compact
           bodyFontSize={17}
         />
@@ -3818,12 +3880,14 @@ function Page25StoragePage({
           title="外存载体"
           lines={["file / SQL / KV / spill", "IO 只是承载面，关键看访问形态和回填成本。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-3"
           compact
           bodyFontSize={17}
         />
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="IO 换空间不是单点技巧，而是一套“选取 + 回填 + 外存”的组合方法。"
         />
       </g>
@@ -3920,6 +3984,7 @@ function Page26TimingPage({
           title="Lazy Load"
           lines={["延迟的是资源加载", "不用时不付成本，要用时再触发。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-1"
           compact
           accent
           bodyFontSize={17}
@@ -3930,6 +3995,7 @@ function Page26TimingPage({
           title="Streaming"
           lines={["延迟的是内容驻留", "世界分区或区域进入内存都属于这一类。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-2"
           compact
           bodyFontSize={17}
         />
@@ -3939,12 +4005,14 @@ function Page26TimingPage({
           title="Deferred / Async Compile"
           lines={["延迟的是编译成本", "编译可能迟到，但不必和收集强绑定。"]}
           opacity={panelOpacity}
+          geometryNodeId="right-3"
           compact
           bodyFontSize={17}
         />
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="这里优化的不是“做不做”，而是“什么时候做”。"
         />
       </g>
@@ -4034,6 +4102,7 @@ function Page27ParallelPage({
           title="适用特征"
           lines={["独立", "重复", "规则", "可拆"]}
           opacity={panelOpacity}
+          geometryNodeId="right-1"
           compact
           accent
           bodyFontSize={18}
@@ -4045,6 +4114,7 @@ function Page27ParallelPage({
           title="注意事项"
           lines={PARALLEL_NOTES}
           opacity={panelOpacity}
+          geometryNodeId="right-2"
           compact
           bodyFontSize={18}
           lineGapOverride={26}
@@ -4066,6 +4136,7 @@ function Page27ParallelPage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="并行不是改业务逻辑，而是在合适的任务上换一种执行方式。"
         />
       </g>
@@ -4293,6 +4364,7 @@ function Page28GovernanceSurfacePage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="仅仅 state 里的这些维度，就足以让“同样内容”在不同平台上分叉成不同 PSO。"
         />
       </g>
@@ -4323,6 +4395,7 @@ function Page29GovernanceSourcePage({
           title="VertexDescriptor / InitRHI"
           lines={VERTEX_DESCRIPTOR_CODE_LINES}
           opacity={panelOpacity}
+          geometryNodeId="left-code"
           titleFontSize={19}
           codeFontSize={15.5}
           lineHeight={25}
@@ -4333,6 +4406,7 @@ function Page29GovernanceSourcePage({
           title="LocalVertexFactory.ush"
           lines={LOCAL_VERTEX_FACTORY_CODE_LINES}
           opacity={panelOpacity}
+          geometryNodeId="right-code"
           titleFontSize={19}
           codeFontSize={15.5}
           lineHeight={25}
@@ -4344,6 +4418,7 @@ function Page29GovernanceSourcePage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="同一个 material，不代表同一个 PSO。"
         />
       </g>
@@ -4398,6 +4473,7 @@ function Page30GovernanceConclusionPage({
             "除了 UV / declaration，color buffer 等状态也会继续影响结果。",
           ]}
           opacity={panelOpacity}
+          geometryNodeId="note"
           compact
           accent
           titleFontSize={21}
@@ -4425,6 +4501,7 @@ function Page30GovernanceConclusionPage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="最好的优化不是后置补救，而是前面就把输入约束好。"
         />
       </g>
@@ -4508,6 +4585,7 @@ function Page31HarnessPage({
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
+          geometryNodeId="footer"
           text="我们不是主观调图，而是先走数学约束，再做图像复核。"
         />
       </g>

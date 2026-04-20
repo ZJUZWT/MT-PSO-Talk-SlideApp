@@ -70,18 +70,103 @@ const page21FormalReviewSketch = makeFormalReviewSketch(
   "page_21",
   "Page 21 PSO cache validity boundary",
   [
-    node("left-card", "缓存效果由四个边界共同决定", {x: 96, y: 146, width: 596, height: 402}, {
-      labelLines: [
-        "PSO Cache 不是默认必开、永久有效的银弹。",
-        "它是否值回票价，要同时看收集、首启、状态模型和环境稳定性。",
-        "边界讲清以后，后面的策略页才不会被误读成默认正确。",
+    node("left-card", "什么时候会失效？", {x: 104, y: 146, width: 568, height: 402}, {
+      textRuns: [
+        {text: "PSO 缓存有效性边界", x: 22, y: 28, fontSize: 19, fontWeight: 820},
+        {text: "什么时候会失效？", x: 22, y: 104, fontSize: 24, fontWeight: 820},
+        {
+          text: "先问失效：不是所有缓存都能跨内容、跨版本、跨环境复用。",
+          x: 22,
+          y: 178,
+          fontSize: 17.5,
+          fontWeight: 740,
+        },
+        {
+          text: "Shader / State 变了，或者 codegen / 映射 / 驱动变了，旧缓存就可能失效。",
+          x: 22,
+          y: 203,
+          fontSize: 17.5,
+          fontWeight: 680,
+        },
+        {
+          text: "重点不是幻想永不失效，而是分清哪些能复用，哪些必须重建。",
+          x: 22,
+          y: 228,
+          fontSize: 17.5,
+          fontWeight: 680,
+        },
       ],
-      fontSizeOverride: 28,
+      fontSizeOverride: 24,
     }),
-    node("right-1", "收集边界", {x: 720, y: 146, width: 408, height: 114}),
-    node("right-2", "首启边界", {x: 720, y: 280, width: 408, height: 114}),
-    node("right-3", "平台 / 环境边界", {x: 720, y: 414, width: 408, height: 134}),
-    node("footer", "边界讲清", {x: 164, y: 608, width: 948, height: 50}),
+    node("right-1", "内容 / 状态变了", {x: 720, y: 146, width: 408, height: 102}, {
+      textRuns: [
+        {text: "内容 / 状态变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "Shader、Permute、Vertex Layout、Render State 变化，",
+          x: 20,
+          y: 58,
+          fontSize: 16.5,
+          fontWeight: 720,
+        },
+        {
+          text: "都会让它不再是同一个 PSO。",
+          x: 20,
+          y: 80,
+          fontSize: 16.5,
+          fontWeight: 670,
+        },
+      ],
+    }),
+    node("right-2", "版本 / 构建变了", {x: 720, y: 296, width: 408, height: 102}, {
+      textRuns: [
+        {text: "版本 / 构建变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "SharedCode、codegen、Hash、scl 映射一变，",
+          x: 20,
+          y: 58,
+          fontSize: 16.5,
+          fontWeight: 720,
+        },
+        {
+          text: "旧缓存通常要重新 expand / build。",
+          x: 20,
+          y: 80,
+          fontSize: 16.5,
+          fontWeight: 670,
+        },
+      ],
+    }),
+    node("right-3", "环境变了", {x: 720, y: 446, width: 408, height: 114}, {
+      textRuns: [
+        {text: "环境变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "OS / Driver / GPU / API 变化，本地缓存可能直接失效。",
+          x: 20,
+          y: 58,
+          fontSize: 16.5,
+          fontWeight: 720,
+        },
+        {
+          text: "OpenGL / Vulkan / Metal 的持久化边界也不同。",
+          x: 20,
+          y: 79,
+          fontSize: 16.5,
+          fontWeight: 670,
+        },
+      ],
+    }),
+    node("footer", "复用 / 重建边界", {x: 164, y: 608, width: 948, height: 50}, {
+      textRuns: [
+        {
+          text: "缓存不是永不失效，而是把可复用边界和重建边界讲清楚。",
+          x: 474,
+          y: 25,
+          fontSize: 20,
+          fontWeight: 700,
+          textAnchor: "middle",
+        },
+      ],
+    }),
   ],
 );
 
@@ -90,18 +175,95 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
   "page_22",
   "Page 22 narrative understanding of PSO cache",
   [
-    node("left-card", "预编译的 PSO 不会消失，只会转移。", {x: 96, y: 146, width: 596, height: 402}, {
-      labelLines: [
-        "它把运行时卡顿改写成启动成本与内存成本。",
-        "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
-        "理解这一点，后面的策略页才能统一落在工程取舍上。",
+    node("left-card", "预编译的 PSO 不会消失，只会转移。", {x: 104, y: 146, width: 568, height: 402}, {
+      textRuns: [
+        {text: "核心判断", x: 22, y: 28, fontSize: 19, fontWeight: 820},
+        {
+          text: "预编译的 PSO 不会消失，只会转移。",
+          x: 22,
+          y: 104,
+          fontSize: 28,
+          fontWeight: 820,
+        },
+        {
+          text: "它把运行时卡顿改写成启动成本与内存成本。",
+          x: 22,
+          y: 178,
+          fontSize: 17,
+          fontWeight: 740,
+        },
+        {
+          text: "page21 讲的是何时失效，page22 讲的是如何理解这套工程。",
+          x: 22,
+          y: 203,
+          fontSize: 17,
+          fontWeight: 680,
+        },
+        {
+          text: "所以 PSO Cache 不是对象本身，而是围绕对象做的工程安排。",
+          x: 22,
+          y: 228,
+          fontSize: 17,
+          fontWeight: 680,
+        },
       ],
       fontSizeOverride: 28,
     }),
-    node("right-1", "对象", {x: 720, y: 146, width: 408, height: 114}),
-    node("right-2", "方法", {x: 720, y: 280, width: 408, height: 114}),
-    node("right-3", "工程取舍", {x: 720, y: 414, width: 408, height: 134}),
-    node("footer", "工程方法", {x: 164, y: 608, width: 948, height: 50}),
+    node("right-1", "对象", {x: 720, y: 146, width: 408, height: 102}, {
+      textRuns: [
+        {text: "对象", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "PSO 是要被创建、绑定、命中的运行时对象。",
+          x: 20,
+          y: 58,
+          fontSize: 17,
+          fontWeight: 720,
+        },
+      ],
+    }),
+    node("right-2", "方法", {x: 720, y: 296, width: 408, height: 102}, {
+      textRuns: [
+        {text: "方法", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "PSO Cache 是围绕 Shader / 状态收集、保存、预热的工程方法。",
+          x: 20,
+          y: 58,
+          fontSize: 16.5,
+          fontWeight: 720,
+        },
+      ],
+    }),
+    node("right-3", "工程取舍", {x: 720, y: 446, width: 408, height: 114}, {
+      textRuns: [
+        {text: "工程取舍", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "优先把运行时尖峰换掉，再慢慢回收首启和空间开销。",
+          x: 20,
+          y: 58,
+          fontSize: 17,
+          fontWeight: 720,
+        },
+        {
+          text: "它不是零代价优化，只是把代价换到更容易管理的位置。",
+          x: 20,
+          y: 79,
+          fontSize: 17,
+          fontWeight: 670,
+        },
+      ],
+    }),
+    node("footer", "工程方法", {x: 164, y: 608, width: 948, height: 50}, {
+      textRuns: [
+        {
+          text: "PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
+          x: 474,
+          y: 25,
+          fontSize: 20,
+          fontWeight: 700,
+          textAnchor: "middle",
+        },
+      ],
+    }),
   ],
 );
 

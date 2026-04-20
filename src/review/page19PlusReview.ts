@@ -4,6 +4,7 @@ import {execFile} from "node:child_process";
 import {promisify} from "node:util";
 import {fileURLToPath} from "node:url";
 import {buildGeometryReviewArtifact} from "../harness/slide-geometry/review/geometryReviewArtifact";
+import type {BrowserGeometryTextProbe} from "../harness/slide-geometry/review/browserGeometryTextProbe";
 import {REMOTION_STEP_SEQUENCE} from "../remotion/sceneTimeline";
 import type {StoryStepId} from "../storyboard-data/pso-workbench-types";
 import {
@@ -89,6 +90,10 @@ export type ResolveWorkloadPath = (args: {
   fromStepId: StoryStepId;
   toStepId: StoryStepId;
 }) => string | undefined;
+
+export type ResolveBrowserTextProbe = (args: {
+  stepId: StoryStepId;
+}) => Promise<BrowserGeometryTextProbe | null>;
 
 export function normalizeTimingProbeStdout(raw: string): TimingProbeOkResult {
   let payload: Record<string, unknown> = {};
@@ -222,6 +227,7 @@ export async function runPage19PlusReview(args: {
   fromStepId?: StoryStepId;
   probeTimingTransition?: ProbeTimingTransition;
   resolveWorkloadPath?: ResolveWorkloadPath;
+  resolveBrowserTextProbe?: ResolveBrowserTextProbe;
 }): Promise<Page19PlusReviewSummary> {
   const fromStepId = args.fromStepId ?? "page_19";
   const stepIds = resolvePage19PlusStepIds(fromStepId);
@@ -232,17 +238,24 @@ export async function runPage19PlusReview(args: {
     (({fromStepId: previousStepId, toStepId}: {fromStepId: StoryStepId; toStepId: StoryStepId}) =>
       resolveExistingWorkloadPath(previousStepId, toStepId));
 
-  const pages: ReviewPageEntry[] = stepIds.map((stepId) => {
+  const pages: ReviewPageEntry[] = [];
+  for (const stepId of stepIds) {
     const reviewSurface = findPreferredGeometryReviewSurfaceByStepId(stepId);
     if (!reviewSurface) {
-      return {
+      pages.push({
         stepId,
         status: "missing_sketch",
-      };
+      });
+      continue;
     }
 
-    const artifact = buildGeometryReviewArtifact(reviewSurface.sketch);
-    return {
+    const browserTextProbe = args.resolveBrowserTextProbe
+      ? await args.resolveBrowserTextProbe({stepId})
+      : null;
+    const artifact = buildGeometryReviewArtifact(reviewSurface.sketch, {
+      browserTextProbe,
+    });
+    pages.push({
       stepId,
       status: "ok",
       sketchId: reviewSurface.sketch.id,
@@ -253,8 +266,8 @@ export async function runPage19PlusReview(args: {
         label: reviewSurface.sketch.label,
         artifact,
       }),
-    };
-  });
+    });
+  }
 
   const transitions: ReviewTransitionEntry[] = [];
   for (const stepId of stepIds) {

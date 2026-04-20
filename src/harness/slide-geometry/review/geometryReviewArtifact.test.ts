@@ -2,6 +2,7 @@ import {describe, expect, it} from "vitest";
 import {page09R1Sketch} from "../contracts/page09-r1";
 import {page14R1Sketch} from "../contracts/page14-r1";
 import {page15R1Sketch} from "../contracts/page15-r1";
+import type {BrowserGeometryTextProbe} from "./browserGeometryTextProbe";
 import {
   isGeometrySketchId,
   resolveGeometrySketch,
@@ -215,5 +216,61 @@ describe("geometryReviewArtifact", () => {
         },
       ]),
     );
+  });
+
+  it("prefers real browser text probe data over sketch-estimated text fit", async () => {
+    const {findFormalPageReviewSketchByStepId} = await import(
+      "../../../review/formalPageReviewRegistry"
+    );
+    const page21 = findFormalPageReviewSketchByStepId("page_21");
+
+    expect(page21).toBeDefined();
+
+    const browserTextProbe: BrowserGeometryTextProbe = {
+      sketchId: "formal-page21",
+      nodes: [
+        {
+          nodeId: "left-card",
+          label: "什么时候会失效？",
+          fontSizePx: 17.5,
+          lineCount: 5,
+          topPaddingPx: 14.2,
+          rightPaddingPx: -56.1,
+          bottomPaddingPx: 163.1,
+          leftPaddingPx: 22,
+          tightestPaddingPx: -56.1,
+          textBounds: {
+            x: 126,
+            y: 160.2,
+            width: 602.1,
+            height: 224.7,
+          },
+          nodeBounds: {
+            x: 104,
+            y: 146,
+            width: 568,
+            height: 402,
+          },
+        },
+      ],
+    };
+
+    const artifact = buildGeometryReviewArtifact(page21!, {
+      browserTextProbe,
+    });
+    const leadCard = artifact.nodeTextMetrics.find(
+      (nodeMetric) => nodeMetric.nodeId === "left-card",
+    );
+
+    expect(leadCard).toMatchObject({
+      nodeId: "left-card",
+      lineCount: 5,
+      overflowPx: 56.1,
+      tightestPaddingPx: -56.1,
+    });
+    expect(artifact.metrics.textOverflowCount).toBe(1);
+    expect(artifact.metrics.maxTextOverflowPx).toBe(56.1);
+    expect(artifact.scores.blockerOpen).toBe(true);
+    expect(artifact.verdict).toBe("Fit overflowing labels before critic pass");
   });
 });

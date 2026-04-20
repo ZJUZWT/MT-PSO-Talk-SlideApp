@@ -1,6 +1,7 @@
 import type {
   GeometrySketchDefinition,
   SketchNode,
+  SketchTextRun,
   SketchNodeTone,
 } from "./geometry-sketch-types";
 
@@ -44,6 +45,17 @@ export type GeometryTextPadding = {
   blockHeightPx: number;
 };
 
+export type GeometryTypographyMeasurement = {
+  lineCount: number;
+  renderedFontPx: number;
+  overflowPx: number;
+  estimatedWidthPx: number;
+  availableWidthPx: number;
+  availableHeightPx: number;
+  blockHeightPx: number;
+  padding: GeometryTextPadding;
+};
+
 const CONTAINER_LABEL_LEFT_PADDING_PX = 28;
 const CONTAINER_LABEL_CENTER_Y_PX = 38;
 let cachedMeasureContext: CanvasRenderingContext2D | null | undefined;
@@ -52,8 +64,12 @@ function hasVisibleGeometryLabel(label: string) {
   return label.trim().length > 0;
 }
 
+function hasVisibleTextRuns(textRuns: SketchNode["textRuns"]) {
+  return Boolean(textRuns?.some((run) => hasVisibleGeometryLabel(run.text)));
+}
+
 export function shouldAuditGeometryNodeTypography(node: SketchNode) {
-  if (!hasVisibleGeometryLabel(node.label)) {
+  if (!hasVisibleGeometryLabel(node.label) && !hasVisibleTextRuns(node.textRuns)) {
     return false;
   }
 
@@ -246,6 +262,113 @@ function measureTextLine(
   };
 }
 
+type GeometryMeasuredRun = {
+  text: string;
+  fontSize: number;
+  width: number;
+  height: number;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+};
+
+function measureExplicitTextRun(
+  node: SketchNode,
+  run: SketchTextRun,
+  isContainer: boolean,
+): GeometryMeasuredRun | null {
+  if (!hasVisibleGeometryLabel(run.text)) {
+    return null;
+  }
+
+  const fontWeight = run.fontWeight ?? resolveGeometryTextWeight(node, isContainer);
+  const measurement = measureTextLine(run.text, run.fontSize, fontWeight);
+  const width =
+    measurement?.width ?? estimateSingleLineTextWidth(run.text, run.fontSize);
+  const height =
+    measurement?.ascent && measurement?.descent
+      ? measurement.ascent + measurement.descent
+      : run.fontSize;
+  const anchorX = node.x + run.x;
+  const left =
+    run.textAnchor === "middle"
+      ? anchorX - width / 2
+      : run.textAnchor === "end"
+        ? anchorX - width
+        : anchorX;
+  const top = node.y + run.y - height / 2;
+
+  return {
+    text: run.text,
+    fontSize: run.fontSize,
+    width: Number(width.toFixed(1)),
+    height: Number(height.toFixed(1)),
+    left: Number(left.toFixed(1)),
+    right: Number((left + width).toFixed(1)),
+    top: Number(top.toFixed(1)),
+    bottom: Number((top + height).toFixed(1)),
+  };
+}
+
+function resolveExplicitTextRunMeasurement(
+  node: SketchNode,
+  isContainer: boolean,
+): GeometryTypographyMeasurement | null {
+  const measuredRuns = (node.textRuns ?? [])
+    .map((run) => measureExplicitTextRun(node, run, isContainer))
+    .filter((run): run is GeometryMeasuredRun => run !== null);
+
+  if (measuredRuns.length === 0) {
+    return null;
+  }
+
+  const left = Math.min(...measuredRuns.map((run) => run.left));
+  const right = Math.max(...measuredRuns.map((run) => run.right));
+  const top = Math.min(...measuredRuns.map((run) => run.top));
+  const bottom = Math.max(...measuredRuns.map((run) => run.bottom));
+  const rawPadding = {
+    top: top - node.y,
+    right: node.x + node.width - right,
+    bottom: node.y + node.height - bottom,
+    left: left - node.x,
+  };
+  const padding: GeometryTextPadding = {
+    top: Number(Math.max(0, rawPadding.top).toFixed(1)),
+    right: Number(Math.max(0, rawPadding.right).toFixed(1)),
+    bottom: Number(Math.max(0, rawPadding.bottom).toFixed(1)),
+    left: Number(Math.max(0, rawPadding.left).toFixed(1)),
+    tightest: Number(
+      Math.min(
+        Math.max(0, rawPadding.top),
+        Math.max(0, rawPadding.right),
+        Math.max(0, rawPadding.bottom),
+        Math.max(0, rawPadding.left),
+      ).toFixed(1),
+    ),
+    blockWidthPx: Number((right - left).toFixed(1)),
+    blockHeightPx: Number((bottom - top).toFixed(1)),
+  };
+  const overflowPx = Math.max(
+    -rawPadding.top,
+    -rawPadding.right,
+    -rawPadding.bottom,
+    -rawPadding.left,
+    0,
+  );
+
+  return {
+    lineCount: measuredRuns.length,
+    renderedFontPx: Math.min(...measuredRuns.map((run) => run.fontSize)),
+    overflowPx: Number(overflowPx.toFixed(1)),
+    estimatedWidthPx: padding.blockWidthPx,
+    availableWidthPx: Number(node.width.toFixed(1)),
+    availableHeightPx: Number(node.height.toFixed(1)),
+    blockHeightPx: padding.blockHeightPx,
+    padding,
+  };
+}
+
 function resolveAvailableLabelWidth(node: SketchNode, isContainer: boolean) {
   return Math.max(0, node.width - (isContainer ? 44 : 20));
 }
@@ -428,6 +551,12 @@ export function resolveGeometryTextPadding(
   node: SketchNode,
   isContainer: boolean,
 ): GeometryTextPadding {
+  const explicitMeasurement = resolveExplicitTextRunMeasurement(node, isContainer);
+
+  if (explicitMeasurement) {
+    return explicitMeasurement.padding;
+  }
+
   const layout = resolveGeometryTextLayout(node, isContainer);
 
   if (layout.fontSize <= 0 || layout.lines.length === 0) {
@@ -474,6 +603,31 @@ export function resolveGeometryTextPadding(
   };
 }
 
+export function resolveGeometryTypographyMeasurement(
+  node: SketchNode,
+  isContainer: boolean,
+): GeometryTypographyMeasurement {
+  const explicitMeasurement = resolveExplicitTextRunMeasurement(node, isContainer);
+
+  if (explicitMeasurement) {
+    return explicitMeasurement;
+  }
+
+  const layout = resolveGeometryTextLayout(node, isContainer);
+  const padding = resolveGeometryTextPadding(node, isContainer);
+
+  return {
+    lineCount: layout.lines.length,
+    renderedFontPx: layout.fontSize,
+    overflowPx: layout.overflowPx,
+    estimatedWidthPx: layout.estimatedWidthPx,
+    availableWidthPx: layout.availableWidthPx,
+    availableHeightPx: layout.availableHeightPx,
+    blockHeightPx: layout.blockHeightPx,
+    padding,
+  };
+}
+
 export function collectGeometryTextOverflows(
   sketch: GeometrySketchDefinition,
 ): GeometryTextOverflow[] {
@@ -486,8 +640,8 @@ export function collectGeometryTextOverflows(
       }
 
       const isContainer = containerIds.has(node.id);
-      const layout = resolveGeometryTextLayout(node, isContainer);
-      const overflowPx = layout.overflowPx;
+      const measurement = resolveGeometryTypographyMeasurement(node, isContainer);
+      const overflowPx = measurement.overflowPx;
 
       if (overflowPx <= 0) {
         return null;
@@ -497,8 +651,8 @@ export function collectGeometryTextOverflows(
         nodeId: node.id,
         label: node.label,
         overflowPx: Number(overflowPx.toFixed(1)),
-        estimatedWidthPx: layout.estimatedWidthPx,
-        availableWidthPx: layout.availableWidthPx,
+        estimatedWidthPx: measurement.estimatedWidthPx,
+        availableWidthPx: measurement.availableWidthPx,
       };
     })
     .filter((overflow): overflow is GeometryTextOverflow => overflow !== null);

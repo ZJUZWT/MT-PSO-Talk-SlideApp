@@ -145,6 +145,32 @@ function resolveEdgeLabelPoint(edge: GeometrySketchDefinition["edges"][number]) 
   };
 }
 
+function renderExplicitTextRuns(
+  node: GeometrySketchDefinition["nodes"][number],
+  tone: {text: string},
+  isContainer: boolean,
+) {
+  return (node.textRuns ?? [])
+    .filter((run) => run.text.trim().length > 0)
+    .map((run, index) => (
+      <text
+        key={`${node.id}-run-${index}`}
+        x={node.x + run.x}
+        y={node.y + run.y}
+        textAnchor={run.textAnchor ?? "start"}
+        dominantBaseline={run.dominantBaseline ?? "middle"}
+        fill={run.textColor ?? node.textColorOverride ?? tone.text}
+        fontFamily={GEOMETRY_TEXT_FONT_FAMILY}
+        fontSize={run.fontSize}
+        fontWeight={run.fontWeight ?? resolveGeometryTextWeight(node, isContainer)}
+        paintOrder="stroke fill"
+        stroke="none"
+      >
+        {run.text}
+      </text>
+    ));
+}
+
 function renderLeafNode(node: GeometrySketchDefinition["nodes"][number]) {
   const tone = NODE_TONES[node.tone ?? "default"];
   const centerX = node.x + node.width / 2;
@@ -154,32 +180,36 @@ function renderLeafNode(node: GeometrySketchDefinition["nodes"][number]) {
   const outlineMode = node.renderStyle === "outline";
   const textOnlyMode = node.renderStyle === "textOnly";
   const circleMode = node.shape === "circle";
-  const textGroup = (
-    <>
-      {textLayout.lines.map((line, index) => (
-        <text
-          key={`${node.id}-line-${index}`}
-          x={centerX}
-          y={
-            centerY +
-            (index - (textLayout.lines.length - 1) / 2) * textLayout.lineHeight
-          }
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill={node.textColorOverride ?? tone.text}
-          fontFamily={GEOMETRY_TEXT_FONT_FAMILY}
-          fontSize={node.fontSizeOverride ?? textLayout.fontSize}
-          fontWeight={resolveGeometryTextWeight(node, false)}
-          paintOrder="stroke fill"
-          stroke={textOnlyMode ? "rgba(252, 249, 243, 0.98)" : "none"}
-          strokeWidth={textOnlyMode ? (node.textStrokeWidth ?? 9) : undefined}
-          strokeLinejoin="round"
-        >
-          {line}
-        </text>
-      ))}
-    </>
-  );
+  const explicitTextRuns = renderExplicitTextRuns(node, tone, false);
+  const textGroup =
+    explicitTextRuns.length > 0 ? (
+      <>{explicitTextRuns}</>
+    ) : (
+      <>
+        {textLayout.lines.map((line, index) => (
+          <text
+            key={`${node.id}-line-${index}`}
+            x={centerX}
+            y={
+              centerY +
+              (index - (textLayout.lines.length - 1) / 2) * textLayout.lineHeight
+            }
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill={node.textColorOverride ?? tone.text}
+            fontFamily={GEOMETRY_TEXT_FONT_FAMILY}
+            fontSize={node.fontSizeOverride ?? textLayout.fontSize}
+            fontWeight={resolveGeometryTextWeight(node, false)}
+            paintOrder="stroke fill"
+            stroke={textOnlyMode ? "rgba(252, 249, 243, 0.98)" : "none"}
+            strokeWidth={textOnlyMode ? (node.textStrokeWidth ?? 9) : undefined}
+            strokeLinejoin="round"
+          >
+            {line}
+          </text>
+        ))}
+      </>
+    );
 
   return (
     <g
@@ -226,12 +256,15 @@ function renderLeafNode(node: GeometrySketchDefinition["nodes"][number]) {
 function renderContainerNode(node: GeometrySketchDefinition["nodes"][number]) {
   const tone = NODE_TONES[node.tone ?? "default"];
   const textLayout = resolveGeometryTextLayout(node, true);
+  const explicitTextRuns = renderExplicitTextRuns(node, tone, true);
   const titleCenterY = node.y + 38;
   const outlineMode = node.renderStyle === "outline";
   const titleBottomY =
-    titleCenterY +
-    ((textLayout.lines.length - 1) / 2) * textLayout.lineHeight +
-    textLayout.lineHeight / 2;
+    explicitTextRuns.length > 0
+      ? Math.max(...(node.textRuns ?? []).map((run) => run.y))
+      : titleCenterY +
+        ((textLayout.lines.length - 1) / 2) * textLayout.lineHeight +
+        textLayout.lineHeight / 2;
   const dividerY = Math.max(node.y + 62, titleBottomY + 14);
 
   return (
@@ -258,25 +291,27 @@ function renderContainerNode(node: GeometrySketchDefinition["nodes"][number]) {
           strokeLinecap="round"
         />
       )}
-      {textLayout.lines.map((line, index) => (
-        <text
-          key={`${node.id}-line-${index}`}
-          x={node.x + 28}
-          y={
-            titleCenterY +
-            (index - (textLayout.lines.length - 1) / 2) * textLayout.lineHeight
-          }
-          textAnchor="start"
-          dominantBaseline="middle"
-          fill={tone.text}
-          fontFamily={GEOMETRY_TEXT_FONT_FAMILY}
-          fontSize={textLayout.fontSize}
-          fontWeight={resolveGeometryTextWeight(node, true)}
-          letterSpacing={node.tone === "receiver" ? "-0.02em" : "0.01em"}
-        >
-          {line}
-        </text>
-      ))}
+      {explicitTextRuns.length > 0
+        ? explicitTextRuns
+        : textLayout.lines.map((line, index) => (
+            <text
+              key={`${node.id}-line-${index}`}
+              x={node.x + 28}
+              y={
+                titleCenterY +
+                (index - (textLayout.lines.length - 1) / 2) * textLayout.lineHeight
+              }
+              textAnchor="start"
+              dominantBaseline="middle"
+              fill={tone.text}
+              fontFamily={GEOMETRY_TEXT_FONT_FAMILY}
+              fontSize={textLayout.fontSize}
+              fontWeight={resolveGeometryTextWeight(node, true)}
+              letterSpacing={node.tone === "receiver" ? "-0.02em" : "0.01em"}
+            >
+              {line}
+            </text>
+          ))}
     </g>
   );
 }

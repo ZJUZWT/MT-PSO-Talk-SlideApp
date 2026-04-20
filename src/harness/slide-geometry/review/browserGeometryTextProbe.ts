@@ -29,7 +29,9 @@ export type BrowserGeometryTextProbeNode = {
 };
 
 export type BrowserGeometryTextProbe = {
-  sketchId: string;
+  sketchId?: string;
+  stepId?: string;
+  sourceUrl?: string;
   probeNodeId?: string;
   nodes: BrowserGeometryTextProbeNode[];
 };
@@ -63,6 +65,18 @@ function parseNumericAttribute(
 }
 
 function resolveNodeBounds(nodeElement: Element): Bounds | null {
+  const explicitBox = nodeElement.querySelector('[data-geometry-node-box="1"]');
+
+  if (explicitBox && typeof (explicitBox as SVGGraphicsElement).getBBox === "function") {
+    const bbox = (explicitBox as SVGGraphicsElement).getBBox();
+    return {
+      x: roundMetric(bbox.x),
+      y: roundMetric(bbox.y),
+      width: roundMetric(bbox.width),
+      height: roundMetric(bbox.height),
+    };
+  }
+
   const rect = nodeElement.querySelector("rect");
 
   if (rect) {
@@ -128,24 +142,30 @@ function unionTextBounds(textElements: SVGGraphicsElement[]) {
 }
 
 function resolveRenderedFontSize(textElements: SVGGraphicsElement[]) {
-  const firstText = textElements[0];
+  if (textElements.length === 0) {
+    return 0;
+  }
+  const sizes = textElements
+    .map((textElement) => {
+      const attributeValue = Number(textElement.getAttribute("font-size"));
+      if (Number.isFinite(attributeValue) && attributeValue > 0) {
+        return attributeValue;
+      }
 
-  if (!firstText) {
+      if (typeof window === "undefined") {
+        return 0;
+      }
+
+      const computedValue = Number.parseFloat(window.getComputedStyle(textElement).fontSize);
+      return Number.isFinite(computedValue) ? computedValue : 0;
+    })
+    .filter((value) => value > 0);
+
+  if (sizes.length === 0) {
     return 0;
   }
 
-  const attributeValue = Number(firstText.getAttribute("font-size"));
-  if (Number.isFinite(attributeValue) && attributeValue > 0) {
-    return roundMetric(attributeValue);
-  }
-
-  if (typeof window === "undefined") {
-    return 0;
-  }
-
-  const computedValue = Number.parseFloat(window.getComputedStyle(firstText).fontSize);
-
-  return Number.isFinite(computedValue) ? roundMetric(computedValue) : 0;
+  return roundMetric(Math.min(...sizes));
 }
 
 function shouldMeasureNode(
@@ -165,8 +185,8 @@ function shouldMeasureNode(
 }
 
 function isMeasurableTextElement(
-  element: SVGTextElement,
-): element is SVGTextElement & SVGGraphicsElement {
+  element: Element,
+): element is SVGGraphicsElement {
   return typeof (element as SVGGraphicsElement).getBBox === "function";
 }
 
@@ -179,7 +199,9 @@ export function collectBrowserGeometryTextProbe({
   const nodes = sketch.nodes
     .filter((node) => shouldMeasureNode(node, containerIds, probeNodeId))
     .flatMap((node) => {
-      const nodeElement = root.querySelector(`[data-node-id="${node.id}"]`);
+      const nodeElement = root.querySelector(
+        `[data-node-id="${node.id}"], [data-geometry-node-id="${node.id}"]`,
+      );
 
       if (!nodeElement) {
         return [];
@@ -191,7 +213,7 @@ export function collectBrowserGeometryTextProbe({
       }
 
       const textElements = Array.from(
-        nodeElement.querySelectorAll("text"),
+        nodeElement.querySelectorAll('[data-geometry-node-text="1"], text'),
       ).filter(isMeasurableTextElement);
 
       if (textElements.length === 0) {

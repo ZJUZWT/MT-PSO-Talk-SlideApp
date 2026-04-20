@@ -8,8 +8,8 @@ import type {
 import {
   collectGeometryTextOverflows,
   resolveGeometryContainerIds,
-  resolveGeometryTextLayout,
   resolveGeometryTextPadding,
+  resolveGeometryTypographyMeasurement,
   shouldAuditGeometryNodeTypography,
 } from "../render/geometryText";
 
@@ -905,12 +905,15 @@ export function collectGeometryMetrics(
       return min;
     }
 
-    const layout = resolveGeometryTextLayout(node, containerIds.has(node.id));
-    if (layout.fontSize <= 0) {
+    const measurement = resolveGeometryTypographyMeasurement(
+      node,
+      containerIds.has(node.id),
+    );
+    if (measurement.renderedFontPx <= 0) {
       return min;
     }
 
-    return Math.min(min, layout.fontSize);
+    return Math.min(min, measurement.renderedFontPx);
   }, Number.POSITIVE_INFINITY);
   const rects = sketch.nodes.map(toRect);
   const margins = directionalMargins(sketch);

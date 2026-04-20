@@ -2,6 +2,7 @@ import {mkdtempSync, readFileSync, rmSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
 import {afterEach, describe, expect, it} from "vitest";
+import type {BrowserGeometryTextProbe} from "../harness/slide-geometry/review/browserGeometryTextProbe";
 
 const tempDirs: string[] = [];
 
@@ -176,6 +177,72 @@ describe("page_19+ review harness", () => {
       stepId: "page_22",
       status: "ok",
       reviewSource: "formal",
+    });
+  });
+
+  it("feeds matching front-browser text probe data into page summaries", async () => {
+    const mod = await import("./page19PlusReview");
+    const outputDir = createTempDir();
+    const browserTextProbe: BrowserGeometryTextProbe = {
+      sketchId: "formal-page21",
+      nodes: [
+        {
+          nodeId: "left-card",
+          label: "什么时候会失效？",
+          fontSizePx: 17.5,
+          lineCount: 5,
+          topPaddingPx: 14.2,
+          rightPaddingPx: -56.1,
+          bottomPaddingPx: 163.1,
+          leftPaddingPx: 22,
+          tightestPaddingPx: -56.1,
+          textBounds: {
+            x: 126,
+            y: 160.2,
+            width: 602.1,
+            height: 224.7,
+          },
+          nodeBounds: {
+            x: 104,
+            y: 146,
+            width: 568,
+            height: 402,
+          },
+        },
+      ],
+    };
+
+    const summary = await mod.runPage19PlusReview({
+      outputDir,
+      resolveWorkloadPath: () => undefined,
+      probeTimingTransition: async () => ({
+        status: "probe_not_requested",
+      }),
+      resolveBrowserTextProbe: async ({stepId}: {stepId: string}) =>
+        stepId === "page_21" ? browserTextProbe : null,
+    });
+
+    const page21 = summary.pages.find(
+      (entry: {stepId: string}) => entry.stepId === "page_21",
+    );
+
+    expect(page21).toMatchObject({
+      stepId: "page_21",
+      status: "ok",
+      summary: {
+        keyMetrics: {
+          textOverflowCount: 1,
+        },
+      },
+    });
+    if (!page21 || page21.status !== "ok") {
+      throw new Error("Expected page_21 review page entry");
+    }
+    expect(
+      page21.summary.worstNodes.find((node) => node.nodeId === "left-card"),
+    ).toMatchObject({
+      nodeId: "left-card",
+      overflowPx: 56.1,
     });
   });
 });

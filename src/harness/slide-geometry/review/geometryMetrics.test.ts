@@ -441,6 +441,55 @@ describe("geometryMetrics", () => {
     expect((metrics as Record<string, unknown>).maxTextOverflowPx).toBeGreaterThan(0);
   });
 
+  it("counts overflow from explicit text runs instead of trusting a short node label", () => {
+    const metrics = collectGeometryMetrics(
+      makeSketch({
+        nodes: [
+          {
+            id: "lead-card",
+            label: "Lead",
+            x: 120,
+            y: 120,
+            width: 220,
+            height: 140,
+            tone: "receiver",
+            textRuns: [
+              {
+                text: "Eyebrow",
+                x: 20,
+                y: 24,
+                fontSize: 18,
+                fontWeight: 820,
+                textAnchor: "start",
+              },
+              {
+                text: "This headline is intentionally far too wide for this node",
+                x: 20,
+                y: 62,
+                fontSize: 28,
+                fontWeight: 820,
+                textAnchor: "start",
+              },
+            ],
+          } as (GeometrySketchDefinition["nodes"][number] & {
+            textRuns: Array<{
+              text: string;
+              x: number;
+              y: number;
+              fontSize: number;
+              fontWeight: number;
+              textAnchor: "start";
+            }>;
+          }),
+          {id: "other", label: "Other", x: 520, y: 120, width: 120, height: 80},
+        ],
+      }),
+    );
+
+    expect((metrics as Record<string, unknown>).textOverflowCount).toBe(1);
+    expect((metrics as Record<string, unknown>).maxTextOverflowPx).toBeGreaterThan(0);
+  });
+
   it("fits a long container label before counting overflow when enough height exists", () => {
     const metrics = collectGeometryMetrics(
       makeSketch({

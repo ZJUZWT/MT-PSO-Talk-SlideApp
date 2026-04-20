@@ -2795,10 +2795,10 @@ describe("MyComposition", () => {
     setLegacyFrame(1464);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "缓存效果由四个边界共同决定")[0]).toBeDefined();
-    expect(findTextNodes(container, "收集边界")[0]).toBeDefined();
-    expect(findTextNodes(container, "首启边界")[0]).toBeDefined();
-    expect(findTextNodes(container, "平台 / 环境边界")[0]).toBeDefined();
+    expect(findTextNodes(container, "什么时候会失效？")[0]).toBeDefined();
+    expect(findTextNodes(container, "内容 / 状态变了")[0]).toBeDefined();
+    expect(findTextNodes(container, "版本 / 构建变了")[0]).toBeDefined();
+    expect(findTextNodes(container, "环境变了")[0]).toBeDefined();
     expect(findTextNodes(container, "边界讲清，后面的策略页才不会被误读成默认正确。")[0]).toBeDefined();
   });
 
