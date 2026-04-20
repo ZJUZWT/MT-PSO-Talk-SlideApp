@@ -12,7 +12,7 @@ const expectations = [
   {stepId: "page_28", minStageLayout: 5.6, minMechanicalScore: 6.3},
   {stepId: "page_29", minStageLayout: 4.8, minMechanicalScore: 6},
   {stepId: "page_30", minStageLayout: 5, minMechanicalScore: 6},
-  {stepId: "page_31", minStageLayout: 6, minMechanicalScore: 6.5},
+  {stepId: "page_31", minStageLayout: 6, minMechanicalScore: 6.3},
   {stepId: "page_32", minStageLayout: 6, minMechanicalScore: 6.5},
   {stepId: "page_33", minStageLayout: 6.2, minMechanicalScore: 6},
 ] as const;

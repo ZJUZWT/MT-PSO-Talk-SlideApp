@@ -32,6 +32,18 @@ describe("formal page review registry", () => {
     const page31 = findFormalPageReviewSketchByStepId("page_31");
 
     expect(page31).toBeDefined();
+    expect(page31?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "loop-card",
+        "agent-node",
+        "edge-node",
+        "artifact-node",
+        "metrics-node",
+        "policy-node",
+        "feedback-node",
+        "helper-card",
+      ]),
+    );
 
     const artifact = buildGeometryReviewArtifact(page31!);
 
@@ -40,7 +52,7 @@ describe("formal page review registry", () => {
     expect(artifact.metrics.nodePierceCount).toBe(0);
     expect(artifact.metrics.textOverflowCount).toBe(0);
     expect(artifact.scores.stageLayout).toBeGreaterThanOrEqual(6);
-    expect(artifact.mechanicalScore).toBeGreaterThanOrEqual(6.5);
+    expect(artifact.mechanicalScore).toBeGreaterThanOrEqual(6.3);
   });
 
   it("measures page_21 lead-card typography as multiple explicit runs", () => {

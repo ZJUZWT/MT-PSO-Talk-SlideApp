@@ -314,16 +314,11 @@ const LOCAL_VERTEX_FACTORY_CODE_LINES = [
   "#endif",
   "}",
 ] as const;
-const HARNESS_CHAIN_LABELS = [
-  "geometryReviewArtifact",
-  "geometryMetrics",
-  "geometryScorePolicy",
-] as const;
-const HARNESS_FORMULA_LINES = [
-  "node_move = clamp(180 + distancePx*0.95, 180, 960)",
-  "edge_grow = clamp(140 + lengthPx*0.75, 140, 840)",
-  "fade_in / fade_out = 220 ms",
-  "allowedMaxSec = requiredSec * 1.35",
+const HARNESS_TRIGGER_TOKENS = [
+  "hook",
+  "workflow_gate.py",
+  "review:mechanical",
+  "front Edge probe",
 ] as const;
 const HARNESS_GATES = [
   "overlap = 0",
@@ -5047,107 +5042,222 @@ function Page31HarnessPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 92, y: 138, width: 512, height: 418, radius: 28};
-  const rightCard = {x: 634, y: 138, width: 528, height: 418, radius: 28};
-  const chainBoxes = HARNESS_CHAIN_LABELS.map((label, index) => ({
-    label,
-    box: {x: leftCard.x + 34, y: leftCard.y + 72 + index * 108, width: 444, height: 60, radius: 20},
-  }));
+  const loopCard = {x: 84, y: 138, width: 644, height: 418, radius: 30};
+  const helperCard = {x: 752, y: 138, width: 378, height: 418, radius: 30};
+  const loopNodes = [
+    {
+      id: "agent-node",
+      label: "Agent 修改页面",
+      lines: ["Agent 修改", "页面"],
+      box: {x: 104, y: 224, width: 176, height: 72, radius: 22},
+      accent: true,
+      fontSize: 20,
+    },
+    {
+      id: "edge-node",
+      label: "前台 Edge 真实取数",
+      lines: ["前台 Edge", "真实取数"],
+      box: {x: 320, y: 224, width: 176, height: 72, radius: 22},
+      accent: false,
+      fontSize: 19,
+    },
+    {
+      id: "artifact-node",
+      label: "geometryReviewArtifact",
+      lines: ["geometryReview", "Artifact"],
+      box: {x: 536, y: 224, width: 176, height: 72, radius: 22},
+      accent: false,
+      fontSize: 18,
+    },
+    {
+      id: "metrics-node",
+      label: "geometryMetrics",
+      lines: ["geometry", "Metrics"],
+      box: {x: 536, y: 432, width: 176, height: 72, radius: 22},
+      accent: false,
+      fontSize: 18.5,
+    },
+    {
+      id: "policy-node",
+      label: "geometryScorePolicy",
+      lines: ["geometryScore", "Policy"],
+      box: {x: 320, y: 432, width: 176, height: 72, radius: 22},
+      accent: false,
+      fontSize: 18,
+    },
+    {
+      id: "feedback-node",
+      label: "回写下一轮修改",
+      lines: ["回写建议", "下一轮修改"],
+      box: {x: 104, y: 432, width: 176, height: 72, radius: 22},
+      accent: true,
+      fontSize: 19,
+    },
+  ] as const;
+  const loopNodeById = new Map(loopNodes.map((entry) => [entry.id, entry]));
+  const agentNode = loopNodeById.get("agent-node")!;
+  const edgeNode = loopNodeById.get("edge-node")!;
+  const artifactNode = loopNodeById.get("artifact-node")!;
+  const metricsNode = loopNodeById.get("metrics-node")!;
+  const policyNode = loopNodeById.get("policy-node")!;
+  const feedbackNode = loopNodeById.get("feedback-node")!;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
         <g
-          data-geometry-node-id="left-card"
-          data-geometry-node-label="Review Chain"
+          data-geometry-node-id="loop-card"
+          data-geometry-node-label="Harness Loop"
         >
           <StageBox
-            box={leftCard}
+            box={loopCard}
             fill="rgba(255, 255, 255, 0.92)"
             stroke="rgba(92, 106, 118, 0.4)"
             strokeWidth={2.1}
             markGeometryBox
           />
           <text
-            x={leftCard.x + 18}
-            y={leftCard.y + 24}
+            x={loopCard.x + 22}
+            y={loopCard.y + 26}
             fill={scene.apiStroke}
-            fontSize="20"
+            fontSize="21"
             fontWeight="820"
             textAnchor="start"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            评分链路
+            完整回环
           </text>
-          {chainBoxes.map(({label, box}, index) => (
-            <g
-              key={label}
-              data-geometry-node-id={`chain-${index + 1}`}
-              data-geometry-node-label={label}
-            >
-              <StageBox
-                box={box}
-                fill={index === 0 ? "rgba(248, 236, 226, 0.96)" : "rgba(249, 247, 244, 0.94)"}
-                stroke={index === 0 ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
-                strokeWidth={index === 0 ? 2.3 : 2}
-                markGeometryBox
-              />
-              <text
-                x={centerX(box)}
-                y={centerY(box)}
-                fill={index === 0 ? scene.apiStroke : "#22303d"}
-                fontSize="20"
-                fontWeight="770"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                data-geometry-node-text="1"
-              >
-                {label}
-              </text>
-              {index < chainBoxes.length - 1 ? (
-                <StrokeArrow
-                  d={verticalPath(centerX(box), bottom(box) + 6, chainBoxes[index + 1]!.box.y - 8)}
-                  stroke={scene.apiStroke}
-                  opacity={panelOpacity}
-                  headOpacity={panelOpacity}
-                  tipX={centerX(box)}
-                  tipY={chainBoxes[index + 1]!.box.y - 8}
-                  direction="down"
-                  shaftWidth={2.5}
-                  underlayWidth={4.8}
-                  headSize={6.8}
-                />
-              ) : null}
-            </g>
-          ))}
           <text
-            x={leftCard.x + 34}
-            y={leftCard.y + 382}
-            fill="rgba(34, 48, 61, 0.72)"
-            fontSize="17.5"
+            x={loopCard.x + 22}
+            y={loopCard.y + 56}
+            fill="rgba(34, 48, 61, 0.68)"
+            fontSize="16.5"
             fontWeight="700"
             textAnchor="start"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            三层 Review：整体布局 / 模块空间结构 / 单节点与单边
+            {"Agent 改完后，自动走“真实取数 -> 计算 -> 回写”这一圈"}
+          </text>
+          {loopNodes.map(({id, label, lines, box, accent, fontSize}) => (
+            <g
+              key={id}
+              data-geometry-node-id={id}
+              data-geometry-node-label={label}
+            >
+              <StageBox
+                box={box}
+                fill={accent ? "rgba(248, 236, 226, 0.96)" : "rgba(249, 247, 244, 0.94)"}
+                stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
+                strokeWidth={accent ? 2.4 : 2}
+                markGeometryBox
+              />
+              <StackedLabel
+                x={centerX(box)}
+                y={centerY(box)}
+                lines={[...lines]}
+                fontSize={fontSize}
+                fontWeight={770}
+                lineGap={20}
+                fill={accent ? scene.apiStroke : "#22303d"}
+                markGeometryText
+              />
+            </g>
+          ))}
+          <StrokeArrow
+            d={horizontalPath(right(agentNode.box) + 8, edgeNode.box.x - 8, centerY(agentNode.box))}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={edgeNode.box.x - 8}
+            tipY={centerY(agentNode.box)}
+            direction="right"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <StrokeArrow
+            d={horizontalPath(right(edgeNode.box) + 8, artifactNode.box.x - 8, centerY(edgeNode.box))}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={artifactNode.box.x - 8}
+            tipY={centerY(edgeNode.box)}
+            direction="right"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <StrokeArrow
+            d={verticalPath(centerX(artifactNode.box), bottom(artifactNode.box) + 6, metricsNode.box.y - 8)}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={centerX(artifactNode.box)}
+            tipY={metricsNode.box.y - 8}
+            direction="down"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <StrokeArrow
+            d={horizontalPath(metricsNode.box.x - 8, right(policyNode.box) + 8, centerY(metricsNode.box))}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={right(policyNode.box) + 8}
+            tipY={centerY(metricsNode.box)}
+            direction="left"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <StrokeArrow
+            d={horizontalPath(policyNode.box.x - 8, right(feedbackNode.box) + 8, centerY(policyNode.box))}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={right(feedbackNode.box) + 8}
+            tipY={centerY(policyNode.box)}
+            direction="left"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <StrokeArrow
+            d={verticalPath(centerX(feedbackNode.box), feedbackNode.box.y - 8, bottom(agentNode.box) + 6)}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            tipX={centerX(feedbackNode.box)}
+            tipY={bottom(agentNode.box) + 6}
+            direction="up"
+            shaftWidth={2.6}
+            underlayWidth={5}
+            headSize={7.2}
+          />
+          <text
+            x={centerX(loopCard)}
+            y={loopCard.y + 352}
+            fill="rgba(34, 48, 61, 0.72)"
+            fontSize="17"
+            fontWeight="700"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            先拿真实浏览器结果，再把事实压成 metrics / policy，最后回写下一轮修改。
           </text>
         </g>
         <g
-          data-geometry-node-id="right-card"
-          data-geometry-node-label="Math Rules"
+          data-geometry-node-id="helper-card"
+          data-geometry-node-label="Hook And Gates"
         >
           <StageBox
-            box={rightCard}
+            box={helperCard}
             fill="rgba(255, 255, 255, 0.92)"
             stroke="rgba(92, 106, 118, 0.4)"
             strokeWidth={2.1}
             markGeometryBox
           />
           <text
-            x={rightCard.x + 18}
-            y={rightCard.y + 24}
+            x={helperCard.x + 18}
+            y={helperCard.y + 24}
             fill={scene.apiStroke}
             fontSize="20"
             fontWeight="820"
@@ -5155,51 +5265,133 @@ function Page31HarnessPage({
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            数学约束
+            Hook / 真实取数
           </text>
-          {HARNESS_FORMULA_LINES.map((line, index) => (
-            <text
-              key={line}
-              x={rightCard.x + 18}
-              y={rightCard.y + 74 + index * 38}
-              fill="#22303d"
-              fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-              fontSize="16.5"
-              fontWeight="680"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              {line}
-            </text>
-          ))}
-        {HARNESS_GATES.map((label, index) => {
-          const box = {
-            x: rightCard.x + 22 + (index % 2) * 244,
-            y: rightCard.y + 250 + Math.floor(index / 2) * 56,
-            width: 220,
-            height: 44,
-            radius: 18,
-          };
-          return (
-            <MicroToken
-              key={label}
-              scene={scene}
-              box={box}
-              label={label}
-              opacity={panelOpacity}
-              geometryNodeId={`gate-${index + 1}`}
-              fontSize={17}
-              accent={index === 0}
-            />
-          );
-        })}
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 64}
+            fill="rgba(34, 48, 61, 0.56)"
+            fontSize="15.5"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            触发入口
+          </text>
+          {HARNESS_TRIGGER_TOKENS.map((label, index) => {
+            const box = {
+              x: helperCard.x + 22 + (index % 2) * 172,
+              y: helperCard.y + 92 + Math.floor(index / 2) * 56,
+              width: index % 2 === 0 ? 156 : 164,
+              height: 42,
+              radius: 18,
+            };
+
+            return (
+              <MicroToken
+                key={label}
+                scene={scene}
+                box={box}
+                label={label}
+                opacity={panelOpacity}
+                geometryNodeId={`trigger-${index + 1}`}
+                fontSize={label.length > 14 ? 14.5 : 15.2}
+                accent={index === 0}
+              />
+            );
+          })}
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 224}
+            fill="#22303d"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="15.5"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            UserPromptSubmit / Stop 进 hook
+          </text>
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 248}
+            fill="#22303d"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="15.5"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            workflow_gate.py 分流后再跑 review
+          </text>
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 288}
+            fill="rgba(34, 48, 61, 0.56)"
+            fontSize="15.5"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            数学门槛
+          </text>
+          {HARNESS_GATES.map((label, index) => {
+            const box = {
+              x: helperCard.x + 22 + (index % 2) * 172,
+              y: helperCard.y + 314 + Math.floor(index / 2) * 56,
+              width: index % 2 === 0 ? 156 : 164,
+              height: 42,
+              radius: 18,
+            };
+
+            return (
+              <MicroToken
+                key={label}
+                scene={scene}
+                box={box}
+                label={label}
+                opacity={panelOpacity}
+                geometryNodeId={`gate-${index + 1}`}
+                fontSize={15.5}
+                accent={index === 0}
+              />
+            );
+          })}
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 430}
+            fill="#22303d"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="15"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            real render -&gt; facts -&gt; metrics -&gt; policy
+          </text>
+          <text
+            x={helperCard.x + 18}
+            y={helperCard.y + 456}
+            fill="rgba(34, 48, 61, 0.74)"
+            fontSize="15.5"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            这页讲的是仓库里的真实自动回环，不是概念示意图。
+          </text>
         </g>
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="我们不是主观调图，而是先走数学约束，再做图像复核。"
+          text="Agent 改完后，hook 会带着真实 Edge 数据和几何门槛把结果再送回下一轮修改。"
         />
       </g>
     </PlaceholderBoardShell>

@@ -930,30 +930,31 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_31",
-      label: "项目 Harness 机制：先数学约束，再图像复核",
+      label: "项目 Harness 自动回环：Agent 改完，自动取数再计算",
       caption:
-        "Harness 不是孤立技巧，它和 CI/CD、loss function 一样，本质上都是把结果回送成下一轮改进信号的反馈系统。",
+        "这一页直接把仓库里的真实回环摊开：Agent 修改页面后，会经 hook / workflow gate 触发前台 Edge 取数，再走 geometry review 链，把结果回写成下一轮修改建议。",
       keyPoints: [
-        "Harness / CI/CD / loss function，本质上都是反馈系统，也是训练手段。",
-        "在这个项目里，这条反馈回路具体落成 `geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy`。",
-        "如果换一个第一性原理视角，它有点像把主观调图经验压成可复用、可优化的损失函数或约束系统。",
+        "入口不是手动盯图，而是 hook + workflow_gate.py + review:mechanical 先把任务送进 harness。",
+        "取数不是公式臆测，而是前台 Microsoft Edge / browser probe 读真实文本与布局数据。",
+        "计算链路是 geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy，最后回写下一轮修改。",
       ],
       apiHighlights: [
+        "hook",
+        "workflow_gate.py",
+        "front Edge probe",
         "geometryReviewArtifact",
         "geometryMetrics",
         "geometryScorePolicy",
-        "node_move",
-        "edge_grow",
       ],
       notes:
-        "这一页是推荐页前的项目内延伸阅读，既介绍 harness 机制，也把数学约束直接写给观众看。",
-      focusTarget: "Harness",
+        "这一页把项目里的自动改版回环显式画出来：Agent 修改之后，不是凭感觉判断，而是自动拿真实浏览器结果做计算。",
+      focusTarget: "Harness Loop",
       timingHint:
-        "左卡先从反馈系统与训练手段讲起，再落回项目里的评分链路；右卡继续承接公式和硬门槛。",
+        "主循环按顺时针阅读，右侧辅助卡只负责解释 hook、Edge 取数和硬门槛，不抢主线。",
       intro:
-        "如果再往下追问“这些页面和动画到底怎么被约束”，答案不仅是 harness，也是一套反馈系统。",
+        "如果继续追问“这些页面改完以后，到底怎么自动知道哪里还不对”，答案就在这一页的完整回环里。",
       manuscript:
-        "第三十一页专门介绍项目里的 harness 机制，但这次不把它只讲成一套项目私货。更抽象一点看，harness、CI/CD、loss function，本质上都是反馈系统，也都是训练手段；它们共同做的事，都是把一次结果回送成下一轮调整的信号。落到这个项目里，这条反馈回路被写成 `geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy`：先把布局和动画抽成事实，再变成指标，再进入评分与门槛。就像有人会用第一性原理把深度学习理解成压缩算法一样，这里也可以把 harness 理解成把主观调图经验压缩成可复用、可优化的损失函数或约束系统。于是右侧那些公式就不是装饰，而是真正在把经验写成训练信号：动画时长按 `node_move = clamp(180 + distancePx*0.95, 180, 960)`、`edge_grow = clamp(140 + lengthPx*0.75, 140, 840)`、`fade_in / fade_out = 220ms` 计算，总时长的允许上限是 `allowedMaxSec = requiredSec * 1.35`；几何层面则要求 `overlap=0`、`crossing=0`、`nodePierce=0`、`textOverflow=0`。",
+        "第三十一页不再把 harness 只讲成一套抽象方法，而是把仓库里现在真的在跑的自动回环直接画出来。第一步是 Agent 修改页面；但修改完并不会靠人肉盯图来判断，而是经 `hook` 和 `workflow_gate.py` 先把任务送进 harness，再继续触发 `review:mechanical` 这类审计。第二步是取数，而且这里强调的是前台 `Microsoft Edge` 的真实浏览器结果，不是 headless 猜测，不是只靠公式估计；我们会通过 browser probe 去读真实文本和布局数据，也就是把真实数据先拿回来。第三步才是内部计算链：`geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy`，也就是先把真实渲染抽成 facts，再把 facts 压成 metrics，最后再通过 score policy 和硬门槛决定这一页该放行还是继续改。几何上的几条硬门槛也在右侧保留着：`overlap=0`、`crossing=0`、`nodePierce=0`、`textOverflow=0`。最后，算出来的结果不会停在报告里，而是回写成下一轮修改建议，再送回 Agent 手里，所以它本质上就是一个自动回环。",
       focusColorKey: "shared",
     },
     {

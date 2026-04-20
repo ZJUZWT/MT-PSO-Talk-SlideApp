@@ -239,7 +239,7 @@ export const page19R1Sketch: GeometrySketchDefinition = {
     {
       id: "vk-to-disk",
       from: {x: 936, y: 364},
-      to: {x: 1008, y: 364},
+      to: {x: 1006, y: 364},
       tone: "proof",
       dashed: true,
       arrowEnd: true,

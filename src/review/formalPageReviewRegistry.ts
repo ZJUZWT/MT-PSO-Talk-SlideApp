@@ -393,29 +393,61 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("token-color", "Color Buffer", {x: 916, y: 564, width: 202, height: 38}),
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
-  makeFormalReviewSketch("formal-page31", "page_31", "Page 31 harness", [
-    node("left-card", "Review Chain", {x: 92, y: 138, width: 512, height: 418}),
-    node("chain-1", "Artifact", {x: 126, y: 210, width: 444, height: 60}, {
-      containerId: "left-card",
+  makeFormalReviewSketch("formal-page31", "page_31", "Page 31 harness loop", [
+    node("loop-card", "Harness Loop", {x: 84, y: 138, width: 644, height: 418}),
+    node("agent-node", "Agent", {x: 104, y: 224, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("chain-2", "Metrics", {x: 126, y: 318, width: 444, height: 60}, {
-      containerId: "left-card",
+    node("edge-node", "Front Edge Probe", {x: 320, y: 224, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("chain-3", "Policy", {x: 126, y: 426, width: 444, height: 60}, {
-      containerId: "left-card",
+    node("artifact-node", "Artifact", {x: 536, y: 224, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("right-card", "Math Rules", {x: 634, y: 138, width: 528, height: 418}),
-    node("gate-1", "Overlap", {x: 656, y: 388, width: 220, height: 44}, {
-      containerId: "right-card",
+    node("metrics-node", "Metrics", {x: 536, y: 432, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("gate-2", "Crossing", {x: 900, y: 388, width: 220, height: 44}, {
-      containerId: "right-card",
+    node("policy-node", "Policy", {x: 320, y: 432, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("gate-3", "Pierce", {x: 656, y: 444, width: 220, height: 44}, {
-      containerId: "right-card",
+    node("feedback-node", "Feedback", {x: 104, y: 432, width: 176, height: 72}, {
+      containerId: "loop-card",
     }),
-    node("gate-4", "Overflow", {x: 900, y: 444, width: 220, height: 44}, {
-      containerId: "right-card",
+    node("helper-card", "Hook And Gates", {x: 752, y: 138, width: 378, height: 418}),
+    node("trigger-1", "hook", {x: 774, y: 230, width: 156, height: 42}, {
+      containerId: "helper-card",
+      fontSizeOverride: 18,
+    }),
+    node("trigger-2", "workflow_gate.py", {x: 946, y: 230, width: 164, height: 42}, {
+      containerId: "helper-card",
+      labelLines: ["workflow_gate", ".py"],
+      fontSizeOverride: 14,
+    }),
+    node("trigger-3", "review:mechanical", {x: 774, y: 286, width: 156, height: 42}, {
+      containerId: "helper-card",
+      labelLines: ["review:", "mechanical"],
+      fontSizeOverride: 13.5,
+    }),
+    node("trigger-4", "front Edge probe", {x: 946, y: 286, width: 164, height: 42}, {
+      containerId: "helper-card",
+      labelLines: ["front Edge", "probe"],
+      fontSizeOverride: 13.5,
+    }),
+    node("gate-1", "Overlap", {x: 774, y: 452, width: 156, height: 42}, {
+      containerId: "helper-card",
+      fontSizeOverride: 16,
+    }),
+    node("gate-2", "Crossing", {x: 946, y: 452, width: 164, height: 42}, {
+      containerId: "helper-card",
+      fontSizeOverride: 16,
+    }),
+    node("gate-3", "Pierce", {x: 774, y: 508, width: 156, height: 42}, {
+      containerId: "helper-card",
+      fontSizeOverride: 16,
+    }),
+    node("gate-4", "Overflow", {x: 946, y: 508, width: 164, height: 42}, {
+      containerId: "helper-card",
+      fontSizeOverride: 16,
     }),
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),

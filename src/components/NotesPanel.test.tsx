@@ -32,22 +32,22 @@ function buildState(stepId: StoryStepId): WorkbenchState {
 }
 
 describe("NotesPanel", () => {
-  it("renders the page31 feedback-system framing in the left notes card", () => {
+  it("renders the page31 harness loop framing in the left notes card", () => {
     render(<NotesPanel state={buildState("page_31")} transition={null} />);
 
     expect(
       screen.getByText(
-        "Harness 不是孤立技巧，它和 CI/CD、loss function 一样，本质上都是把结果回送成下一轮改进信号的反馈系统。",
+        "入口不是手动盯图，而是 hook + workflow_gate.py + review:mechanical 先把任务送进 harness。",
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Harness / CI/CD / loss function，本质上都是反馈系统，也是训练手段。",
+        "取数不是公式臆测，而是前台 Microsoft Edge / browser probe 读真实文本与布局数据。",
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "如果换一个第一性原理视角，它有点像把主观调图经验压成可复用、可优化的损失函数或约束系统。",
+        "计算链路是 geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy，最后回写下一轮修改。",
       ),
     ).toBeInTheDocument();
   });

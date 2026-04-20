@@ -3,10 +3,32 @@ import {page19R1Sketch} from "../harness/slide-geometry/contracts/page19-r1";
 import {buildGeometryReviewArtifact} from "../harness/slide-geometry/review/geometryReviewArtifact";
 
 describe("page_19 vertical relief harness goals", () => {
-  it("removes GPU pierce issues and improves tight typography budgets", () => {
+  it("lands the Vulkan disk route on the disk box boundary without piercing", () => {
     const artifact = buildGeometryReviewArtifact(page19R1Sketch);
+    const vkRoute = artifact.edgeRouteMetrics.find(
+      (metric) => metric.edgeId === "vk-to-disk",
+    );
+    const vkAnchor = artifact.edgeAnchorMetrics.find(
+      (metric) => metric.edgeId === "vk-to-disk",
+    );
 
     expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(vkRoute).toMatchObject({
+      edgeId: "vk-to-disk",
+      nodePierceCount: 0,
+      badEndpointCount: 0,
+    });
+    expect(vkAnchor).toMatchObject({
+      edgeId: "vk-to-disk",
+      toNodeId: "disk-vk",
+      toSide: "left",
+      toOffsetPx: 0,
+    });
+  });
+
+  it("keeps typography budgets after the route cleanup", () => {
+    const artifact = buildGeometryReviewArtifact(page19R1Sketch);
+
     expect(artifact.metrics.minRenderedFontPx).toBeGreaterThanOrEqual(17);
     expect(artifact.metrics.minInternalPadding).toBeGreaterThanOrEqual(10);
     expect(artifact.metrics.topMargin).toBeLessThan(160);
