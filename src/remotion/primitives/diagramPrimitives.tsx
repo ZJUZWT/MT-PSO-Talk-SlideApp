@@ -154,6 +154,8 @@ type StageBoxProps = {
   labelSize?: number;
   labelWeight?: number;
   tone?: "default" | "asset";
+  markGeometryBox?: boolean;
+  markGeometryText?: boolean;
 };
 
 export function StageBox({
@@ -166,6 +168,8 @@ export function StageBox({
   labelSize = 24,
   labelWeight = 650,
   tone = "default",
+  markGeometryBox = false,
+  markGeometryText = false,
 }: StageBoxProps) {
   const centerX = boxCenterX(box);
   const centerY = boxCenterY(box) + 3;
@@ -183,6 +187,7 @@ export function StageBox({
         stroke={stroke}
         strokeWidth={strokeWidth}
         data-tone={boxTone}
+        data-geometry-node-box={markGeometryBox ? "1" : undefined}
       />
       {label ? (
         <text
@@ -194,6 +199,7 @@ export function StageBox({
           textAnchor="middle"
           dominantBaseline="middle"
           opacity={labelOpacity}
+          data-geometry-node-text={markGeometryText ? "1" : undefined}
         >
           {label}
         </text>
@@ -212,6 +218,7 @@ export function StackedLabel({
   lineGap = 23,
   scale = 1,
   fill = "#22303d",
+  markGeometryText = false,
 }: {
   x: number;
   y: number;
@@ -222,6 +229,7 @@ export function StackedLabel({
   lineGap?: number;
   scale?: number;
   fill?: string;
+  markGeometryText?: boolean;
 }) {
   const startY = y - ((lines.length - 1) * lineGap) / 2;
 
@@ -240,6 +248,7 @@ export function StackedLabel({
           fontWeight={fontWeight}
           textAnchor="middle"
           dominantBaseline="middle"
+          data-geometry-node-text={markGeometryText ? "1" : undefined}
         >
           {line}
         </text>

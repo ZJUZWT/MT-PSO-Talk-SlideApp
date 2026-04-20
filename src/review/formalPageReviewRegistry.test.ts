@@ -55,7 +55,7 @@ describe("formal page review registry", () => {
 
     expect(leadCard).toMatchObject({
       nodeId: "left-card",
-      lineCount: 5,
+      lineCount: 6,
       overflowPx: 0,
     });
   });

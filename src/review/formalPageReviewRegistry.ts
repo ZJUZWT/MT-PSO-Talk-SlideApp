@@ -70,97 +70,104 @@ const page21FormalReviewSketch = makeFormalReviewSketch(
   "page_21",
   "Page 21 PSO cache validity boundary",
   [
-    node("left-card", "什么时候会失效？", {x: 104, y: 146, width: 568, height: 402}, {
+    node("left-card", "什么时候会失效？", {x: 80, y: 146, width: 608, height: 402}, {
       textRuns: [
         {text: "PSO 缓存有效性边界", x: 22, y: 28, fontSize: 19, fontWeight: 820},
         {text: "什么时候会失效？", x: 22, y: 104, fontSize: 24, fontWeight: 820},
         {
-          text: "先问失效：不是所有缓存都能跨内容、跨版本、跨环境复用。",
+          text: "先问边界：PSO Cache 不是跨内容、跨版本、跨环境永久复用。",
           x: 22,
           y: 178,
-          fontSize: 17.5,
+          fontSize: 16.5,
           fontWeight: 740,
         },
         {
-          text: "Shader / State 变了，或者 codegen / 映射 / 驱动变了，旧缓存就可能失效。",
+          text: "Shader / PSO 描述、编译链、映射关系、驱动环境一变，",
           x: 22,
-          y: 203,
-          fontSize: 17.5,
+          y: 201,
+          fontSize: 16.5,
           fontWeight: 680,
         },
         {
-          text: "重点不是幻想永不失效，而是分清哪些能复用，哪些必须重建。",
+          text: "旧缓存就可能失效。",
           x: 22,
-          y: 228,
-          fontSize: 17.5,
+          y: 224,
+          fontSize: 16.5,
+          fontWeight: 680,
+        },
+        {
+          text: "关键不是幻想永不失效，而是先分清复用边界和重建边界。",
+          x: 22,
+          y: 247,
+          fontSize: 16.5,
           fontWeight: 680,
         },
       ],
       fontSizeOverride: 24,
     }),
-    node("right-1", "内容 / 状态变了", {x: 720, y: 146, width: 408, height: 102}, {
+    node("right-1", "内容 / 状态变了", {x: 712, y: 146, width: 432, height: 102}, {
       textRuns: [
         {text: "内容 / 状态变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "Shader、Permute、Vertex Layout、Render State 变化，",
+          text: "Shader、Permute、Vertex Layout、",
           x: 20,
           y: 58,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 720,
         },
         {
-          text: "都会让它不再是同一个 PSO。",
+          text: "Render State 一变，就已经不是同一组 PSO。",
           x: 20,
           y: 80,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 670,
         },
       ],
     }),
-    node("right-2", "版本 / 构建变了", {x: 720, y: 296, width: 408, height: 102}, {
+    node("right-2", "版本 / 构建变了", {x: 712, y: 296, width: 432, height: 102}, {
       textRuns: [
         {text: "版本 / 构建变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
           text: "SharedCode、codegen、Hash、scl 映射一变，",
           x: 20,
           y: 58,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 720,
         },
         {
-          text: "旧缓存通常要重新 expand / build。",
+          text: "旧缓存通常就要重新 expand / build。",
           x: 20,
           y: 80,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 670,
         },
       ],
     }),
-    node("right-3", "环境变了", {x: 720, y: 446, width: 408, height: 114}, {
+    node("right-3", "环境变了", {x: 712, y: 446, width: 432, height: 114}, {
       textRuns: [
         {text: "环境变了", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "OS / Driver / GPU / API 变化，本地缓存可能直接失效。",
+          text: "OS / Driver / GPU / API 一变，本地缓存就可能失效。",
           x: 20,
           y: 58,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 720,
         },
         {
-          text: "OpenGL / Vulkan / Metal 的持久化边界也不同。",
+          text: "各 API 的持久化边界本来就不同。",
           x: 20,
           y: 79,
-          fontSize: 16.5,
+          fontSize: 16,
           fontWeight: 670,
         },
       ],
     }),
-    node("footer", "复用 / 重建边界", {x: 164, y: 608, width: 948, height: 50}, {
+    node("footer", "复用 / 重建边界", {x: 164, y: 606, width: 948, height: 54}, {
       textRuns: [
         {
           text: "缓存不是永不失效，而是把可复用边界和重建边界讲清楚。",
           x: 474,
-          y: 25,
+          y: 27,
           fontSize: 20,
           fontWeight: 700,
           textAnchor: "middle",
@@ -175,7 +182,7 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
   "page_22",
   "Page 22 narrative understanding of PSO cache",
   [
-    node("left-card", "预编译的 PSO 不会消失，只会转移。", {x: 104, y: 146, width: 568, height: 402}, {
+    node("left-card", "预编译的 PSO 不会消失，只会转移。", {x: 88, y: 146, width: 600, height: 402}, {
       textRuns: [
         {text: "核心判断", x: 22, y: 28, fontSize: 19, fontWeight: 820},
         {
@@ -193,7 +200,7 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
           fontWeight: 740,
         },
         {
-          text: "page21 讲的是何时失效，page22 讲的是如何理解这套工程。",
+          text: "page21 讲何时失效，page22 讲这套工程该怎么理解。",
           x: 22,
           y: 203,
           fontSize: 17,
@@ -209,7 +216,7 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
       ],
       fontSizeOverride: 28,
     }),
-    node("right-1", "对象", {x: 720, y: 146, width: 408, height: 102}, {
+    node("right-1", "对象", {x: 712, y: 146, width: 424, height: 102}, {
       textRuns: [
         {text: "对象", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
@@ -221,43 +228,50 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
         },
       ],
     }),
-    node("right-2", "方法", {x: 720, y: 296, width: 408, height: 102}, {
+    node("right-2", "方法", {x: 712, y: 296, width: 424, height: 102}, {
       textRuns: [
         {text: "方法", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "PSO Cache 是围绕 Shader / 状态收集、保存、预热的工程方法。",
+          text: "围绕 Shader / State 的收集、",
+          x: 20,
+          y: 58,
+          fontSize: 16,
+          fontWeight: 720,
+        },
+        {
+          text: "保存、预热方法。",
+          x: 20,
+          y: 78,
+          fontSize: 16,
+          fontWeight: 720,
+        },
+      ],
+    }),
+    node("right-3", "工程取舍", {x: 712, y: 446, width: 424, height: 114}, {
+      textRuns: [
+        {text: "工程取舍", x: 20, y: 26, fontSize: 18, fontWeight: 820},
+        {
+          text: "先换掉运行时尖峰，",
           x: 20,
           y: 58,
           fontSize: 16.5,
           fontWeight: 720,
         },
-      ],
-    }),
-    node("right-3", "工程取舍", {x: 720, y: 446, width: 408, height: 114}, {
-      textRuns: [
-        {text: "工程取舍", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "优先把运行时尖峰换掉，再慢慢回收首启和空间开销。",
-          x: 20,
-          y: 58,
-          fontSize: 17,
-          fontWeight: 720,
-        },
-        {
-          text: "它不是零代价优化，只是把代价换到更容易管理的位置。",
+          text: "再回收首启和空间开销。",
           x: 20,
           y: 79,
-          fontSize: 17,
+          fontSize: 16.5,
           fontWeight: 670,
         },
       ],
     }),
-    node("footer", "工程方法", {x: 164, y: 608, width: 948, height: 50}, {
+    node("footer", "工程方法", {x: 164, y: 606, width: 948, height: 54}, {
       textRuns: [
         {
           text: "PSO Cache 是工程方法，不是让代价凭空消失的魔法。",
           x: 474,
-          y: 25,
+          y: 27,
           fontSize: 20,
           fontWeight: 700,
           textAnchor: "middle",
@@ -269,14 +283,14 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
 
 const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
   makeFormalReviewSketch("formal-page24", "page_24", "Page 24 strategy", [
-    node("table", "Compression Table", {x: 98, y: 148, width: 732, height: 418}),
-    node("card-1", "Compression", {x: 856, y: 148, width: 300, height: 118}),
-    node("card-2", "Precompute", {x: 856, y: 286, width: 300, height: 118}),
-    node("card-3", "Algorithm", {x: 856, y: 424, width: 300, height: 142}),
-    textNode("link", "GDC Link", {x: 876, y: 578, width: 300, height: 22}, {
+    node("table", "Compression Table", {x: 98, y: 148, width: 748, height: 418}),
+    node("card-1", "Compression", {x: 868, y: 148, width: 308, height: 126}),
+    node("card-2", "Precompute", {x: 868, y: 290, width: 308, height: 126}),
+    node("card-3", "Algorithm", {x: 868, y: 432, width: 308, height: 140}),
+    textNode("link", "GDC Link", {x: 884, y: 576, width: 360, height: 26}, {
       fontSizeOverride: 14,
     }),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page25", "page_25", "Page 25 storage", [
     node("left-card", "Storage Strategy", {x: 96, y: 146, width: 596, height: 402}),
@@ -289,7 +303,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("right-1", "Replacement", {x: 720, y: 146, width: 408, height: 114}),
     node("right-2", "Mapping", {x: 720, y: 280, width: 408, height: 114}),
     node("right-3", "Carrier", {x: 720, y: 414, width: 408, height: 134}),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page26", "page_26", "Page 26 timing", [
     node("left-card", "Mask Decouple", {x: 96, y: 146, width: 566, height: 402}),
@@ -305,7 +319,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("right-1", "Lazy Load", {x: 690, y: 146, width: 426, height: 114}),
     node("right-2", "Streaming", {x: 690, y: 280, width: 426, height: 114}),
     node("right-3", "Deferred Compile", {x: 690, y: 414, width: 426, height: 134}),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page27", "page_27", "Page 27 parallel", [
     node("left-card", "Parallel", {x: 94, y: 144, width: 604, height: 406}),
@@ -321,63 +335,63 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("worker-3", "Worker3", {x: 346, y: 380, width: 128, height: 62}, {
       containerId: "left-card",
     }),
-    node("done", "Done", {x: 540, y: 270, width: 132, height: 126}, {
+    node("done", "Done", {x: 532, y: 270, width: 148, height: 126}, {
       containerId: "left-card",
     }),
     node("right-1", "Traits", {x: 726, y: 144, width: 398, height: 158}),
     node("right-2", "Notes", {x: 726, y: 322, width: 398, height: 228}),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page28", "page_28", "Page 28 governance surface", [
     node("image-1", "SampleA", {x: 96, y: 172, width: 500, height: 148}),
     node("image-2", "SampleB", {x: 96, y: 348, width: 500, height: 148}),
-    node("right-card", "PSOState", {x: 620, y: 160, width: 550, height: 390}),
-    node("shader", "Shader", {x: 644, y: 232, width: 502, height: 54}, {
+    node("right-card", "PSOState", {x: 608, y: 160, width: 574, height: 390}),
+    node("shader", "Shader", {x: 632, y: 232, width: 526, height: 54}, {
       containerId: "right-card",
     }),
-    node("state-1", "VertexDecl", {x: 644, y: 316, width: 248, height: 60}, {
+    node("state-1", "VertexDecl", {x: 632, y: 316, width: 258, height: 64}, {
       containerId: "right-card",
     }),
-    node("state-2", "RT", {x: 898, y: 316, width: 248, height: 60}, {
+    node("state-2", "RT", {x: 900, y: 316, width: 258, height: 64}, {
       containerId: "right-card",
     }),
-    node("state-3", "DepthStencil", {x: 644, y: 392, width: 248, height: 60}, {
+    node("state-3", "DepthStencil", {x: 632, y: 392, width: 258, height: 64}, {
       containerId: "right-card",
     }),
-    node("state-4", "BlendRaster", {x: 898, y: 392, width: 248, height: 60}, {
+    node("state-4", "BlendRaster", {x: 900, y: 392, width: 258, height: 64}, {
       containerId: "right-card",
     }),
-    node("state-5", "PrimitivePass", {x: 644, y: 468, width: 502, height: 56}, {
+    node("state-5", "PrimitivePass", {x: 632, y: 468, width: 526, height: 64}, {
       containerId: "right-card",
     }),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page29", "page_29", "Page 29 governance source", [
-    node("left-code", "Vertex", {x: 94, y: 140, width: 492, height: 440}),
+    node("left-code", "Vertex", {x: 88, y: 140, width: 504, height: 440}),
     node("right-code", "Factory", {x: 610, y: 140, width: 538, height: 440}),
-    node("token-4", "A4", {x: 690, y: 552, width: 98, height: 36}, {
+    node("token-4", "A4", {x: 648, y: 552, width: 122, height: 38}, {
       containerId: "right-code",
     }),
-    node("token-5", "A5", {x: 798, y: 552, width: 98, height: 36}, {
+    node("token-5", "A5", {x: 774, y: 552, width: 122, height: 38}, {
       containerId: "right-code",
     }),
-    node("token-6", "A6", {x: 906, y: 552, width: 98, height: 36}, {
+    node("token-6", "A6", {x: 900, y: 552, width: 122, height: 38}, {
       containerId: "right-code",
     }),
-    node("token-7", "A7", {x: 1014, y: 552, width: 98, height: 36}, {
+    node("token-7", "A7", {x: 1026, y: 552, width: 122, height: 38}, {
       containerId: "right-code",
     }),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page30", "page_30", "Page 30 governance conclusion", [
     node("image-1", "UV4", {x: 86, y: 144, width: 516, height: 292}),
     node("image-2", "UV8", {x: 678, y: 144, width: 516, height: 292}),
-    node("note", "Governance Note", {x: 88, y: 458, width: 1104, height: 92}),
-    node("token-uv", "UV", {x: 106, y: 566, width: 190, height: 36}),
-    node("token-vd", "Vertex Decl", {x: 376, y: 566, width: 190, height: 36}),
-    node("token-material", "Material", {x: 646, y: 566, width: 190, height: 36}),
-    node("token-color", "Color Buffer", {x: 916, y: 566, width: 190, height: 36}),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("note", "Governance Note", {x: 88, y: 458, width: 1104, height: 100}),
+    node("token-uv", "UV", {x: 106, y: 564, width: 202, height: 38}),
+    node("token-vd", "Vertex Decl", {x: 376, y: 564, width: 202, height: 38}),
+    node("token-material", "Material", {x: 646, y: 564, width: 202, height: 38}),
+    node("token-color", "Color Buffer", {x: 916, y: 564, width: 202, height: 38}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page31", "page_31", "Page 31 harness", [
     node("left-card", "Review Chain", {x: 92, y: 138, width: 512, height: 418}),
@@ -391,19 +405,19 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       containerId: "left-card",
     }),
     node("right-card", "Math Rules", {x: 634, y: 138, width: 528, height: 418}),
-    node("gate-1", "Overlap", {x: 656, y: 390, width: 220, height: 40}, {
+    node("gate-1", "Overlap", {x: 656, y: 388, width: 220, height: 44}, {
       containerId: "right-card",
     }),
-    node("gate-2", "Crossing", {x: 900, y: 390, width: 220, height: 40}, {
+    node("gate-2", "Crossing", {x: 900, y: 388, width: 220, height: 44}, {
       containerId: "right-card",
     }),
-    node("gate-3", "Pierce", {x: 656, y: 446, width: 220, height: 40}, {
+    node("gate-3", "Pierce", {x: 656, y: 444, width: 220, height: 44}, {
       containerId: "right-card",
     }),
-    node("gate-4", "Overflow", {x: 900, y: 446, width: 220, height: 40}, {
+    node("gate-4", "Overflow", {x: 900, y: 444, width: 220, height: 44}, {
       containerId: "right-card",
     }),
-    node("footer", "Footer", {x: 164, y: 608, width: 948, height: 50}),
+    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page32", "page_32", "Page 32 reading", [
     node("left-card", "Engineering Reading", {x: 84, y: 136, width: 504, height: 356}),
@@ -412,7 +426,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
   ]),
   makeFormalReviewSketch("formal-page33", "page_33", "Page 33 quote", [
     node("quote", "Closing Quote", {x: 192, y: 152, width: 896, height: 398}),
-    node("footer", "Quote Footer", {x: 456, y: 574, width: 370, height: 40}),
+    node("footer", "Quote Footer", {x: 430, y: 566, width: 420, height: 52}),
   ]),
 ];
 
