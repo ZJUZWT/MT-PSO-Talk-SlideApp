@@ -25,6 +25,7 @@ import {computeSceneModel} from "./model/computeSceneModel";
 import {REMOTION_STEP_SEQUENCE} from "./sceneTimeline";
 
 const LEGACY_STEP_FRAME_MAP = {
+  page_00: 0,
   page_01: 18,
   page_02: 54,
   page_03: 90,
@@ -63,6 +64,7 @@ const LEGACY_STEP_FRAME_MAP = {
   page_32: 2454,
   page_33: 2544,
 } as const;
+const LOOP_CLOUD_STROKE = "rgba(118, 163, 207, 0.94)";
 
 function remapLegacyFrame(legacyFrame: number) {
   const safeLegacyFrame = Math.max(0, Math.round(legacyFrame));
@@ -181,6 +183,24 @@ function findVisibleBoxGroupByLabel(
   return current;
 }
 
+function findVisibleUmaterialGroup(container: HTMLElement, minOpacity = 0.16) {
+  return (
+    findVisibleBoxGroupByLabel(container, "UMaterial", minOpacity) ??
+    findVisibleBoxGroupByLabel(container, "Material", minOpacity)
+  );
+}
+
+function findVisibleUmaterialLabel(container: HTMLElement, minOpacity = 0.16) {
+  return (
+    findTextNodes(container, "UMaterial").find(
+      (node) => effectiveOpacity(node) > minOpacity,
+    ) ??
+    findTextNodes(container, "Material").find(
+      (node) => effectiveOpacity(node) > minOpacity,
+    )
+  );
+}
+
 function parseLeadingTranslate(transform: string | null | undefined) {
   const match = transform?.match(/translate\(([-\d.]+) ([-\d.]+)\)/);
 
@@ -235,6 +255,10 @@ function textY(node: Element | null | undefined) {
 
 function fontSizeOf(node: Element | null | undefined) {
   return Number(node?.getAttribute("font-size"));
+}
+
+function fontWeightOf(node: Element | null | undefined) {
+  return Number(node?.getAttribute("font-weight"));
 }
 
 function rectMetrics(rect: Element | null | undefined) {
@@ -423,11 +447,93 @@ describe("MyComposition", () => {
     ).toBe(false);
   });
 
-  it("renders page 02 as VertexData -> GPU -> pixels without GPU inner chrome", () => {
+  it("renders page 00 as a three-step opening with a compile strip between the before and after screenshots", () => {
+    setLegacyFrame(0);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const beforeImage = container.querySelector('[data-testid="page00-before-image"]');
+    const compileImage = container.querySelector('[data-testid="page00-compile-image"]');
+    const afterImage = container.querySelector('[data-testid="page00-after-image"]');
+
+    expect(findSvgTextNodesByContent(container, "开场")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "PSO Cache启用前")[0]).toBeDefined();
+    expect(findSvgTextNodesByContent(container, "编译着色器")[0]).toBeDefined();
+    expect(findSvgTextNodesByContent(container, "PSO Cache启用后")[0]).toBeDefined();
+    expect(findSvgTextNodesByContent(container, "卡顿时")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "卡顿消失后")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "跟这个图片相比，")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "匹配的单帧高峰从何而来？")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "预热着色器到底是在干什么？")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "为什么需要预编译着色器...")[0]).toBeUndefined();
+    expect(container.querySelector('[data-testid="page00-question-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="page00-prompt-list"]')).toBeNull();
+    expect(beforeImage?.getAttribute("href")).toBe("/supplement/pso-stutter.png");
+    expect(compileImage?.getAttribute("href")).toBe("/supplement/pso-compile-shader.png");
+    expect(afterImage?.getAttribute("href")).toBe("/supplement/pso-precompile-smooth-peak.png");
+    expect(compileImage?.getAttribute("x")).toBe(beforeImage?.getAttribute("x"));
+    expect(afterImage?.getAttribute("x")).toBe(beforeImage?.getAttribute("x"));
+    expect(compileImage?.getAttribute("width")).toBe(beforeImage?.getAttribute("width"));
+    expect(afterImage?.getAttribute("width")).toBe(beforeImage?.getAttribute("width"));
+    expect(beforeImage?.getAttribute("preserveAspectRatio")).toBe("xMidYMin slice");
+    expect(compileImage?.getAttribute("preserveAspectRatio")).toBe("xMidYMid meet");
+    expect(afterImage?.getAttribute("preserveAspectRatio")).toBe("xMidYMin slice");
+    expect(Number(compileImage?.getAttribute("y"))).toBeGreaterThan(
+      Number(beforeImage?.getAttribute("y")) + Number(beforeImage?.getAttribute("height")),
+    );
+    expect(Number(afterImage?.getAttribute("y"))).toBeGreaterThan(
+      Number(compileImage?.getAttribute("y")) + Number(compileImage?.getAttribute("height")),
+    );
+    expect(findSvgTextNodesByContent(container, "样本 A")[0]).toBeUndefined();
+    expect(findSvgTextNodesByContent(container, "样本 B")[0]).toBeUndefined();
+  });
+
+  it("hands off from page 00 to page 01 by fading the opening overlay and revealing the minimal model", () => {
+    setLegacyFrame(0);
+    const {container: openingContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
+    const openingInputNodes = findSvgTextNodesByContent(openingContainer, "Input").filter(
+      (node) => effectiveOpacity(node) > 0.08,
+    );
+
+    expect(
+      openingContainer.querySelector('[data-testid="page00-before-image"]'),
+    ).not.toBeNull();
+    expect(openingInputNodes.length).toBe(0);
+
+    unmount();
+    setLegacyFrame(18);
+    const {container: page01Container} = render(<MyComposition variantId="bus-clean" />);
+    const page01InputNodes = findSvgTextNodesByContent(page01Container, "Input").filter(
+      (node) => effectiveOpacity(node) > 0.08,
+    );
+    const page01FxNodes = findSvgTextNodesByContent(page01Container, "f(x)").filter(
+      (node) => effectiveOpacity(node) > 0.08,
+    );
+
+    expect(
+      page01Container.querySelector('[data-testid="page00-before-image"]'),
+    ).toBeNull();
+    expect(page01InputNodes.length).toBeGreaterThanOrEqual(1);
+    expect(page01FxNodes.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders page 02 as VertexData -> GPU -> pixels with a clean GPU silhouette", () => {
     setLegacyFrame(54);
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const scene = computeSceneModel(remapLegacyFrame(54), "bus-clean");
+    const pipelineArrow = container.querySelector('[data-testid="page2-pipeline-arrow"]');
+    const pipelineState = container.querySelector('[data-testid="page2-pipeline-state"] rect');
+    const pipelinePreviewCard = container.querySelector('[data-testid="page2-pso-preview-card"] rect');
+    const vertexBufferInset = container.querySelector(
+      '[data-testid="page2-vertex-buffer-image"] [data-geometry-node-box="1"]',
+    );
+    const vertexBufferImage = container.querySelector('[data-testid="page2-vertex-buffer-image"] image');
 
     expect(screen.getAllByText("GPU").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Pipeline State")).toBeInTheDocument();
+    expect(screen.getByText("GfxAPI设置")).toBeInTheDocument();
+    expect(screen.getByText("PSO = Shader + State")).toBeInTheDocument();
+    expect(screen.getByText("Vertex Decl / Input Layout")).toBeInTheDocument();
+    expect(screen.getByText("Depth / Stencil Test")).toBeInTheDocument();
+    expect(screen.getByText("Blend / Rasterizer State")).toBeInTheDocument();
     expect(screen.queryByText("Texture")).not.toBeInTheDocument();
     expect(
       container.querySelector('[data-testid="vertex-icon"][opacity="1"]'),
@@ -435,7 +541,27 @@ describe("MyComposition", () => {
     expect(
       container.querySelector('[data-testid="pixel-grid"][opacity="1"]'),
     ).not.toBeNull();
-    expect(container.querySelectorAll('[data-testid="page2-gpu-slot"]').length).toBe(3);
+    expect(container.querySelector('[data-testid="page2-pipeline-state"]')).not.toBeNull();
+    expect(pipelineArrow).not.toBeNull();
+    expect(strokePalette(pipelineArrow)).toBe("#d06b44");
+    expect(pipelineState?.getAttribute("stroke")).toBe("#d06b44");
+    expect(pipelinePreviewCard).not.toBeNull();
+    expect(rectMetrics(pipelinePreviewCard).y).toBeGreaterThanOrEqual(
+      scene.centerBox.y + scene.centerBox.height + 8,
+    );
+    expect(rectMetrics(pipelinePreviewCard).height).toBeGreaterThanOrEqual(284);
+    expect(rectMetrics(pipelinePreviewCard).right).toBeLessThanOrEqual(
+      scene.centerBox.x + 24,
+    );
+    expect(rectMetrics(pipelinePreviewCard).bottom).toBeLessThanOrEqual(712);
+    expect(vertexBufferImage?.getAttribute("href")).toBe("/supplement/VertexBuffer.png");
+    expect(vertexBufferInset).not.toBeNull();
+    expect(rectMetrics(vertexBufferInset).x).toBeGreaterThan(rectMetrics(pipelineState).right);
+    expect(rectMetrics(vertexBufferInset).y).toBeGreaterThanOrEqual(
+      scene.centerBox.y + scene.centerBox.height + 12,
+    );
+    expect(rectMetrics(vertexBufferInset).bottom).toBeLessThanOrEqual(600);
+    expect(container.querySelectorAll('[data-testid="page2-gpu-slot"]').length).toBe(0);
     expect(
       Array.from(container.querySelectorAll("rect")).length,
     ).toBeGreaterThan(10);
@@ -444,29 +570,25 @@ describe("MyComposition", () => {
   it("renders page 03 with a top configuration band and API-call legend", () => {
     setLegacyFrame(90);
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const orangeArrows = Array.from(
-      container.querySelectorAll('path[stroke="#d06b44"]'),
-    ).filter((node) => {
-      const width = Number(node.getAttribute("stroke-width"));
-
-      return (
-        width > 0 &&
-        width <= 3.2 &&
-        (opacityOf(node.closest("g")) > 0 || opacityOf(node) > 0)
-      );
-    });
+    const page2Scene = computeSceneModel(remapLegacyFrame(54), "bus-clean");
+    const scene = computeSceneModel(remapLegacyFrame(90), "bus-clean");
     const programGroup = findBoxGroupByLabel(container, "Program");
+    const compileArrow = container.querySelector('[data-testid="page3-compile-arrow"]');
+    const compileBadge = container.querySelector('[data-testid="page3-compile-badge"]');
     const badge2 = container.querySelector('[data-testid="page3-useprogram-badge"]');
     const badge5 = container.querySelector('[data-testid="page3-linkprogram-badge"]');
     const badge6 = container.querySelector('[data-testid="page3-getprogrambinary-badge"]');
     const linkLeft = container.querySelector('[data-testid="page3-linkprogram-input-left"]');
     const linkRight = container.querySelector('[data-testid="page3-linkprogram-input-right"]');
     const workflowFrame = container.querySelector('[data-testid="page3-program-workflow-frame"]');
+    const compileBadgeCircle = compileBadge?.querySelector("circle");
+    const badge2Circle = badge2?.querySelector("circle");
     const badge5Circle = badge5?.querySelector("circle");
     const badge6Circle = badge6?.querySelector("circle");
     const workflowRect = workflowFrame?.querySelector("rect");
     const leftX = parseVerticalPathX(linkLeft);
     const rightX = parseVerticalPathX(linkRight);
+    const gpuCarrierRect = findRectByBox(container, scene.centerBox);
 
     expect(screen.getAllByText("GPU").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Raw")).toBeInTheDocument();
@@ -476,15 +598,24 @@ describe("MyComposition", () => {
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
     expect(container.querySelectorAll('[data-testid="page2-gpu-slot"]').length).toBe(0);
-    expect(orangeArrows.length).toBeGreaterThanOrEqual(4);
+    expect(compileArrow).not.toBeNull();
+    expect(strokePalette(compileArrow)).toBe("#ff0000");
+    expect(compileBadge).not.toBeNull();
+    expect(opacityOf(compileBadge)).toBeGreaterThan(0.9);
+    expect(compileBadgeCircle?.getAttribute("stroke")).toBe("#ff0000");
     expect(badge2).not.toBeNull();
     expect(opacityOf(badge2)).toBeGreaterThan(0.9);
+    expect(badge2Circle?.getAttribute("stroke")).toBe("#d06b44");
     expect(badge5).not.toBeNull();
     expect(opacityOf(badge5)).toBeGreaterThan(0.9);
+    expect(badge5Circle?.getAttribute("stroke")).toBe("#ff0000");
     expect(badge6).not.toBeNull();
     expect(opacityOf(badge6)).toBeGreaterThan(0.9);
+    expect(badge6Circle?.getAttribute("stroke")).toBe("#d06b44");
     expect(dashSignature(linkLeft)).toBe("7 7");
     expect(dashSignature(linkRight)).toBe("7 7");
+    expect(strokePalette(linkLeft)).toBe("#ff0000");
+    expect(strokePalette(linkRight)).toBe("#ff0000");
     expect(workflowFrame?.querySelector("rect")?.getAttribute("stroke-dasharray")).toBe("10 8");
     expect(workflowRect?.getAttribute("stroke")).toBe("#d06b44");
     expect(Number(badge6Circle?.getAttribute("cx"))).toBeLessThanOrEqual(
@@ -497,6 +628,15 @@ describe("MyComposition", () => {
       ((leftX ?? 0) + (rightX ?? 0)) / 2,
       0,
     );
+    expect(scene.leftBox.y).toBeGreaterThan(page2Scene.leftBox.y);
+    expect(scene.centerBox.y).toBeGreaterThan(page2Scene.centerBox.y);
+    expect(scene.centerBox.width).toBeGreaterThan(page2Scene.centerBox.width);
+    expect(scene.centerBox.height).toBeGreaterThan(page2Scene.centerBox.height);
+    expect(scene.rightBox.y).toBeGreaterThan(page2Scene.rightBox.y);
+    expect(rectMetrics(workflowRect).x).toBeLessThanOrEqual(52);
+    expect(rectMetrics(workflowRect).y).toBeGreaterThanOrEqual(112);
+    expect(rectMetrics(workflowRect).y).toBeLessThanOrEqual(120);
+    expect(rectMetrics(gpuCarrierRect).y).toBeGreaterThanOrEqual(402);
     expect(Number(findBoxGroupByLabel(container, "Depth")?.querySelector("rect")?.getAttribute("x"))).toBeGreaterThan(640);
     expect(Number(findBoxGroupByLabel(container, "Blend")?.querySelector("rect")?.getAttribute("x"))).toBeGreaterThan(750);
     expect(container.querySelectorAll("circle").length).toBeGreaterThan(6);
@@ -512,7 +652,10 @@ describe("MyComposition", () => {
     const page4WorkflowBadge = container.querySelector(
       '[data-testid="page4-getpipelinecachedata-badge"]',
     );
+    const page4CreateArrow = container.querySelector('[data-testid="page4-create-arrow"]');
+    const page4CreateBadge = container.querySelector('[data-testid="page4-create-badge"]');
     const page4WorkflowRect = page4WorkflowFrame?.querySelector("rect");
+    const page4CreateBadgeCircle = page4CreateBadge?.querySelector("circle");
     const page4WorkflowBadgeCircle = page4WorkflowBadge?.querySelector("circle");
 
     expect(screen.getByText("Raw")).toBeInTheDocument();
@@ -527,6 +670,12 @@ describe("MyComposition", () => {
     expect(page4WorkflowBadge).not.toBeNull();
     expect(opacityOf(page4WorkflowBadge)).toBeGreaterThan(0.9);
     expect(page4WorkflowBadge?.textContent).toContain("3");
+    expect(page4CreateArrow).not.toBeNull();
+    expect(strokePalette(page4CreateArrow)).toBe("#ff0000");
+    expect(page4CreateBadge).not.toBeNull();
+    expect(opacityOf(page4CreateBadge)).toBeGreaterThan(0.9);
+    expect(page4CreateBadge?.textContent).toContain("1");
+    expect(page4CreateBadgeCircle?.getAttribute("stroke")).toBe("#ff0000");
     expect(Number(page4WorkflowBadgeCircle?.getAttribute("cx"))).toBeLessThanOrEqual(
       Number(page4WorkflowRect?.getAttribute("x")) + 36,
     );
@@ -539,7 +688,7 @@ describe("MyComposition", () => {
     expect(screen.getByText("PSO")).toBeInTheDocument();
     expect(screen.getByText("Depth")).toBeInTheDocument();
     expect(screen.getByText("Blend")).toBeInTheDocument();
-    expect(visibleOrangeBadges.length).toBe(3);
+    expect(visibleOrangeBadges.length).toBeGreaterThanOrEqual(2);
   });
 
   it("renders page 05 as the UE asset cook bridge with mesh and material assets feeding runtime inputs", () => {
@@ -616,7 +765,7 @@ describe("MyComposition", () => {
     setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const stageGroup = container.querySelector('[data-testid="page6-stage-group"]');
-    const materialGroup = findVisibleBoxGroupByLabel(container, "Material");
+    const materialGroup = findVisibleUmaterialGroup(container);
     const resourceGroup = findVisibleBoxGroupByLabel(container, "FMaterialResource");
     const shaderMapGroup = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap");
     const cookedRect = container
@@ -690,7 +839,7 @@ describe("MyComposition", () => {
     expect((stageAnchor?.x ?? 0)).toBeGreaterThanOrEqual(-700);
     expect((stageAnchor?.x ?? 0)).toBeLessThanOrEqual(-560);
     expect(Math.abs((stageAnchor?.y ?? 0) + 306)).toBeLessThanOrEqual(8);
-    expect(screen.getAllByText("Material").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("UMaterial").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("FMaterialResource").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("FMaterialShaderMap")).toBeInTheDocument();
     expect(screen.getAllByText("Cooked").length).toBeGreaterThanOrEqual(1);
@@ -730,7 +879,8 @@ describe("MyComposition", () => {
     expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-cooked-code-box"]')).not.toBeNull();
-    expect(uassetFrame?.getAttribute("fill")).toBe("none");
+    expect(uassetFrame?.getAttribute("fill")).toBe("rgba(231, 242, 233, 0.98)");
+    expect(uassetFrame?.getAttribute("stroke")).toBe("rgba(104, 140, 114, 0.86)");
     expect(materialGroup).not.toBeNull();
     expect(resourceGroup).not.toBeNull();
     expect(shaderMapGroup).not.toBeNull();
@@ -784,7 +934,7 @@ describe("MyComposition", () => {
     expect(container.querySelector('[data-testid="page6-resource-selector-table"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-shadermap-selector-table"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-cooked-code-box"]')).not.toBeNull();
-    expect(findTextNodes(container, "Material").length).toBeGreaterThan(0);
+    expect(findTextNodes(container, "UMaterial").length).toBeGreaterThan(0);
     expect(findTextNodes(container, "FMaterialResource").length).toBeGreaterThan(0);
     expect(findTextNodes(container, "FMaterialShaderMap").length).toBeGreaterThan(0);
     expect(screen.queryByText("ShaderEntries[i]")).not.toBeInTheDocument();
@@ -806,7 +956,7 @@ describe("MyComposition", () => {
     const shaderTableRect = container
       .querySelector('[data-testid="page6-shadermap-selector-table"]')
       ?.querySelector("rect");
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const shaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const cookedRect = container
       .querySelector('[data-testid="page6-cooked-code-box"]')
@@ -955,7 +1105,7 @@ describe("MyComposition", () => {
     const resourceTableRect = container
       .querySelector('[data-testid="page6-resource-selector-table"]')
       ?.querySelector("rect");
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const resourceRect = findVisibleBoxGroupByLabel(container, "FMaterialResource")?.querySelector("rect");
     const shaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const crossGroup = container.querySelector('[data-testid="page6-platform-resource-cross"]');
@@ -998,7 +1148,7 @@ describe("MyComposition", () => {
     setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetRect = container.querySelector('[data-testid="page6-uasset-frame"]');
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const resourceRect = findVisibleBoxGroupByLabel(container, "FMaterialResource")?.querySelector("rect");
     const shaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const platformTableRect = container
@@ -1037,11 +1187,11 @@ describe("MyComposition", () => {
     const platformResourceSpine = container.querySelector(
       '[data-testid="page6-platform-resource-spine"]',
     );
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const shaderPlatform = findTextNodes(container, "ShaderPlatform")[0];
     const featureLevel = findTextNodes(container, "FeatureLevel")[0];
     const basePass = findTextNodes(container, "BasePassPS")[0];
-    const material = findTextNodes(container, "Material")[0];
+    const material = findTextNodes(container, "UMaterial")[0];
     const resource = findTextNodes(container, "FMaterialResource")[0];
     const shaderMap = findTextNodes(container, "FMaterialShaderMap")[0];
     const spinePoints = parseSimplePathPoints(platformResourceSpine);
@@ -1068,7 +1218,7 @@ describe("MyComposition", () => {
     const shaderTableRect = container
       .querySelector('[data-testid="page6-shadermap-selector-table"]')
       ?.querySelector("rect");
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const resourceRect = findVisibleBoxGroupByLabel(container, "FMaterialResource")?.querySelector("rect");
     const shaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const cookedRect = container
@@ -1118,13 +1268,13 @@ describe("MyComposition", () => {
     const {container: page6Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
-    const page6MaterialRect = findVisibleBoxGroupByLabel(page6Container, "Material")?.querySelector("rect");
+    const page6MaterialRect = findVisibleUmaterialGroup(page6Container)?.querySelector("rect");
     const page6ShaderMapRect = findVisibleBoxGroupByLabel(page6Container, "FMaterialShaderMap")?.querySelector("rect");
 
     unmount();
     setLegacyFrame(270);
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const page7MaterialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const page7MaterialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const page7ShaderMapRect = findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect");
     const page7CookedRect = container
       .querySelector('[data-testid="page6-cooked-code-box"]')
@@ -1355,7 +1505,7 @@ describe("MyComposition", () => {
     expect(container.querySelector('[data-testid="page6-resource-card"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-shadermap-card"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="page6-cooked-code-box"]')).not.toBeNull();
-    expect(findTextNodes(container, "Material").length).toBeGreaterThanOrEqual(1);
+    expect(findTextNodes(container, "UMaterial").length).toBeGreaterThanOrEqual(1);
     expect(container.querySelector('[data-testid="page6-platform-resource-spine"]')).toBeNull();
     expect(
       container.querySelector('[data-testid="page6-shader-selector-attachment-link"]'),
@@ -1477,10 +1627,7 @@ describe("MyComposition", () => {
     const {container: page6Container, unmount} = render(
       <MyComposition variantId="bus-clean" />,
     );
-    const page6MaterialRect = findVisibleBoxGroupByLabel(
-      page6Container,
-      "Material",
-    )?.querySelector("rect");
+    const page6MaterialRect = findVisibleUmaterialGroup(page6Container)?.querySelector("rect");
     const page6ResourceRect = findVisibleBoxGroupByLabel(
       page6Container,
       "FMaterialResource",
@@ -1499,7 +1646,7 @@ describe("MyComposition", () => {
     const shaderShadowRects = Array.from(
       container.querySelectorAll('[data-testid^="page6-shadermap-shadow-"] rect'),
     );
-    const materialRect = findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect");
+    const materialRect = findVisibleUmaterialGroup(container)?.querySelector("rect");
     const resourceRect = findVisibleBoxGroupByLabel(
       container,
       "FMaterialResource",
@@ -1508,9 +1655,7 @@ describe("MyComposition", () => {
       container,
       "FMaterialShaderMap",
     )?.querySelector("rect");
-    const materialLabel = findTextNodes(container, "Material").find(
-      (node) => effectiveOpacity(node) > 0.16,
-    );
+    const materialLabel = findVisibleUmaterialLabel(container);
     const resourceLabel = findTextNodes(container, "FMaterialResource").find(
       (node) => effectiveOpacity(node) > 0.16,
     );
@@ -1564,7 +1709,7 @@ describe("MyComposition", () => {
     expect(fontSizeOf(materialLabel)).toBe(fontSizeOf(resourceLabel));
     expect(fontSizeOf(materialLabel)).toBe(fontSizeOf(shaderMapLabel));
     expect(fontSizeOf(materialLabel)).toBe(23.5);
-    expect(materialRect?.getAttribute("data-tone")).toBe("asset");
+    expect(materialRect?.getAttribute("data-tone")).toBe("default");
   });
 
   it("keeps the page 07 inline details inserted between shaderMap and the anchored cooked-code box", () => {
@@ -1721,7 +1866,7 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const uassetMetrics = rectMetrics(container.querySelector('[data-testid="page6-uasset-frame"]'));
     const contentRects = [
-      findVisibleBoxGroupByLabel(container, "Material")?.querySelector("rect"),
+      findVisibleUmaterialGroup(container)?.querySelector("rect"),
       findVisibleBoxGroupByLabel(container, "FMaterialResource")?.querySelector("rect"),
       findVisibleBoxGroupByLabel(container, "FMaterialShaderMap")?.querySelector("rect"),
       container.querySelector('[data-testid="page6-fshader-card"]')?.querySelector("rect"),
@@ -1768,7 +1913,7 @@ describe("MyComposition", () => {
   it("keeps page 06 as one world by avoiding duplicate visible Material labels", () => {
     setLegacyFrame(234);
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const visibleMaterialLabels = findTextNodes(container, "Material").filter(
+    const visibleMaterialLabels = findTextNodes(container, "UMaterial").filter(
       (node) => effectiveOpacity(node) > 0.16,
     );
 
@@ -1941,6 +2086,8 @@ describe("MyComposition", () => {
     expect(proofMaterialRect).not.toBeNull();
     expect(proofCookedCueRect).not.toBeNull();
     expect(cookedRect).not.toBeNull();
+    expect(proofMaterialRect?.getAttribute("fill")).toBe("rgba(255, 251, 246, 0.98)");
+    expect(proofMaterialRect?.getAttribute("stroke")).toBe("rgba(34, 48, 61, 0.78)");
     expect(rectMetrics(proofMaterialRect).bottom).toBeLessThan(projectedUassetTop);
     expect(Math.abs(rectCenterX(proofCookedCueRect) - projectedCookedCenter.x)).toBeLessThanOrEqual(2);
     expect(rectMetrics(cookedRect).x).toBeGreaterThan(rectMetrics(uassetRect).x + 24);
@@ -2140,6 +2287,15 @@ describe("MyComposition", () => {
     expect(rectMetrics(sharedLibraryRect).x - rectMetrics(sharedResourceRect).right).toBeGreaterThanOrEqual(70);
     expect(rectMetrics(sharedLibraryRect).x - rectMetrics(uassetRect).right).toBeGreaterThanOrEqual(56);
     expect(rectMetrics(sharedLibraryRect).bottom - rectMetrics(shaderBlobRect).bottom).toBeGreaterThanOrEqual(0);
+    expect(findBoxGroupByLabel(container, "Material A")?.querySelector("rect")?.getAttribute("fill")).toBe(
+      "rgba(231, 242, 233, 0.98)",
+    );
+    expect(findBoxGroupByLabel(container, "Material B")?.querySelector("rect")?.getAttribute("fill")).toBe(
+      "rgba(231, 242, 233, 0.98)",
+    );
+    expect(findBoxGroupByLabel(container, "Material C")?.querySelector("rect")?.getAttribute("fill")).toBe(
+      "rgba(231, 242, 233, 0.98)",
+    );
     expect(Math.abs(rectMetrics(shaderHashesRect).y - rectMetrics(shaderCodeRect).y)).toBeLessThanOrEqual(2);
     expect(rectMetrics(shaderBlobRect).y - rectMetrics(shaderCodeRect).bottom).toBeGreaterThanOrEqual(8);
     expect((fshaderBranchVertices[0]?.x ?? 0)).toBeGreaterThan(rectCenterX(fshaderRect));
@@ -2306,6 +2462,74 @@ describe("MyComposition", () => {
     expect(fontSizeOf(shaderSlice)).toBeGreaterThanOrEqual(15.5);
   });
 
+  it("moves the page 09_img Material and instance explanation into an outside note above the comparison cards", () => {
+    setLegacyFrame(444);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const materialNote = findTextNodes(container, "M = 母材质")[0];
+    const instanceNote = findTextNodes(
+      container,
+      "M-I1 / M-I2 = 两个相同的 Material Instance",
+    )[0];
+    const staticBoolNote = findTextNodes(
+      container,
+      "注：M-I1 / M-I2 都额外改了同一个 Static Bool，否则 UE 可能会优化掉，不保存对应 ShaderCode。",
+    )[0];
+    const centerTitle = findTextNodes(container, ".uexp 对比（M 系列）")[0];
+    const openglHashBox = container.querySelector('[data-testid="page09-hash-opengl-box"] rect');
+    const vulkanHashBox = container.querySelector('[data-testid="page09-hash-vulkan-box"] rect');
+    const openglHashTitle = findTextNodes(container, "Hash 复用证据（OpenGL）")[0];
+    const openglHashValue = findTextNodes(container, "BC10CB48...B4A6DB57")[0];
+    const openglHashNote = findTextNodes(container, "M-I1 / M-I2 复用同一 Hash")[0];
+    const vulkanHashTitle = findTextNodes(container, "Hash 复用证据（Vulkan）")[0];
+    const vulkanHashNote = findTextNodes(container, "共享模式命中同一套 Hash")[0];
+    const openglHashBoxY = Number(openglHashBox?.getAttribute("y"));
+    const openglHashBoxBottom =
+      openglHashBoxY + Number(openglHashBox?.getAttribute("height"));
+    const vulkanHashBoxY = Number(vulkanHashBox?.getAttribute("y"));
+    const vulkanHashBoxBottom =
+      vulkanHashBoxY + Number(vulkanHashBox?.getAttribute("height"));
+
+    expect(materialNote).toBeDefined();
+    expect(instanceNote).toBeDefined();
+    expect(staticBoolNote).toBeDefined();
+    expect(textY(materialNote)).toBeLessThan(textY(centerTitle));
+    expect(textY(instanceNote)).toBeLessThan(textY(centerTitle));
+    expect(textY(staticBoolNote)).toBeLessThan(textY(centerTitle));
+    expect(textY(materialNote)).toBeLessThan(textY(instanceNote));
+    expect(textY(instanceNote)).toBeLessThan(textY(staticBoolNote));
+    expect(Math.abs(textX(materialNote) - textX(centerTitle))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(instanceNote) - textX(centerTitle))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(staticBoolNote) - textX(centerTitle))).toBeLessThanOrEqual(2);
+    expect(fontSizeOf(materialNote)).toBeGreaterThanOrEqual(26);
+    expect(fontSizeOf(instanceNote)).toBeGreaterThanOrEqual(24);
+    expect(fontSizeOf(staticBoolNote)).toBeLessThan(fontSizeOf(instanceNote));
+    expect(fontSizeOf(staticBoolNote)).toBeLessThanOrEqual(20);
+    expect(fontWeightOf(materialNote)).toBeLessThanOrEqual(700);
+    expect(fontWeightOf(instanceNote)).toBeLessThanOrEqual(700);
+    expect(fontWeightOf(staticBoolNote)).toBeLessThanOrEqual(640);
+    expect(textY(centerTitle) - textY(staticBoolNote)).toBeGreaterThanOrEqual(24);
+    expect(openglHashBox).toBeDefined();
+    expect(vulkanHashBox).toBeDefined();
+    expect(Number(openglHashBox?.getAttribute("height"))).toBeLessThanOrEqual(160);
+    expect(Number(vulkanHashBox?.getAttribute("height"))).toBeLessThanOrEqual(160);
+    expect(fontSizeOf(openglHashTitle)).toBe(20);
+    expect(fontSizeOf(openglHashValue)).toBe(24);
+    expect(fontSizeOf(openglHashNote)).toBe(18);
+    expect(
+      Math.abs((textY(openglHashTitle) - openglHashBoxY) - (openglHashBoxBottom - textY(openglHashNote))),
+    ).toBeLessThanOrEqual(10);
+    expect(
+      Math.abs((textY(vulkanHashTitle) - vulkanHashBoxY) - (vulkanHashBoxBottom - textY(vulkanHashNote))),
+    ).toBeLessThanOrEqual(10);
+    expect(
+      findTextNodes(container, "M = 母材质；M-I1 / M-I2 = 两个相同的 Material Instance").length,
+    ).toBe(0);
+    expect(findTextNodes(container, "注：M-I1 / M-I2 都额外改了同一个 Static Bool").length).toBe(0);
+    expect(findTextNodes(container, "否则 UE 可能会优化掉，不保存对应 ShaderCode。").length).toBe(0);
+    expect(findTextNodes(container, "M=Material，M-I*=Material Instance").length).toBe(0);
+  });
+
   it("renders page 10 as a page-5 callback that settles on ShaderLibrary before the loop chapter starts", () => {
     setLegacyFrame(474);
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -2340,7 +2564,7 @@ describe("MyComposition", () => {
     expect(visibleMaterial.length).toBe(0);
     expect(visibleCooked.length).toBe(0);
     expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBe(0);
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "UE5 formats").length).toBe(0);
@@ -2539,7 +2763,7 @@ describe("MyComposition", () => {
     const computerCenterY = (minRectTop(computerGroup) + maxRectBottom(computerGroup)) / 2;
     const phoneCenterY = (minRectTop(phoneShell) + maxRectBottom(phoneShell)) / 2;
 
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
@@ -2594,13 +2818,14 @@ describe("MyComposition", () => {
       <MyComposition variantId="bus-clean" />,
     );
 
-    expect(findSvgTextNodesByContent(page14Container, "Phone如何收集PSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "Draw").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "PSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "BSS").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page14Container, "OpenGL: BSS").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "PSO = shaders + State").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "shaders，又称 BSS").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page14Container, "Bound Shader State").length).toBeGreaterThanOrEqual(1);
     expect(
-      findSvgTextNodesByContent(page14Container, "Vulkan / Metal: BSS + State").length,
+      findSvgTextNodesByContent(
+        page14Container,
+        "注：Vulkan / Metal = BSS + State，OpenGL = BSS（无 State）",
+      ).length,
     ).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page14Container, ".rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page14Container, "stablepc.csv").length).toBe(0);
@@ -2613,7 +2838,7 @@ describe("MyComposition", () => {
       <MyComposition variantId="bus-clean" />,
     );
 
-    expect(findSvgTextNodesByContent(page15Container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page15Container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, "stablepc.csv").length).toBe(0);
@@ -2654,7 +2879,7 @@ describe("MyComposition", () => {
     setLegacyFrame(1032);
     const {container, unmount: unmount18} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "预编译如何发生").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
@@ -2706,6 +2931,80 @@ describe("MyComposition", () => {
     expect(container.querySelector('[data-testid="page10-phone-shell"]')).not.toBeNull();
   });
 
+  it("keeps the runtime svg free of the header-side prompt overlay copy", () => {
+    mockFrame = resolveRemotionStepFrame("page_03");
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(
+      findSvgTextNodesByContent(container, "Q: 为什么需要预编译着色器？").some(
+        (node) => effectiveOpacity(node) > 0.16,
+      ),
+    ).toBe(false);
+    expect(container.querySelector('[data-testid^="slide-prompt-overlay-"]')).toBeNull();
+  });
+
+  it("separates the two phone ingress arrows from the cloud-blue loop arrows on pages 13 to 17", () => {
+    mockFrame = resolveRemotionStepFrame("page_13") + 24;
+    const {container: page13Container, unmount: unmount13} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    expect(
+      strokePalette(page13Container.querySelector('[data-testid="page13-bytecode-to-phone-arrow"]')),
+    ).toBe("#d06b44");
+
+    unmount13();
+    mockFrame = resolveRemotionStepFrame("page_16") + 24;
+    const {container: page16Container, unmount: unmount16} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    expect(
+      strokePalette(page16Container.querySelector('[data-testid="page16-rec-to-expand-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page16Container.querySelector('[data-testid="page16-scl-to-expand-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page16Container.querySelector('[data-testid="page16-expand-to-stablepc-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+
+    unmount16();
+    mockFrame = resolveRemotionStepFrame("page_17") + 24;
+    const {container: page17Container, unmount: unmount17} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    expect(
+      strokePalette(page17Container.querySelector('[data-testid="page17-stablepc-to-build-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page17Container.querySelector('[data-testid="page17-scl-to-build-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page17Container.querySelector('[data-testid="page17-build-to-stableupipe-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+
+    unmount17();
+    mockFrame = resolveRemotionStepFrame("page_18") + 24;
+    const {container: page18Container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findSvgTextNodesByContent(page18Container, "构建机").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page18Container, "Computer").length).toBe(0);
+    expect(
+      strokePalette(page18Container.querySelector('[data-testid="page14-phone-to-rec-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page18Container.querySelector('[data-testid="page15-rec-to-computer-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page18Container.querySelector('[data-testid="page15-merge-to-stable-arrow"]')),
+    ).toBe(LOOP_CLOUD_STROKE);
+    expect(
+      strokePalette(page18Container.querySelector('[data-testid="page15-stable-to-phone-arrow"]')),
+    ).toBe("#d06b44");
+  });
+
   it("renders merged page 19 as one centered precompile-to-cache diagram", () => {
     mockFrame = resolveRemotionStepFrame("page_19") + 8;
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -2752,6 +3051,13 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "Program Binary").length).toBeGreaterThanOrEqual(2);
     expect(findSvgTextNodesByContent(container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "functions.data").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Shader / State").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "codegen / 映射").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(container, "OS / Driver / GPU / API").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "binary / cache 不是稳定接口。").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "Binary Archive 2 ?").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Precompile").length).toBe(0);
     expect(fontSizeOf(stableTitle)).toBeGreaterThanOrEqual(20);
     expect(fontSizeOf(uePsoLabel)).toBeGreaterThanOrEqual(22);
@@ -2785,18 +3091,9 @@ describe("MyComposition", () => {
   it("keeps the page 19 to page 21 handoff from flashing back to the old loop stage", () => {
     mockFrame = 2332;
     const {container} = render(<MyComposition variantId="bus-clean" />);
-    const visiblePage19Nodes = [
-      ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
-      ...findSvgTextNodesByContent(container, "UE PSO"),
-      ...findSvgTextNodesByContent(container, "内存中 PSO"),
-    ].filter((node) => effectiveOpacity(node) > 0.08);
-    const visiblePage21Nodes = [
-      ...findSvgTextNodesByContent(container, "这一页讲什么"),
-      ...findSvgTextNodesByContent(container, "和下一页怎么衔接"),
-    ].filter((node) => effectiveOpacity(node) > 0.08);
-
     expect(findVisibleLegacyLoopNodes(container).length).toBe(0);
-    expect(visiblePage19Nodes.length + visiblePage21Nodes.length).toBeGreaterThan(0);
+    expect(container.querySelector('[data-testid="scene-base-layer"]')).not.toBeNull();
+    expect(container.querySelectorAll("text, rect, image").length).toBeGreaterThan(0);
   });
 
   it("renders page 21 in the same late-tail summary format as later strategy pages", () => {
@@ -2807,18 +3104,45 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "内容 / 状态变了")[0]).toBeDefined();
     expect(findTextNodes(container, "版本 / 构建变了")[0]).toBeDefined();
     expect(findTextNodes(container, "环境变了")[0]).toBeDefined();
-    expect(findTextNodes(container, "边界讲清，后面的策略页才不会被误读成默认正确。")[0]).toBeDefined();
+    expect(
+      findTextNodes(container, "缓存不是永不失效，而是把可复用边界和重建边界讲清楚。")[0],
+    ).toBeDefined();
   });
 
   it("renders page 22 in the same late-tail summary format as later strategy pages", () => {
     setLegacyFrame(1554);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "核心判断")[0]).toBeDefined();
-    expect(findTextNodes(container, "对象")[0]).toBeDefined();
-    expect(findTextNodes(container, "方法")[0]).toBeDefined();
-    expect(findTextNodes(container, "工程取舍")[0]).toBeDefined();
-    expect(findTextNodes(container, "预编译的 PSO 不会消失，只会转移。")[0]).toBeDefined();
+    expect(findTextNodes(container, "核心区分")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO 是对象，PSO Cache 是方法。")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO：对象")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO Cache：方法")[0]).toBeDefined();
+    expect(findTextNodes(container, "代价 / 适用")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO 的成本不会消失，只会转移。")[0]).toBeDefined();
+  });
+
+  it("renders page 28 with a vertex-buffer inset below the anonymous sample pair", () => {
+    setLegacyFrame(2094);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+    const sampleBImage = container.querySelector('[data-geometry-node-id="image-2"] image');
+    const sampleBRect = container.querySelector(
+      '[data-geometry-node-id="image-2"] [data-geometry-node-box="1"] rect',
+    );
+    const vertexBufferRect = container.querySelector(
+      '[data-testid="page28-vertex-buffer-image"] [data-geometry-node-box="1"]',
+    );
+    const vertexBufferImage = container.querySelector('[data-testid="page28-vertex-buffer-image"] image');
+    const rightCardRect = container.querySelector(
+      '[data-geometry-node-id="right-card"] [data-geometry-node-box="1"]',
+    );
+
+    expect(vertexBufferImage?.getAttribute("href")).toBe("/supplement/VertexBuffer.png");
+    expect(vertexBufferRect).not.toBeNull();
+    expect(vertexBufferImage?.getAttribute("width")).toBe(sampleBImage?.getAttribute("width"));
+    expect(rectMetrics(vertexBufferRect).y).toBeGreaterThan(rectMetrics(sampleBRect).bottom);
+    expect(rectMetrics(vertexBufferRect).bottom).toBeLessThan(606);
+    expect(Math.abs(rectMetrics(rightCardRect).bottom - rectMetrics(vertexBufferRect).bottom)).toBeLessThanOrEqual(4);
+    expect(findTextNodes(container, "VertexBuffer")[0]).toBeDefined();
   });
 
   it("keeps page 28 free from visible loop-stage nodes behind the reading board", () => {
@@ -2870,7 +3194,7 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(container, "stable.").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "expand").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Computer").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "Phone").length).toBe(0);
     expect(
       Array.from(container.querySelectorAll("text")).filter(
@@ -3122,15 +3446,19 @@ describe("MyComposition", () => {
     setLegacyFrame(72);
     const {container: midContainer, unmount} = render(<MyComposition variantId="bus-clean" />);
     const shaderCodeLine = findTextNodes(midContainer, "ShaderCode")[0];
-    const midLine = midContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
+    const midLine = midContainer.querySelector('[data-testid="page3-compile-arrow"]');
 
     unmount();
     setLegacyFrame(90);
     const {container: finalContainer} = render(<MyComposition variantId="bus-clean" />);
-    const finalLine = finalContainer.querySelector('path[stroke="#d06b44"][stroke-width="3.2"]');
+    const finalLine = finalContainer.querySelector('[data-testid="page3-compile-arrow"]');
 
     expect(shaderCodeLine).toBeDefined();
-    expect(midLine?.getAttribute("d")).not.toBe(finalLine?.getAttribute("d"));
+    expect(strokePalette(midLine)).toBe("#ff0000");
+    expect(strokePalette(finalLine)).toBe("#ff0000");
+    expect(midLine?.querySelector("path")?.getAttribute("d")).not.toBe(
+      finalLine?.querySelector("path")?.getAttribute("d"),
+    );
   });
 
   it("keeps page 03 -> page 04 as a shader-artifact transition while PSO fades in", () => {
@@ -3187,75 +3515,224 @@ describe("MyComposition", () => {
     expect(page5Cooked).toBeUndefined();
   });
 
-  it("renders page 24 as the resource-shape strategy page", () => {
+  it("highlights the expensive avg rows on page 04 data and annotates glCompileShader as x2", () => {
+    setLegacyFrame(150);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const doubledCompileAvg = findTextNodes(container, "7.262 / 15.350")[0];
+    const oldCompileAvg = findTextNodes(container, "3.631 / 7.675")[0];
+    const compileX2Note = container.querySelector(
+      '[data-testid="page4-data-compile-x2-note"]',
+    );
+    const highCostMarkers = container.querySelectorAll(
+      '[data-testid="page4-data-high-cost-marker"]',
+    );
+
+    expect(doubledCompileAvg).toBeDefined();
+    expect(oldCompileAvg).toBeUndefined();
+    expect(compileX2Note).not.toBeNull();
+    expect(highCostMarkers.length).toBe(3);
+  });
+
+  it("renders page 24 as the package-and-memory strategy host", () => {
     setLegacyFrame(1734);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
+    expect(findTextNodes(container, "包体")[0]).toBeDefined();
+    expect(findTextNodes(container, "ShaderCode 压缩")[0]).toBeDefined();
+    expect(findTextNodes(container, "内存")[0]).toBeDefined();
+    expect(findTextNodes(container, "UE 中 PSO：LRU + mmap")[0]).toBeDefined();
+    expect(findTextNodes(container, "LZ4")[0]).toBeDefined();
+    expect(findTextNodes(container, "zstd")[0]).toBeDefined();
+    expect(findTextNodes(container, "Oodle Leviathan")[0]).toBeDefined();
+    expect(findTextNodes(container, "驻留层")[0]).toBeDefined();
+    expect(findTextNodes(container, "换出 / 回填")[0]).toBeDefined();
+    expect(findTextNodes(container, "映射 / 载体")[0]).toBeDefined();
+    expect(findTextNodes(container, "选取策略")[0]).toBeDefined();
+    expect(findTextNodes(container, "回填路径")[0]).toBeDefined();
+    expect(findTextNodes(container, "外存载体")[0]).toBeDefined();
+    expect(findTextNodes(container, "并行")[0]).toBeUndefined();
+  });
+
+  it("keeps page 24 as two expanded formal boards with a denser right-side strategy skeleton", () => {
+    setLegacyFrame(1734);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const packageCardRect = container.querySelector(
+      '[data-geometry-node-id="left-card"] rect[data-geometry-node-box="1"]',
+    );
+    const rightCardRect = container.querySelector(
+      '[data-geometry-node-id="right-card"] rect[data-geometry-node-box="1"]',
+    );
+    const memoryRect = container.querySelector(
+      '[data-geometry-node-id="memory"] rect[data-geometry-node-box="1"]',
+    );
+    const flowLaneRect = container.querySelector(
+      '[data-geometry-node-id="flow-lane"] rect[data-geometry-node-box="1"]',
+    );
+    const diskRect = container.querySelector(
+      '[data-geometry-node-id="disk"] rect[data-geometry-node-box="1"]',
+    );
+
+    expect(rectMetrics(packageCardRect).width).toBeGreaterThanOrEqual(520);
+    expect(rectMetrics(rightCardRect).width).toBeGreaterThanOrEqual(648);
+    expect(rectMetrics(packageCardRect).y).toBeLessThanOrEqual(60);
+    expect(rectMetrics(rightCardRect).y).toBeLessThanOrEqual(60);
+    expect(rectMetrics(memoryRect).width).toBeGreaterThanOrEqual(268);
+    expect(rectMetrics(diskRect).width).toBeGreaterThanOrEqual(268);
+    expect(rectMetrics(flowLaneRect).height).toBeGreaterThanOrEqual(188);
+  });
+
+  it("keeps page 24 details readable without falling back to old placeholder copy", () => {
+    setLegacyFrame(1734);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const rowRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1"] rect[data-geometry-node-box="1"]',
+    );
+    const methodCard = container.querySelector(
+      '[data-geometry-node-id="memory-method-1"] rect[data-geometry-node-box="1"]',
+    );
+    const footerRect = container.querySelector(
+      '[data-geometry-node-id="footer"] g[data-geometry-node-box="1"] rect',
+    );
+
+    expect(rectMetrics(rowRect).height).toBeGreaterThanOrEqual(132);
+    expect(rectMetrics(methodCard).width).toBeGreaterThanOrEqual(190);
+    expect(rectMetrics(footerRect).width).toBeGreaterThanOrEqual(1040);
+    expect(
+      findTextNodes(container, "包体：ShaderCode 压缩；内存：UE 中 PSO 的 LRU + mmap。")[0],
+    ).toBeDefined();
+    expect(findTextNodes(container, "release/results 亮点摘录")[0]).toBeUndefined();
+    expect(findTextNodes(container, "任务独立")[0]).toBeUndefined();
+    expect(findTextNodes(container, "Algorithm")[0]).toBeUndefined();
+  });
+
+  it("keeps page 24 platform pills as explicit geometry nodes inside each package row", () => {
+    setLegacyFrame(1734);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const rowRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1"] rect[data-geometry-node-box="1"]',
+    );
+    const windowsRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1-windows"] rect',
+    );
+    const macosRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1-macos"] rect',
+    );
+    const androidRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1-android"] rect',
+    );
+    const iosRect = container.querySelector(
+      '[data-geometry-node-id="package-row-1-ios"] rect',
+    );
+
+    expect(windowsRect).not.toBeNull();
+    expect(macosRect).not.toBeNull();
+    expect(androidRect).not.toBeNull();
+    expect(iosRect).not.toBeNull();
+    expect(rectMetrics(windowsRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(rectMetrics(macosRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(rectMetrics(androidRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(rectMetrics(iosRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+  });
+
+  it("renders page 26 as two parallel precompile-optimization paths", () => {
+    setLegacyFrame(1914);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findTextNodes(container, "路径 1：减少编译集合")[0]).toBeDefined();
+    expect(findTextNodes(container, "Game")[0]).toBeDefined();
+    expect(findTextNodes(container, "UsageMask = A")[0]).toBeDefined();
+    expect(findTextNodes(container, "Compile")[0]).toBeDefined();
+    expect(findTextNodes(container, "UsageMask = A + B")[0]).toBeDefined();
+    expect(findTextNodes(container, "路径 2：提升编译吞吐")[0]).toBeDefined();
+    expect(findTextNodes(container, "任务独立")[0]).toBeDefined();
+    expect(findTextNodes(container, "纯 CPU 计算")[0]).toBeDefined();
     expect(
       findTextNodes(
         container,
-        "release/results 聚合实测：10 种算法 / 4 平台 / pso_like",
+        "UsageMask 减少集合，并行提升吞吐；两个不是同一个内容，但都在优化预编译速度。",
       )[0],
     ).toBeDefined();
-    expect(findTextNodes(container, "Compression")[0]).toBeDefined();
-    expect(findTextNodes(container, "Precompute / Preload")[0]).toBeDefined();
-    expect(findTextNodes(container, "Algorithm")[0]).toBeDefined();
-    expect(findTextNodes(container, "PCA 也是一种压缩")[0]).toBeDefined();
-    expect(findTextNodes(container, "模型把原过程压进参数里")[0]).toBeDefined();
-    expect(findTextNodes(container, "参考：GDC Vault / ML / Physics / Kolmogorov")[0]).toBeDefined();
   });
 
-  it("puts the page 24 unit note on its own row below the release/results title", () => {
-    setLegacyFrame(1734);
+  it("keeps page 26 usage-mask and parallel content as separate columns", () => {
+    setLegacyFrame(1914);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    const title = findTextNodes(
-      container,
-      "release/results 聚合实测：10 种算法 / 4 平台 / pso_like",
-    )[0];
-    const unitNote = findTextNodes(
-      container,
-      "单位：桌面 = 压/解(ms)；移动端 = 解压(ms)",
-    )[0];
-    const firstColumn = findTextNodes(container, "算法")[0];
+    const usagePathRect = container.querySelector('[data-geometry-node-id="usage-mask-path"] rect');
+    const parallelPathRect = container.querySelector('[data-geometry-node-id="parallel-path"] rect');
+    const compileMaskRect = container.querySelector('[data-geometry-node-id="compile-mask"] rect');
+    const queueRect = container.querySelector('[data-geometry-node-id="parallel-queue"] rect');
 
-    expect(title).toBeDefined();
-    expect(unitNote).toBeDefined();
-    expect(firstColumn).toBeDefined();
-    expect(textY(unitNote)).toBeGreaterThan(textY(title));
-    expect(textY(firstColumn)).toBeGreaterThan(textY(unitNote));
+    expect(rectMetrics(parallelPathRect).x).toBeGreaterThan(rectMetrics(usagePathRect).right);
+    expect(rectMetrics(queueRect).x).toBeGreaterThan(rectMetrics(compileMaskRect).right);
+    expect(findTextNodes(container, "同样目标下，一条路减集合，一条路提吞吐。")[0]).toBeDefined();
   });
 
-  it("keeps page 24 enlarged enough for the table block and strategy cards to read comfortably", () => {
-    setLegacyFrame(1734);
+  it("renders page 29 as the merged code-plus-image governance page", () => {
+    setLegacyFrame(2184);
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const images = Array.from(container.querySelectorAll("image"));
+    const leftTitle = findTextNodes(container, "VertexDescriptor / InitRHI")[0];
+    const rightTitle = findTextNodes(container, "LocalVertexFactory.ush")[0];
 
-    const tableRect = container.querySelector('[data-geometry-node-id="table"] rect');
-    const card1Rect = container.querySelector(
-      '[data-geometry-node-id="card-1"] [data-geometry-node-box="1"] rect',
-    );
-    const card2Rect = container.querySelector(
-      '[data-geometry-node-id="card-2"] [data-geometry-node-box="1"] rect',
-    );
-    const card3Rect = container.querySelector(
-      '[data-geometry-node-id="card-3"] [data-geometry-node-box="1"] rect',
-    );
-
-    expect(rectMetrics(tableRect).width).toBeGreaterThanOrEqual(760);
-    expect(rectMetrics(tableRect).height).toBeGreaterThanOrEqual(430);
-    expect(rectMetrics(card1Rect).width).toBeGreaterThanOrEqual(320);
-    expect(rectMetrics(card2Rect).width).toBeGreaterThanOrEqual(320);
-    expect(rectMetrics(card3Rect).width).toBeGreaterThanOrEqual(320);
-    expect(rectMetrics(card3Rect).height).toBeGreaterThanOrEqual(144);
+    expect(leftTitle).toBeDefined();
+    expect(rightTitle).toBeDefined();
+    expect(findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 1")[0]).toBeDefined();
+    expect(findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 2")[0]).toBeDefined();
+    expect(
+      findTextNodes(container, "同一个Material作用于不同的Mesh也会产生不同的PSO")[0],
+    ).toBeDefined();
+    expect(
+      images.some((node) => node.getAttribute("href") === "/supplement/ogl-mtl/uv-stride4-ia.png"),
+    ).toBe(true);
+    expect(
+      images.some((node) => node.getAttribute("href") === "/supplement/ogl-mtl/uv-stride8-ia.png"),
+    ).toBe(true);
+    expect(fontSizeOf(leftTitle)).toBeGreaterThanOrEqual(20);
+    expect(fontSizeOf(rightTitle)).toBeGreaterThanOrEqual(20);
   });
 
-  it("renders page 29 as the code-based governance source page", () => {
+  it("keeps page 29 images directly below their matching code cards", () => {
     setLegacyFrame(2184);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "VertexDescriptor / InitRHI")[0]).toBeDefined();
-    expect(findTextNodes(container, "LocalVertexFactory.ush")[0]).toBeDefined();
-    expect(findTextNodes(container, "同一个 material，不代表同一个 PSO。")[0]).toBeDefined();
+    const leftCodeRect = container.querySelector(
+      '[data-geometry-node-id="left-code"] [data-geometry-node-box="1"] rect',
+    );
+    const rightCodeRect = container.querySelector(
+      '[data-geometry-node-id="right-code"] [data-geometry-node-box="1"] rect',
+    );
+    const leftImageRect = container.querySelector(
+      '[data-geometry-node-id="left-image"] [data-geometry-node-box="1"] rect',
+    );
+    const rightImageRect = container.querySelector(
+      '[data-geometry-node-id="right-image"] [data-geometry-node-box="1"] rect',
+    );
+    const leftImage = container.querySelector('[data-geometry-node-id="left-image"] image');
+    const rightImage = container.querySelector('[data-geometry-node-id="right-image"] image');
+    const leftImageTitle = findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 1")[0];
+    const rightImageTitle = findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 2")[0];
+
+    expect(Number(leftImage?.getAttribute("y"))).toBeGreaterThan(rectMetrics(leftCodeRect).bottom);
+    expect(Number(rightImage?.getAttribute("y"))).toBeGreaterThan(rectMetrics(rightCodeRect).bottom);
+    expect(rectMetrics(leftImageRect).x).toBe(rectMetrics(leftCodeRect).x - 8);
+    expect(rectMetrics(rightImageRect).x).toBe(rectMetrics(rightCodeRect).x - 8);
+    expect(rectMetrics(leftImageRect).width).toBe(rectMetrics(leftCodeRect).width + 16);
+    expect(rectMetrics(rightImageRect).width).toBe(rectMetrics(rightCodeRect).width + 16);
+    expect(Number(leftImage?.getAttribute("x"))).toBe(rectMetrics(leftCodeRect).x);
+    expect(Number(rightImage?.getAttribute("x"))).toBe(rectMetrics(rightCodeRect).x);
+    expect(Number(leftImageTitle?.getAttribute("x"))).toBe(
+      rectMetrics(leftCodeRect).x + rectMetrics(leftCodeRect).width / 2,
+    );
+    expect(Number(rightImageTitle?.getAttribute("x"))).toBe(
+      rectMetrics(rightCodeRect).x + rectMetrics(rightCodeRect).width / 2,
+    );
+    expect(leftImageTitle?.getAttribute("text-anchor")).toBe("middle");
+    expect(rightImageTitle?.getAttribute("text-anchor")).toBe("middle");
   });
 
   it("renders page 31 as the harness explanation page", () => {

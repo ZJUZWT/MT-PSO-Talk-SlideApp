@@ -29,21 +29,22 @@ afterEach(() => {
 });
 
 describe("App", () => {
-  it("shows page 01 with controls collapsed by default", () => {
+  it("shows the opening question page with controls collapsed by default", () => {
     render(<App />);
 
-    expect(
-      screen.getByRole("heading", {name: "Input -> f(x) -> Output", level: 1}),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", {name: "开场", level: 1})).toBeInTheDocument();
     expect(
       screen.getAllByText(
-        "从输入经过一个函数得到输出，这是后续所有框架演化前的最小骨架。",
+        "先把 `PSO Cache 前 / 后` 的两张关键图对齐摆出来，右侧只保留 2 个真正要追问的问题。",
       ),
     ).toHaveLength(2);
     expect(
       screen.getByText(
-        "第一页保持静态终态，不做入场动画。观众先记住这条最简单的主轴，后面我们再往这条主轴上加结构。",
+        "去掉画布内 `开场` 标题，把视觉重心直接交给放大的 `PSO Cache 前` 主图。",
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("底部只保留 1 张 `PSO Cache 后` 结果图，并让它和主图左右齐边。"),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", {name: "Show controls"})).toBeInTheDocument();
     expect(screen.queryByLabelText("Variant")).not.toBeInTheDocument();
@@ -96,7 +97,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Motion")).toHaveValue("half");
     expect(
       screen.getByRole("heading", {
-        name: "VertexData -> GPU -> Pixels",
+        name: "把模型映射到渲染语义",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -112,10 +113,31 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_03");
     expect(
       screen.getByRole("heading", {
-        name: "OpenGL",
+        name: "Q: 为什么需要预编译着色器？",
         level: 1,
       }),
     ).toBeInTheDocument();
+  });
+
+  it("promotes the page 03 question into the left title and keeps the original page label as subtitle", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_03");
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Q: 为什么需要预编译着色器？",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "OpenGL：运行时组装 Program",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
+    expect(screen.queryByTestId("stage-prompt-overlay-page_03")).toBeNull();
+    expect(document.querySelector('.stage-heading[data-stage-heading-mode="prompt"]')).toBeTruthy();
   });
 
   it("lets the user switch directly to page 04 from the controls", async () => {
@@ -128,12 +150,14 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_04");
     expect(
       screen.getByRole("heading", {
-        name: "Vulkan",
+        name: "Q: 为什么不能在运行时 Compile、Link？",
         level: 1,
       }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/SPIR-V/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/PSO/).length).toBeGreaterThan(0);
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "Vulkan：预组装 PSO",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
   });
 
   it("lets the user switch directly to page 05 from the controls", async () => {
@@ -146,10 +170,14 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_05");
     expect(
       screen.getByRole("heading", {
-        name: "UE Asset Cook",
+        name: "Q: 为什么要开启 Shared Shader Code 开关？",
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "UE Cook：资产进入渲染主线",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
     expect(screen.getAllByText(/Cooked ShaderCode/).length).toBeGreaterThan(0);
   });
 
@@ -163,10 +191,14 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_06");
     expect(
       screen.getByRole("heading", {
-        name: "区分因素在哪一层",
+        name: "Q: 为什么要开启 Shared Shader Code 开关？",
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "UE 分层：区分因素落在哪一层",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
     expect(screen.getAllByText(/FMaterialResource/).length).toBeGreaterThan(0);
   });
 
@@ -180,10 +212,15 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_07");
     expect(
       screen.getByRole("heading", {
-        name: "InlineCode 如何拿到 code",
+        name: "Q: 为什么要开启 Shared Shader Code 开关？",
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "InlineCode：运行时如何命中 ShaderCode",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
+    expect(screen.queryByTestId("stage-prompt-overlay-page_07")).toBeNull();
   });
 
   it("lets the user switch directly to page 08 from the controls", async () => {
@@ -196,10 +233,14 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_08");
     expect(
       screen.getByRole("heading", {
-        name: "PSO cache 为什么只存 Hash",
+        name: "Q: 为什么要开启 Shared Shader Code 开关？",
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "PSO Cache：为什么只存 Hash",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
     expect(screen.getAllByText(/Hash/).length).toBeGreaterThan(0);
   });
 
@@ -213,10 +254,14 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_09");
     expect(
       screen.getByRole("heading", {
-        name: "SharedCode 为什么成为必需",
+        name: "A: 提供全局表进行Hash索引",
         level: 1,
       }),
     ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "提供全局表进行Hash索引",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
     expect(screen.getAllByText(/SharedCode/).length).toBeGreaterThan(0);
   });
 
@@ -235,6 +280,46 @@ describe("App", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getAllByText(/shaderbytecode/i).length).toBeGreaterThan(0);
+  });
+
+  it("uses the page 17 conclusion as the left title and demotes the original page label to subtitle", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_17");
+
+    expect(
+      screen.getByRole("heading", {
+        name: "A: 为了保持映射。",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "Build：把 StableKey 映射回当前 Hash",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
+    expect(screen.queryByTestId("stage-prompt-overlay-page_17")).toBeNull();
+  });
+
+  it("uses the page 28 question as the left title and keeps the original page label as subtitle", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+    await user.click(screen.getByRole("button", {name: "Show controls"}));
+    await user.selectOptions(screen.getByLabelText("Step"), "page_28");
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Q: 为什么不能cook直接输出PSOCache",
+        level: 1,
+      }),
+    ).toBeInTheDocument();
+    expect(document.querySelector(".stage-subtitle")).toHaveTextContent(
+      "平台差异的表象：同样内容，未必落成同一组 PSO",
+    );
+    expect(document.querySelector(".stage-caption")).toBeNull();
+    expect(screen.queryByTestId("stage-prompt-overlay-page_28")).toBeNull();
   });
 
   it("boots directly into a locked debug frame from query params", () => {
@@ -319,7 +404,7 @@ describe("App", () => {
     fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "VertexData -> GPU -> Pixels",
+        "渲染问题的最小模型",
       );
     });
     expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
@@ -329,38 +414,45 @@ describe("App", () => {
 
     fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
     await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
-    });
-
-    fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
-    await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "VertexData -> GPU -> Pixels",
+        "把模型映射到渲染语义",
       );
     });
 
     fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Input -> f(x) -> Output",
+        "渲染问题的最小模型",
+      );
+    });
+
+    fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
+    await waitFor(() => {
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+        "开场",
       );
     });
 
     for (const expectedTitle of [
-      "VertexData -> GPU -> Pixels",
-      "OpenGL",
-      "Vulkan",
-      "UE Asset Cook",
-      "区分因素在哪一层",
-      "InlineCode 如何拿到 code",
-      "PSO cache 为什么只存 Hash",
-      "SharedCode 为什么成为必需",
-      "先回到第 5 页，再回答 ShaderLibrary",
-      "电脑和手机的基础舞台先落位",
-      "首次 Cook 再分出第二份 .scl.csv",
-      "手机先吃进 .ushaderbytecode",
-      "手机开始回传 .rec.upipelinecache",
-      "电脑 expand，stable 再回到手机，闭环完成",
+      "渲染问题的最小模型",
+      "把模型映射到渲染语义",
+      "Q: 为什么需要预编译着色器？",
+      "Q: 为什么不能在运行时 Compile、Link？",
+      "A: Compile、Link 的复杂度很高",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
+      "A: 提供全局表进行Hash索引",
+      "A: 统一存放ShaderCode减少重复消耗",
+      "回到旧问题：ShaderLibrary 从何而来",
+      "测试环境收集回路",
+      "Cook产出ShaderLibrary",
+      "运行侧接入：.ushaderbytecode 进入 Phone",
+      "运行时采集：PSO 记录如何形成",
+      "插页证据：运行时卡顿现场",
+      "插页证据：rec 文件样例",
+      "回传开始：.rec.upipelinecache 回到电脑",
     ]) {
       fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
       await waitFor(() => {
@@ -376,10 +468,12 @@ describe("App", () => {
 
     render(<App />);
 
-    await user.click(screen.getByRole("button", {name: /Go to step 3:/}));
+    await user.click(screen.getByRole("button", {name: /Go to page_03:/}));
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+        "Q: 为什么需要预编译着色器？",
+      );
     });
     expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
       "data-motion-direction",
@@ -401,7 +495,9 @@ describe("App", () => {
     await user.click(progressButton);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("OpenGL");
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+        "Q: 为什么需要预编译着色器？",
+      );
     });
 
     const keyTarget =
@@ -412,17 +508,24 @@ describe("App", () => {
     fireEvent.keyDown(keyTarget, {key: "ArrowRight", bubbles: true});
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent("Vulkan");
+      expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
+        "Q: 为什么不能在运行时 Compile、Link？",
+      );
     });
   });
 
   it("renders the progress rail with one current step and fourteen compact future steps", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(15);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(37);
     expect(
       document.querySelector(
-        '.progress-step-shell[data-step-id="page_01"][data-state="current"][data-size-mode="expanded"]',
+        '.progress-step-shell[data-step-id="page_00"][data-state="current"][data-size-mode="expanded"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_01"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
     expect(
@@ -490,6 +593,11 @@ describe("App", () => {
         '.progress-step-shell[data-step-id="page_14"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_15"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
   });
 
   it("renders baseline notes as the current card with no outgoing step", () => {
@@ -498,7 +606,7 @@ describe("App", () => {
     expect(document.querySelectorAll(".notes-card-layer")).toHaveLength(2);
     expect(
       document.querySelector(
-        '.notes-card-layer--current[data-step-id="page_01"][data-stack-role="front"][data-motion-direction="idle"]',
+        '.notes-card-layer--current[data-step-id="page_00"][data-stack-role="front"][data-motion-direction="idle"]',
       ),
     ).toBeInTheDocument();
     expect(
@@ -561,7 +669,7 @@ describe("App", () => {
     expect(screen.getByRole("button", {name: "Hide controls"})).toBeInTheDocument();
     expect(screen.getByLabelText("Step")).toHaveValue("page_08");
     expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-      "PSO cache 为什么只存 Hash",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
     );
     expect(screen.getByLabelText("Review HUD")).toBeInTheDocument();
     expect(document.querySelector(".workbench-shell")).toHaveAttribute(
@@ -677,7 +785,7 @@ describe("App", () => {
     await user.selectOptions(screen.getByLabelText("Review Step"), "page_08");
 
     expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-      "PSO cache 为什么只存 Hash",
+      "Q: 为什么要开启 Shared Shader Code 开关？",
     );
     expect(screen.getByLabelText("Review Score")).toHaveTextContent("0.0 / 5.0");
   });
@@ -691,9 +799,9 @@ describe("App", () => {
 
     fireEvent.keyDown(variantSelect, {key: "ArrowRight", bubbles: true});
 
-    expect(screen.getByLabelText("Step")).toHaveValue("page_01");
+    expect(screen.getByLabelText("Step")).toHaveValue("page_00");
     expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-      "Input -> f(x) -> Output",
+      "开场",
     );
   });
 

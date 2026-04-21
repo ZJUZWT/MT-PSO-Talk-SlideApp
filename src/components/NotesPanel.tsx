@@ -16,6 +16,34 @@ type SessionInfo = {
   stepCount: number;
 };
 
+const OBJECTIVE_FACT_EMPHASIS = [
+  {
+    text: "预编译着色器",
+    className: "notes-inline-emphasis notes-inline-emphasis--precompile",
+    appliesTo: undefined,
+  },
+  {
+    text: "一次",
+    className: "notes-inline-emphasis notes-inline-emphasis--once",
+    appliesTo: undefined,
+  },
+  {
+    text: "指数级别",
+    className: "notes-inline-emphasis notes-inline-emphasis--exponential",
+    appliesTo: (fact: string) => fact === "PSO的复杂度是指数级别。",
+  },
+  {
+    text: "PSO",
+    className: "notes-inline-emphasis notes-inline-emphasis--pso",
+    appliesTo: (fact: string) => fact === "OpenGL无PSO，有Program",
+  },
+  {
+    text: "Program",
+    className: "notes-inline-emphasis notes-inline-emphasis--program",
+    appliesTo: (fact: string) => fact === "OpenGL无PSO，有Program",
+  },
+] as const;
+
 function resolveSessionInfo(
   stepId: WorkbenchState["stepId"],
   sessions: WorkbenchState["sessions"],
@@ -41,32 +69,84 @@ function resolveSessionInfo(
   };
 }
 
-function pickFirstClause(text: string) {
-  const normalized = text.replace(/\s+/g, " ").trim();
+function resolveObjectiveFacts(
+  steps: WorkbenchState["steps"],
+  currentStepId: WorkbenchState["currentStep"]["id"],
+) {
+  const currentIndex = steps.findIndex((step) => step.id === currentStepId);
+  const scannedSteps = currentIndex === -1 ? steps : steps.slice(0, currentIndex + 1);
 
-  if (!normalized) {
-    return "";
-  }
-
-  const firstSentence = normalized.split(/[。！？!?]/)[0]?.trim() ?? "";
-  if (firstSentence.length > 0 && firstSentence.length <= 80) {
-    return firstSentence;
-  }
-
-  return normalized.slice(0, 80).trim();
+  return [...new Set(scannedSteps.flatMap((step) => step.objectiveFacts ?? []))];
 }
 
-function resolveKeyPoints(step: WorkbenchState["currentStep"]) {
-  if (step.keyPoints && step.keyPoints.length > 0) {
-    return step.keyPoints.slice(0, 4);
+function resolveNewObjectiveFacts(
+  steps: WorkbenchState["steps"],
+  currentStepId: WorkbenchState["currentStep"]["id"],
+  outgoingStepId?: WorkbenchState["stepId"],
+) {
+  if (!outgoingStepId || outgoingStepId === currentStepId) {
+    return new Set<string>();
   }
 
-  const candidates = [step.caption, step.intro, step.notes]
-    .filter((entry): entry is string => Boolean(entry))
-    .map((entry) => pickFirstClause(entry))
-    .filter((entry) => entry.length > 0);
+  const currentFacts = resolveObjectiveFacts(steps, currentStepId);
+  const outgoingFacts = new Set(resolveObjectiveFacts(steps, outgoingStepId));
 
-  return [...new Set(candidates)].slice(0, 3);
+  return new Set(currentFacts.filter((fact) => !outgoingFacts.has(fact)));
+}
+
+function renderObjectiveFact(fact: string) {
+  const parts: Array<string | JSX.Element> = [];
+  let cursor = 0;
+
+  while (cursor < fact.length) {
+    let nextMatch:
+      | {
+          start: number;
+          text: string;
+          className: string;
+        }
+      | null = null;
+
+    for (const token of OBJECTIVE_FACT_EMPHASIS) {
+      if (token.appliesTo && !token.appliesTo(fact)) {
+        continue;
+      }
+
+      const start = fact.indexOf(token.text, cursor);
+      if (start === -1) {
+        continue;
+      }
+
+      if (!nextMatch || start < nextMatch.start) {
+        nextMatch = {
+          start,
+          text: token.text,
+          className: token.className,
+        };
+      }
+    }
+
+    if (!nextMatch) {
+      parts.push(fact.slice(cursor));
+      break;
+    }
+
+    if (nextMatch.start > cursor) {
+      parts.push(fact.slice(cursor, nextMatch.start));
+    }
+
+    parts.push(
+      <span
+        key={`${nextMatch.className}-${nextMatch.start}-${nextMatch.text}`}
+        className={nextMatch.className}
+      >
+        {nextMatch.text}
+      </span>,
+    );
+    cursor = nextMatch.start + nextMatch.text.length;
+  }
+
+  return parts;
 }
 
 function resolveApiItems(step: WorkbenchState["currentStep"]) {
@@ -175,13 +255,17 @@ function NotesDataTable({
 
 function NotesCard({
   step,
+  steps,
   sessionInfo,
+  newObjectiveFacts,
 }: {
   step: WorkbenchState["currentStep"];
+  steps: WorkbenchState["steps"];
   sessionInfo: SessionInfo;
+  newObjectiveFacts: ReadonlySet<string>;
 }) {
   const codeLines = step.codeSample?.split("\n") ?? [];
-  const keyPoints = resolveKeyPoints(step);
+  const objectiveFacts = resolveObjectiveFacts(steps, step.id);
   const apiItems = resolveApiItems(step);
   const relatedLinks = step.relatedLinks ?? [];
 
@@ -199,38 +283,39 @@ function NotesCard({
         </p>
       </section>
 
-      <div className="notes-heading-block">
-        <p className="notes-caption">{step.caption}</p>
-      </div>
+      {objectiveFacts.length > 0 ? (
+        <section className="notes-section notes-section--objective-facts">
+          <p className="notes-section-label notes-section-label--objective-facts">
+            客观事实
+          </p>
+          <ul className="notes-point-list notes-point-list--objective-facts">
+            {objectiveFacts.map((fact) => {
+              const factState = newObjectiveFacts.has(fact) ? "new" : "stable";
 
-      {keyPoints.length > 0 ? (
-        <section className="notes-section">
-          <p className="notes-section-label">本页重点</p>
-          <ul className="notes-point-list">
-            {keyPoints.map((point) => (
-              <li key={`${step.id}-${point}`} className="notes-point-item">
-                <span
-                  className="notes-point-bullet"
-                  data-testid="notes-point-bullet"
-                  aria-hidden="true"
-                  style={{backgroundColor: "var(--ink)"}}
-                />
-                <span className="notes-point-copy">{point}</span>
-              </li>
-            ))}
+              return (
+                <li
+                  key={`${step.id}-${fact}`}
+                  className="notes-point-item notes-point-item--objective-facts"
+                  data-fact-state={factState}
+                >
+                  <span
+                    className="notes-point-bullet"
+                    data-testid="notes-point-bullet"
+                    aria-hidden="true"
+                    style={{backgroundColor: "var(--accent)"}}
+                  />
+                  <span
+                    className="notes-point-copy notes-point-copy--objective-facts"
+                    data-fact-state={factState}
+                  >
+                    {renderObjectiveFact(fact)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </section>
       ) : null}
-
-      <section className="notes-section">
-        <p className="notes-section-label">讲解目标</p>
-        <p className="notes-section-copy">{step.timingHint}</p>
-        {step.goalDetail ? (
-          <p className="notes-section-copy notes-section-copy--secondary">
-            {step.goalDetail}
-          </p>
-        ) : null}
-      </section>
 
       {apiItems.length > 0 ? (
         <ApiListPanel
@@ -311,6 +396,9 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
     : null;
   const suppressOutgoingStep = state.currentStep.id.endsWith("_img");
   const effectiveOutgoingStep = suppressOutgoingStep ? null : outgoingStep;
+  const newObjectiveFacts = effectiveOutgoingStep
+    ? resolveNewObjectiveFacts(state.steps, state.currentStep.id, effectiveOutgoingStep.id)
+    : new Set<string>();
   const currentSessionInfo = resolveSessionInfo(state.currentStep.id, state.sessions);
   const outgoingSessionInfo = effectiveOutgoingStep
     ? resolveSessionInfo(effectiveOutgoingStep.id, state.sessions)
@@ -333,7 +421,12 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           data-stack-role={currentStackRole}
           data-fade="off"
         >
-          <NotesCard step={state.currentStep} sessionInfo={currentSessionInfo} />
+          <NotesCard
+            step={state.currentStep}
+            steps={state.steps}
+            sessionInfo={currentSessionInfo}
+            newObjectiveFacts={newObjectiveFacts}
+          />
         </div>
 
         <div
@@ -347,7 +440,12 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
           aria-hidden="true"
         >
           {effectiveOutgoingStep && outgoingSessionInfo ? (
-            <NotesCard step={effectiveOutgoingStep} sessionInfo={outgoingSessionInfo} />
+            <NotesCard
+              step={effectiveOutgoingStep}
+              steps={state.steps}
+              sessionInfo={outgoingSessionInfo}
+              newObjectiveFacts={new Set<string>()}
+            />
           ) : (
             <NotesCardGhost />
           )}

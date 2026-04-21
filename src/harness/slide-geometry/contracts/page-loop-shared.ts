@@ -112,7 +112,7 @@ const REC_TO_COMPUTER_TURN = {x: centerX(COMPUTER), y: centerY(REC)};
 const BASE_NODES: Record<LoopNodeId, SketchNode> = {
   computer: {
     id: "computer",
-    label: "Computer",
+    label: "构建机",
     x: COMPUTER.x,
     y: COMPUTER.y,
     width: COMPUTER.width,

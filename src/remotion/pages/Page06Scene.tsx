@@ -83,26 +83,6 @@ export function Page06Scene({scene}: {scene: SceneModel}) {
 
   return (
     <>
-      {page6SpineOpacity > 0.001 ? (
-        <g transform={leftLaneTransform}>
-          <g
-            opacity={page6SpineOpacity}
-            transform={`translate(${page6MaterialCenterX} ${page6MaterialCenterY}) scale(${page6NodeScale}) translate(${-page6MaterialCenterX} ${-page6MaterialCenterY})`}
-          >
-            <StageBox
-              box={page6MaterialBox}
-              fill={assetFill}
-              stroke={assetStroke}
-              strokeWidth={2.8}
-              tone="asset"
-              label="Material"
-              labelSize={page6LeftCardLabelSize}
-              labelWeight={720}
-            />
-          </g>
-        </g>
-      ) : null}
-
       {page6FrameRetainedOpacity > 0.001 ? (
         <g opacity={page6FrameRetainedOpacity}>
           <rect
@@ -112,19 +92,38 @@ export function Page06Scene({scene}: {scene: SceneModel}) {
             width={page6DisplayUassetFrame.width}
             height={page6DisplayUassetFrame.height}
             rx={page6DisplayUassetFrame.radius}
-            fill="none"
-            stroke="rgba(76, 90, 102, 0.14)"
-            strokeWidth="2"
+            fill={assetFill}
+            stroke={assetStroke}
+            strokeWidth="2.6"
           />
           <text
             x={page6DisplayUassetFrame.x + 22}
             y={page6DisplayUassetFrame.y + 26}
-            fill="rgba(76, 90, 102, 0.68)"
+            fill={assetStroke}
             fontSize="17"
-            fontWeight="680"
+            fontWeight="720"
           >
             uasset
           </text>
+        </g>
+      ) : null}
+
+      {page6SpineOpacity > 0.001 ? (
+        <g transform={leftLaneTransform}>
+          <g
+            opacity={page6SpineOpacity}
+            transform={`translate(${page6MaterialCenterX} ${page6MaterialCenterY}) scale(${page6NodeScale}) translate(${-page6MaterialCenterX} ${-page6MaterialCenterY})`}
+          >
+            <StageBox
+              box={page6MaterialBox}
+              fill={neutralFill}
+              stroke={nodeStroke}
+              strokeWidth={2.8}
+              label="UMaterial"
+              labelSize={page6LeftCardLabelSize}
+              labelWeight={720}
+            />
+          </g>
         </g>
       ) : null}
 

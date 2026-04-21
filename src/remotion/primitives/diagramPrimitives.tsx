@@ -10,6 +10,7 @@ import {
   easeInOutCubic,
   horizontalPath,
 } from "../geometry/geometry";
+import {resolveRemotionPublicAssetHref} from "../publicAssetPath";
 
 const PIXEL_GRID_SIZE = 60;
 const PIXEL_CELL_SIZE = 12;
@@ -140,6 +141,77 @@ export function PixelGrid({
           />
         );
       })}
+    </g>
+  );
+}
+
+export function FramedImage({
+  box,
+  href,
+  clipId,
+  opacity = 1,
+  preserveAspectRatio = "xMidYMid meet",
+  fill = "rgba(255, 255, 255, 0.92)",
+  stroke = "rgba(92, 106, 118, 0.38)",
+  strokeWidth = 1.8,
+  dataTestId,
+  markGeometryBox = false,
+}: {
+  box: Box;
+  href: string;
+  clipId: string;
+  opacity?: number;
+  preserveAspectRatio?: string;
+  fill?: string;
+  stroke?: string;
+  strokeWidth?: number;
+  dataTestId?: string;
+  markGeometryBox?: boolean;
+}) {
+  const resolvedHref = resolveRemotionPublicAssetHref(href);
+
+  return (
+    <g opacity={opacity} data-testid={dataTestId}>
+      <defs>
+        <clipPath id={clipId}>
+          <rect
+            x={box.x}
+            y={box.y}
+            width={box.width}
+            height={box.height}
+            rx={box.radius}
+          />
+        </clipPath>
+      </defs>
+      <rect
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        rx={box.radius}
+        fill={fill}
+        stroke="none"
+        data-geometry-node-box={markGeometryBox ? "1" : undefined}
+      />
+      <image
+        href={resolvedHref}
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        preserveAspectRatio={preserveAspectRatio}
+        clipPath={`url(#${clipId})`}
+      />
+      <rect
+        x={box.x}
+        y={box.y}
+        width={box.width}
+        height={box.height}
+        rx={box.radius}
+        fill="none"
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+      />
     </g>
   );
 }

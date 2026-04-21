@@ -11,6 +11,9 @@ describe("formal page review registry", () => {
 
     expect(stepIds).toEqual(
       expect.arrayContaining([
+        "page_00",
+        "page_02",
+        "page_03",
         "page_19",
         "page_21",
         "page_22",
@@ -26,6 +29,83 @@ describe("formal page review registry", () => {
         "page_33",
       ]),
     );
+  });
+
+  it("registers page_00 as a first-class formal review surface", () => {
+    const page00 = findFormalPageReviewSketchByStepId("page_00");
+
+    expect(page00).toBeDefined();
+    expect(page00?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "before-image",
+        "before-label",
+        "compile-image",
+        "compile-label",
+        "after-label",
+        "after-image",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page00!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_02 as a first-class formal review surface", () => {
+    const page02 = findFormalPageReviewSketchByStepId("page_02");
+
+    expect(page02).toBeDefined();
+    expect(page02?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "pso-preview",
+        "vertex-buffer-image",
+        "pipeline-state",
+        "gpu",
+        "vertex-data",
+        "pixels",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page02!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThan(0);
+    expect(artifact.metrics.minInternalPadding).toBeGreaterThanOrEqual(6);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_03 as a first-class formal review surface", () => {
+    const page03 = findFormalPageReviewSketchByStepId("page_03");
+
+    expect(page03).toBeDefined();
+    expect(page03?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "shader-code",
+        "shader-binary",
+        "depth",
+        "blend",
+        "program",
+        "vertex-data",
+        "gpu",
+        "pixels",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page03!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThan(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
   });
 
   it("lets the existing geometry score chain review page_31 without a sketch-only path", () => {
@@ -70,5 +150,33 @@ describe("formal page review registry", () => {
       lineCount: 6,
       overflowPx: 0,
     });
+  });
+
+  it("models page_24 platform pills as explicit child review surfaces", () => {
+    const page24 = findFormalPageReviewSketchByStepId("page_24");
+
+    expect(page24).toBeDefined();
+    expect(page24?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "package-row-1-windows",
+        "package-row-1-macos",
+        "package-row-1-android",
+        "package-row-1-ios",
+        "package-row-2-windows",
+        "package-row-2-macos",
+        "package-row-2-android",
+        "package-row-2-ios",
+        "package-row-3-windows",
+        "package-row-3-macos",
+        "package-row-3-android",
+        "package-row-3-ios",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page24!);
+
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.minContainmentPad).toBeGreaterThanOrEqual(4);
   });
 });

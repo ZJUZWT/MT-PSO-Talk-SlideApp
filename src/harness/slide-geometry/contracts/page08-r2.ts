@@ -5,16 +5,21 @@ const MATERIAL_BOX = {x: 84, y: 134, width: 216, height: 70};
 const RESOURCE_BOX = {x: 84, y: 246, width: 216, height: 70};
 const SHADERMAP_BOX = {x: 84, y: 358, width: 216, height: 70};
 const FSHADER_BOX = {x: 330, y: 186, width: 240, height: 106};
-const INLINE_RESOURCE_BOX = {x: 334, y: 302, width: 470, height: 198};
-const RESOURCE_INDEX_BOX = {x: 606, y: 420, width: 172, height: 56};
-const SHADER_ENTRIES_BOX = {x: 360, y: 338, width: 190, height: 70};
-const SHADER_HASHES_BOX = {x: 584, y: 338, width: 190, height: 70};
-const COOKED_CODE_BOX = {x: 934, y: 328, width: 266, height: 94};
-const PROOF_BOX = {x: 934, y: 128, width: 212, height: 66};
+const RESOURCE_INDEX_BOX = {x: 355, y: 240, width: 190, height: 36};
+const INLINE_RESOURCE_BOX = {x: 350, y: 318, width: 440, height: 194};
+const SHADER_ENTRIES_BOX = {x: 384, y: 364, width: 250, height: 52};
+const SHADER_HASHES_BOX = {x: 384, y: 430, width: 250, height: 52};
+const COOKED_CODE_BOX = {x: 930, y: 348, width: 250, height: 84};
+const PROOF_BOX = {x: 928, y: 132, width: 240, height: 64};
 const PSO_BOX = {x: 114, y: 548, width: 1052, height: 98};
 const VS_FIELD_BOX = {x: 362, y: 576, width: 122, height: 40};
 const PS_FIELD_BOX = {x: 508, y: 576, width: 122, height: 40};
 const STATE_FIELD_BOX = {x: 654, y: 574, width: 458, height: 44};
+const RESOURCE_INDEX_ENTRY_Y = SHADER_ENTRIES_BOX.y - 32;
+const VS_HASH_TARGET_X = SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.34;
+const PS_HASH_TARGET_X = SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.66;
+const VS_HASH_BEND_Y = PSO_BOX.y - 28;
+const PS_HASH_BEND_Y = PSO_BOX.y - 44;
 
 function cx(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -110,15 +115,18 @@ export const page08R2Sketch: GeometrySketchDefinition = {
     },
     {
       id: "shader-entries",
+      labelLines: ["ShaderEntries", "[Index]"],
       label: "ShaderEntries[Index]",
       containerId: "inline-resource",
       x: SHADER_ENTRIES_BOX.x,
       y: SHADER_ENTRIES_BOX.y,
       width: SHADER_ENTRIES_BOX.width,
       height: SHADER_ENTRIES_BOX.height,
+      fontSizeOverride: 18,
     },
     {
       id: "shader-hashes",
+      labelLines: ["ShaderHashes", "[Index]"],
       label: "ShaderHashes[Index]",
       containerId: "inline-resource",
       x: SHADER_HASHES_BOX.x,
@@ -126,16 +134,18 @@ export const page08R2Sketch: GeometrySketchDefinition = {
       width: SHADER_HASHES_BOX.width,
       height: SHADER_HASHES_BOX.height,
       tone: "receiver",
+      fontSizeOverride: 18,
     },
     {
       id: "resource-index",
       label: "ResourceIndex",
-      containerId: "inline-resource",
+      containerId: "fshader",
       x: RESOURCE_INDEX_BOX.x,
       y: RESOURCE_INDEX_BOX.y,
       width: RESOURCE_INDEX_BOX.width,
       height: RESOURCE_INDEX_BOX.height,
       tone: "muted",
+      fontSizeOverride: 20,
     },
     {
       id: "proof",
@@ -226,23 +236,12 @@ export const page08R2Sketch: GeometrySketchDefinition = {
       arrowEnd: true,
     },
     {
-      id: "fshader-to-resource-index",
-      from: {x: right(FSHADER_BOX), y: cy(FSHADER_BOX)},
-      to: {x: cx(RESOURCE_INDEX_BOX), y: RESOURCE_INDEX_BOX.y},
-      waypoints: [
-        {x: right(FSHADER_BOX) + 66, y: cy(FSHADER_BOX)},
-        {x: right(FSHADER_BOX) + 66, y: RESOURCE_INDEX_BOX.y},
-      ],
-      tone: "support",
-      arrowEnd: true,
-    },
-    {
       id: "resource-index-to-entries",
-      from: {x: RESOURCE_INDEX_BOX.x, y: cy(RESOURCE_INDEX_BOX)},
-      to: {x: right(SHADER_ENTRIES_BOX), y: cy(SHADER_ENTRIES_BOX)},
+      from: {x: cx(RESOURCE_INDEX_BOX), y: bottom(RESOURCE_INDEX_BOX)},
+      to: {x: cx(SHADER_ENTRIES_BOX), y: SHADER_ENTRIES_BOX.y},
       waypoints: [
-        {x: RESOURCE_INDEX_BOX.x - 42, y: cy(RESOURCE_INDEX_BOX)},
-        {x: RESOURCE_INDEX_BOX.x - 42, y: cy(SHADER_ENTRIES_BOX)},
+        {x: cx(RESOURCE_INDEX_BOX), y: RESOURCE_INDEX_ENTRY_Y},
+        {x: cx(SHADER_ENTRIES_BOX), y: RESOURCE_INDEX_ENTRY_Y},
       ],
       tone: "primary",
       dashed: true,
@@ -274,11 +273,11 @@ export const page08R2Sketch: GeometrySketchDefinition = {
     },
     {
       id: "pso-vs-to-hashes",
-      from: {x: cx(VS_FIELD_BOX), y: VS_FIELD_BOX.y - 4},
-      to: {x: SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.42, y: bottom(SHADER_HASHES_BOX)},
+      from: {x: cx(VS_FIELD_BOX), y: PSO_BOX.y},
+      to: {x: VS_HASH_TARGET_X, y: bottom(SHADER_HASHES_BOX)},
       waypoints: [
-        {x: cx(VS_FIELD_BOX), y: PSO_BOX.y - 30},
-        {x: SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.42, y: PSO_BOX.y - 30},
+        {x: cx(VS_FIELD_BOX), y: VS_HASH_BEND_Y},
+        {x: VS_HASH_TARGET_X, y: VS_HASH_BEND_Y},
       ],
       tone: "primary",
       dashed: true,
@@ -286,11 +285,11 @@ export const page08R2Sketch: GeometrySketchDefinition = {
     },
     {
       id: "pso-ps-to-hashes",
-      from: {x: cx(PS_FIELD_BOX), y: PS_FIELD_BOX.y - 4},
-      to: {x: SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.62, y: bottom(SHADER_HASHES_BOX)},
+      from: {x: cx(PS_FIELD_BOX), y: PSO_BOX.y},
+      to: {x: PS_HASH_TARGET_X, y: bottom(SHADER_HASHES_BOX)},
       waypoints: [
-        {x: cx(PS_FIELD_BOX), y: PSO_BOX.y - 52},
-        {x: SHADER_HASHES_BOX.x + SHADER_HASHES_BOX.width * 0.62, y: PSO_BOX.y - 52},
+        {x: cx(PS_FIELD_BOX), y: PS_HASH_BEND_Y},
+        {x: PS_HASH_TARGET_X, y: PS_HASH_BEND_Y},
       ],
       tone: "primary",
       dashed: true,

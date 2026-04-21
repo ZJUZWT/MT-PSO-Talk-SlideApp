@@ -2,6 +2,7 @@ import type {StoryStepId} from "../storyboard-data/pso-workbench-types";
 import {resolveRemotionStepFrame} from "./embed";
 
 export const REMOTION_STEP_SEQUENCE: StoryStepId[] = [
+  "page_00",
   "page_01",
   "page_02",
   "page_03",

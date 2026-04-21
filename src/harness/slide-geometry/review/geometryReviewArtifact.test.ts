@@ -1,4 +1,5 @@
 import {describe, expect, it} from "vitest";
+import {page08R2Sketch} from "../contracts/page08-r2";
 import {page09R1Sketch} from "../contracts/page09-r1";
 import {page14R1Sketch} from "../contracts/page14-r1";
 import {page15R1Sketch} from "../contracts/page15-r1";
@@ -11,6 +12,16 @@ import {
 import {buildGeometryReviewArtifact} from "./geometryReviewArtifact";
 
 describe("geometryReviewArtifact", () => {
+  it("keeps page08-r2 free of hash-page blocker geometry", () => {
+    const artifact = buildGeometryReviewArtifact(page08R2Sketch);
+
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.badEndpointCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
   it("builds a fact-bound review artifact for page09-r1", () => {
     const artifact = buildGeometryReviewArtifact(page09R1Sketch);
 
@@ -123,6 +134,14 @@ describe("geometryReviewArtifact", () => {
       expect(artifact.metrics.crossingCount).toBe(expectation.expectedCrossingCount);
       expect(artifact.metrics.minRenderedFontPx).toBeGreaterThanOrEqual(18);
     }
+  });
+
+  it("keeps page10 split routing off node bodies and lands endpoints on believable boundaries", () => {
+    const artifact = buildGeometryReviewArtifact(resolveGeometrySketch("page10-r1"));
+
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.badEndpointCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
   });
 
   it("exposes per-node rendered font sizes so node review can score typography directly", () => {

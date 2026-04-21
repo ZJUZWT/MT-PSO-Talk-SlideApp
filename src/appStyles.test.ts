@@ -74,4 +74,18 @@ describe("app.css regressions", () => {
     expect(apiLineAfterRule).toMatch(/border-right:\s*3px solid var\(--accent\);/);
   });
 
+  it("gives newly added objective facts a dedicated wave-glow treatment", () => {
+    const freshFactRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-state="new"]',
+    );
+    const freshFactAfterRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-state="new"]::after',
+    );
+
+    expect(freshFactRule).toMatch(/box-shadow:/);
+    expect(freshFactRule).toMatch(/background:\s*linear-gradient\(/);
+    expect(freshFactAfterRule).toMatch(/animation:\s*notes-objective-fact-sheen/);
+    expect(appCss).toMatch(/@keyframes notes-objective-fact-sheen/);
+  });
+
 });

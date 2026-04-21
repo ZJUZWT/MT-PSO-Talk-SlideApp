@@ -3,6 +3,7 @@ import type {Box} from "../primitives/diagramTypes";
 
 export const VIEWBOX = {width: 1280, height: 720};
 
+export const PAGE_00_FRAME = resolveRemotionStepFrame("page_00");
 export const PAGE_01_FRAME = resolveRemotionStepFrame("page_01");
 export const PAGE_02_FRAME = resolveRemotionStepFrame("page_02");
 export const PAGE_03_FRAME = resolveRemotionStepFrame("page_03");

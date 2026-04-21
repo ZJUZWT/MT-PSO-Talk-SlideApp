@@ -11,6 +11,7 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
   const {
     apiStroke,
     focusFill,
+    issueStroke,
     legacyUpperCallOpacity,
     neutralFill,
     page3LinkEndY,
@@ -110,8 +111,9 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
       {legacyUpperCallOpacity > 0 ? (
         <>
           <StrokeArrow
+            testId="page3-compile-arrow"
             d={horizontalPath(shaderLineStartX, shaderArrowTipX, shaderLineY)}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={legacyUpperCallOpacity}
             tipX={shaderArrowTipX}
             tipY={shaderLineY}
@@ -122,10 +124,11 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
             headSize={10}
           />
           <ApiBadge
+            testId="page3-compile-badge"
             x={mix(shaderLineStartX, (shaderLineStartX + shaderLineEndX) / 2, upperLineProgress)}
             y={shaderLineY - 18}
             id={1}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={legacyUpperCallOpacity}
           />
         </>
@@ -233,7 +236,7 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
           <StrokeArrow
             testId="page3-linkprogram-input-left"
             d={verticalPath(page3LinkLeftX, page3LinkStartY, page3LinkEndY)}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={page3ProgramLineOpacity}
             tipX={page3LinkLeftX}
             tipY={page3LinkEndY}
@@ -247,7 +250,7 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
           <StrokeArrow
             testId="page3-linkprogram-input-right"
             d={verticalPath(page3LinkRightX, page3LinkStartY, page3LinkEndY)}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={page3ProgramLineOpacity}
             tipX={page3LinkRightX}
             tipY={page3LinkEndY}
@@ -263,7 +266,7 @@ export function Page03Scene({scene}: {scene: SceneModel}) {
             x={(page3LinkLeftX + page3LinkRightX) / 2}
             y={mix(page3LinkStartY, page3LinkEndY, 0.5)}
             id={5}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={page3ProgramLineOpacity}
           />
           <ApiBadge

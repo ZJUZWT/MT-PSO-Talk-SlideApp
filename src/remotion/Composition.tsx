@@ -4,6 +4,7 @@ import type {VariantId} from "../storyboard-data/pso-workbench-types";
 import type {RemotionWorkbenchProps} from "./embed";
 import {resolveRemotionStepFrame} from "./embed";
 import {computeSceneModel} from "./model/computeSceneModel";
+import {Page00OpeningScene} from "./pages/Page00OpeningScene";
 import {Page01Scene} from "./pages/Page01Scene";
 import {Page02Scene} from "./pages/Page02Scene";
 import {Page03Scene} from "./pages/Page03Scene";
@@ -19,7 +20,7 @@ import {Page08Scene} from "./pages/Page08Scene";
 import {Page09Scene} from "./pages/Page09Scene";
 import {Page10Scene} from "./pages/Page10Scene";
 import {easeInOutCubic, mix, resolveWindowProgress} from "./geometry/geometry";
-import {VIEWBOX} from "./pages/page-layout-constants";
+import {PAGE_00_FRAME, PAGE_01_FRAME, VIEWBOX} from "./pages/page-layout-constants";
 
 type SceneSvgProps = {
   frame: number;
@@ -106,6 +107,20 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
 
       return mix(1, 0.84, page910LegacyShrinkProgress);
     })();
+  const openingPageFadeProgress =
+    sceneFrame <= PAGE_00_FRAME
+      ? 0
+      : sceneFrame >= PAGE_01_FRAME
+        ? 1
+        : (sceneFrame - PAGE_00_FRAME) / Math.max(1, PAGE_01_FRAME - PAGE_00_FRAME);
+  const openingPageOpacity =
+    sceneFrame <= PAGE_00_FRAME
+      ? 1
+      : sceneFrame >= PAGE_01_FRAME
+        ? 0
+        : 1 - resolveWindowProgress(openingPageFadeProgress, 0.06, 0.86, easeInOutCubic);
+  const baseLayerOpacity = baseSceneOpacity * (1 - openingPageOpacity);
+
   return (
     <AbsoluteFill
       style={{
@@ -131,7 +146,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
             opacity={1}
             transform={`translate(${cameraViewportCenterX} ${cameraViewportCenterY}) scale(${zoomScale}) translate(${-zoomFocusX} ${-zoomFocusY})`}
           >
-            <g data-testid="scene-base-layer" opacity={baseSceneOpacity}>
+            <g data-testid="scene-base-layer" opacity={baseLayerOpacity}>
               <g data-testid="page56-base-world" opacity={page56BaseWorldOpacity}>
                 <Page01Scene scene={scene} />
                 <Page02Scene scene={scene} />
@@ -160,6 +175,7 @@ export const SceneSvg: React.FC<SceneSvgProps> = ({
                 </g>
               </g>
             </g>
+            <Page00OpeningScene opacity={openingPageOpacity} />
             <Page04DataScene frame={frame} />
             <Page10Scene scene={scene} />
           </g>

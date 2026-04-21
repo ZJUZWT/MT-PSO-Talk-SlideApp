@@ -4,12 +4,12 @@ export const masterStoryboard: Storyboard = {
   storyId: "storyboard-reset",
   title: "新动画剧本",
   summary:
-    "Pages 01-09 establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-19 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints before ending on one merged precompile/persistence page. Pages 21-22 summarize PSO 与 PSO Cache 的边界与理解，pages 24-27 lift four concrete optimization strategies, pages 28-30 turn to platform governance, page 31 explains the project harness and mathematical constraints, and pages 32-33 close with reading recommendations and a final Zhuangzi quote.",
+    "Page 00 opens on one image-led evidence page that frames the whole talk with one enlarged runtime stutter image, one aligned after sample below it, and two focused prompt questions on the side. Pages 01-09 then establish the minimal formula model, concretize it into VertexData -> GPU -> Pixels, move from OpenGL compilation into a Vulkan PSO view, insert a dedicated data checkpoint page between Vulkan and UE Cook, then bridge into the UE asset cook flow and split the UE shader-code zoom into ownership layers and runtime InlineCode lookup before moving into PSO cache hash indirection and the necessity of SharedCode. Pages 10-19 then flash back to the page 05 cook question, replay that old question as a `? -> !` beat, merge `Material + CookedShaderCode` into `ShaderLibrary`, land the computer/phone loop stage, and insert dedicated full-screen supplement image pages at runtime stutter, rec capture, and precompile peak smoothing checkpoints before ending on one merged precompile/persistence page. Pages 21-22 summarize PSO 与 PSO Cache 的边界与理解， pages 24-27 lift four concrete optimization strategies, pages 28-30 turn to platform governance, page 31 explains the project harness and mathematical constraints, and pages 32-33 close with reading recommendations and a final Zhuangzi quote.",
   sessions: [
     {
       id: "s1-foundation",
       label: "Session 1 · 抽象模型到图形 API",
-      stepIds: ["page_01", "page_02", "page_03", "page_04", "page_04_data"],
+      stepIds: ["page_00", "page_01", "page_02", "page_03", "page_04", "page_04_data"],
     },
     {
       id: "s2-ue-shader",
@@ -66,6 +66,28 @@ export const masterStoryboard: Storyboard = {
   ],
   steps: [
     {
+      id: "page_00",
+      label: "开场",
+      caption:
+        "先把 `PSO Cache 前 / 后` 的两张关键图对齐摆出来，右侧只保留 2 个真正要追问的问题。",
+      objectiveFacts: ["启动游戏预编译着色器，通常只要一次。"],
+      keyPoints: [
+        "去掉画布内 `开场` 标题，把视觉重心直接交给放大的 `PSO Cache 前` 主图。",
+        "底部只保留 1 张 `PSO Cache 后` 结果图，并让它和主图左右齐边。",
+        "右侧不再保留 3 个泛问题，而是只问两件事：单帧高峰从何而来、预热着色器在干什么。",
+      ],
+      notes:
+        "page_00 现在进一步收窄成看图优先的开场结构。画布内不再额外写 `开场` 标题，左边直接给一张更大的 `PSO Cache 前` 卡顿证据图；底部 `PSO Cache 后` 只保留 1 张结果图，并让它与主图左右齐边；右边不再堆 3 个泛问题，只保留 2 个真正贴着图片看的追问。观众先被前后图抓住，再带着两个问题进入后文。",
+      focusTarget: "开场",
+      timingHint:
+        "第一页静态停留，再整体淡出到 `Input -> f(x) -> Output` 的最小模型，不做中间闪回。",
+      intro:
+        "在开始讲最小模型之前，先把 `PSO Cache 前 / 后` 的关键对照摆平，让观众先盯住证据。",
+      manuscript:
+        "先不要急着进入公式。这一页先把 `PSO Cache 前` 的卡顿现场放大，再把唯一保留的 `PSO Cache 后` 结果图贴着主图下方左右齐边，让观众先把前后差异看清楚。右边不再摆 3 个泛化问题，而是只保留两个真正贴着图片去问的问题：跟这个图片相比，匹配的单帧高峰从何而来？预热着色器到底是在干什么？这一页的职责不是解释完答案，而是把后面整段讲解真正要追的两件事钉住。",
+      focusColorKey: "shared",
+    },
+    {
       id: "page_01",
       label: "渲染问题的最小模型",
       caption: "从输入经过一个函数得到输出，这是后续所有框架演化前的最小骨架。",
@@ -87,20 +109,23 @@ export const masterStoryboard: Storyboard = {
     {
       id: "page_02",
       label: "把模型映射到渲染语义",
-      caption: "把抽象的 f(x) 具体化成 GPU，把输入和输出换成渲染语义，并先轻轻埋下“GPU 可被参数配置”的伏笔。",
+      caption:
+        "把抽象的 f(x) 具体化成 GPU，把输入和输出换成渲染语义，再补一个最小的 Pipeline State 入口和一张左上角 PSO 预告卡。",
+      objectiveFacts: ["PSO的复杂度是指数级别。"],
       keyPoints: [
         "Input 对应 VertexData，f(x) 对应 GPU，Output 对应 Pixels。",
         "三段位置保持不变，只替换语义，建立空间连续性。",
-        "GPU 上方先出现三个纯视觉 `U` 型接口，下一页再正式展开配置层。",
+        "这一页在 GPU 上方补一个从上到下进入 GPU 的 `Pipeline State`，并在实线上先用 `GfxAPI设置` 统称。",
+        "再在左上角挂一张缩略 `PSO = Shader + State` 卡，提前埋下“状态里到底装了什么”的钩子。",
       ],
       notes:
-        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出。GPU 上方只补三个很轻的 `U` 型接口提示，表示这个核心节点后面还会受参数影响，但这里先不把 page03 的配置层提前讲出来。",
+        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出；同时在 GPU 上方补一个最小的 `Pipeline State` 节点，并用一条写着 `GfxAPI设置` 的实线自上而下接进 GPU。然后再把缩略 `PSO = Shader + State` 预告卡挂到左上角空白带里，只轻量点一下 state 里会收很多维度，不压住下方节点，也不把第三页那些 OpenGL 细节提前讲散。",
       focusTarget: "GPU",
       timingHint: "让三处位置保持稳定，只让内容和轮廓形变。",
       intro:
         "现在开始把公式里的抽象变量替换成图形渲染里的真实角色。",
       manuscript:
-        "第一页我们只说 Input 经过 f(x) 变成 Output。到了这一页，Input 更具体地变成 VertexData，f(x) 更具体地变成 GPU，而 Output 也不再是抽象结果，而是最终的像素块。同时，我会在 GPU 上方加三个很轻的 `U` 型接口提示，只让观众先隐约意识到：GPU 不是一个完全封闭的黑箱，它后面还会受一些参数和配置影响。但这一页先不展开这些参数是什么，真正的上方配置层留到第三页再正式长出来。",
+        "第一页我们只说 Input 经过 f(x) 变成 Output。到了这一页，Input 更具体地变成 VertexData，f(x) 更具体地变成 GPU，而 Output 也不再是抽象结果，而是最终的像素块。同时我先补一个最轻量的状态入口：GPU 上方放一个 `Pipeline State`，再用写着 `GfxAPI设置` 的实线往下接到 GPU。接着在左上角空白带里挂一张缩略 `PSO = Shader + State` 卡，让听众先知道“除了 shader，本身还有一整套 state 也会进来”，而且 `Depth / Stencil Test`、`Blend / Rasterizer State` 这些名词也先露个面。这样第二页先建立“除了数据，还有状态要喂给 GPU”这件事；到了第三页，再把这个总称继续展开成 OpenGL 里的实际配置层。",
       focusColorKey: "page_02",
     },
     {
@@ -108,20 +133,21 @@ export const masterStoryboard: Storyboard = {
       label: "OpenGL：运行时组装 Program",
       caption:
         "把 Raw ShaderCode 先 compile 成 Binary ShaderCode，再经过 link 得到 Program；这一页只讲结构和调用链。",
+      objectiveFacts: ["OpenGL无PSO，有Program"],
       keyPoints: [
         "Shader 在运行时经历 compile -> link -> use 的链路。",
         "Depth/Blend 等状态调用与 Program 一起汇入 GPU。",
         "平均耗时数据独立放到下一页，避免主图拥挤。",
       ],
       notes:
-        "第三页不是抛弃第二页，而是把第二页整组往下压，给上方让出 OpenGL 配置带。这里左边最重要的是 Raw ShaderCode 经由 glCompileShader() 变成 Binary ShaderCode，再通过 glLinkProgram() 组织成 Program，随后还可以用 glGetProgramBinary() 把这一组取回做缓存；最后由 glUseProgram() 往下启用。右边的 Depth、Blend 继续通过 Graphics API 调用往下配置到 GPU。",
+        "第三页不是抛弃第二页，而是把第二页整组往下压，并把第二页那个总称式的 `Pipeline State / GfxAPI设置` 继续展开成真正的 OpenGL 配置带。这里左边最重要的是 Raw ShaderCode 经由 glCompileShader() 变成 Binary ShaderCode，再通过 glLinkProgram() 组织成 Program，随后还可以用 glGetProgramBinary() 把这一组取回做缓存；最后由 glUseProgram() 往下启用。右边的 Depth、Blend 继续通过 Graphics API 调用往下配置到 GPU。",
       focusTarget: "OpenGL",
       timingHint:
         "先让底部三段整体下移，再显出上方配置层，最后停在 GPU 被多条上方配置线汇入的终态。",
       intro:
         "现在开始把\"GPU 自己算\"这个中间节点拆开，看到 OpenGL 里它其实还要接收编译结果和状态配置。",
       manuscript:
-        "第二页里我们只看到 VertexData 进入 GPU，最后吐出 Pixels。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 Raw ShaderCode 先通过 glCompileShader() 变成 Binary ShaderCode，再由多个 shader 一起经 glLinkProgram() 组织成 Program；这一整组还可以通过 glGetProgramBinary() 取回成可复用缓存，最后再用 glUseProgram() 往下启用。右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
+        "第二页里我们先看到 VertexData 进入 GPU，最后吐出 Pixels；同时只给了一个总称式的 `Pipeline State`，让观众知道上面还有状态入口。到了第三页，这条底部主轴整体下移，GPU 被放大，上方分成两组 OpenGL 来源。左边是 Raw ShaderCode 先通过 glCompileShader() 变成 Binary ShaderCode，再由多个 shader 一起经 glLinkProgram() 组织成 Program；这一整组还可以通过 glGetProgramBinary() 取回成可复用缓存，最后再用 glUseProgram() 往下启用。右边则是 Depth 和 Blend 分别通过 glDepthFunc() 与 glBlendFunc() 直接往下配置到 GPU。",
       apiListTitle: "Graphics API",
       apiList: [
         {id: 1, label: "glCompileShader()"},
@@ -152,6 +178,7 @@ export const masterStoryboard: Storyboard = {
       label: "Vulkan：预组装 PSO",
       caption:
         "把 Raw ShaderCode 更早整理成 SPIR-V ShaderCode，再连同状态先收进 Description 和 PSO；保持结构主线干净。",
+      objectiveFacts: ["Vulkan / Metal 有 PSO 的概念。"],
       keyPoints: [
         "SPIR-V 与状态先进入 Description，再创建 PSO。",
         "运行时从“多调用”变成“以绑定 PSO 为主”的路径。",
@@ -189,10 +216,11 @@ export const masterStoryboard: Storyboard = {
       label: "数据页：OpenGL / Vulkan 平均耗时",
       caption:
         "在进入 UE Cook 前单独停一页，用一张纯表格展示 Link/Create/Bind 的 Min/Max/Avg 对比。",
+      objectiveFacts: ["Compile、Link耗时极高，单帧不可接受"],
       keyPoints: [
         "列结构固定为 Min / Max / Avg（单元格格式 Nubia / Pixel 7）。",
-        "行结构覆盖 Link、Create、Bind（GL 与 VK 两类 Bind 都显示）。",
-        "这一页不再放卡片容器，直接表格直出。",
+        "行结构覆盖 Compile / Link / Create / Bind（GL 与 VK 两类 Bind 都显示）。",
+        "glCompileShader 的 Avg 按 VS + FS 双编译显示为 x2 口径。",
       ],
       notes:
         "这一页是纯数据插页，和补充图片页采用同一类过渡思路：先淡入数据表，结束前淡出，再进入 page_05 的资产主线。",
@@ -202,7 +230,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "先给观众一个数据锚点，再切到 UE Cook 主线。",
       manuscript:
-        "第四页和第五页之间增加一个纯数据页。这里不再讲结构，只展示一张表：列是 Min/Max/Avg，行覆盖 Link（glLinkProgram）、Create（CreateGfxPipeline）以及 Bind（BindProgramPipeline / BindGfxPipeline）。单元格统一用 Nubia/Pixel 7 双值表达，帮助观众在同一页读出分布范围与平均值，再切回 UE Cook 主线。",
+        "第四页和第五页之间增加一个纯数据页。这里不再讲结构，只展示一张表：列是 Min/Max/Avg，行覆盖 Compile（glCompileShader）、Link（glLinkProgram）、Create（CreateGfxPipeline）以及 Bind（BindProgramPipeline / BindGfxPipeline）。单元格统一用 Nubia/Pixel 7 双值表达，并给 glCompileShader、glLinkProgram、CreateGfxPipeline 这三项高耗时 Avg 加红色标记。其中 glCompileShader 的 Avg 按 VS / FS 双编译以 x2 口径显示，帮助观众在同一页先读出分布范围与平均值，再切回 UE Cook 主线。",
       focusColorKey: "shared",
     },
     {
@@ -230,26 +258,26 @@ export const masterStoryboard: Storyboard = {
       id: "page_06",
       label: "UE 分层：区分因素落在哪一层",
       caption:
-        "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：Platform 在 Material，FeatureLevel / QualityLevel 在 Resource，ShaderType / VertexFactory / Permutation 在 ShaderMap。",
+        "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：Platform 在 UMaterial，FeatureLevel / QualityLevel 在 Resource，ShaderType / VertexFactory / Permutation 在 ShaderMap。",
       keyPoints: [
         "不同维度的区分因素落在不同层级，不是同层混放。",
         "先讲清分层职责，再讲运行时如何取 code。",
       ],
       apiHighlights: [
-        "Material",
+        "UMaterial",
         "FMaterialResource",
         "FMaterialShaderMap",
         "ShaderPlatform / FeatureLevel / QualityLevel / Permutation",
       ],
       notes:
-        "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左侧保留三张 selector 表：ShaderPlatform、FeatureLevel / QualityLevel、ShaderType / VertexFactory / Permutation；右侧保留 Material -> FMaterialResource -> FMaterialShaderMap 这一条主链。这里不展开 InlineCode 存储细节，只给一个很弱的后续锚点，让观众先建立“哪一层负责区分什么”的认知。",
+        "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左侧保留三张 selector 表：ShaderPlatform、FeatureLevel / QualityLevel、ShaderType / VertexFactory / Permutation；右侧保留 UMaterial -> FMaterialResource -> FMaterialShaderMap 这一条主链。这里不展开 InlineCode 存储细节，只给一个很弱的后续锚点，让观众先建立“哪一层负责区分什么”的认知。",
       focusTarget: "InlineCode",
       timingHint:
-        "从第五页问号位置放大以后，先让左侧两串结构成为主体：三张 selector 表和 Material / FMaterialResource / FMaterialShaderMap 一一对齐，右侧 InlineCode 只保留弱锚点，不展开细节。",
+        "从第五页问号位置放大以后，先让左侧两串结构成为主体：三张 selector 表和 UMaterial / FMaterialResource / FMaterialShaderMap 一一对齐，右侧 InlineCode 只保留弱锚点，不展开细节。",
       intro:
         "真正进入 InlineCode 之前，先把一个更基础的问题讲透：shader 到底是在 UE 的哪一层被区分开的。",
       manuscript:
-        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，第一步先不要急着钻进 code 存储，而是先看区分因素落在哪一层。ShaderPlatform 决定的是目标图形平台，所以它在 Material 这一层就已经分开；FeatureLevel 和 QualityLevel 决定的是具体资源展开方式，所以它们落在 FMaterialResource 这一层；而 ShaderType、VertexFactory、Permutation 这些真正决定某个 shader 变体的组合键，则落在 FMaterialShaderMap 这一层。第六页的目标只有一个：让观众先建立“不同维度的区分发生在不同层级”这个空间认知，后面再去看运行时如何真正拿到 InlineCode。",
+        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，第一步先不要急着钻进 code 存储，而是先看区分因素落在哪一层。ShaderPlatform 决定的是目标图形平台，所以它在 UMaterial 这一层就已经分开；FeatureLevel 和 QualityLevel 决定的是具体资源展开方式，所以它们落在 FMaterialResource 这一层；而 ShaderType、VertexFactory、Permutation 这些真正决定某个 shader 变体的组合键，则落在 FMaterialShaderMap 这一层。第六页的目标只有一个：让观众先建立“不同维度的区分发生在不同层级”这个空间认知，后面再去看运行时如何真正拿到 InlineCode。",
       focusColorKey: "ue",
     },
     {
@@ -305,7 +333,7 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_09",
-      label: "SharedCode：Hash 如何反查到 Code",
+      label: "提供全局表进行Hash索引",
       caption:
         "SharedCode 的关键不是一句 GlobalIndex，而是两层索引：ShaderMapIndex + ResourceIndex 先得到 LibraryShaderIndex，再用 ShaderEntries[LibraryShaderIndex] 的 Offset/Size 取出真正 code；PSO 的 Hash 也通过 ShaderHashTable 命中同一个 LibraryShaderIndex。",
       keyPoints: [
@@ -337,7 +365,7 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_09_img",
-      label: "证据插页：Inline vs Shared Cook 对比",
+      label: "统一存放ShaderCode减少重复消耗",
       caption:
         "插入一页实测证据图：对比 InlineShaderCode 与 SharedShaderCode 的 cook 结果，给 `page_09 -> page_10` 转场补一个“为什么值得做”的数据锚点。",
       keyPoints: [
@@ -351,14 +379,14 @@ export const masterStoryboard: Storyboard = {
         "ShaderArchive",
       ],
       notes:
-        "这个插页固定放在 page09 与 page10 之间：进入时图片淡入、page09 淡出；退出时图片淡出、page09 淡入；之后再播放原本的 page09 -> page10 动画，避免压缩原有节奏。",
+        "这个插页固定放在 page09 与 page10 之间：进入时图片淡入、page09 淡出；退出时图片淡出、page09 淡入；之后再播放原本的 page09 -> page10 动画，避免压缩原有节奏。页顶额外补一组真实样例说明：`M = 母材质`、`M-I1 / M-I2 = 两个相同的 Material Instance`；注释压成一行小字，说明两个实例都改了同一个 Static Bool，避免 UE 优化掉而不保存对应 ShaderCode。顶部说明字重整体放轻，上下两排证据卡的竖向留白也重新压回更平衡的状态。",
       focusTarget: "Evidence",
       timingHint:
         "把插页单独拆成一个 step，先完成证据展示，再恢复 page09 并进入原有主线过渡。",
       intro:
         "在进入 page10 的回调答案页前，先用一页证据把“Shared 的收益”讲清楚。",
       manuscript:
-        "这一页只做证据展示。我们把 InlineShaderCode 和 SharedShaderCode 的 cook 结果放在同一页对比：材质侧 `.uexp` 在 Shared 下明显变小，同时 ShaderArchive 承担了共享代码承载；再补一组 hash 复用证据，说明同参数实例会复用同一套 ShaderMapHash。讲完后不直接硬切 page10，而是先把证据页淡出、把 page09 SharedCode 画面淡回，再开始原本 page09 到 page10 的回调动画。",
+        "这一页只做证据展示。我们把 InlineShaderCode 和 SharedShaderCode 的 cook 结果放在同一页对比：材质侧 `.uexp` 在 Shared 下明显变小，同时 ShaderArchive 承担了共享代码承载；再补一组 hash 复用证据，说明同参数实例会复用同一套 ShaderMapHash。顶部 legend 现在改成两行主说明：第一行 `M = 母材质`，第二行 `M-I1 / M-I2 = 两个相同的 Material Instance`；下面再用一行更小的注释补充：这两个实例都额外改了同一个 `Static Bool`，不然 UE 可能会优化掉，不保存对应 ShaderCode。整组字重也比前一版更轻，避免压得太黑；上下两排证据卡的竖向留白一起重排，读起来更顺。讲完后不直接硬切 page10，而是先把证据页淡出、把 page09 SharedCode 画面淡回，再开始原本 page09 到 page10 的回调动画。",
       focusColorKey: "shared",
     },
     {
@@ -384,7 +412,7 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_11",
-      label: "新舞台建立：Computer / Phone / .ushaderbytecode",
+      label: "测试环境收集回路",
       caption:
         "这一页才把新的母版正式展开：左边是 `Computer`，右边是 `Phone`，而第十页的 `ShaderLibrary` 开始落成中间那条 `.ushaderbytecode`。",
       keyPoints: [
@@ -405,7 +433,7 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_12",
-      label: "首次 Cook 补齐：再产出 .scl.csv",
+      label: "Cook产出ShaderLibrary",
       caption:
         "基础舞台已经就位之后，这一页才把首次 `cook` 讲清：电脑侧分叉，补出第二份 `.scl.csv`。",
       keyPoints: [
@@ -542,6 +570,7 @@ export const masterStoryboard: Storyboard = {
       keyPoints: [
         "Hash 不是跨版本稳定身份，必须先翻译回 StableKey 语义。",
         "expand 用历史 scl.csv，把 rec 记录提升成 stablepc.csv。",
+        "画面右下角直接把问题写出来：为什么不直接用 `rec.upipelinecache`，还要 `expand`？",
       ],
       apiHighlights: ["历史 .rec.upipelinecache", "历史 .scl.csv", "stablepc.csv", "Expand"],
       relatedLinks: [
@@ -608,14 +637,14 @@ export const masterStoryboard: Storyboard = {
         ],
       },
       notes:
-        "第十六页是 expand 专用说明页。观众此时最容易困惑的是：既然 `rec.upipelinecache` 里已经有 `ShaderHash + State`，为什么还需要一份 `scl.csv`？这一页要明确回答：Hash 不是跨版本稳定身份，历史 `scl.csv` 才能把旧 Hash 提升回 StableKey 视角。并且这里的 stable 指的是语义稳定，不是编译结果或 hash 本身稳定。",
+        "第十六页是 expand 专用说明页。观众此时最容易困惑的是：既然 `rec.upipelinecache` 里已经有 `ShaderHash + State`，为什么还需要一份 `scl.csv`？这一页要明确回答：Hash 不是跨版本稳定身份，历史 `scl.csv` 才能把旧 Hash 提升回 StableKey 视角。并且这里的 stable 指的是语义稳定，不是编译结果或 hash 本身稳定。画面右下角会把这句问题直接写出来，帮助观众把注意力锁在“为什么不能直接用旧 rec”上。",
       focusTarget: "Expand",
       timingHint:
         "沿用占位插页的统一进入退出语法，让回传页缩成背景板，再把 `历史 rec.upipelinecache`、`历史 scl.csv`、`stablepc.csv` 和一个简化例子浮上来。",
       intro:
         "手机把回流记录送回电脑之后，第一个真正需要解释的问题不是 build，而是为什么电脑侧必须先做一次 expand。",
       manuscript:
-        "第十六页先只讲 expand。`rec.upipelinecache` 里记录的是旧版本运行时真正看到的 `ShaderHash + State`，但 `ShaderHash` 本身不是跨版本稳定身份。只要 shader 代码生成、共享方式或者编译结果变了，旧 Hash 就可能失效。所以电脑侧必须拿历史版本的 `scl.csv`，把旧 `ShaderHash` 重新翻译回 `ShaderStableKey` 视角，再和原来的状态一起整理成 `stablepc.csv`。这里的 stable 指的是语义稳定，不是 hash 稳定。比如旧版本里两个 `StableKey` 可能恰好落到同一个旧 `ShaderHash`，运行时只记到一条 Hash 记录；expand 之后，这条记录会重新展开成两个 `StableKey + State` 组合。也就是说，expand 的意义不是重命名文件，而是把旧 runtime 观察提升回跨版本还能理解的 stable 语义。",
+        "第十六页先只讲 expand。画面右下角会先直接把问题摆出来：为什么不直接用 `rec.upipelinecache`，还要 expand？因为 `rec.upipelinecache` 里记录的是旧版本运行时真正看到的 `ShaderHash + State`，但 `ShaderHash` 本身不是跨版本稳定身份。只要 shader 代码生成、共享方式或者编译结果变了，旧 Hash 就可能失效。所以电脑侧必须拿历史版本的 `scl.csv`，把旧 `ShaderHash` 重新翻译回 `ShaderStableKey` 视角，再和原来的状态一起整理成 `stablepc.csv`。这里的 stable 指的是语义稳定，不是 hash 稳定。比如旧版本里两个 `StableKey` 可能恰好落到同一个旧 `ShaderHash`，运行时只记到一条 Hash 记录；expand 之后，这条记录会重新展开成两个 `StableKey + State` 组合。也就是说，expand 的意义不是重命名文件，而是把旧 runtime 观察提升回跨版本还能理解的 stable 语义。",
       focusColorKey: "shared",
     },
     {
@@ -689,13 +718,14 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_19",
-      label: "预编译：stable 缓存进入内存与硬盘 PSO",
+      label: "预编译：stable 缓存进入本地 PSO",
       caption:
-        "把原 page19 和 page20 压成一页：stable.upipelinecache 先批次展开成 UE PSO，再进入 GPU、内存中 PSO，并继续落到 OpenGL / Vulkan / Metal 的本地缓存表达；Metal 的 Binary Archive 2 先打个问号。",
+        "主图继续讲 stable.upipelinecache 如何进入 UE PSO、GPU、内存中 PSO 和本地缓存；主图下方再拆成 3 条 note，分别讲 `Shader / State`、`codegen / 映射`、`OS / Driver / GPU / API` 为什么会让旧缓存失效。",
       keyPoints: [
         "输入来自 stable.upipelinecache。",
         "UE PSO 统一收口到和 page14 一致的 VertexData / GPU / Pixels 竖链，再进入内存中 PSO。",
         "OpenGL / Vulkan / Metal 在内存态与本地缓存态的载体不同。",
+        "binary instability 不再塞进一条细长横条，而是拆成 3 条 note 分开讲失效来源。",
         "Metal Binary Archive 2 先当作待验证分支，不先讲成确定答案。",
       ],
       apiHighlights: [
@@ -709,7 +739,7 @@ export const masterStoryboard: Storyboard = {
         "functions.data",
       ],
       notes:
-        "第十九页现在是合并页：主脊柱保持成 `stable.upipelinecache -> UE PSO -> VertexData / GPU / Pixels -> 内存中 PSO`，右侧再并列展开 OpenGL / Vulkan / Metal 三行节点，并用三条水平虚线分别指向磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 与 `BinaryArchive / functions.data`。",
+        "第十九页现在是主承载页：主脊柱保持成 `stable.upipelinecache -> UE PSO -> VertexData / GPU / Pixels -> 内存中 PSO`，右侧并列展开 OpenGL / Vulkan / Metal 三行节点，并用三条水平虚线分别指向磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 与 `BinaryArchive / functions.data`；原来的细长 summary 改成主图下方 3 条 note，避免字体过挤。",
       focusTarget: "Precompile",
       timingHint:
         "让 page18 缩退后先拉出合并主链，保留一小段停留，再把 page21 作为下一段 awareness page 淡入，不再单独插入 page20。",
@@ -724,16 +754,16 @@ export const masterStoryboard: Storyboard = {
         },
       ],
       intro:
-        "闭环成立后，直接把预编译的两段逻辑压成一张图：稳定缓存怎么被批次消费、落到内存对象，又如何对应到各类本地缓存表达。",
+        "闭环成立后，直接把预编译主图和 binary instability 压进同一页：既讲 stable 缓存怎么落到本地 PSO，也把“为什么旧缓存会失效”拆成 3 个清楚 note。",
       manuscript:
-        "第十九页把原来的两段问题压成一条主图来讲。左边的 `stable.upipelinecache` 先在引擎侧展开成 `UE PSO`，组内再用 `PSO 1 / PSO 2 / PSO ...` 表示批次对象，随后统一收口到和 page14 一致的 `VertexData -> GPU -> Pixels` 竖向线路，进入右侧的 `内存中 PSO` 组。接着同一页继续把三种 API 的持久化差异并列画出来：OpenGL 节点里写 `Program Binary`，Vulkan 节点里写 `Pipeline Cache`，Metal 节点里先保留 `Binary Archive / 系统管理` 这条主线，同时把 `Binary Archive 2` 先打个问号，提醒自己这条线在社区讨论里评价并不稳定，暂时不要讲成确定答案。它们再分别用三条水平虚线，指向最右侧磁盘中的 `Program Binary Cache`、`VulkanPSO.cache` 和 `BinaryArchive / functions.data`。这样观众在一页里就能顺着同一条中轴读完“稳定缓存 -> UE 批次 -> GPU -> 内存态 -> 本地缓存态”的完整逻辑。",
+        "第十九页现在把两层意思压进同一页。第一层还是主图：左边的 `stable.upipelinecache` 先在引擎侧展开成 `UE PSO`，组内再用 `PSO 1 / PSO 2 / PSO ...` 表示批次对象，随后统一收口到和 page14 一致的 `VertexData -> GPU -> Pixels` 竖向线路，进入右侧的 `内存中 PSO` 组。接着同一页继续把三种 API 的持久化差异并列画出来：OpenGL 节点里写 `Program Binary`，Vulkan 节点里写 `Pipeline Cache`，Metal 节点里保留 `Binary Archive / 系统管理` 这条主线，同时把 `Binary Archive 2` 先打个问号，提醒自己这条线在社区讨论里评价并不稳定，暂时不要讲成确定答案。它们继续分别落到磁盘里的 `Program Binary Cache`、`VulkanPSO.cache` 和 `BinaryArchive / functions.data`。第二层不再是一条细长 summary，而是主图下方 3 条 note：`Shader / State`、`codegen / 映射`、`OS / Driver / GPU / API`。这 3 条 note 一起说明同一件事：本地 binary / cache 只是某次组合的落盘形态，不是稳定接口；任何一层变化，都可能让旧缓存失效。",
       focusColorKey: "shared",
     },
     {
       id: "page_21",
-      label: "PSO 缓存有效性边界",
+      label: "PSO 缓存有效性边界（保留页）",
       caption:
-        "改成和后面一致的 summary 板式：左主卡先回答“什么情况下会失效”，右侧三卡分别讲内容/状态、版本/构建、平台/环境边界。",
+        "保留 summary 板式承接动画，但 page19 已经先把 binary instability 压进去；这一页更多是把边界重新读一遍，而不是第一次引入结论。",
       keyPoints: [
         "左主卡先给一句话结论：PSO 缓存失效，通常是内容或环境变了。",
         "右侧第一卡讲内容 / 状态边界：Shader、Permute、Vertex Layout、Render State 一变，就不是同一个 PSO。",
@@ -743,16 +773,16 @@ export const masterStoryboard: Storyboard = {
       ],
       apiHighlights: ["Permute Shader State", "SharedCode / codegen / scl", "OpenGL vs Modern API", "OS/Driver/GPU", "Cache Invalidation"],
       notes:
-        "外层工作台不变，只把板内结构统一成后面策略页的“左主卡 + 右侧三卡 + footer”。",
+        "外层工作台不变，只把板内结构统一成后面策略页的“左主卡 + 右侧三卡 + footer”；页面暂时保留用于 motion continuity，不删除 timeline。",
       focusTarget: "Cache Validity",
       timingHint:
         "从合并后的 page19 推入后，先整体落 summary 板，再按阅读顺序讲左主卡和右侧三卡。",
       goalDetail:
         "这里的 PSO，可以先粗略理解成：进入游戏前会尽量预编译好的那组着色器与管线状态对象。",
       intro:
-        "进入策略页之前，先用和后面一致的 summary 板式把缓存边界讲透。",
+        "进入策略页之前，先用和后面一致的 summary 板式把缓存边界再复述一遍。",
       manuscript:
-        "第二十一页现在改成和后面策略页一致的 summary 结构，但重点先收回到“什么时候会失效”。左侧主卡先给一句总判断：PSO 缓存失效，通常是内容变了，或者环境变了；`stable.upipelinecache` 能做的是把当前版本里可复用的部分前移，不是承诺跨版本、跨环境永远有效。右侧三张小卡再拆开讲：第一张是内容 / 状态边界，强调 `Shader`、`Permute`、`Vertex Layout`、`Render State` 一旦变化，就已经不是同一个 PSO；第二张是版本 / 构建边界，说明 `SharedCode`、`codegen`、`Hash`、`scl` 映射一变，旧缓存通常就要重新 `expand / build`；第三张是平台 / 环境边界，说明 `OpenGL` 与现代 API 的状态模型不同，操作系统、驱动、芯片、GPU、API 变化也都可能让本地缓存失效并触发重编译。底部 footer 负责把结论收口：重点不是幻想缓存永不失效，而是分清哪些边界能复用，哪些边界必须重建。",
+        "第二十一页继续保留成和后面策略页一致的 summary 结构，但它现在更像 page19 的复述板，而不是第一次提出问题的主战场。左侧主卡先重申一句：PSO 缓存失效，通常是内容变了，或者环境变了；`stable.upipelinecache` 能做的是把当前版本里可复用的部分前移，不是承诺跨版本、跨环境永远有效。右侧三张小卡再拆开讲：第一张是内容 / 状态边界，强调 `Shader`、`Permute`、`Vertex Layout`、`Render State` 一旦变化，就已经不是同一个 PSO；第二张是版本 / 构建边界，说明 `SharedCode`、`codegen`、`Hash`、`scl` 映射一变，旧缓存通常就要重新 `expand / build`；第三张是平台 / 环境边界，说明 `OpenGL` 与现代 API 的状态模型不同，操作系统、驱动、芯片、GPU、API 变化也都可能让本地缓存失效并触发重编译。页面暂时保留，是为了让 `page_19 -> page_21 -> page_22` 的动画连续性不被打断。",
       focusColorKey: "shared",
     },
     {
@@ -780,38 +810,40 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_24",
-      label: "改资源形态：时空互换",
+      label: "工程策略总览：包体 / 内存",
       caption:
-        "压缩只是时空互换的一种；PCA、模型和算法设计，本质上也都在重新分配时间与空间。",
+        "这页改成正式双栏：左半明确写成 `ShaderCode` 压缩，右半明确写成 UE 中 PSO 的 `LRU + mmap` 策略。",
       keyPoints: [
-        "左侧用 4 台设备的压缩结果说明：空间省下来了，时间就会多付一点。",
-        "右侧把做法提升成三个一般方向：Compression、Precompute / Preload、Algorithm。",
-        "AI 方法也可以看成压缩：PCA 和 learned model 都是在用更紧的表示替代原过程。",
+        "外边距继续向内压：实际几何从 `110 / 84 / 60 / 84` 收到约 `58 / 44 / 40 / 44`，让 page24 更满。",
+        "左半改成更直接的 `ShaderCode` 压缩矩阵：去掉 `算法 / 压缩比 / 平台数据` 总头，每条算法行自己补 `(压缩/)解压` 提示，并整体上提。",
+        "右半变成更清楚的 UE 中 PSO 策略骨架：标题放大，补上 `驻留层 / 换出 / 回填 / 映射 / 载体` 的层次条，并把底部方法条加宽加高。",
+        "左侧每条压缩行继续保留 `Windows / macOS / Android / iOS` 独立 pill，但去掉外层平台套框，并把平台时间改成右对齐；右侧继续保留 `LRU + mmap` 的驻留、换出、回填、外存载体关系。",
+        "这一页不再夹带 `UsageMask`、并行或解释性 prose。",
       ],
-      apiHighlights: ["Compression", "Precompute", "Preload", "Algorithm"],
+      apiHighlights: ["LZ4", "zstd", "Oodle Leviathan", "LRU + mmap", "SQL", "file", "KV / spill"],
       notes:
-        "左侧保留真实压缩数据和一条存储 -> 解压 -> 编译/加载的链路；右侧不展开算法细节，只让观众意识到“时空互换不止压缩一种”，并补一个 GDC Vault 链接提示 AI / PCA 也可视作压缩。",
-      focusTarget: "Compression Tradeoff",
+        "这页继续作为“包体 / 内存”宿主页，但这次不只是把语义写死，而是把空间也真正吃满：左边是更直接的 `ShaderCode` 压缩矩阵，算法行自己说明 `(压缩/)解压`，4 组平台数据只保留独立 pill 且数值右对齐；右边是分层后的 UE 中 PSO `LRU + mmap` 策略骨架，page25 再把方法条进一步展开。",
+      focusTarget: "Strategy Merge",
       timingHint:
-        "保留大板式 crossfade，左侧数据与右侧三张策略卡一起淡入，不做额外主图闪回。",
+        "左侧 `ShaderCode` 压缩数据板先落位，右侧 `LRU + mmap` 主图随后落位，底部三张方法条和 footer 最后补入。",
       intro:
-        "边界讲清之后，先从最直接也最直观的一类优化开始：改资源形态。",
+        "边界讲清之后，先把“包体 / 内存”这两条更像资源压力的办法收成一页。",
       manuscript:
-        "第二十四页先拿 `Compression` 举例。压缩确实能省空间，但解压、恢复和重新展开都要额外付出时间。左侧我会直接给 4 台设备在 `1 MiB pso_like` 数据上的真实结果；右侧再把它提升成一个更一般的策略族：`Compression` 是时间换空间，`Precompute / Preload` 是空间换时间，而 `Algorithm` 则代表更一般的时空互换。这里再补一句：AI 方法其实也可以视作压缩，例如 `PCA` 或模型，本质上都是把原过程压进一个更紧的表示。也就是说，压缩不是白赚，它只是把时间和空间重新分配了一次。旁边补一个 GDC Vault 参考：`Machine Learning, Physics Simulation, Kolmogorov`。",
+        "第二十四页现在收成一个更正式、更明确、也更满的双栏图。左半只看包体，而且直接写明这是 `ShaderCode` 压缩：上面放大 `包体` 标题，下面直接摆 `LZ4`、`zstd`、`Oodle Leviathan` 三组压缩矩阵；原先那条 `算法 / 压缩比 / 平台数据` 总头被拿掉，改成每条算法名旁边自己补 `(压缩/)解压` 提示，表示压缩这一步未必总是存在；四组 `Windows / macOS / Android / iOS` 平台数据只保留各自胶囊，数值改成右对齐，读起来更利落。右半只看内存，而且直接写明这是 UE 中 PSO 的 `LRU + mmap` 策略：上面放大 `内存` 标题并补 `UE 中 PSO：LRU + mmap`，再加一条 `驻留层 / 换出 / 回填 / 映射 / 载体` 结构条，中间把高频常驻、可替换缓存、映射视图 / 虚拟内存、文件 / SQL / KV 和“换出 / 按需回填”关系做成更完整的策略骨架，底部三张方法条也一起加宽加高。这样这页就明确变成“左边是更直接的 ShaderCode 压缩矩阵，右边是 UE 里 PSO 的内存策略骨架”，同时也提前把 page25 要展开的方法骨架埋好。",
       focusColorKey: "shared",
     },
     {
       id: "page_25",
-      label: "改存储位置：让 IO 承担空间压力",
+      label: "改存储位置：让 IO 承担空间压力（保留页）",
       caption:
-        "这类方法的本质不是某一个单点算法，而是“选取逻辑 + 回填机制 + 外存载体”的组合。",
+        "这页暂时保留给动画连续性；核心信息已经被 page24 吸收成“`LRU + mmap` 负责内存，`SQL` 只是可选载体”。",
       keyPoints: [
         "左侧用 PSO 里的 `LRU + mmap` 说明：不是所有内容都必须一直常驻内存。",
         "右侧明确拆成 `Replacement Policy`、`Reload / Mapping`、`Storage Carrier` 三块。",
       ],
       apiHighlights: ["LRU", "Clock", "Pin", "mmap", "paging", "SQL"],
       notes:
-        "这一页不讲成操作系统课，只强调我们在 PSO 里用的是一种具体实现，而更一般的方法是“选谁留下 + 怎么回来 + 落在哪”。",
+        "这一页不删 timeline，但语义上已经退居二线，主要承担过渡，不再是第一次承载存储策略的宿主页。",
       focusTarget: "Cache Strategy",
       timingHint:
         "左侧热冷分层与磁盘映射先显出，再从右侧依次补三组概念卡。",
@@ -823,43 +855,47 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_26",
-      label: "改发生时机：按地图调度编译",
+      label: "预编译优化：减少集合 + 提升吞吐",
       caption:
-        "这里优化的不是“做不做”，而是把地图下载变成对应 PSO 的编译触发点。",
+        "这页把两条都放进来，但不把它们讲成同一内容：`UsageMask` 负责减少要编译的集合，并行负责提升编译吞吐。",
       keyPoints: [
-        "主图先讲事件：当前在地图 A，地图 B 下载完成，于是开始编译地图 B 的 PSO。",
-        "再讲结果：`Game UsageMask = A`，`Compile UsageMask = A + B`；UE 原生 `UsageMask` 做不到，所以拆成 `Game` / `Compile` 两种语义。",
+        "左侧路径还是事件优先：当前在地图 A，地图 B 下载完成，于是开始编译地图 B 的 PSO。",
+        "这条左路径用 `Game UsageMask = A`、`Compile UsageMask = A + B` 去减少要编译的集合。",
+        "右侧路径补并行：`任务独立`、`纯 CPU 计算` 时，可以直接拆 worker 提升吞吐。",
+        "两个不是同一个内容，但都在优化预编译速度。",
       ],
       apiHighlights: [
         "Game UsageMask",
         "Compile UsageMask",
-        "UE Native UsageMask",
         "Per-Map Compile",
-        "Single Usage Expression",
+        "任务独立",
+        "纯 CPU 计算",
+        "Worker",
+        "Throughput",
       ],
       notes:
-        "这一页不要让观众先猜 `mask` 本身。先读懂‘地图下载完成 -> 触发该图 PSO 编译’，再回到双 `UsageMask` 的必要性，而写回 PSO 时仍然只有一种 UsageMask 表达。",
+        "这一页不要把 `UsageMask` 和并行讲成同一种机制。左边先收缩集合，右边再提升吞吐；两条路径只是在同一个目标下被放到一页。",
       focusTarget: "Compile Acceleration",
       timingHint:
-        "左侧先显事件链，再显 `Game = A / Compile = A + B` 对比；右侧最后补“原生不够 / 存储不变”。",
+        "左列先显事件链和 `Game = A / Compile = A + B`，右列再显并行前提和 worker 吞吐示意。",
       intro:
-        "第三种思路不是改数据，也不是改位置，而是把地图下载时刻变成对应 PSO 的编译触发点。",
+        "第三组策略开始进入“编译速度”本身：一条路减集合，一条路提吞吐。",
       manuscript:
-        "第二十六页不要先从 `mask` 术语讲起，而要先从事件讲起：当前玩家在地图 A，这时地图 B 被下载完成，我们就希望立刻启动地图 B 对应的 PSO 编译。于是同一时刻会出现两个视角：站在当前游戏视角，`Game UsageMask = A`；站在编译调度视角，`Compile UsageMask = A + B`。双 `UsageMask` 不是为了造出两套 PSO，而是为了让这两个视角可以同时被表达。UE 原生的 `UsageMask` 只有一套语义，很难同时承担“当前游戏视角”和“编译调度视角”，所以我把它拆成了两种用法。但写回到 PSO 里的时候，仍然只有一种 `UsageMask` 表达，拆开的只是调度语义，不是两套持久化格式。",
+        "第二十六页现在把两条“预编译速度优化”放进同一页，但要明确讲清：它们不是一个内容。左侧还是 `UsageMask` 路径，而且仍然坚持先从事件讲起：当前玩家在地图 A，这时地图 B 被下载完成，我们就希望立刻启动地图 B 对应的 PSO 编译。于是同一时刻会出现两个视角：站在当前游戏视角，`Game UsageMask = A`；站在编译调度视角，`Compile UsageMask = A + B`。这条路的本质，是先把“要编什么”收缩到更小的集合。右侧则是另一条完全不同的路：并行。这里强调的不是两套内容，而是另一种执行策略；只要任务独立、重复，而且主要还是纯 CPU 计算，就可以直接拆成多个 worker 去提升吞吐。所以这一页的重点不是把两件事讲成一个名词，而是把“减少集合”和“提升吞吐”并列起来：前者决定少编什么，后者决定怎样更快编完。",
       focusColorKey: "shared",
     },
     {
       id: "page_27",
-      label: "改执行方式：并行化批处理任务",
+      label: "改执行方式：并行化批处理任务（保留页）",
       caption:
-        "当任务天然独立时，最有效的优化往往不是改逻辑，而是改执行方式。",
+        "这页暂时保留给动画连续性；核心信息已经前移到 page26，作为“提升编译吞吐”的另一条路径。",
       keyPoints: [
         "预编译任务批量、重复、规则、可拆，因此天然适合并行。",
         "这一页同时给出适用特征和注意事项：同步成本、共享状态、任务粒度、warp divergence、bank conflict。",
       ],
       apiHighlights: ["SIMD", "Thread", "GPU", "warp divergence", "bank conflict"],
       notes:
-        "并行页不要讲成硬件科普，只需要让观众记住‘适合并行的任务是什么样’以及‘并行并不免费’。",
+        "并行页不删 timeline，但语义上已经退居二线，主要承担过渡，不再是第一次承载并行判断的宿主页；并行现在先在 page26 和 UsageMask 并列出现。",
       focusTarget: "State Source",
       timingHint:
         "单线程队列先出现，再展开多 worker、SIMD、GPU 的并行谱系。",
@@ -892,37 +928,38 @@ export const masterStoryboard: Storyboard = {
     },
     {
       id: "page_29",
-      label: "平台差异的来源：输入侧差异会直接进入 PSO 维度",
+      label: "治理证据合页：代码 + IA 截图",
       caption:
-        "同一个 material，并不等于同一个 PSO。",
+        "把 page29 和 page30 压成一页：上面放两段代码，下面直接放对应 IA 截图，去掉 tab，把根因和证据放在同一眼里。",
       keyPoints: [
-        "这一页用 `VertexDescriptor`、`FVertexFactoryInput` 和 `ATTRIBUTE4 ~ ATTRIBUTE7` 的代码片段说明根因。",
-        "重点是解释：输入布局本身也会进入管线状态，因此输入侧差异会直接进入 PSO 维度。",
+        "上半区用 `VertexDescriptor` 和 `LocalVertexFactory.ush` 的代码说明输入侧根因。",
+        "下半区直接摆两张 IA 截图，并把图题改成 `NUM_MATERIAL_TEXCOORDS_VERTEX = 1 / 2`，让代码和证据一眼对上。",
+        "重点结论改成：同一个Material作用于不同的Mesh也会产生不同的PSO。",
       ],
-      apiHighlights: ["VertexDescriptor", "LocalVertexFactory", "ATTRIBUTE4", "ATTRIBUTE7"],
+      apiHighlights: ["VertexDescriptor", "LocalVertexFactory", "NUM_MATERIAL_TEXCOORDS_VERTEX = 1", "NUM_MATERIAL_TEXCOORDS_VERTEX = 2", "同一个Material作用于不同的Mesh也会产生不同的PSO"],
       notes:
-        "这一页使用用户提供的两段代码：左侧是 VertexDescriptor / InitRHI，右侧是 LocalVertexFactory 的 shader 输入结构。",
-      focusTarget: "Vertex Layout",
+        "page29 现在成为治理证据宿主页；page30 暂时保留用于 motion continuity，但核心代码 + 证据已经合并到这一页。",
+      focusTarget: "Governance Evidence",
       timingHint:
-        "代码块一起淡入，底部总结条在后半段补上。",
+        "代码块先进入，随后在它们正下方补对应截图；不再先切到下一页才看 IA 证据。",
       intro:
-        "现象讲完以后，要补上原因层。",
+        "现象讲完以后，不再把“根因代码页”和“治理证据页”拆开，而是直接压成一张合页。",
       manuscript:
-        "第二十九页用 `VertexDescriptor` 的格式化代码，以及 `LocalVertexFactory.ush` 里 `FVertexFactoryInput` 对 `ATTRIBUTE4 ~ ATTRIBUTE7` 的声明，去解释平台差异为什么会进入 PSO 维度。即使调用的是同一个 material，只要输入侧结构不同，例如 vertex declaration 不同，某些平台上就可能拆成不同的 PSO。换句话说，同一个 material，不代表同一个 PSO。",
+        "第二十九页现在把原来的 page29 和 page30 合成一张治理证据合页。上半区仍然是两段代码：左边用 `VertexDescriptor / InitRHI` 说明 CPU 侧怎么定义输入布局，右边用 `LocalVertexFactory.ush` 里的 `FVertexFactoryInput` 说明 shader 输入会怎样接住这些 declaration。下半区不再单独留到下一页，而是直接放两张 IA 截图，并把图题明确成 `NUM_MATERIAL_TEXCOORDS_VERTEX = 1` 和 `NUM_MATERIAL_TEXCOORDS_VERTEX = 2`。这样观众在同一眼里就能看到“代码里的输入布局差异”如何变成“图里的 IA 差异”。也就是说，同一个Material作用于不同的Mesh也会产生不同的PSO。",
       focusColorKey: "shared",
     },
     {
       id: "page_30",
-      label: "前置治理决定上限：把问题消灭在项目输入侧",
+      label: "前置治理决定上限：把问题消灭在项目输入侧（保留页）",
       caption:
-        "最好的优化不是后置补救，而是前置治理。",
+        "这页暂时保留给动画连续性；核心 IA 证据已经被并入 page29，只保留治理结论的停顿与抬升。",
       keyPoints: [
         "这一页用 IA / RenderDoc 类证据把结论收死：很多 PSO 问题不是运行时再优化出来的。",
         "顶点格式、材质规范、平台预算、color buffer 等输入侧差异，往往先决定了上限。",
       ],
       apiHighlights: ["RenderDoc", "Vertex Layout", "Color Buffer", "Governance"],
       notes:
-        "这页用两张 IA 截图配合治理清单，把前两页的现象和原因上升为结论。",
+        "这页不删 timeline，但语义上已经退居二线，主要承担从证据到方法论的过渡停顿。",
       focusTarget: "Governance Upper Bound",
       timingHint:
         "图片先显，治理清单与底部结论条随后补齐。",

@@ -156,6 +156,28 @@ describe("page_19+ review harness", () => {
     });
   });
 
+  it("can start mechanical review from page_02 and uses a formal page_02 surface", async () => {
+    const mod = await import("./page19PlusReview");
+    const outputDir = createTempDir();
+
+    const summary = await mod.runPage19PlusReview({
+      outputDir,
+      fromStepId: "page_02",
+      resolveWorkloadPath: () => undefined,
+      probeTimingTransition: async () => ({
+        status: "probe_not_requested",
+      }),
+    });
+
+    expect(summary.fromStepId).toBe("page_02");
+    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_02")).toMatchObject({
+      stepId: "page_02",
+      status: "ok",
+      reviewSource: "formal",
+      sketchId: "formal-page02",
+    });
+  });
+
   it("uses formal review surfaces for page_21 and page_22 instead of missing sketches", async () => {
     const mod = await import("./page19PlusReview");
     const outputDir = createTempDir();

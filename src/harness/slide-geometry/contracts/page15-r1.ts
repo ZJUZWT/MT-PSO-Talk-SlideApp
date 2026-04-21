@@ -58,12 +58,14 @@ export const page15R1Sketch: GeometrySketchDefinition = {
   nodes: [
     {
       id: "computer",
-      label: "",
+      label: "构建机",
       x: COMPUTER.x,
       y: COMPUTER.y,
       width: COMPUTER.width,
       height: COMPUTER.height,
       tone: "muted",
+      fontSizeOverride: 25,
+      fontWeightOverride: 760,
     },
     {
       id: "phone",

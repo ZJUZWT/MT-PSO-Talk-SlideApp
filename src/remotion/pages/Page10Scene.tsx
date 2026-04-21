@@ -17,6 +17,7 @@ import {Page02Scene} from "./Page02Scene";
 import {
   ArrowLabelPill,
   CalloutBadge,
+  FramedImage,
   PixelGrid,
   StageBox,
   StackedLabel,
@@ -101,6 +102,7 @@ const LOOP_PAGE30_FRAME = loopFrame("page_30");
 const LOOP_PAGE31_FRAME = loopFrame("page_31");
 const LOOP_PAGE32_FRAME = loopFrame("page_32");
 const LOOP_PAGE33_FRAME = loopFrame("page_33");
+const LOOP_CLOUD_STROKE = "rgba(118, 163, 207, 0.94)";
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
 const LATE_INLINE_TITLE_REMOVAL_SHIFT_Y = -52;
 const LATE_CLOSING_QUOTE_SHIFT_Y = -42;
@@ -339,14 +341,6 @@ const PARALLEL_NOTES = [
   "warp divergence",
   "bank conflict",
 ] as const;
-const STRATEGY_ALGORITHM_LINES = [
-  "PCA 也是一种压缩",
-  "模型把原过程压进参数里",
-  "查表 / 预处理减少在线计算",
-] as const;
-const PAGE24_GDC_LINK_LABEL = "参考：GDC Vault / ML / Physics / Kolmogorov";
-const PAGE24_GDC_LINK_URL =
-  "https://www.gdcvault.com/play/1026713/Machine-Learning-Physics-Simulation-Kolmogorov";
 const GOVERNANCE_DIMENSION_TOKENS = [
   "UV",
   "Vertex Decl",
@@ -454,6 +448,18 @@ const PAGE19_DISK_MT_BOX = {
   width: 168,
   height: 96,
   radius: 16,
+};
+const PAGE19_BINARY_NOTE_BOXES = [
+  {x: 92, y: 596, width: 348, height: 78, radius: 20},
+  {x: 466, y: 596, width: 348, height: 78, radius: 20},
+  {x: 840, y: 596, width: 348, height: 78, radius: 20},
+] as const;
+const PAGE19_BINARY_ARCHIVE2_BADGE = {
+  x: 1038,
+  y: 96,
+  width: 166,
+  height: 44,
+  radius: 20,
 };
 
 function centerX(box: {x: number; width: number}) {
@@ -717,7 +723,7 @@ function ComputerDevice({
         fill="rgba(247, 242, 234, 0.98)"
         stroke={scene.nodeStroke}
         strokeWidth={3}
-        label={showLabel ? "Computer" : undefined}
+        label={showLabel ? "构建机" : undefined}
         labelSize={25}
         labelWeight={760}
       />
@@ -1119,13 +1125,15 @@ function LateFooterBar({
   text,
   opacity,
   geometryNodeId,
+  box = {x: 164, y: 606, width: 948, height: 54, radius: 22},
 }: {
   scene: SceneModel;
   text: string;
   opacity: number;
   geometryNodeId?: string;
+  box?: {x: number; y: number; width: number; height: number; radius: number};
 }) {
-  const footerBox = {x: 164, y: 606, width: 948, height: 54, radius: 22};
+  const footerBox = box;
 
   return (
     <g
@@ -1417,6 +1425,7 @@ function LateBareImage({
   geometryNodeLabel,
   preserveAspectRatio = "xMidYMid meet",
   titleFontSize = 17,
+  titleAlign = "start",
 }: {
   scene: SceneModel;
   box: {x: number; y: number; width: number; height: number; radius: number};
@@ -1428,12 +1437,15 @@ function LateBareImage({
   geometryNodeLabel?: string;
   preserveAspectRatio?: string;
   titleFontSize?: number;
+  titleAlign?: "start" | "center";
 }) {
   const resolvedHref = resolveRemotionPublicAssetHref(href);
   const geometryBoxX = title ? box.x - 8 : box.x;
   const geometryBoxWidth = box.width + (title ? 16 : 0);
   const geometryBoxTop = title ? box.y - 40 : box.y;
   const geometryBoxHeight = box.height + (title ? 48 : 0);
+  const titleX = titleAlign === "center" ? centerX(box) : box.x;
+  const titleAnchor = titleAlign === "center" ? "middle" : "start";
 
   return (
     <g
@@ -1467,12 +1479,12 @@ function LateBareImage({
       </defs>
       {title ? (
         <text
-          x={box.x}
+          x={titleX}
           y={box.y - 18}
           fill={scene.apiStroke}
           fontSize={titleFontSize}
           fontWeight="820"
-          textAnchor="start"
+          textAnchor={titleAnchor}
           dominantBaseline="middle"
           data-geometry-node-text={geometryNodeId ? "1" : undefined}
         >
@@ -1585,11 +1597,12 @@ function Page09EvidenceNotes({
 
   const reveal = easeOutQuint(clamp01(opacity));
   const scale = mix(0.975, 1, reveal);
-  const leftBox = {x: 72, y: 96, width: 318, height: 258, radius: 24};
-  const centerBox = {x: 410, y: 96, width: 462, height: 258, radius: 24};
-  const rightBox = {x: 892, y: 96, width: 316, height: 258, radius: 24};
-  const hashLeftBox = {x: 72, y: 382, width: 560, height: 236, radius: 24};
-  const hashRightBox = {x: 648, y: 382, width: 560, height: 236, radius: 24};
+  const leftBox = {x: 72, y: 136, width: 318, height: 258, radius: 24};
+  const centerBox = {x: 410, y: 136, width: 462, height: 258, radius: 24};
+  const rightBox = {x: 892, y: 136, width: 316, height: 258, radius: 24};
+  const hashLeftBox = {x: 72, y: 424, width: 560, height: 156, radius: 24};
+  const hashRightBox = {x: 648, y: 424, width: 560, height: 156, radius: 24};
+  const noteCenterX = 640;
 
   const centerRows = [
     {name: "M", inlineSize: "168K", sharedSize: "18K", diff: "-89%"},
@@ -1634,18 +1647,40 @@ function Page09EvidenceNotes({
         stroke={scene.nodeStroke}
         strokeWidth={2.4}
       />
-      <StageBox
-        box={hashLeftBox}
-        fill="rgba(255, 251, 246, 0.95)"
-        stroke={scene.nodeStroke}
-        strokeWidth={2.4}
-      />
-      <StageBox
-        box={hashRightBox}
-        fill="rgba(255, 251, 246, 0.95)"
-        stroke={scene.nodeStroke}
-        strokeWidth={2.4}
-      />
+
+      <text
+        x={noteCenterX}
+        y={50}
+        fill="rgba(34, 48, 61, 0.86)"
+        fontSize="28"
+        fontWeight="680"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        M = 母材质
+      </text>
+      <text
+        x={noteCenterX}
+        y={80}
+        fill="rgba(34, 48, 61, 0.8)"
+        fontSize="26"
+        fontWeight="660"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        M-I1 / M-I2 = 两个相同的 Material Instance
+      </text>
+      <text
+        x={noteCenterX}
+        y={108}
+        fill="rgba(34, 48, 61, 0.62)"
+        fontSize="18"
+        fontWeight="620"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        注：M-I1 / M-I2 都额外改了同一个 Static Bool，否则 UE 可能会优化掉，不保存对应 ShaderCode。
+      </text>
 
       <text
         x={leftBox.x + 18}
@@ -1697,17 +1732,6 @@ function Page09EvidenceNotes({
         dominantBaseline="middle"
       >
         .uexp 对比（M 系列）
-      </text>
-      <text
-        x={centerX(centerBox)}
-        y={centerBox.y + 54}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="16"
-        fontWeight="700"
-        textAnchor="middle"
-        dominantBaseline="middle"
-      >
-        M=Material，M-I*=Material Instance
       </text>
       {centerRows.map((row, index) => {
         const y = centerBox.y + 94 + index * 56;
@@ -1820,73 +1844,89 @@ function Page09EvidenceNotes({
         </text>
       ))}
 
-      <text
-        x={hashLeftBox.x + 18}
-        y={hashLeftBox.y + 28}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="790"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        Hash 复用证据（OpenGL）
-      </text>
-      <text
-        x={hashLeftBox.x + 18}
-        y={hashLeftBox.y + 74}
-        fill="#22303d"
-        fontSize="24"
-        fontWeight="760"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        BC10CB48...B4A6DB57
-      </text>
-      <text
-        x={hashLeftBox.x + 18}
-        y={hashLeftBox.y + 116}
-        fill="rgba(34, 48, 61, 0.74)"
-        fontSize="18"
-        fontWeight="700"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        M-I1 / M-I2 复用同一 Hash
-      </text>
+      <g data-testid="page09-hash-opengl-box">
+        <StageBox
+          box={hashLeftBox}
+          fill="rgba(255, 251, 246, 0.95)"
+          stroke={scene.nodeStroke}
+          strokeWidth={2.4}
+        />
+        <text
+          x={hashLeftBox.x + 18}
+          y={hashLeftBox.y + 34}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="790"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          Hash 复用证据（OpenGL）
+        </text>
+        <text
+          x={hashLeftBox.x + 18}
+          y={hashLeftBox.y + 82}
+          fill="#22303d"
+          fontSize="24"
+          fontWeight="760"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          BC10CB48...B4A6DB57
+        </text>
+        <text
+          x={hashLeftBox.x + 18}
+          y={hashLeftBox.y + 122}
+          fill="rgba(34, 48, 61, 0.74)"
+          fontSize="18"
+          fontWeight="700"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          M-I1 / M-I2 复用同一 Hash
+        </text>
+      </g>
 
-      <text
-        x={hashRightBox.x + 18}
-        y={hashRightBox.y + 28}
-        fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="790"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        Hash 复用证据（Vulkan）
-      </text>
-      <text
-        x={hashRightBox.x + 18}
-        y={hashRightBox.y + 74}
-        fill="#22303d"
-        fontSize="24"
-        fontWeight="760"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        8DD283A7...E60A34B5
-      </text>
-      <text
-        x={hashRightBox.x + 18}
-        y={hashRightBox.y + 116}
-        fill="rgba(34, 48, 61, 0.74)"
-        fontSize="18"
-        fontWeight="700"
-        textAnchor="start"
-        dominantBaseline="middle"
-      >
-        共享模式命中同一套 Hash
-      </text>
+      <g data-testid="page09-hash-vulkan-box">
+        <StageBox
+          box={hashRightBox}
+          fill="rgba(255, 251, 246, 0.95)"
+          stroke={scene.nodeStroke}
+          strokeWidth={2.4}
+        />
+        <text
+          x={hashRightBox.x + 18}
+          y={hashRightBox.y + 34}
+          fill={scene.apiStroke}
+          fontSize="20"
+          fontWeight="790"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          Hash 复用证据（Vulkan）
+        </text>
+        <text
+          x={hashRightBox.x + 18}
+          y={hashRightBox.y + 82}
+          fill="#22303d"
+          fontSize="24"
+          fontWeight="760"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          8DD283A7...E60A34B5
+        </text>
+        <text
+          x={hashRightBox.x + 18}
+          y={hashRightBox.y + 122}
+          fill="rgba(34, 48, 61, 0.74)"
+          fontSize="18"
+          fontWeight="700"
+          textAnchor="start"
+          dominantBaseline="middle"
+        >
+          共享模式命中同一套 Hash
+        </text>
+      </g>
     </g>
   );
 }
@@ -2207,18 +2247,29 @@ function Page14Placeholder({
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          PSO = BSS + State
+          PSO = shaders + State
         </text>
         <text
           x={centerX(psoBox)}
-          y={psoBox.y + 100}
+          y={psoBox.y + 94}
           fill="rgba(34, 48, 61, 0.78)"
-          fontSize="18"
+          fontSize="19"
           fontWeight="730"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          BSS = VS Hash + PS Hash
+          shaders，又称 BSS
+        </text>
+        <text
+          x={centerX(psoBox)}
+          y={psoBox.y + 118}
+          fill="rgba(34, 48, 61, 0.7)"
+          fontSize="18"
+          fontWeight="700"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          Bound Shader State
         </text>
       </g>
       <g opacity={opacity * nodeReveal}>
@@ -2242,7 +2293,7 @@ function Page14Placeholder({
       </g>
       <StrokeArrow
         d={roundedPolylinePath(psoToGpuPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={opacity * routeReveal}
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
         tipX={runtimeGpuX - 72}
@@ -2255,7 +2306,7 @@ function Page14Placeholder({
       />
       <StrokeArrow
         d={roundedPolylinePath(psoToRecPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={opacity * routeReveal}
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
         dashArray="12 10"
@@ -2316,6 +2367,7 @@ function Page16Placeholder({
     resolveWindowProgress(entryProgress, 0.3, 0.94, easeOutQuint) *
     (1 - handoff);
   const sharedOpacity = opacity;
+  const questionOpacity = sharedOpacity * (1 - handoff * 0.98);
   const recOpacity = sharedOpacity * (1 - handoff * 0.98);
   const operationOpacity = sharedOpacity;
   const recBox = mixBox(REC_BOX, PAGE16_REC_TARGET_BOX, settle);
@@ -2416,12 +2468,12 @@ function Page16Placeholder({
         x={sharedCenter.x}
         y={sharedCenter.y}
         label="+"
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={operationOpacity}
       />
       <StrokeArrow
         d={roundedPolylinePath(recToExpandPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={recOpacity}
         headOpacity={revealHeadOpacity(routeReveal, recOpacity)}
         dashArray={revealDashArray(recToExpandPoints, routeReveal)}
@@ -2435,7 +2487,7 @@ function Page16Placeholder({
       />
       <StrokeArrow
         d={roundedPolylinePath(sclToExpandPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={sharedOpacity}
         headOpacity={revealHeadOpacity(routeReveal, sharedOpacity)}
         dashArray={revealDashArray(sclToExpandPoints, routeReveal)}
@@ -2449,7 +2501,7 @@ function Page16Placeholder({
       />
       <StrokeArrow
         d={roundedPolylinePath(expandToStablePcPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={operationOpacity}
         headOpacity={revealHeadOpacity(routeReveal, operationOpacity)}
         dashArray={revealDashArray(expandToStablePcPoints, routeReveal)}
@@ -2467,7 +2519,7 @@ function Page16Placeholder({
         width={108}
         height={28}
         label="expand"
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={operationOpacity}
       />
       <text
@@ -2737,12 +2789,12 @@ function Page17Placeholder({
         x={PAGE17_BUILD_CENTER.x}
         y={PAGE17_BUILD_CENTER.y}
         label="+"
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={opacity}
       />
       <StrokeArrow
         d={roundedPolylinePath(stablePcToBuildPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={sharedOpacity}
         headOpacity={revealHeadOpacity(routeReveal, sharedOpacity)}
         dashArray={revealDashArray(stablePcToBuildPoints, routeReveal)}
@@ -2756,7 +2808,7 @@ function Page17Placeholder({
       />
       <StrokeArrow
         d={roundedPolylinePath(sclToBuildPoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={sharedOpacity}
         headOpacity={revealHeadOpacity(routeReveal, sharedOpacity)}
         dashArray={revealDashArray(sclToBuildPoints, routeReveal)}
@@ -2770,7 +2822,7 @@ function Page17Placeholder({
       />
       <StrokeArrow
         d={roundedPolylinePath(buildToStablePoints)}
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={opacity}
         headOpacity={revealHeadOpacity(routeReveal, opacity)}
         dashArray={revealDashArray(buildToStablePoints, routeReveal)}
@@ -2788,7 +2840,7 @@ function Page17Placeholder({
         width={94}
         height={28}
         label="build"
-        stroke={scene.apiStroke}
+        stroke={LOOP_CLOUD_STROKE}
         opacity={opacity}
       />
       <text
@@ -2994,6 +3046,8 @@ function Page19Placeholder({
   const memoryOpacity =
     localOpacity * resolveWindowProgress(entryProgress, 0.28, 0.64, easeOutQuint);
   const diskOpacity = localOpacity * diskReveal;
+  const summaryOpacity =
+    localOpacity * resolveWindowProgress(entryProgress, 0.42, 0.9, easeOutQuint);
 
   const stableToGpuPoints = [
     {x: right(PAGE19_STABLE_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
@@ -3283,6 +3337,121 @@ function Page19Placeholder({
               lineGap={16}
               markGeometryText
             />
+          </g>
+        </g>
+
+        <g opacity={summaryOpacity}>
+          {[
+            {
+              geometryNodeId: "binary-note-1",
+              geometryNodeLabel: "Shader / State",
+              box: PAGE19_BINARY_NOTE_BOXES[0],
+              title: "Shader / State",
+              detailA: "内容一变，旧缓存就可能不再匹配。",
+              detailB: "binary / cache 不是稳定接口。",
+            },
+            {
+              geometryNodeId: "binary-note-2",
+              geometryNodeLabel: "codegen / 映射",
+              box: PAGE19_BINARY_NOTE_BOXES[1],
+              title: "codegen / 映射",
+              detailA: "SharedCode / Hash / scl 一变，就要重建。",
+              detailB: "旧 binary 只对应那次构建组合。",
+            },
+            {
+              geometryNodeId: "binary-note-3",
+              geometryNodeLabel: "OS / Driver / GPU / API",
+              box: PAGE19_BINARY_NOTE_BOXES[2],
+              title: "OS / Driver / GPU / API",
+              detailA: "环境一变，本地 binary 也可能立刻失效。",
+              detailB: "它只是某次平台组合的落盘形态。",
+            },
+          ].map((item, index) => (
+            <g
+              key={item.geometryNodeId}
+              data-geometry-node-id={item.geometryNodeId}
+              data-geometry-node-label={item.geometryNodeLabel}
+            >
+              <StageBox
+                box={item.box}
+                fill={index === 0 ? "rgba(255, 248, 240, 0.92)" : "rgba(255, 251, 246, 0.92)"}
+                stroke={index === 0 ? scene.apiStroke : "rgba(92, 106, 118, 0.32)"}
+                strokeWidth={index === 0 ? 2.1 : 1.8}
+                markGeometryBox
+              />
+              <text
+                x={item.box.x + 18}
+                y={item.box.y + 20}
+                fill={index === 0 ? scene.apiStroke : "#22303d"}
+                fontSize={item.title.length > 22 ? "15.5" : "17"}
+                fontWeight="820"
+                textAnchor="start"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {item.title}
+              </text>
+              <text
+                x={item.box.x + 18}
+                y={item.box.y + 43}
+                fill="rgba(34, 48, 61, 0.8)"
+                fontSize="14"
+                fontWeight="700"
+                textAnchor="start"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {item.detailA}
+              </text>
+              <text
+                x={item.box.x + 18}
+                y={item.box.y + 61}
+                fill="rgba(34, 48, 61, 0.66)"
+                fontSize="13"
+                fontWeight="660"
+                textAnchor="start"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {item.detailB}
+              </text>
+            </g>
+          ))}
+          <g
+            data-geometry-node-id="binary-archive2"
+            data-geometry-node-label="Metal Binary Archive 2"
+          >
+            <StageBox
+              box={PAGE19_BINARY_ARCHIVE2_BADGE}
+              fill="rgba(248, 236, 226, 0.94)"
+              stroke={scene.apiStroke}
+              strokeWidth={2.1}
+              markGeometryBox
+            />
+            <text
+              x={centerX(PAGE19_BINARY_ARCHIVE2_BADGE)}
+              y={PAGE19_BINARY_ARCHIVE2_BADGE.y + 13}
+              fill={scene.apiStroke}
+              fontSize="12.5"
+              fontWeight="820"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              Metal
+            </text>
+            <text
+              x={centerX(PAGE19_BINARY_ARCHIVE2_BADGE)}
+              y={PAGE19_BINARY_ARCHIVE2_BADGE.y + 29}
+              fill="#22303d"
+              fontSize="14"
+              fontWeight="800"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              Binary Archive 2 ?
+            </text>
           </g>
         </g>
 
@@ -3726,26 +3895,110 @@ function Page24StrategyPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 88, y: 142, width: 760, height: 430, radius: 28};
-  const rightCard1 = {x: 864, y: 142, width: 320, height: 130, radius: 24};
-  const rightCard2 = {x: 864, y: 286, width: 320, height: 130, radius: 24};
-  const rightCard3 = {x: 864, y: 430, width: 320, height: 144, radius: 24};
-  const tableTop = leftCard.y + 100;
-  const tableColumns = [
-    {label: "算法", x: leftCard.x + 22},
-    {label: "压缩率", x: leftCard.x + 188},
-    {label: "Windows 压/解", x: leftCard.x + 294},
-    {label: "macOS 压/解", x: leftCard.x + 458},
-    {label: "Android 解", x: leftCard.x + 612},
-    {label: "iOS 解", x: leftCard.x + 694},
+  const leftCard = {x: 44, y: 58, width: 520, height: 560, radius: 30};
+  const rightCard = {x: 588, y: 58, width: 648, height: 560, radius: 30};
+  const page24FooterBox = {x: 120, y: 628, width: 1040, height: 52, radius: 22};
+  const packageRows = [
+    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "LZ4"),
+    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "zstd"),
+    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "Oodle Leviathan"),
+  ].filter((row): row is (typeof COMPRESSION_SUMMARY_ROWS)[number] => Boolean(row));
+  const packageRowBoxes = packageRows.map((_, index) => ({
+    x: leftCard.x + 18,
+    y: leftCard.y + 82 + index * 140,
+    width: leftCard.width - 36,
+    height: 132,
+    radius: 24,
+  }));
+  const memoryHeaderBox = {
+    x: rightCard.x + 24,
+    y: rightCard.y + 72,
+    width: rightCard.width - 48,
+    height: 32,
+    radius: 16,
+  };
+  const memoryBox = {
+    x: rightCard.x + 28,
+    y: rightCard.y + 128,
+    width: 268,
+    height: 248,
+    radius: 24,
+  };
+  const diskBox = {
+    x: rightCard.x + 352,
+    y: rightCard.y + 128,
+    width: 268,
+    height: 248,
+    radius: 24,
+  };
+  const flowLaneBox = {
+    x: right(memoryBox) + 8,
+    y: memoryBox.y + 30,
+    width: diskBox.x - right(memoryBox) - 16,
+    height: 188,
+    radius: 22,
+  };
+  const memoryHotBox = {
+    x: memoryBox.x + 18,
+    y: memoryBox.y + 54,
+    width: 232,
+    height: 58,
+    radius: 18,
+  };
+  const memorySwapBox = {
+    x: memoryBox.x + 18,
+    y: memoryBox.y + 132,
+    width: 232,
+    height: 78,
+    radius: 18,
+  };
+  const diskMapBox = {
+    x: diskBox.x + 18,
+    y: diskBox.y + 54,
+    width: 232,
+    height: 58,
+    radius: 18,
+  };
+  const diskCarrierBox = {
+    x: diskBox.x + 18,
+    y: diskBox.y + 132,
+    width: 232,
+    height: 78,
+    radius: 18,
+  };
+  const memoryMethodCards = [
+    {
+      id: "memory-method-1",
+      title: "选取策略",
+      value: "LRU / Clock / Pin",
+      x: rightCard.x + 24,
+      width: 190,
+      accent: true,
+    },
+    {
+      id: "memory-method-2",
+      title: "回填路径",
+      value: "mmap / paging",
+      x: rightCard.x + 229,
+      width: 190,
+      accent: false,
+    },
+    {
+      id: "memory-method-3",
+      title: "外存载体",
+      value: "file / SQL / KV",
+      x: rightCard.x + 434,
+      width: 190,
+      accent: false,
+    },
   ] as const;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
         <g
-          data-geometry-node-id="table"
-          data-geometry-node-label="Compression Table"
+          data-geometry-node-id="left-card"
+          data-geometry-node-label="Package"
         >
           <StageBox
             box={leftCard}
@@ -3755,62 +4008,115 @@ function Page24StrategyPage({
             markGeometryBox
           />
           <text
-            x={leftCard.x + 20}
-            y={leftCard.y + 24}
+            x={leftCard.x + 18}
+            y={leftCard.y + 32}
             fill={scene.apiStroke}
-            fontSize="20"
-            fontWeight="820"
+            fontSize="31"
+            fontWeight="840"
             textAnchor="start"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            release/results 聚合实测：10 种算法 / 4 平台 / pso_like
+            包体
           </text>
           <text
-            x={right(leftCard) - 20}
-            y={leftCard.y + 48}
-            fill="rgba(34, 48, 61, 0.56)"
-            fontSize="13.5"
+            x={leftCard.x + 18}
+            y={leftCard.y + 62}
+            fill="rgba(34, 48, 61, 0.74)"
+            fontSize="18"
             fontWeight="760"
-            textAnchor="end"
+            textAnchor="start"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            单位：桌面 = 压/解(ms)；移动端 = 解压(ms)
+            ShaderCode 压缩
           </text>
-          {tableColumns.map((column) => (
-            <text
-              key={column.label}
-              x={column.x}
-              y={tableTop}
-              fill="rgba(34, 48, 61, 0.56)"
-              fontSize="14.5"
-              fontWeight="760"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              {column.label}
-            </text>
-          ))}
-          {COMPRESSION_SUMMARY_ROWS.map((row, index) => {
-            const y = tableTop + 30 + index * 25.5;
+          {packageRows.map((row, index) => {
+            const rowBox = packageRowBoxes[index];
+            const rowNodeId = `package-row-${index + 1}`;
+            const ratioBox = {
+              x: right(rowBox) - 126,
+              y: rowBox.y + 12,
+              width: 108,
+              height: 38,
+              radius: 19,
+            };
+            const algorithmMetaX =
+              row.algorithm === "Oodle Leviathan" ? rowBox.x + 230 : rowBox.x + 122;
+            const platformPills = [
+              {
+                id: `${rowNodeId}-windows`,
+                platform: "Windows",
+                value: row.windows,
+                label: `Windows ${row.windows}`,
+                box: {
+                  x: rowBox.x + 18,
+                  y: rowBox.y + 58,
+                  width: 216,
+                  height: 28,
+                  radius: 15,
+                },
+              },
+              {
+                id: `${rowNodeId}-macos`,
+                platform: "macOS",
+                value: row.macos,
+                label: `macOS ${row.macos}`,
+                box: {
+                  x: rowBox.x + 250,
+                  y: rowBox.y + 58,
+                  width: 216,
+                  height: 28,
+                  radius: 15,
+                },
+              },
+              {
+                id: `${rowNodeId}-android`,
+                platform: "Android",
+                value: row.android,
+                label: `Android ${row.android}`,
+                box: {
+                  x: rowBox.x + 18,
+                  y: rowBox.y + 92,
+                  width: 216,
+                  height: 28,
+                  radius: 15,
+                },
+              },
+              {
+                id: `${rowNodeId}-ios`,
+                platform: "iOS",
+                value: row.ios,
+                label: `iOS ${row.ios}`,
+                box: {
+                  x: rowBox.x + 250,
+                  y: rowBox.y + 92,
+                  width: 216,
+                  height: 28,
+                  radius: 15,
+                },
+              },
+            ] as const;
+
             return (
-              <g key={`${row.algorithm}-${index}`}>
-                <line
-                  x1={leftCard.x + 16}
-                  y1={y + 14}
-                  x2={right(leftCard) - 16}
-                  y2={y + 14}
-                  stroke="rgba(92, 106, 118, 0.12)"
-                  strokeWidth={1}
+              <g
+                key={row.algorithm}
+                data-geometry-node-id={rowNodeId}
+                data-geometry-node-label={row.algorithm}
+              >
+                <StageBox
+                  box={rowBox}
+                  fill={index === 0 ? "rgba(255, 248, 240, 0.96)" : "rgba(255, 251, 246, 0.95)"}
+                  stroke={index === 0 ? scene.apiStroke : "rgba(92, 106, 118, 0.32)"}
+                  strokeWidth={index === 0 ? 2.2 : 1.8}
+                  markGeometryBox
                 />
                 <text
-                  x={tableColumns[0].x}
-                  y={y}
+                  x={rowBox.x + 18}
+                  y={rowBox.y + 34}
                   fill="#22303d"
-                  fontSize="15.5"
-                  fontWeight="760"
+                  fontSize={row.algorithm === "Oodle Leviathan" ? "19" : "20"}
+                  fontWeight="820"
                   textAnchor="start"
                   dominantBaseline="middle"
                   data-geometry-node-text="1"
@@ -3818,151 +4124,378 @@ function Page24StrategyPage({
                   {row.algorithm}
                 </text>
                 <text
-                  x={tableColumns[1].x}
-                  y={y}
-                  fill="rgba(34, 48, 61, 0.76)"
-                  fontSize="15"
-                  fontWeight="680"
+                  x={algorithmMetaX}
+                  y={rowBox.y + 34}
+                  fill="rgba(92, 106, 118, 0.76)"
+                  fontSize="13.4"
+                  fontWeight="740"
                   textAnchor="start"
+                  dominantBaseline="middle"
+                  data-geometry-node-text="1"
+                >
+                  (压缩/)解压
+                </text>
+                <StageBox
+                  box={ratioBox}
+                  fill="rgba(248, 236, 226, 0.94)"
+                  stroke={scene.apiStroke}
+                  strokeWidth={1.8}
+                />
+                <text
+                  x={centerX(ratioBox)}
+                  y={centerY(ratioBox)}
+                  fill={scene.apiStroke}
+                  fontSize="19.5"
+                  fontWeight="820"
+                  textAnchor="middle"
                   dominantBaseline="middle"
                   data-geometry-node-text="1"
                 >
                   {row.ratio}
                 </text>
-                <text
-                  x={tableColumns[2].x}
-                  y={y}
-                  fill="rgba(34, 48, 61, 0.76)"
-                  fontSize="15"
-                  fontWeight="680"
-                  textAnchor="start"
-                  dominantBaseline="middle"
-                  data-geometry-node-text="1"
-                >
-                  {row.windows}
-                </text>
-                <text
-                  x={tableColumns[3].x}
-                  y={y}
-                  fill="rgba(34, 48, 61, 0.76)"
-                  fontSize="15"
-                  fontWeight="680"
-                  textAnchor="start"
-                  dominantBaseline="middle"
-                  data-geometry-node-text="1"
-                >
-                  {row.macos}
-                </text>
-                <text
-                  x={tableColumns[4].x}
-                  y={y}
-                  fill="rgba(34, 48, 61, 0.76)"
-                  fontSize="15"
-                  fontWeight="680"
-                  textAnchor="start"
-                  dominantBaseline="middle"
-                  data-geometry-node-text="1"
-                >
-                  {row.android}
-                </text>
-                <text
-                  x={tableColumns[5].x}
-                  y={y}
-                  fill="rgba(34, 48, 61, 0.76)"
-                  fontSize="15"
-                  fontWeight="680"
-                  textAnchor="start"
-                  dominantBaseline="middle"
-                  data-geometry-node-text="1"
-                >
-                  {row.ios}
-                </text>
+                {platformPills.map((pill) => (
+                  <g
+                    key={pill.id}
+                    data-geometry-node-id={pill.id}
+                    data-geometry-node-label={pill.label}
+                  >
+                    <StageBox
+                      box={pill.box}
+                      fill="rgba(255, 255, 255, 0.92)"
+                      stroke="rgba(92, 106, 118, 0.24)"
+                      strokeWidth={1.4}
+                      markGeometryBox
+                    />
+                    <text
+                      x={pill.box.x + 14}
+                      y={centerY(pill.box)}
+                      fill="#22303d"
+                      fontSize="13"
+                      fontWeight="760"
+                      textAnchor="start"
+                      dominantBaseline="middle"
+                      data-geometry-node-text="1"
+                    >
+                      {pill.platform}
+                    </text>
+                    <text
+                      x={right(pill.box) - 14}
+                      y={centerY(pill.box)}
+                      fill="#22303d"
+                      fontSize="13.2"
+                      fontWeight="780"
+                      textAnchor="end"
+                      dominantBaseline="middle"
+                      data-geometry-node-text="1"
+                    >
+                      {pill.value}
+                    </text>
+                  </g>
+                ))}
               </g>
             );
           })}
+        </g>
+        <g
+          data-geometry-node-id="right-card"
+          data-geometry-node-label="Memory"
+        >
+          <StageBox
+            box={rightCard}
+            fill="rgba(255, 255, 255, 0.92)"
+            stroke="rgba(92, 106, 118, 0.4)"
+            strokeWidth={2.1}
+            markGeometryBox
+          />
           <text
-            x={leftCard.x + 20}
-            y={leftCard.y + 392}
-            fill="rgba(34, 48, 61, 0.68)"
-            fontSize="15.5"
-            fontWeight="680"
+            x={rightCard.x + 18}
+            y={rightCard.y + 32}
+            fill={scene.apiStroke}
+            fontSize="31"
+            fontWeight="840"
             textAnchor="start"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            可以看到：压缩率高的算法并不一定压得快，但移动端解压通常仍然足够便宜。
+            内存
           </text>
-        </g>
-        <LateInfoCard
-          scene={scene}
-          box={rightCard1}
-          title="Compression"
-          lines={["直接改资源形态", "体积更小，", "但解压和恢复要额外付时间。"]}
-          opacity={panelOpacity}
-          geometryNodeId="card-1"
-          accent
-          compact
-          bodyFontSize={16}
-          lineGapOverride={19}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard2}
-          title="Precompute / Preload"
-          lines={["先占空间再换时间", "Lightmap、LUT、", "Precache 都属于这类。"]}
-          opacity={panelOpacity}
-          geometryNodeId="card-2"
-          compact
-          bodyFontSize={16}
-          lineGapOverride={19}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard3}
-          title="Algorithm"
-          lines={["改表示 / 改求解路径", ...STRATEGY_ALGORITHM_LINES]}
-          opacity={panelOpacity}
-          geometryNodeId="card-3"
-          compact
-          bodyFontSize={16}
-          lineGapOverride={20}
-        />
-        <g
-          data-geometry-node-id="link"
-          data-geometry-node-label={PAGE24_GDC_LINK_LABEL}
-        >
-          <g data-geometry-node-box="1">
-            <rect
-              x={rightCard3.x + 16}
-              y={576}
-              width={360}
-              height={26}
-              rx={6}
-              fill="transparent"
-              stroke="none"
+          <text
+            x={rightCard.x + 18}
+            y={rightCard.y + 62}
+            fill="rgba(34, 48, 61, 0.74)"
+            fontSize="18"
+            fontWeight="760"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            UE 中 PSO：LRU + mmap
+          </text>
+          <StageBox
+            box={memoryHeaderBox}
+            fill="rgba(250, 243, 236, 0.9)"
+            stroke="rgba(92, 106, 118, 0.18)"
+            strokeWidth={1.4}
+          />
+          <text
+            x={memoryHeaderBox.x + 92}
+            y={centerY(memoryHeaderBox)}
+            fill={scene.apiStroke}
+            fontSize="13"
+            fontWeight="780"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            驻留层
+          </text>
+          <text
+            x={centerX(memoryHeaderBox)}
+            y={centerY(memoryHeaderBox)}
+            fill={scene.apiStroke}
+            fontSize="13"
+            fontWeight="780"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            换出 / 回填
+          </text>
+          <text
+            x={right(memoryHeaderBox) - 100}
+            y={centerY(memoryHeaderBox)}
+            fill={scene.apiStroke}
+            fontSize="13"
+            fontWeight="780"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            映射 / 载体
+          </text>
+          <g data-geometry-node-id="memory" data-geometry-node-label="Memory Residency">
+            <StageBox
+              box={memoryBox}
+              fill="rgba(255, 248, 240, 0.9)"
+              stroke={scene.apiStroke}
+              strokeWidth={2.2}
+              markGeometryBox
             />
-          </g>
-          <a href={PAGE24_GDC_LINK_URL} target="_blank" rel="noreferrer">
             <text
-              x={rightCard3.x + 20}
-              y={587}
-              fill={scene.apiStroke}
-              fontSize="14"
-              fontWeight="760"
-              textAnchor="start"
+              x={centerX(memoryBox)}
+              y={memoryBox.y + 24}
+              fill="#22303d"
+              fontSize="19"
+              fontWeight="780"
+              textAnchor="middle"
               dominantBaseline="middle"
-              textDecoration="underline"
               data-geometry-node-text="1"
             >
-              {PAGE24_GDC_LINK_LABEL}
+              内存驻留区
             </text>
-          </a>
+            <StageBox
+              box={memoryHotBox}
+              fill="rgba(248, 236, 226, 0.96)"
+              stroke={scene.apiStroke}
+              strokeWidth={2.4}
+            />
+            <StageBox
+              box={memorySwapBox}
+              fill="rgba(255, 251, 246, 0.94)"
+              stroke="rgba(92, 106, 118, 0.42)"
+              strokeWidth={1.9}
+            />
+            <text
+              x={centerX(memoryHotBox)}
+              y={centerY(memoryHotBox)}
+              fill={scene.apiStroke}
+              fontSize="18.5"
+              fontWeight="760"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              高频常驻
+            </text>
+            <text
+              x={centerX(memorySwapBox)}
+              y={centerY(memorySwapBox)}
+              fill="#22303d"
+              fontSize="18"
+              fontWeight="740"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              可替换缓存
+            </text>
+          </g>
+          <g data-geometry-node-id="disk" data-geometry-node-label="External IO">
+            <StageBox
+              box={diskBox}
+              fill="rgba(249, 247, 244, 0.94)"
+              stroke="rgba(92, 106, 118, 0.42)"
+              strokeWidth={2}
+              markGeometryBox
+            />
+            <text
+              x={centerX(diskBox)}
+              y={diskBox.y + 24}
+              fill="#22303d"
+              fontSize="19"
+              fontWeight="780"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              外存 / IO
+            </text>
+            <StageBox
+              box={diskMapBox}
+              fill="rgba(255, 251, 246, 0.94)"
+              stroke="rgba(92, 106, 118, 0.42)"
+              strokeWidth={1.9}
+            />
+            <StageBox
+              box={diskCarrierBox}
+              fill="rgba(255, 251, 246, 0.94)"
+              stroke="rgba(92, 106, 118, 0.42)"
+              strokeWidth={1.9}
+            />
+            <text
+              x={centerX(diskMapBox)}
+              y={centerY(diskMapBox)}
+              fill="#22303d"
+              fontSize="18"
+              fontWeight="740"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              映射视图 / 虚拟内存
+            </text>
+            <text
+              x={centerX(diskCarrierBox)}
+              y={centerY(diskCarrierBox)}
+              fill="#22303d"
+              fontSize="18"
+              fontWeight="740"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              文件 / SQL / KV
+            </text>
+          </g>
+          <g data-geometry-node-id="flow-lane" data-geometry-node-label="Swap Lane">
+            <StageBox
+              box={flowLaneBox}
+              fill="rgba(255, 251, 246, 0.92)"
+              stroke="rgba(92, 106, 118, 0.24)"
+              strokeWidth={1.6}
+              markGeometryBox
+            />
+          </g>
+          {memoryMethodCards.map((card) => (
+            <g
+              key={card.id}
+              data-geometry-node-id={card.id}
+              data-geometry-node-label={card.title}
+            >
+              <StageBox
+                box={{
+                  x: card.x,
+                  y: rightCard.y + 414,
+                  width: card.width,
+                  height: 108,
+                  radius: 24,
+                }}
+                fill={card.accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 251, 246, 0.94)"}
+                stroke={card.accent ? scene.apiStroke : "rgba(92, 106, 118, 0.32)"}
+                strokeWidth={card.accent ? 2 : 1.7}
+                markGeometryBox
+              />
+              <text
+                x={card.x + 18}
+                y={rightCard.y + 442}
+                fill={card.accent ? scene.apiStroke : "#22303d"}
+                fontSize="14.5"
+                fontWeight="800"
+                textAnchor="start"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {card.title}
+              </text>
+              <text
+                x={centerX({x: card.x, width: card.width})}
+                y={rightCard.y + 486}
+                fill="#22303d"
+                fontSize={card.id === "memory-method-3" ? "15.5" : "16"}
+                fontWeight="760"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {card.value}
+              </text>
+            </g>
+          ))}
+          <StrokeArrow
+            d={horizontalPath(right(memoryBox) + 8, diskBox.x - 8, memoryBox.y + 92)}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            headOpacity={panelOpacity}
+            tipX={diskBox.x - 8}
+            tipY={memoryBox.y + 92}
+            direction="right"
+            shaftWidth={2.8}
+            underlayWidth={5.2}
+            headSize={7}
+          />
+          <StrokeArrow
+            d={horizontalPath(right(memoryBox) + 8, diskBox.x - 8, memoryBox.y + 178)}
+            stroke={scene.apiStroke}
+            opacity={panelOpacity}
+            headOpacity={panelOpacity}
+            tipX={right(memoryBox) + 8}
+            tipY={memoryBox.y + 178}
+            direction="left"
+            shaftWidth={2.8}
+            underlayWidth={5.2}
+            headSize={7}
+          />
+          <text
+            x={centerX(flowLaneBox)}
+            y={flowLaneBox.y + 52}
+            fill="rgba(34, 48, 61, 0.7)"
+            fontSize="15.5"
+            fontWeight="720"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            换出
+          </text>
+          <text
+            x={centerX(flowLaneBox)}
+            y={flowLaneBox.y + 134}
+            fill="rgba(34, 48, 61, 0.7)"
+            fontSize="15.5"
+            fontWeight="720"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            按需回填
+          </text>
         </g>
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="优化未必是发明新算法，也可能只是把时间和空间重新分配了一次。"
+          text="包体：ShaderCode 压缩；内存：UE 中 PSO 的 LRU + mmap。"
+          box={page24FooterBox}
         />
       </g>
     </PlaceholderBoardShell>
@@ -4269,23 +4802,32 @@ function Page26TimingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 96, y: 146, width: 640, height: 402, radius: 28};
-  const rightCard1 = {x: 760, y: 146, width: 356, height: 186, radius: 24};
-  const rightCard2 = {x: 760, y: 362, width: 356, height: 186, radius: 24};
-  const eventStrip = {x: leftCard.x + 24, y: leftCard.y + 58, width: 592, height: 92, radius: 22};
-  const eventCurrentBox = {x: eventStrip.x + 18, y: eventStrip.y + 28, width: 140, height: 46, radius: 15};
-  const eventDownloadBox = {x: eventStrip.x + 198, y: eventStrip.y + 28, width: 140, height: 46, radius: 15};
-  const eventCompileBox = {x: eventStrip.x + 378, y: eventStrip.y + 28, width: 196, height: 46, radius: 15};
-  const gameMaskBox = {x: leftCard.x + 24, y: leftCard.y + 168, width: 274, height: 148, radius: 22};
-  const compileMaskBox = {x: leftCard.x + 322, y: leftCard.y + 168, width: 294, height: 148, radius: 22};
-  const contextNote = {x: leftCard.x + 24, y: leftCard.y + 340, width: 592, height: 48, radius: 18};
+  const leftCard = {x: 84, y: 146, width: 556, height: 404, radius: 28};
+  const rightCard = {x: 658, y: 146, width: 538, height: 404, radius: 28};
+  const eventStrip = {x: leftCard.x + 24, y: leftCard.y + 58, width: 508, height: 84, radius: 22};
+  const eventCurrentBox = {x: eventStrip.x + 16, y: eventStrip.y + 24, width: 124, height: 44, radius: 15};
+  const eventDownloadBox = {x: eventStrip.x + 178, y: eventStrip.y + 24, width: 140, height: 44, radius: 15};
+  const eventCompileBox = {x: eventStrip.x + 350, y: eventStrip.y + 24, width: 140, height: 44, radius: 15};
+  const gameMaskBox = {x: leftCard.x + 24, y: leftCard.y + 168, width: 236, height: 124, radius: 22};
+  const compileMaskBox = {x: leftCard.x + 280, y: leftCard.y + 168, width: 236, height: 124, radius: 22};
+  const usageMaskNote = {x: leftCard.x + 24, y: leftCard.y + 316, width: 508, height: 74, radius: 18};
+  const parallelSignalA = {x: rightCard.x + 24, y: rightCard.y + 66, width: 200, height: 50, radius: 18};
+  const parallelSignalB = {x: rightCard.x + 244, y: rightCard.y + 66, width: 200, height: 50, radius: 18};
+  const queueBox = {x: rightCard.x + 34, y: rightCard.y + 164, width: 124, height: 136, radius: 22};
+  const workerBoxes = [
+    {x: rightCard.x + 238, y: rightCard.y + 158, width: 110, height: 44, radius: 16},
+    {x: rightCard.x + 238, y: rightCard.y + 210, width: 110, height: 44, radius: 16},
+    {x: rightCard.x + 238, y: rightCard.y + 262, width: 110, height: 44, radius: 16},
+  ];
+  const throughputBox = {x: rightCard.x + 386, y: rightCard.y + 186, width: 132, height: 92, radius: 22};
+  const parallelNote = {x: rightCard.x + 24, y: rightCard.y + 330, width: 490, height: 74, radius: 18};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
         <g
-          data-geometry-node-id="left-card"
-          data-geometry-node-label="Mask Decouple"
+          data-geometry-node-id="usage-mask-path"
+          data-geometry-node-label="Reduce Compile Set"
         >
           <StageBox
             box={leftCard}
@@ -4304,7 +4846,19 @@ function Page26TimingPage({
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            双 UsageMask：按地图调度编译
+            路径 1：减少编译集合
+          </text>
+          <text
+            x={leftCard.x + 18}
+            y={leftCard.y + 46}
+            fill="rgba(34, 48, 61, 0.72)"
+            fontSize="15"
+            fontWeight="700"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            按地图触发 + UsageMask，让“该编什么”先收缩。
           </text>
           <g
             data-geometry-node-id="event-strip"
@@ -4321,13 +4875,13 @@ function Page26TimingPage({
               x={eventStrip.x + 18}
               y={eventStrip.y + 18}
               fill={scene.apiStroke}
-              fontSize="16"
+              fontSize="15.5"
               fontWeight="800"
               textAnchor="start"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              1. 先看事件
+              事件入口
             </text>
             {[
               {
@@ -4340,7 +4894,7 @@ function Page26TimingPage({
               },
               {
                 box: eventCompileBox,
-                lines: ["开始编译", "地图 B 的 PSO"],
+                lines: ["触发", "编译"],
               },
             ].map((item, index) => (
               <g key={`page26-event-${index}`}>
@@ -4355,9 +4909,9 @@ function Page26TimingPage({
                   <text
                     key={`${line}-${lineIndex}`}
                     x={centerX(item.box)}
-                    y={item.box.y + 16 + lineIndex * 15}
+                    y={item.box.y + 15 + lineIndex * 14}
                     fill="#22303d"
-                    fontSize={lineIndex === 0 ? "15" : "17"}
+                    fontSize={lineIndex === 0 ? "14" : "16"}
                     fontWeight={lineIndex === 0 ? "760" : "820"}
                     textAnchor="middle"
                     dominantBaseline="middle"
@@ -4369,11 +4923,11 @@ function Page26TimingPage({
               </g>
             ))}
             <StrokeArrow
-              d={horizontalPath(right(eventCurrentBox) + 10, eventDownloadBox.x - 10, centerY(eventCurrentBox))}
+              d={horizontalPath(right(eventCurrentBox) + 8, eventDownloadBox.x - 8, centerY(eventCurrentBox))}
               stroke="rgba(92, 106, 118, 0.76)"
               opacity={panelOpacity}
               headOpacity={panelOpacity}
-              tipX={eventDownloadBox.x - 10}
+              tipX={eventDownloadBox.x - 8}
               tipY={centerY(eventCurrentBox)}
               direction="right"
               shaftWidth={2.4}
@@ -4381,11 +4935,11 @@ function Page26TimingPage({
               headSize={6.2}
             />
             <StrokeArrow
-              d={horizontalPath(right(eventDownloadBox) + 10, eventCompileBox.x - 10, centerY(eventDownloadBox))}
+              d={horizontalPath(right(eventDownloadBox) + 8, eventCompileBox.x - 8, centerY(eventDownloadBox))}
               stroke={scene.apiStroke}
               opacity={panelOpacity}
               headOpacity={panelOpacity}
-              tipX={eventCompileBox.x - 10}
+              tipX={eventCompileBox.x - 8}
               tipY={centerY(eventDownloadBox)}
               direction="right"
               shaftWidth={2.5}
@@ -4393,18 +4947,6 @@ function Page26TimingPage({
               headSize={6.6}
             />
           </g>
-          <text
-            x={leftCard.x + 24}
-            y={leftCard.y + 154}
-            fill="rgba(34, 48, 61, 0.72)"
-            fontSize="16"
-            fontWeight="780"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            2. 再看同一时刻的两个视角
-          </text>
           <g
             data-geometry-node-id="game-mask"
             data-geometry-node-label="Game Mask"
@@ -4420,7 +4962,7 @@ function Page26TimingPage({
               x={gameMaskBox.x + 20}
               y={gameMaskBox.y + 24}
               fill={scene.apiStroke}
-              fontSize="15"
+              fontSize="14.5"
               fontWeight="800"
               textAnchor="start"
               dominantBaseline="middle"
@@ -4428,42 +4970,25 @@ function Page26TimingPage({
             >
               当前游戏视角
             </text>
-            <text
+            <StackedLabel
               x={centerX(gameMaskBox)}
-              y={gameMaskBox.y + 62}
-              fill="#22303d"
-              fontSize="23"
-              fontWeight="820"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              Game UsageMask = A
-            </text>
-            <text
-              x={gameMaskBox.x + 20}
-              y={gameMaskBox.y + 98}
+              y={gameMaskBox.y + 60}
+              lines={["Game", "UsageMask = A"]}
+              fontSize={17.5}
+              fontWeight={820}
+              lineGap={20}
+              markGeometryText
+            />
+            <StackedLabel
+              x={centerX(gameMaskBox)}
+              y={gameMaskBox.y + 99}
+              lines={["只保留当前游戏", "真的在用的集合"]}
+              fontSize={13.5}
+              fontWeight={700}
+              lineGap={16}
               fill="rgba(34, 48, 61, 0.72)"
-              fontSize="16"
-              fontWeight="720"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              只表示当前游戏实际在用的地图。
-            </text>
-            <text
-              x={gameMaskBox.x + 20}
-              y={gameMaskBox.y + 120}
-              fill="rgba(34, 48, 61, 0.72)"
-              fontSize="16"
-              fontWeight="680"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              此时 B 还没进入当前游戏。
-            </text>
+              markGeometryText
+            />
           </g>
           <g
             data-geometry-node-id="compile-mask"
@@ -4480,7 +5005,7 @@ function Page26TimingPage({
               x={compileMaskBox.x + 20}
               y={compileMaskBox.y + 24}
               fill={scene.apiStroke}
-              fontSize="15"
+              fontSize="14.5"
               fontWeight="800"
               textAnchor="start"
               dominantBaseline="middle"
@@ -4488,116 +5013,311 @@ function Page26TimingPage({
             >
               编译调度视角
             </text>
-            <text
+            <StackedLabel
               x={centerX(compileMaskBox)}
-              y={compileMaskBox.y + 62}
-              fill="#22303d"
-              fontSize="22"
-              fontWeight="820"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              Compile UsageMask = A + B
-            </text>
-            <text
-              x={compileMaskBox.x + 20}
-              y={compileMaskBox.y + 98}
+              y={compileMaskBox.y + 60}
+              lines={["Compile", "UsageMask = A + B"]}
+              fontSize={17.5}
+              fontWeight={820}
+              lineGap={20}
+              markGeometryText
+            />
+            <StackedLabel
+              x={centerX(compileMaskBox)}
+              y={compileMaskBox.y + 99}
+              lines={["地图 B 下载完成后", "立刻把 B 加进调度"]}
+              fontSize={13.5}
+              fontWeight={700}
+              lineGap={16}
               fill="rgba(34, 48, 61, 0.72)"
-              fontSize="15.5"
-              fontWeight="720"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              地图 B 下载完成后，立刻把 B 加入编译调度。
-            </text>
-            <text
-              x={compileMaskBox.x + 20}
-              y={compileMaskBox.y + 120}
-              fill="rgba(34, 48, 61, 0.72)"
-              fontSize="15.5"
-              fontWeight="680"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              所以编译视角已经是 A + B。
-            </text>
+              markGeometryText
+            />
           </g>
           <g
-            data-geometry-node-id="context-note"
-            data-geometry-node-label="Two Views At Once"
+            data-geometry-node-id="usage-mask-note"
+            data-geometry-node-label="UsageMask Note"
           >
             <StageBox
-              box={contextNote}
+              box={usageMaskNote}
               fill="rgba(248, 236, 226, 0.92)"
               stroke={scene.apiStroke}
               strokeWidth={2}
               markGeometryBox
             />
             <text
-              x={centerX(contextNote)}
-              y={contextNote.y + 16}
+              x={usageMaskNote.x + 18}
+              y={usageMaskNote.y + 18}
               fill={scene.apiStroke}
-              fontSize="15.5"
+              fontSize="14.5"
               fontWeight="760"
-              textAnchor="middle"
+              textAnchor="start"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              同一时刻要同时表达两种视角：
+              UE 原生只有一套 UsageMask 语义；
             </text>
             <text
-              x={centerX(contextNote)}
-              y={contextNote.y + 31}
-              fill={scene.apiStroke}
-              fontSize="16"
-              fontWeight="720"
-              textAnchor="middle"
+              x={usageMaskNote.x + 18}
+              y={usageMaskNote.y + 38}
+              fill="rgba(34, 48, 61, 0.76)"
+              fontSize="13.5"
+              fontWeight="700"
+              textAnchor="start"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              当前游戏 = A；编译调度 = A + B
+              这里拆的是调度，不是两套存储。
+            </text>
+            <text
+              x={usageMaskNote.x + 18}
+              y={usageMaskNote.y + 57}
+              fill="rgba(34, 48, 61, 0.68)"
+              fontSize="13"
+              fontWeight="680"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              这条路优化的是“要编什么”，本质在减少编译集合。
             </text>
           </g>
         </g>
-        <LateInfoCard
-          scene={scene}
-          box={rightCard1}
-          title="3. 为什么 UE 原生不够"
-          lines={[
-            "原生 UsageMask 只有一套语义。",
-            "它很难同时表示：",
-            "当前游戏视角 + 下载完成后的编译调度视角。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="right-1"
-          compact
-          accent
-          bodyFontSize={15}
-          lineGapOverride={18}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard2}
-          title="4. 但 PSO 存储没变"
-          lines={[
-            "写回 PSO 时仍只有一种 UsageMask 表达。",
-            "拆开的只是调度语义。",
-            "不是两套 PSO，也不是两套持久化格式。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="right-2"
-          compact
-          bodyFontSize={15}
-          lineGapOverride={18}
-        />
+        <g
+          data-geometry-node-id="parallel-path"
+          data-geometry-node-label="Increase Throughput"
+        >
+          <StageBox
+            box={rightCard}
+            fill="rgba(255, 255, 255, 0.92)"
+            stroke="rgba(92, 106, 118, 0.4)"
+            strokeWidth={2.1}
+            markGeometryBox
+          />
+          <text
+            x={rightCard.x + 18}
+            y={rightCard.y + 24}
+            fill={scene.apiStroke}
+            fontSize="20"
+            fontWeight="820"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            路径 2：提升编译吞吐
+          </text>
+          <text
+            x={rightCard.x + 18}
+            y={rightCard.y + 46}
+            fill="rgba(34, 48, 61, 0.72)"
+            fontSize="15"
+            fontWeight="700"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            并行改的是执行方式，让“同样要编的集合”更快跑完。
+          </text>
+          {[
+            {
+              box: parallelSignalA,
+              id: "parallel-signal-a",
+              title: "任务独立",
+              detail: "批量、重复、可拆",
+              accent: true,
+            },
+            {
+              box: parallelSignalB,
+              id: "parallel-signal-b",
+              title: "纯 CPU 计算",
+              detail: "最适合直接拆 worker",
+              accent: false,
+            },
+          ].map((item) => (
+            <g
+              key={item.id}
+              data-geometry-node-id={item.id}
+              data-geometry-node-label={item.title}
+            >
+              <StageBox
+                box={item.box}
+                fill={item.accent ? "rgba(248, 236, 226, 0.94)" : "rgba(255, 251, 246, 0.94)"}
+                stroke={item.accent ? scene.apiStroke : "rgba(92, 106, 118, 0.34)"}
+                strokeWidth={item.accent ? 2.2 : 1.8}
+                markGeometryBox
+              />
+              <text
+                x={centerX(item.box)}
+                y={item.box.y + 18}
+                fill={item.accent ? scene.apiStroke : "#22303d"}
+                fontSize="17"
+                fontWeight="820"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {item.title}
+              </text>
+              <text
+                x={centerX(item.box)}
+                y={item.box.y + 34}
+                fill="rgba(34, 48, 61, 0.68)"
+                fontSize="13"
+                fontWeight="660"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {item.detail}
+              </text>
+            </g>
+          ))}
+          <g data-geometry-node-id="parallel-queue" data-geometry-node-label="Queue">
+            <StageBox
+              box={queueBox}
+              fill="rgba(255, 248, 240, 0.92)"
+              stroke={scene.apiStroke}
+              strokeWidth={2.2}
+              markGeometryBox
+            />
+            <StackedLabel
+              x={centerX(queueBox)}
+              y={centerY(queueBox)}
+              lines={["Task", "Queue"]}
+              fontSize={24}
+              fontWeight={780}
+              lineGap={20}
+              markGeometryText
+            />
+          </g>
+          {workerBoxes.map((box, index) => (
+            <g
+              key={`parallel-worker-${index}`}
+              data-geometry-node-id={`parallel-worker-${index + 1}`}
+              data-geometry-node-label={`Worker${index + 1}`}
+            >
+              <StageBox
+                box={box}
+                fill="rgba(249, 247, 244, 0.94)"
+                stroke="rgba(92, 106, 118, 0.4)"
+                strokeWidth={2}
+                markGeometryBox
+              />
+              <text
+                x={centerX(box)}
+                y={centerY(box)}
+                fill="#22303d"
+                fontSize="17"
+                fontWeight="760"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+              >
+                {`Worker ${index + 1}`}
+              </text>
+            </g>
+          ))}
+          <g data-geometry-node-id="parallel-throughput" data-geometry-node-label="More Throughput">
+            <StageBox
+              box={throughputBox}
+              fill="rgba(249, 247, 244, 0.94)"
+              stroke="rgba(92, 106, 118, 0.4)"
+              strokeWidth={2}
+              markGeometryBox
+            />
+            <StackedLabel
+              x={centerX(throughputBox)}
+              y={centerY(throughputBox)}
+              lines={["More", "Throughput"]}
+              fontSize={17}
+              fontWeight={780}
+              lineGap={17}
+              markGeometryText
+            />
+          </g>
+          {workerBoxes.map((box) => (
+            <StrokeArrow
+              key={`queue-arrow-${box.x}-${box.y}`}
+              d={horizontalPath(right(queueBox) + 8, box.x - 8, centerY(box))}
+              stroke={scene.apiStroke}
+              opacity={panelOpacity}
+              headOpacity={panelOpacity}
+              tipX={box.x - 8}
+              tipY={centerY(box)}
+              direction="right"
+              shaftWidth={2.5}
+              underlayWidth={4.8}
+              headSize={6.6}
+            />
+          ))}
+          {workerBoxes.map((box) => (
+            <StrokeArrow
+              key={`throughput-arrow-${box.x}-${box.y}`}
+              d={horizontalPath(right(box) + 8, throughputBox.x - 8, centerY(box))}
+              stroke="rgba(92, 106, 118, 0.74)"
+              opacity={panelOpacity}
+              headOpacity={panelOpacity}
+              tipX={throughputBox.x - 8}
+              tipY={centerY(box)}
+              direction="right"
+              shaftWidth={2.4}
+              underlayWidth={4.4}
+              headSize={6.4}
+            />
+          ))}
+          <g
+            data-geometry-node-id="parallel-note"
+            data-geometry-node-label="Parallel Note"
+          >
+            <StageBox
+              box={parallelNote}
+              fill="rgba(255, 251, 246, 0.94)"
+              stroke="rgba(92, 106, 118, 0.32)"
+              strokeWidth={1.9}
+              markGeometryBox
+            />
+            <text
+              x={parallelNote.x + 18}
+              y={parallelNote.y + 18}
+              fill="#22303d"
+              fontSize="14.5"
+              fontWeight="760"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              并行改的是执行方式，
+            </text>
+            <text
+              x={parallelNote.x + 18}
+              y={parallelNote.y + 38}
+              fill="rgba(34, 48, 61, 0.72)"
+              fontSize="13.5"
+              fontWeight="690"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              不是把 UsageMask 讲成另一个东西。
+            </text>
+            <text
+              x={parallelNote.x + 18}
+              y={parallelNote.y + 57}
+              fill="rgba(34, 48, 61, 0.66)"
+              fontSize="13"
+              fontWeight="670"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              同样目标下，一条路减集合，一条路提吞吐。
+            </text>
+          </g>
+        </g>
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="结论：拆的是调度语义，不是 PSO 的持久化格式。"
+          text="UsageMask 减少集合，并行提升吞吐；两个不是同一个内容，但都在优化预编译速度。"
         />
       </g>
     </PlaceholderBoardShell>
@@ -4890,9 +5610,23 @@ function Page28GovernanceSurfacePage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const sampleAImage = {x: 96, y: 172, width: 500, height: 148, radius: 18};
-  const sampleBImage = {x: 96, y: 348, width: 500, height: 148, radius: 18};
-  const rightCard = {x: 608, y: 160, width: 574, height: 390, radius: 24};
+  const sampleAImage = {x: 96, y: 92, width: 500, height: 136, radius: 18};
+  const sampleBImage = {x: 96, y: 252, width: 500, height: 136, radius: 18};
+  const vertexBufferInset = {x: 96, y: 408, width: 500, height: 182, radius: 16};
+  const vertexBufferBadge = {
+    x: vertexBufferInset.x + 12,
+    y: vertexBufferInset.y + 12,
+    width: 104,
+    height: 24,
+    radius: 12,
+  };
+  const rightCard = {
+    x: 608,
+    y: 92,
+    width: 574,
+    height: vertexBufferInset.y + vertexBufferInset.height - 92,
+    radius: 24,
+  };
   const shaderBox = {x: rightCard.x + 24, y: rightCard.y + 72, width: 526, height: 54, radius: 18};
   const stateBoxes = [
     {
@@ -4954,6 +5688,41 @@ function Page28GovernanceSurfacePage({
           preserveAspectRatio="xMidYMid meet"
           titleFontSize={17}
         />
+        <g
+          opacity={panelOpacity}
+          data-geometry-node-id="image-3"
+          data-geometry-node-label="VertexBuffer"
+        >
+          <FramedImage
+            box={vertexBufferInset}
+            href="/supplement/VertexBuffer.png"
+            clipId="page28-vertex-buffer"
+            dataTestId="page28-vertex-buffer-image"
+            markGeometryBox
+          />
+          <rect
+            x={vertexBufferBadge.x}
+            y={vertexBufferBadge.y}
+            width={vertexBufferBadge.width}
+            height={vertexBufferBadge.height}
+            rx={vertexBufferBadge.radius}
+            fill="rgba(255, 255, 255, 0.88)"
+            stroke="rgba(92, 106, 118, 0.24)"
+            strokeWidth="1"
+          />
+          <text
+            x={vertexBufferBadge.x + vertexBufferBadge.width / 2}
+            y={vertexBufferBadge.y + vertexBufferBadge.height / 2 + 0.5}
+            fill={scene.apiStroke}
+            fontSize="12.8"
+            fontWeight="820"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            VertexBuffer
+          </text>
+        </g>
         <g
           data-geometry-node-id="right-card"
           data-geometry-node-label="PSOState"
@@ -5084,8 +5853,17 @@ function Page29GovernanceSourcePage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCode = {x: 88, y: 140, width: 504, height: 440, radius: 26};
-  const rightCode = {x: 610, y: 140, width: 538, height: 440, radius: 26};
+  const leftCode = {x: 72, y: 132, width: 520, height: 286, radius: 24};
+  const rightCode = {x: 610, y: 132, width: 584, height: 286, radius: 24};
+  const leftImage = {x: leftCode.x, y: 446, width: leftCode.width, height: 222, radius: 16};
+  const rightImage = {
+    x: rightCode.x,
+    y: 446,
+    width: rightCode.width,
+    height: 232,
+    radius: 16,
+  };
+  const footerBox = {x: 120, y: 688, width: 1040, height: 54, radius: 22};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -5097,9 +5875,9 @@ function Page29GovernanceSourcePage({
           lines={VERTEX_DESCRIPTOR_CODE_LINES}
           opacity={panelOpacity}
           geometryNodeId="left-code"
-          titleFontSize={19}
+          titleFontSize={20}
           codeFontSize={15}
-          lineHeight={25}
+          lineHeight={19.2}
         />
         <LateCodeCard
           scene={scene}
@@ -5108,15 +5886,42 @@ function Page29GovernanceSourcePage({
           lines={LOCAL_VERTEX_FACTORY_CODE_LINES}
           opacity={panelOpacity}
           geometryNodeId="right-code"
-          titleFontSize={19}
-          codeFontSize={15.5}
-          lineHeight={25}
+          titleFontSize={20}
+          codeFontSize={13.8}
+          lineHeight={15.4}
+        />
+        <LateBareImage
+          scene={scene}
+          box={leftImage}
+          title="NUM_MATERIAL_TEXCOORDS_VERTEX = 1"
+          href="/supplement/ogl-mtl/uv-stride4-ia.png"
+          clipId="page29-uv4"
+          opacity={panelOpacity}
+          geometryNodeId="left-image"
+          geometryNodeLabel="UVStride4IA"
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={15.8}
+          titleAlign="center"
+        />
+        <LateBareImage
+          scene={scene}
+          box={rightImage}
+          title="NUM_MATERIAL_TEXCOORDS_VERTEX = 2"
+          href="/supplement/ogl-mtl/uv-stride8-ia.png"
+          clipId="page29-uv8"
+          opacity={panelOpacity}
+          geometryNodeId="right-image"
+          geometryNodeLabel="UVStride8IA"
+          preserveAspectRatio="xMidYMid meet"
+          titleFontSize={15.8}
+          titleAlign="center"
         />
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
-          text="同一个 material，不代表同一个 PSO。"
+          text="同一个Material作用于不同的Mesh也会产生不同的PSO"
+          box={footerBox}
         />
       </g>
     </PlaceholderBoardShell>
@@ -7085,7 +7890,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               />
               <StrokeArrow
                 d={roundedPolylinePath(cookToSplitPoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={cookCarrierOpacity}
                 headOpacity={revealHeadOpacity(cookMainReveal, cookCarrierOpacity)}
                 dashArray={revealDashArray(cookToSplitPoints, cookMainReveal)}
@@ -7099,7 +7904,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <text
                 x={(centerX(COMPUTER_BOX) + (SPLIT_CENTER.x - 8)) / 2}
                 y={SPLIT_CENTER.y - 28}
-                fill={scene.apiStroke}
+                fill={LOOP_CLOUD_STROKE}
                 fontSize="24"
                 fontWeight="760"
                 textAnchor="middle"
@@ -7109,7 +7914,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               </text>
               <StrokeArrow
                 d={roundedPolylinePath(splitToSclPoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={cookCarrierOpacity}
                 headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
                 dashArray={revealDashArray(splitToSclPoints, cookBranchReveal)}
@@ -7122,7 +7927,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               />
               <StrokeArrow
                 d={roundedPolylinePath(splitToBytecodePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={cookCarrierOpacity}
                 headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
                 dashArray={revealDashArray(splitToBytecodePoints, cookBranchReveal)}
@@ -7138,6 +7943,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
 
           {bytecodeToPhoneCarrierOpacity > 0.001 && page13Reveal > 0.001 ? (
             <StrokeArrow
+              testId="page13-bytecode-to-phone-arrow"
               d={roundedPolylinePath(bytecodeToPhonePoints)}
               stroke={scene.apiStroke}
               opacity={bytecodeToPhoneCarrierOpacity}
@@ -7173,7 +7979,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                 <StrokeArrow
                   testId="page14-phone-to-rec-arrow"
                   d={roundedPolylinePath(recPhoneToRecPoints)}
-                  stroke={scene.apiStroke}
+                  stroke={LOOP_CLOUD_STROKE}
                   opacity={recGeometryOpacity}
                   headOpacity={revealHeadOpacity(recEdge1Reveal, recGeometryOpacity)}
                   dashArray={revealDashArray(recPhoneToRecPoints, recEdge1Reveal)}
@@ -7187,8 +7993,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               ) : null}
               {recEdge2Reveal > 0.001 ? (
                 <StrokeArrow
+                  testId="page15-rec-to-computer-arrow"
                   d={roundedPolylinePath(recToComputerPoints)}
-                  stroke={scene.apiStroke}
+                  stroke={LOOP_CLOUD_STROKE}
                   opacity={recGeometryOpacity}
                   headOpacity={revealHeadOpacity(recEdge2Reveal, recGeometryOpacity)}
                   dashArray={revealDashArray(recToComputerPoints, recEdge2Reveal)}
@@ -7277,7 +8084,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 testId="page15-expand-to-merge-arrow"
                 d={roundedPolylinePath(stableExpandToMergePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableEdge1Opacity}
                 headOpacity={revealHeadOpacity(
                   stableEdge1Reveal,
@@ -7296,7 +8103,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   (PAGE15_EXPAND_MERGE_CENTER.x + 18 + (stageStablePcBox.x - 10)) / 2
                 }
                 y={PAGE15_EXPAND_MERGE_CENTER.y - 24}
-                fill={scene.apiStroke}
+                fill={LOOP_CLOUD_STROKE}
                 fontSize="24"
                 fontWeight="760"
                 textAnchor="middle"
@@ -7307,7 +8114,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 testId="page15-expand-merge-to-stablepc-arrow"
                 d={roundedPolylinePath(stableExpandMergeToStablePcPoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableEdge2Opacity}
                 headOpacity={revealHeadOpacity(
                   stableEdge2Reveal,
@@ -7327,7 +8134,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 testId="page15-scl-to-expand-merge-arrow"
                 d={roundedPolylinePath(sclToExpandMergePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableSupportEdge1Opacity}
                 headOpacity={revealHeadOpacity(
                   stableSupportEdge1Reveal,
@@ -7343,7 +8150,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               />
               <StrokeArrow
                 d={roundedPolylinePath(stablePcToMergePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableEdge3Opacity}
                 headOpacity={revealHeadOpacity(
                   stableEdge3Reveal,
@@ -7360,7 +8167,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 testId="page15-scl-to-merge-arrow"
                 d={roundedPolylinePath(sclToMergePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableSupportEdge2Opacity}
                 headOpacity={revealHeadOpacity(
                   stableSupportEdge2Reveal,
@@ -7377,7 +8184,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               <StrokeArrow
                 testId="page15-merge-to-stable-arrow"
                 d={roundedPolylinePath(mergeToStablePoints)}
-                stroke={scene.apiStroke}
+                stroke={LOOP_CLOUD_STROKE}
                 opacity={stableEdge4Opacity}
                 headOpacity={revealHeadOpacity(
                   stableEdge4Reveal,

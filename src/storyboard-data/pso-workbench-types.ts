@@ -4,6 +4,7 @@ export type VariantId =
   | "shared-focus";
 
 export type StoryStepId =
+  | "page_00"
   | "page_01"
   | "page_02"
   | "page_03"
@@ -66,6 +67,7 @@ export type StoryStep = {
   caption: string;
   notes: string;
   keyPoints?: string[];
+  objectiveFacts?: string[];
   apiHighlights?: string[];
   relatedLinks?: StoryLink[];
   focusTarget: string;

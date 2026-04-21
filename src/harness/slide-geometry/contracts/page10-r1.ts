@@ -72,6 +72,7 @@ export const page10R1Sketch: GeometrySketchDefinition = {
       width: COOK_SPLIT.width,
       height: COOK_SPLIT.height,
       tone: "muted",
+      shape: "circle",
     },
     {
       id: "shaderbytecode",
@@ -167,14 +168,14 @@ export const page10R1Sketch: GeometrySketchDefinition = {
     },
     {
       id: "shaderbytecode-to-runtime",
-      from: {x: right(BYTECODE) + 10, y: cy(BYTECODE)},
-      to: {x: RUNTIME.x - 10, y: cy(VERTEX_DATA)},
+      from: {x: right(BYTECODE), y: cy(BYTECODE)},
+      to: {x: RUNTIME.x, y: cy(VERTEX_DATA)},
       tone: "support",
     },
     {
       id: "scl-csv-to-runtime",
-      from: {x: right(SCL) + 10, y: cy(SCL)},
-      to: {x: RUNTIME.x - 10, y: cy(PIXELS)},
+      from: {x: right(SCL), y: cy(SCL)},
+      to: {x: RUNTIME.x, y: cy(PIXELS)},
       tone: "support",
     },
     {

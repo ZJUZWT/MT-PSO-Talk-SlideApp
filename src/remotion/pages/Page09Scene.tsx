@@ -145,10 +145,10 @@ export function Page09Scene({scene}: {scene: SceneModel}) {
                   fill={assetFill}
                   stroke={assetStroke}
                   strokeWidth={2.2}
-                  tone="asset"
                   label={label}
                   labelSize={17.2}
                   labelWeight={710}
+                  tone="asset"
                 />
               </g>
             );

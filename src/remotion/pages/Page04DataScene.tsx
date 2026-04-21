@@ -15,6 +15,18 @@ export type Page04DataOverlayState = {
   scale: number;
 };
 
+type Page04DataRow = {
+  key: string;
+  group: "OpenGL" | "Vulkan";
+  label: string;
+  api: string;
+  min: string;
+  max: string;
+  avg: string;
+  avgIsHighCost?: boolean;
+  apiNote?: string;
+};
+
 export function resolvePage04DataOverlayState(
   frame: number,
 ): Page04DataOverlayState | null {
@@ -80,43 +92,57 @@ export function Page04DataScene({frame}: {frame: number}) {
   }
 
   const {overlayOpacity, scale} = progress;
-  const rows = [
+  const rows: readonly Page04DataRow[] = [
     {
+      key: "compile",
       group: "OpenGL",
+      label: "Compile (glCompileShader)",
       api: "glCompileShader",
       min: "0.396 / 0.470",
       max: "19.797 / 85.457",
-      avg: "3.631 / 7.675",
+      avg: "7.262 / 15.350",
+      avgIsHighCost: true,
+      apiNote: "x2",
     },
     {
+      key: "link",
       group: "OpenGL",
+      label: "Link (glLinkProgram)",
       api: "glLinkProgram",
       min: "1.059 / 0.125",
       max: "30.576 / 66.751",
       avg: "7.572 / 13.722",
+      avgIsHighCost: true,
     },
     {
+      key: "bind-program",
       group: "OpenGL",
+      label: "Bind (BindProgramPipeline)",
       api: "BindProgramPipeline",
       min: "0.000 / 0.000",
       max: "1.293 / 0.757",
       avg: "0.003 / 0.004",
     },
     {
+      key: "create",
       group: "Vulkan",
+      label: "Create (CreateGfxPipeline)",
       api: "CreateGfxPipeline",
       min: "0.052 / 0.089",
       max: "59.581 / 122.600",
       avg: "13.968 / 23.243",
+      avgIsHighCost: true,
     },
     {
+      key: "bind-pipeline",
       group: "Vulkan",
+      label: "Bind (BindGfxPipeline)",
       api: "BindGfxPipeline",
       min: "0.000 / 0.000",
       max: "0.472 / 0.583",
       avg: "0.001 / 0.004",
     },
-  ] as const;
+  ];
   const tableWidth = 1200;
   const table = {
     x: (VIEWBOX.width - tableWidth) / 2,
@@ -133,6 +159,7 @@ export function Page04DataScene({frame}: {frame: number}) {
   const colMin = colApi + valueColWidth;
   const colMax = colMin + valueColWidth;
   const headerY = table.y + headerHeight;
+  const avgColumnRight = table.x + table.width;
   const rowCenter = (index: number) => headerY + rowHeight * index + rowHeight / 2;
 
   return (
@@ -141,6 +168,17 @@ export function Page04DataScene({frame}: {frame: number}) {
       opacity={overlayOpacity}
       transform={`translate(${VIEWBOX.width / 2} ${VIEWBOX.height / 2}) scale(${scale}) translate(${-VIEWBOX.width / 2} ${-VIEWBOX.height / 2})`}
     >
+      <text
+        x={VIEWBOX.width / 2}
+        y={54}
+        fill="#22303d"
+        fontSize="30"
+        fontWeight="790"
+        textAnchor="middle"
+        dominantBaseline="middle"
+      >
+        OpenGL / Vulkan 耗时对比表
+      </text>
       <text
         x={VIEWBOX.width / 2}
         y={88}
@@ -289,8 +327,10 @@ export function Page04DataScene({frame}: {frame: number}) {
       {rows.map((row, idx) => {
         const y = rowCenter(idx);
         const rowColor = row.group === "OpenGL" ? "#3e5870" : "#6a3a25";
+        const avgMarkerCx = avgColumnRight - 20;
+        const apiNoteX = colApi - 28;
         return (
-          <g key={row.api}>
+          <g key={row.key}>
             <text
               x={table.x + (colApi - table.x) / 2}
               y={y}
@@ -300,8 +340,33 @@ export function Page04DataScene({frame}: {frame: number}) {
               textAnchor="middle"
               dominantBaseline="middle"
             >
-              {row.group} · {row.api}
+              {row.label}
             </text>
+            {row.apiNote ? (
+              <g data-testid="page4-data-compile-x2-note">
+                <rect
+                  x={apiNoteX - 14}
+                  y={y - 12}
+                  width="28"
+                  height="20"
+                  rx="10"
+                  fill="rgba(255, 0, 0, 0.1)"
+                  stroke="#ff0000"
+                  strokeWidth="1.6"
+                />
+                <text
+                  x={apiNoteX}
+                  y={y - 1}
+                  fill="#ff0000"
+                  fontSize="12"
+                  fontWeight="800"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  {row.apiNote}
+                </text>
+              </g>
+            ) : null}
             <text
               x={colApi + 16}
               y={y}
@@ -332,6 +397,29 @@ export function Page04DataScene({frame}: {frame: number}) {
             >
               {row.avg}
             </text>
+            {row.avgIsHighCost ? (
+              <g data-testid="page4-data-high-cost-marker" data-row-key={row.key}>
+                <circle
+                  cx={avgMarkerCx}
+                  cy={y}
+                  r="10"
+                  fill="rgba(255, 0, 0, 0.12)"
+                  stroke="#ff0000"
+                  strokeWidth="1.8"
+                />
+                <text
+                  x={avgMarkerCx}
+                  y={y - 0.5}
+                  fill="#ff0000"
+                  fontSize="13"
+                  fontWeight="820"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                >
+                  !
+                </text>
+              </g>
+            ) : null}
           </g>
         );
       })}

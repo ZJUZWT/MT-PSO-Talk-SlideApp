@@ -335,12 +335,13 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   };
   const page3WorkflowFrameOpacity =
     upperNodeOpacity * clamp01(1 - settledPage34Progress / 0.28);
+  const page3WorkflowFrameLeftX = 52;
   const page3WorkflowFrameBox = {
-    x: shaderCodeBox.x - 22,
+    x: page3WorkflowFrameLeftX,
     y: shaderCodeBox.y - 18,
     width:
       Math.max(page3ProgramBox.x + page3ProgramBox.width, shaderBinaryBox.x + shaderBinaryBox.width) -
-      (shaderCodeBox.x - 22) +
+      page3WorkflowFrameLeftX +
       22,
     height: boxBottom(page3ProgramBox) - (shaderCodeBox.y - 18) + 18,
   };

@@ -16,6 +16,7 @@ export function Page04Scene({scene}: {scene: SceneModel}) {
     depthCenterX,
     depthLineStartY,
     focusFill,
+    issueStroke,
     neutralFill,
     nodeStroke,
     page4CreateOpacity,
@@ -158,8 +159,9 @@ export function Page04Scene({scene}: {scene: SceneModel}) {
           </g>
 
           <StrokeArrow
+            testId="page4-create-arrow"
             d={verticalPath(psoCenterX, descriptionToPsoStartY, psoTipY)}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={page4CreateOpacity}
             tipX={psoCenterX}
             tipY={psoTipY}
@@ -170,10 +172,11 @@ export function Page04Scene({scene}: {scene: SceneModel}) {
             headSize={10}
           />
           <ApiBadge
+            testId="page4-create-badge"
             x={psoCenterX - 18}
             y={mix(descriptionToPsoStartY, psoTipY, 0.44)}
             id={1}
-            stroke={apiStroke}
+            stroke={issueStroke}
             opacity={page4CreateOpacity}
           />
 

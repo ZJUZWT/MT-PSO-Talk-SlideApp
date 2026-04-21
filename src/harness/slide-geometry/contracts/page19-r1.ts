@@ -8,17 +8,17 @@ export const page19R1Sketch: GeometrySketchDefinition = {
   stepId: "page_19",
   contract: {
     pageGoal:
-      "Explain how stable.upipelinecache holds the UE PSO subtree, passes through the page14-style GPU spine, and lands in API-specific memory and disk cache forms.",
+      "Explain how stable.upipelinecache holds the UE PSO subtree, passes through the GPU spine, lands in API-specific memory and disk cache forms, and closes with three binary-instability notes.",
     receiverPlane:
-      "Single merged stage with one strong left tree, one centered GPU spine, and one API cache comparison on the right.",
+      "Single merged stage with one strong left tree, one centered GPU spine, one API cache comparison on the right, and a three-note binary boundary row at the bottom.",
     primaryLine:
       "stable.upipelinecache(UE PSO children) -> GPU -> 内存中 PSO -> 硬盘中的 PSO",
     keepStable:
-      "Keep the GPU carrier vertically centered like page14 and keep the right-side memory/disk groups aligned after they shift left.",
+      "Keep the GPU carrier vertically centered and keep the right-side memory/disk groups aligned before the binary note row enters.",
     newChange:
-      "Fold the UE PSO stack into the stable parent container so the recovered width can reopen the right-side breathing room.",
+      "Add three bottom notes and one Metal Binary Archive 2 badge so the page itself finishes the binary instability point.",
     doNot:
-      "Do not flatten the left tree back into two horizontal columns or break the approved right-side API comparison.",
+      "Do not flatten the left tree back into two horizontal columns or turn the binary boundary explanation back into one thin strip.",
   },
   nodes: [
     {
@@ -195,6 +195,57 @@ export const page19R1Sketch: GeometrySketchDefinition = {
       renderStyle: "outline",
       labelLines: ["BinaryArchive", "functions.data"],
       fontSizeOverride: 18,
+    },
+    {
+      id: "binary-note-1",
+      label: "Shader / State",
+      x: 92,
+      y: 596,
+      width: 348,
+      height: 78,
+      textRuns: [
+        {text: "Shader / State", x: 18, y: 20, fontSize: 17, fontWeight: 820},
+        {text: "内容一变，旧缓存就可能不再匹配。", x: 18, y: 43, fontSize: 14, fontWeight: 700},
+        {text: "binary / cache 不是稳定接口。", x: 18, y: 61, fontSize: 13, fontWeight: 660},
+      ],
+    },
+    {
+      id: "binary-note-2",
+      label: "codegen / 映射",
+      x: 466,
+      y: 596,
+      width: 348,
+      height: 78,
+      textRuns: [
+        {text: "codegen / 映射", x: 18, y: 20, fontSize: 17, fontWeight: 820},
+        {text: "SharedCode / Hash / scl 一变，就要重建。", x: 18, y: 43, fontSize: 14, fontWeight: 700},
+        {text: "旧 binary 只对应那次构建组合。", x: 18, y: 61, fontSize: 13, fontWeight: 660},
+      ],
+    },
+    {
+      id: "binary-note-3",
+      label: "OS / Driver / GPU / API",
+      x: 840,
+      y: 596,
+      width: 348,
+      height: 78,
+      textRuns: [
+        {text: "OS / Driver / GPU / API", x: 18, y: 20, fontSize: 16, fontWeight: 820},
+        {text: "环境一变，本地 binary 也可能立刻失效。", x: 18, y: 43, fontSize: 13.5, fontWeight: 700},
+        {text: "它只是某次平台组合的落盘形态。", x: 18, y: 61, fontSize: 13, fontWeight: 660},
+      ],
+    },
+    {
+      id: "binary-archive2",
+      label: "Metal Binary Archive 2 ?",
+      x: 1038,
+      y: 96,
+      width: 166,
+      height: 44,
+      textRuns: [
+        {text: "Metal", x: 83, y: 13, fontSize: 12.5, fontWeight: 820, textAnchor: "middle"},
+        {text: "Binary Archive 2 ?", x: 83, y: 29, fontSize: 14, fontWeight: 800, textAnchor: "middle"},
+      ],
     },
   ],
   edges: [

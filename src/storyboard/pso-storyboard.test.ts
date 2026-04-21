@@ -1,9 +1,11 @@
 import {describe, expect, it} from "vitest";
 import {masterStoryboard} from "../storyboard-data/pso-storyboard";
+import {DEFAULT_STEP_ID} from "../state/useWorkbenchState";
 
 describe("masterStoryboard", () => {
   it("locks the canonical reset step order", () => {
     expect(masterStoryboard.steps.map((step) => step.id)).toEqual([
+      "page_00",
       "page_01",
       "page_02",
       "page_03",
@@ -43,6 +45,41 @@ describe("masterStoryboard", () => {
     ]);
   });
 
+  it("opens on the new opening question page and keeps it in session 1", () => {
+    expect(DEFAULT_STEP_ID).toBe("page_00");
+    expect(
+      masterStoryboard.sessions?.find((session) => session.id === "s1-foundation")
+        ?.stepIds,
+    ).toEqual([
+      "page_00",
+      "page_01",
+      "page_02",
+      "page_03",
+      "page_04",
+      "page_04_data",
+    ]);
+  });
+
+  it("keeps page 00 image-led with one aligned after image and two focused prompts", () => {
+    const page00 = masterStoryboard.steps.find((step) => step.id === "page_00");
+
+    expect(page00).toBeDefined();
+    expect(page00?.caption).toContain("PSO Cache 前 / 后");
+    expect(page00?.keyPoints).toContain(
+      "去掉画布内 `开场` 标题，把视觉重心直接交给放大的 `PSO Cache 前` 主图。",
+    );
+    expect(page00?.keyPoints).toContain(
+      "底部只保留 1 张 `PSO Cache 后` 结果图，并让它和主图左右齐边。",
+    );
+    expect(page00?.keyPoints).toContain(
+      "右侧不再保留 3 个泛问题，而是只问两件事：单帧高峰从何而来、预热着色器在干什么。",
+    );
+    expect(page00?.manuscript).toContain("匹配的单帧高峰从何而来");
+    expect(page00?.manuscript).toContain("预热着色器到底是在干什么");
+    expect(page00?.manuscript).toContain("左右齐边");
+    expect(page00?.manuscript).not.toContain("stablepc.csv");
+  });
+
   it("keeps session 4 focused on expand / build / merged precompile in one step", () => {
     expect(
       masterStoryboard.sessions?.find((session) => session.id === "s4-stable-precompile")
@@ -58,6 +95,7 @@ describe("masterStoryboard", () => {
       return step!;
     };
 
+    const page00 = requireStep("page_00");
     const page01 = requireStep("page_01");
     const page02 = requireStep("page_02");
     const page03 = requireStep("page_03");
@@ -95,23 +133,46 @@ describe("masterStoryboard", () => {
     const page32 = requireStep("page_32");
     const page33 = requireStep("page_33");
 
+    expect(page00.label).toContain("开场");
+    expect(page00.label).toBe("开场");
+    expect(page00.caption).toContain("PSO Cache 前 / 后");
+    expect(page00.objectiveFacts).toContain(
+      "启动游戏预编译着色器，通常只要一次。",
+    );
+    expect(page00.keyPoints).toContain(
+      "去掉画布内 `开场` 标题，把视觉重心直接交给放大的 `PSO Cache 前` 主图。",
+    );
+    expect(page00.keyPoints).toContain(
+      "底部只保留 1 张 `PSO Cache 后` 结果图，并让它和主图左右齐边。",
+    );
+    expect(page00.keyPoints).toContain(
+      "右侧不再保留 3 个泛问题，而是只问两件事：单帧高峰从何而来、预热着色器在干什么。",
+    );
+    expect(page00.manuscript).toContain("匹配的单帧高峰从何而来");
+    expect(page00.manuscript).toContain("预热着色器到底是在干什么");
+    expect(page00.manuscript).toContain("PSO Cache 前");
+    expect(page00.manuscript).toContain("PSO Cache 后");
+    expect(page00.manuscript).toContain("左右齐边");
     expect(page01.label).toContain("最小模型");
     expect(page01.caption).toContain("最小骨架");
     expect(page01.keyPoints).toContain(
       "后面会提到的预编译着色器，也可以先理解成这条主轴的一次前置准备。",
     );
     expect(page02.label).toContain("渲染语义");
+    expect(page02.objectiveFacts).toContain("PSO的复杂度是指数级别。");
     expect(page02.manuscript).toContain("VertexData");
     expect(page02.manuscript).toContain("GPU");
     expect(page02.manuscript).toContain("像素");
     expect(page03.label).toContain("OpenGL");
     expect(page03.caption).toContain("Raw");
+    expect(page03.objectiveFacts).toContain("OpenGL无PSO，有Program");
     expect(page03.manuscript).toContain("Raw ShaderCode");
     expect(page03.manuscript).toContain("Binary ShaderCode");
     expect(page03.manuscript).toContain("glCompileShader()");
     expect(page03.manuscript).toContain("glBlendFunc()");
     expect(page04.label).toContain("Vulkan");
     expect(page04.caption).toContain("SPIR-V");
+    expect(page04.objectiveFacts).toContain("Vulkan / Metal 有 PSO 的概念。");
     expect(page04.manuscript).toContain("SPIR-V");
     expect(page04.manuscript).toContain("Description");
     expect(page04.manuscript).toContain("PSO");
@@ -119,10 +180,13 @@ describe("masterStoryboard", () => {
     expect(page04.manuscript).toContain("vkCmdBindPipeline()");
     expect(page04Data.label).toContain("数据页");
     expect(page04Data.manuscript).toContain("Min/Max/Avg");
+    expect(page04Data.manuscript).toContain("glCompileShader");
     expect(page04Data.manuscript).toContain("glLinkProgram");
     expect(page04Data.manuscript).toContain("CreateGfxPipeline");
+    expect(page04Data.manuscript).toContain("x2");
     expect(page04Data.manuscript).toContain("BindProgramPipeline");
     expect(page04Data.manuscript).toContain("BindGfxPipeline");
+    expect(page04Data.objectiveFacts).toContain("Compile、Link耗时极高，单帧不可接受");
     expect(page05.label).toContain("UE Cook");
     expect(page05.manuscript).toContain("Mesh");
     expect(page05.manuscript).toContain("Material");
@@ -136,6 +200,7 @@ describe("masterStoryboard", () => {
     expect(page06.manuscript).toContain("ShaderType");
     expect(page06.manuscript).toContain("VertexFactory");
     expect(page06.manuscript).toContain("Permutation");
+    expect(page06.manuscript).toContain("UMaterial");
     expect(page06.manuscript).toContain("FMaterialResource");
     expect(page06.manuscript).toContain("FMaterialShaderMap");
     expect(page07.label).toContain("InlineCode");
@@ -150,7 +215,7 @@ describe("masterStoryboard", () => {
     expect(page08.manuscript).toContain("Hash");
     expect(page08.manuscript).toContain("metadata");
     expect(page08.manuscript).toContain("ShaderCode");
-    expect(page09.label).toContain("SharedCode");
+    expect(page09.label).toContain("提供全局表进行Hash索引");
     expect(page09.manuscript).toContain("SharedCode");
     expect(page09.manuscript).toContain("ShaderHashTable");
     expect(page09.manuscript).toContain("LibraryShaderIndex");
@@ -161,17 +226,17 @@ describe("masterStoryboard", () => {
     expect(page10.manuscript).not.toContain(".ushaderbytecode");
     expect(page10.manuscript).not.toContain(".scl.csv");
     expect(page10.manuscript).not.toContain("手机");
-    expect(page09Img.label).toContain("证据");
+    expect(page09Img.label).toContain("统一存放ShaderCode减少重复消耗");
     expect(page09Img.manuscript).toContain("InlineShaderCode");
     expect(page09Img.manuscript).toContain("SharedShaderCode");
     expect(page09Img.manuscript).toContain(".uexp");
     expect(page09Img.manuscript).toContain("ShaderMapHash");
-    expect(page11.label).toContain("Computer / Phone");
+    expect(page11.label).toContain("测试环境收集回路");
     expect(page11.manuscript).toContain("Computer");
     expect(page11.manuscript).toContain("Phone");
     expect(page11.manuscript).toContain(".ushaderbytecode");
     expect(page11.manuscript).not.toContain(".scl.csv");
-    expect(page12.label).toContain("首次 Cook");
+    expect(page12.label).toContain("Cook产出ShaderLibrary");
     expect(page12.manuscript).toContain(".scl.csv");
     expect(page12.manuscript).toContain("cook");
     expect(page13.label).toContain("运行侧接入");
@@ -236,36 +301,48 @@ describe("masterStoryboard", () => {
     expect(page19.manuscript).toContain("Pipeline Cache");
     expect(page19.manuscript).toContain("Binary Archive");
     expect(page19.manuscript).toContain("functions.data");
+    expect(page19.manuscript).toContain("binary / cache");
+    expect(page19.manuscript).toContain("旧缓存失效");
+    expect(page19.manuscript).toContain("Binary Archive 2");
     expect(page21.label).toContain("缓存有效性");
+    expect(page21.label).toContain("保留页");
     expect(page21.manuscript).toContain("stable.upipelinecache");
     expect(page21.manuscript).toContain("驱动");
     expect(page21.manuscript).toContain("芯片");
     expect(page21.manuscript).toContain("失效");
     expect(page21.manuscript).toContain("Permute");
     expect(page21.manuscript).toContain("OpenGL");
+    expect(page21.manuscript).toContain("动画连续性");
     expect(page22.label).toContain("我的理解");
     expect(page22.manuscript).toContain("PSO 是对象");
     expect(page22.manuscript).toContain("PSO Cache");
     expect(page22.manuscript).toContain("不会消失");
     expect(page22.manuscript).toContain("只会转移");
-    expect(page24.label).toContain("改资源形态");
+    expect(page24.label).toContain("包体");
     expect(page24.manuscript).toContain("压缩");
-    expect(page24.manuscript).toContain("Precompute");
-    expect(page24.manuscript).toContain("Algorithm");
-    expect(page24.manuscript).toContain("PCA");
-    expect(page24.manuscript).toContain("模型");
+    expect(page24.manuscript).toContain("LZ4");
+    expect(page24.manuscript).toContain("zstd");
+    expect(page24.manuscript).toContain("Oodle Leviathan");
+    expect(page24.manuscript).toContain("LRU + mmap");
+    expect(page24.manuscript).toContain("SQL");
+    expect(page24.manuscript).toContain("包体");
+    expect(page24.manuscript).toContain("内存");
     expect(page25.label).toContain("改存储位置");
+    expect(page25.label).toContain("保留页");
     expect(page25.manuscript).toContain("LRU");
     expect(page25.manuscript).toContain("mmap");
     expect(page25.manuscript).toContain("SQL");
-    expect(page26.label).toContain("改发生时机");
+    expect(page26.label).toContain("预编译优化");
     expect(page26.manuscript).toContain("Game UsageMask");
     expect(page26.manuscript).toContain("Compile UsageMask");
     expect(page26.manuscript).toContain("地图 A");
     expect(page26.manuscript).toContain("地图 B 被下载");
-    expect(page26.manuscript).toContain("不是为了造出两套 PSO");
-    expect(page26.manuscript).toContain("仍然只有一种 `UsageMask` 表达");
+    expect(page26.manuscript).toContain("任务独立");
+    expect(page26.manuscript).toContain("纯 CPU 计算");
+    expect(page26.manuscript).toContain("减少集合");
+    expect(page26.manuscript).toContain("提升吞吐");
     expect(page27.label).toContain("改执行方式");
+    expect(page27.label).toContain("保留页");
     expect(page27.manuscript).toContain("SIMD");
     expect(page27.manuscript).toContain("GPU");
     expect(page27.manuscript).toContain("warp divergence");
@@ -273,11 +350,14 @@ describe("masterStoryboard", () => {
     expect(page28.manuscript).toContain("OpenGL");
     expect(page28.manuscript).toContain("iOS");
     expect(page28.manuscript).toContain("平台差异");
-    expect(page29.label).toContain("平台差异的来源");
+    expect(page29.label).toContain("治理证据");
     expect(page29.manuscript).toContain("VertexDescriptor");
-    expect(page29.manuscript).toContain("ATTRIBUTE4");
     expect(page29.manuscript).toContain("LocalVertexFactory");
+    expect(page29.manuscript).toContain("NUM_MATERIAL_TEXCOORDS_VERTEX = 1");
+    expect(page29.manuscript).toContain("NUM_MATERIAL_TEXCOORDS_VERTEX = 2");
+    expect(page29.manuscript).toContain("同一个Material作用于不同的Mesh也会产生不同的PSO");
     expect(page30.label).toContain("前置治理决定上限");
+    expect(page30.label).toContain("保留页");
     expect(page30.manuscript).toContain("RenderDoc");
     expect(page30.manuscript).toContain("color buffer");
     expect(page30.manuscript).toContain("前置治理");

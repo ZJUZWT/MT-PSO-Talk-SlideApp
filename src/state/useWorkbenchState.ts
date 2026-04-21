@@ -13,7 +13,7 @@ type VariantOption = {
 };
 
 export const DEFAULT_VARIANT_ID: VariantId = "bus-clean";
-export const DEFAULT_STEP_ID: StoryStepId = "page_01";
+export const DEFAULT_STEP_ID: StoryStepId = "page_00";
 
 export const VARIANT_OPTIONS: VariantOption[] = [
   {id: "bus-clean", label: "Bus Clean"},
