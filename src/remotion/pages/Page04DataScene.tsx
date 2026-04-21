@@ -327,8 +327,8 @@ export function Page04DataScene({frame}: {frame: number}) {
       {rows.map((row, idx) => {
         const y = rowCenter(idx);
         const rowColor = row.group === "OpenGL" ? "#3e5870" : "#6a3a25";
-        const avgMarkerCx = avgColumnRight - 20;
-        const apiNoteX = colApi - 28;
+        const avgMarkerCx = avgColumnRight - 14;
+        const apiNoteX = colApi - 16;
         return (
           <g key={row.key}>
             <text
@@ -344,23 +344,13 @@ export function Page04DataScene({frame}: {frame: number}) {
             </text>
             {row.apiNote ? (
               <g data-testid="page4-data-compile-x2-note">
-                <rect
-                  x={apiNoteX - 14}
-                  y={y - 12}
-                  width="28"
-                  height="20"
-                  rx="10"
-                  fill="rgba(255, 0, 0, 0.1)"
-                  stroke="#ff0000"
-                  strokeWidth="1.6"
-                />
                 <text
                   x={apiNoteX}
-                  y={y - 1}
-                  fill="#ff0000"
-                  fontSize="12"
-                  fontWeight="800"
-                  textAnchor="middle"
+                  y={y}
+                  fill={rowColor}
+                  fontSize="22"
+                  fontWeight="760"
+                  textAnchor="end"
                   dominantBaseline="middle"
                 >
                   {row.apiNote}
@@ -409,7 +399,7 @@ export function Page04DataScene({frame}: {frame: number}) {
                 />
                 <text
                   x={avgMarkerCx}
-                  y={y - 0.5}
+                  y={y}
                   fill="#ff0000"
                   fontSize="13"
                   fontWeight="820"

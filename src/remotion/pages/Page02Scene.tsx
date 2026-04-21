@@ -48,86 +48,88 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
     height: 60,
     radius: 28,
   };
+  const pipelineArrowGap = 16;
+  const pipelineLabelFontSize = 22;
   const pipelineCenterY = pipelineBox.y + pipelineBox.height / 2;
-  const pipelineArrowStartY = pipelineBox.y + pipelineBox.height + 12;
-  const pipelineArrowEndY = centerTextY - 56;
+  const pipelineArrowStartY = pipelineBox.y + pipelineBox.height + pipelineArrowGap;
+  const pipelineArrowEndY = scene.centerBox.y - pipelineArrowGap;
   const pipelineLabelX = centerCenterX + 58;
-  const pipelineLabelY = mix(pipelineArrowStartY, pipelineArrowEndY, 0.52);
+  const pipelineLabelY = mix(pipelineArrowStartY, pipelineArrowEndY, 0.5);
   const lowerMediaTop = scene.centerBox.y + scene.centerBox.height + 8;
   const pipelineStatePreviewCard = {
-    x: 52,
-    y: lowerMediaTop,
-    width: 446,
-    height: 288,
+    x: 120,
+    y: lowerMediaTop + 14,
+    width: 504,
+    height: 268,
     radius: 24,
   };
   const pipelineStatePreviewShaderBox = {
-    x: pipelineStatePreviewCard.x + 16,
+    x: pipelineStatePreviewCard.x + 18,
     y: pipelineStatePreviewCard.y + 36,
-    width: pipelineStatePreviewCard.width - 32,
-    height: 40,
-    radius: 15,
+    width: pipelineStatePreviewCard.width - 36,
+    height: 46,
+    radius: 16,
   };
   const pipelineStatePreviewStateBoxes = [
     {
-      label: "Vertex Decl / Input Layout",
+      label: "Input Layout",
       box: {
-        x: pipelineStatePreviewCard.x + 16,
-        y: pipelineStatePreviewCard.y + 112,
-        width: 202,
-        height: 56,
+        x: pipelineStatePreviewCard.x + 18,
+        y: pipelineStatePreviewCard.y + 90,
+        width: 228,
+        height: 54,
         radius: 16,
       },
       accent: true,
-      fontSize: 13.2,
+      fontSize: 20,
     },
     {
       label: "RT / Format",
       box: {
-        x: pipelineStatePreviewCard.x + 228,
-        y: pipelineStatePreviewCard.y + 112,
-        width: 202,
-        height: 56,
+        x: pipelineStatePreviewCard.x + 258,
+        y: pipelineStatePreviewCard.y + 90,
+        width: 228,
+        height: 54,
         radius: 16,
       },
       accent: false,
-      fontSize: 14.2,
+      fontSize: 20,
     },
     {
       label: "Depth / Stencil Test",
       box: {
-        x: pipelineStatePreviewCard.x + 16,
-        y: pipelineStatePreviewCard.y + 176,
-        width: 202,
-        height: 56,
+        x: pipelineStatePreviewCard.x + 18,
+        y: pipelineStatePreviewCard.y + 148,
+        width: 228,
+        height: 54,
         radius: 16,
       },
       accent: false,
-      fontSize: 13.8,
+      fontSize: 20,
     },
     {
-      label: "Blend / Rasterizer State",
+      label: "Blend / Rasterizer",
       box: {
-        x: pipelineStatePreviewCard.x + 228,
-        y: pipelineStatePreviewCard.y + 176,
-        width: 202,
-        height: 56,
+        x: pipelineStatePreviewCard.x + 258,
+        y: pipelineStatePreviewCard.y + 148,
+        width: 228,
+        height: 54,
         radius: 16,
       },
       accent: false,
-      fontSize: 13,
+      fontSize: 20,
     },
     {
       label: "Primitive / Samples / Pass",
       box: {
-        x: pipelineStatePreviewCard.x + 16,
-        y: pipelineStatePreviewCard.y + 240,
-        width: pipelineStatePreviewCard.width - 32,
-        height: 40,
+        x: pipelineStatePreviewCard.x + 18,
+        y: pipelineStatePreviewCard.y + 206,
+        width: pipelineStatePreviewCard.width - 36,
+        height: 44,
         radius: 14,
       },
       accent: false,
-      fontSize: 14.4,
+      fontSize: 20,
     },
   ] as const;
   const pipelineStatePreviewCenterX =
@@ -135,18 +137,18 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
   const pipelineStatePreviewCenterY =
     pipelineStatePreviewCard.y + pipelineStatePreviewCard.height / 2;
   const vertexBufferInsetBox = {
-    x: pipelineBox.x + pipelineBox.width + 20,
-    y: lowerMediaTop + 4,
-    width: 440,
-    height: 160,
+    x: 690,
+    y: lowerMediaTop + 62,
+    width: 560,
+    height: 172,
     radius: 14,
   };
   const vertexBufferInsetBadge = {
-    x: vertexBufferInsetBox.x + 10,
-    y: vertexBufferInsetBox.y + 10,
-    width: 100,
-    height: 22,
-    radius: 11,
+    width: 164,
+    height: 38,
+    x: vertexBufferInsetBox.x + vertexBufferInsetBox.width * 0.77 - 82,
+    y: vertexBufferInsetBox.y + vertexBufferInsetBox.height * 0.75 - 19,
+    radius: 19,
   };
   const vertexBufferInsetCenterX =
     vertexBufferInsetBox.x + vertexBufferInsetBox.width / 2;
@@ -199,7 +201,7 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
             x={pipelineLabelX}
             y={pipelineLabelY}
             fill={apiStroke}
-            fontSize={18}
+            fontSize={pipelineLabelFontSize}
             fontWeight={700}
             letterSpacing="-0.02em"
             textAnchor="start"
@@ -227,16 +229,17 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
               markGeometryBox
             />
             <text
-              x={pipelineStatePreviewCard.x + 16}
-              y={pipelineStatePreviewCard.y + 22}
+              x={pipelineStatePreviewCard.x + pipelineStatePreviewCard.width / 2}
+              y={pipelineStatePreviewCard.y + 20}
               fill={apiStroke}
-              fontSize="20"
+              fontSize="22"
               fontWeight="820"
-              textAnchor="start"
+              letterSpacing="-0.02em"
+              textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              PSO = Shader + State
+              PSO = Shaders + States
             </text>
             <g data-geometry-node-id="page2-pso-preview-shader" data-geometry-node-label="Shader">
               <StageBox
@@ -250,27 +253,15 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
                 x={pipelineStatePreviewShaderBox.x + pipelineStatePreviewShaderBox.width / 2}
                 y={pipelineStatePreviewShaderBox.y + pipelineStatePreviewShaderBox.height / 2 + 1}
                 fill={apiStroke}
-                fontSize="15.6"
+                fontSize="20"
                 fontWeight="780"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 data-geometry-node-text="1"
               >
-                Shader / Program / Function
+                VS / FS / GS / ...
               </text>
             </g>
-            <text
-              x={pipelineStatePreviewCard.x + 16}
-              y={pipelineStatePreviewCard.y + 92}
-              fill="rgba(34, 48, 61, 0.72)"
-              fontSize="14.4"
-              fontWeight="720"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              State 里常见会收什么
-            </text>
             {pipelineStatePreviewStateBoxes.map((item) => (
               <g key={item.label}>
                 <StageBox
@@ -324,7 +315,7 @@ export function Page02Scene({scene}: {scene: SceneModel}) {
             x={vertexBufferInsetBadge.x + vertexBufferInsetBadge.width / 2}
             y={vertexBufferInsetBadge.y + vertexBufferInsetBadge.height / 2 + 0.5}
             fill={apiStroke}
-            fontSize="12.5"
+            fontSize="15.6"
             fontWeight="820"
             textAnchor="middle"
             dominantBaseline="middle"

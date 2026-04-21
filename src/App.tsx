@@ -22,7 +22,7 @@ import {
 import {
   DEFAULT_STEP_ID,
   DEFAULT_VARIANT_ID,
-  isStoryStepId,
+  isVisibleStoryStepId,
   isVariantId,
   useWorkbenchState,
 } from "./state/useWorkbenchState";
@@ -148,7 +148,7 @@ function parseInitialWorkbenchQuery(): InitialWorkbenchQuery {
     reviewMode: parseBooleanFlag(params.get("review")),
     sketchId: initialSketch?.id ?? null,
     surface: "workbench",
-    stepId: isStoryStepId(stepParam)
+    stepId: isVisibleStoryStepId(stepParam)
       ? stepParam
       : initialSketch?.stepId ?? DEFAULT_STEP_ID,
     variantId: isVariantId(variantParam) ? variantParam : DEFAULT_VARIANT_ID,

@@ -89,13 +89,10 @@ const LOOP_PAGE17_FRAME = loopFrame("page_17");
 const LOOP_PAGE18_FRAME = loopFrame("page_18");
 const LOOP_PAGE18_IMAGE_FRAME = loopFrame("page_18_img");
 const LOOP_PAGE19_FRAME = loopFrame("page_19");
-const LOOP_PAGE19_TO_PAGE21_HANDOFF_FRAME = LOOP_PAGE19_FRAME;
 const LOOP_PAGE21_FRAME = loopFrame("page_21");
 const LOOP_PAGE22_FRAME = loopFrame("page_22");
 const LOOP_PAGE24_FRAME = loopFrame("page_24");
-const LOOP_PAGE25_FRAME = loopFrame("page_25");
 const LOOP_PAGE26_FRAME = loopFrame("page_26");
-const LOOP_PAGE27_FRAME = loopFrame("page_27");
 const LOOP_PAGE28_FRAME = loopFrame("page_28");
 const LOOP_PAGE29_FRAME = loopFrame("page_29");
 const LOOP_PAGE30_FRAME = loopFrame("page_30");
@@ -104,6 +101,9 @@ const LOOP_PAGE32_FRAME = loopFrame("page_32");
 const LOOP_PAGE33_FRAME = loopFrame("page_33");
 const LOOP_CLOUD_STROKE = "rgba(118, 163, 207, 0.94)";
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
+const PAGE14_UE_CENTER_X = 1280 * 0.25;
+const PAGE14_GFX_CENTER_X = 1280 * 0.5;
+const PAGE14_GPU_CENTER_X = 1280 * 0.75;
 const LATE_INLINE_TITLE_REMOVAL_SHIFT_Y = -52;
 const LATE_CLOSING_QUOTE_SHIFT_Y = -42;
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
@@ -341,126 +341,125 @@ const PARALLEL_NOTES = [
   "warp divergence",
   "bank conflict",
 ] as const;
-const GOVERNANCE_DIMENSION_TOKENS = [
-  "UV",
-  "Vertex Decl",
-  "Material",
-  "Color Buffer",
-] as const;
 const PAGE17_EXAMPLE_CARD = {x: 100, y: 400, width: 1080, height: 220, radius: 22};
 const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
 const PAGE17_HASHA_CENTER = {x: 1004, y: 508};
 const PAGE17_HASHB_CENTER = {x: 1004, y: 556};
-const PAGE19_DIAGRAM_SHIFT_X = 64;
-const PAGE19_MAIN_AXIS_Y = 360;
+const PAGE19_MAIN_AXIS_Y = 359;
+const PAGE19_TOP_ROW_Y = 78;
 const PAGE19_STABLE_BOX = {
-  x: 40 + PAGE19_DIAGRAM_SHIFT_X,
+  x: 108,
   y: 164,
-  width: 348,
+  width: 324,
   height: 392,
   radius: 30,
 };
 const PAGE19_UE_ROW_1 = {
-  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  x: 130,
   y: 268,
-  width: 284,
+  width: 280,
   height: 56,
   radius: 18,
 };
 const PAGE19_UE_ROW_2 = {
-  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  x: 130,
   y: 360,
-  width: 284,
+  width: 280,
   height: 56,
   radius: 18,
 };
 const PAGE19_UE_ROW_3 = {
-  x: 72 + PAGE19_DIAGRAM_SHIFT_X,
+  x: 130,
   y: 452,
-  width: 284,
+  width: 280,
   height: 56,
   radius: 18,
 };
-const PAGE19_GPU_AXIS_X = 498 + PAGE19_DIAGRAM_SHIFT_X;
-const PAGE19_VERTEX_CENTER = {x: 498 + PAGE19_DIAGRAM_SHIFT_X, y: 200};
-const PAGE19_GPU_LABEL_Y = 360;
+const PAGE19_VERTEX_BOX = {x: 402, y: 34, width: 88, height: 88, radius: 18};
+const PAGE19_VERTEX_CENTER = {x: 446, y: 78};
 const PAGE19_GPU_BOX = {
-  x: 434 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 319,
-  width: 128,
-  height: 82,
+  x: 582,
+  y: 38,
+  width: 116,
+  height: 80,
   radius: 18,
 };
-const PAGE19_GPU_PIXELS = {x: 464 + PAGE19_DIAGRAM_SHIFT_X, y: 458};
-const PAGE19_MEMORY_BOX = {
-  x: 606 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 150,
-  width: 240,
-  height: 420,
+const PAGE19_GPU_LABEL_Y = 78;
+const PAGE19_GPU_AXIS_X = 640;
+const PAGE19_PIXEL_BOX = {x: 790, y: 40, width: 68, height: 76, radius: 16};
+const PAGE19_GPU_PIXELS = {x: 794, y: 48};
+const PAGE19_API_BOX = {
+  x: 478,
+  y: 164,
+  width: 324,
+  height: 392,
   radius: 32,
 };
-const PAGE19_MEMORY_GL_BOX = {
-  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 204,
-  width: 200,
-  height: 76,
+const PAGE19_API_GL_BOX = {
+  x: 500,
+  y: 218,
+  width: 280,
+  height: 70,
   radius: 18,
 };
-const PAGE19_MEMORY_VK_BOX = {
-  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
+const PAGE19_API_VK_BOX = {
+  x: 500,
   y: 326,
-  width: 200,
-  height: 76,
+  width: 280,
+  height: 70,
   radius: 18,
 };
-const PAGE19_MEMORY_MT_BOX = {
-  x: 626 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 444,
-  width: 200,
-  height: 100,
+const PAGE19_API_MT_BOX = {
+  x: 500,
+  y: 434,
+  width: 280,
+  height: 70,
   radius: 18,
 };
 const PAGE19_DISK_BOX = {
-  x: 888 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 150,
-  width: 208,
-  height: 420,
+  x: 848,
+  y: 164,
+  width: 324,
+  height: 392,
   radius: 32,
 };
 const PAGE19_DISK_GL_BOX = {
-  x: 908 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 205,
-  width: 168,
-  height: 74,
-  radius: 16,
+  x: 870,
+  y: 218,
+  width: 280,
+  height: 70,
+  radius: 18,
 };
 const PAGE19_DISK_VK_BOX = {
-  x: 905 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 327,
-  width: 174,
-  height: 74,
-  radius: 16,
+  x: 870,
+  y: 326,
+  width: 280,
+  height: 70,
+  radius: 18,
 };
 const PAGE19_DISK_MT_BOX = {
-  x: 908 + PAGE19_DIAGRAM_SHIFT_X,
-  y: 445,
-  width: 168,
-  height: 96,
-  radius: 16,
+  x: 870,
+  y: 434,
+  width: 280,
+  height: 70,
+  radius: 18,
 };
 const PAGE19_BINARY_NOTE_BOXES = [
-  {x: 92, y: 596, width: 348, height: 78, radius: 20},
-  {x: 466, y: 596, width: 348, height: 78, radius: 20},
-  {x: 840, y: 596, width: 348, height: 78, radius: 20},
+  {x: 108, y: 564, width: 324, height: 78, radius: 20},
+  {x: 478, y: 564, width: 324, height: 78, radius: 20},
+  {x: 848, y: 564, width: 324, height: 78, radius: 20},
 ] as const;
 const PAGE19_BINARY_ARCHIVE2_BADGE = {
-  x: 1038,
-  y: 96,
+  x: 927,
+  y: 648,
   width: 166,
   height: 44,
   radius: 20,
 };
+const PAGE21_PSO_BOX = {x: 126, y: 208, width: 336, height: 88, radius: 24};
+const PAGE21_SHADER_BOX = {x: 126, y: 424, width: 336, height: 88, radius: 24};
+const PAGE21_FOOTER_BOX = {x: 158, y: 646, width: 948, height: 54, radius: 22};
 
 function centerX(box: {x: number; width: number}) {
   return box.x + box.width / 2;
@@ -677,6 +676,14 @@ function mergeTowardBoxMetrics(
   };
 }
 
+function mixPointSeries(
+  from: Array<{x: number; y: number}>,
+  to: Array<{x: number; y: number}>,
+  progress: number,
+) {
+  return from.map((point, index) => mixPoint(point, to[index] ?? to.at(-1) ?? point, progress));
+}
+
 function ComputerDevice({
   scene,
   opacity,
@@ -740,6 +747,9 @@ function PhoneDevice({
   offsetX = 0,
   showShell = true,
   showDeviceLabel,
+  deviceLabel,
+  deviceLabelOpacity = 1,
+  showRuntimeLabel = true,
   showVertexLabel,
   showPixelsLabel,
   contentOpacity,
@@ -752,6 +762,9 @@ function PhoneDevice({
   offsetX?: number;
   showShell?: boolean;
   showDeviceLabel: boolean;
+  deviceLabel?: string;
+  deviceLabelOpacity?: number;
+  showRuntimeLabel?: boolean;
   showVertexLabel: boolean;
   showPixelsLabel: boolean;
   contentOpacity: number;
@@ -791,20 +804,23 @@ function PhoneDevice({
             fontWeight="760"
             textAnchor="middle"
             dominantBaseline="middle"
+            opacity={showDeviceLabel ? deviceLabelOpacity : 0}
           >
-            {showDeviceLabel ? "Phone" : ""}
+            {deviceLabel ?? "Phone"}
           </text>
-          <text
-            x={centerX(PHONE_BOX)}
-            y={RUNTIME_LABEL_Y}
-            fill="rgba(34, 48, 61, 0.52)"
-            fontSize="15"
-            fontWeight="700"
-            letterSpacing="0.06em"
-            textAnchor="middle"
-          >
-            RUNTIME
-          </text>
+          {showRuntimeLabel ? (
+            <text
+              x={centerX(PHONE_BOX)}
+              y={RUNTIME_LABEL_Y}
+              fill="rgba(34, 48, 61, 0.52)"
+              fontSize="15"
+              fontWeight="700"
+              letterSpacing="0.06em"
+              textAnchor="middle"
+            >
+              RUNTIME
+            </text>
+          ) : null}
         </g>
       ) : null}
       <g data-testid="page10-phone-runtime" opacity={runtimeOpacity}>
@@ -2205,71 +2221,149 @@ function Page14Placeholder({
   const routeReveal = resolveWindowProgress(opacity, 0.34, 0.92, easeOutQuint);
   const runtimeGpuX = PHONE_GPU.x + phoneOffsetX;
   const runtimeGpuY = PHONE_GPU.y;
-  const psoBox = {
-    x: runtimeGpuX - 760,
-    y: runtimeGpuY - 70,
-    width: 360,
-    height: 144,
+  const uePsoBox = {
+    x: PAGE14_UE_CENTER_X - 124,
+    y: runtimeGpuY - 94,
+    width: 248,
+    height: 188,
+    radius: 24,
+  };
+  const gfxPsoBox = {
+    x: PAGE14_GFX_CENTER_X - 122,
+    y: uePsoBox.y,
+    width: 244,
+    height: uePsoBox.height,
     radius: 24,
   };
   const recBox = {
-    x: psoBox.x + 12,
-    y: psoBox.y - 162,
-    width: 336,
-    height: 72,
+    x: centerX(uePsoBox) - 152,
+    y: uePsoBox.y - 196,
+    width: 304,
+    height: 84,
     radius: 22,
   };
+  const recordLabelCenterX = 226;
+  const createLabelCenterX = 486;
+  const bindLabelCenterX = (right(gfxPsoBox) + 8 + (runtimeGpuX - 54)) / 2;
 
-  const psoToGpuPoints = [
-    {x: right(psoBox) + 10, y: runtimeGpuY},
-    {x: runtimeGpuX - 72, y: runtimeGpuY},
+  const ueToGfxPoints = [
+    {x: right(uePsoBox) + 8, y: centerY(uePsoBox)},
+    {x: gfxPsoBox.x - 8, y: centerY(gfxPsoBox)},
   ];
-  const psoToRecPoints = [
-    {x: centerX(psoBox), y: psoBox.y - 10},
-    {x: centerX(psoBox), y: recBox.y + recBox.height + 10},
+  const gfxToGpuPoints = [
+    {x: right(gfxPsoBox) + 8, y: runtimeGpuY},
+    {x: runtimeGpuX - 54, y: runtimeGpuY},
+  ];
+  const ueToRecPoints = [
+    {x: centerX(uePsoBox), y: uePsoBox.y - 12},
+    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 28},
+    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 10},
   ];
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
       <g opacity={opacity * nodeReveal}>
         <StageBox
-          box={psoBox}
+          box={uePsoBox}
           fill="rgba(248, 236, 226, 0.96)"
           stroke={scene.apiStroke}
           strokeWidth={3}
         />
         <text
-          x={centerX(psoBox)}
-          y={psoBox.y + 58}
+          x={centerX(uePsoBox)}
+          y={uePsoBox.y + 44}
           fill="#22303d"
-          fontSize="20"
-          fontWeight="760"
+          fontSize="30"
+          fontWeight="790"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          PSO = shaders + State
+          UE PSO
         </text>
         <text
-          x={centerX(psoBox)}
-          y={psoBox.y + 94}
+          x={centerX(uePsoBox)}
+          y={uePsoBox.y + 92}
           fill="rgba(34, 48, 61, 0.78)"
-          fontSize="19"
+          fontSize="24"
           fontWeight="730"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          shaders，又称 BSS
+          ShaderHash + State
         </text>
         <text
-          x={centerX(psoBox)}
-          y={psoBox.y + 118}
+          x={centerX(uePsoBox)}
+          y={uePsoBox.y + 128}
           fill="rgba(34, 48, 61, 0.7)"
-          fontSize="18"
+          fontSize="22"
           fontWeight="700"
           textAnchor="middle"
           dominantBaseline="middle"
         >
-          Bound Shader State
+          引擎侧记录 / 描述
+        </text>
+        <text
+          x={centerX(uePsoBox)}
+          y={uePsoBox.y + 158}
+          fill="rgba(34, 48, 61, 0.62)"
+          fontSize="20"
+          fontWeight="680"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          BSS + State
+        </text>
+      </g>
+      <g opacity={opacity * nodeReveal}>
+        <StageBox
+          box={gfxPsoBox}
+          fill="rgba(255, 249, 243, 0.96)"
+          stroke="rgba(92, 106, 118, 0.58)"
+          strokeWidth={2.8}
+        />
+        <text
+          x={centerX(gfxPsoBox)}
+          y={gfxPsoBox.y + 44}
+          fill="#22303d"
+          fontSize="30"
+          fontWeight="790"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          Gfx PSO
+        </text>
+        <text
+          x={centerX(gfxPsoBox)}
+          y={gfxPsoBox.y + 92}
+          fill="rgba(34, 48, 61, 0.78)"
+          fontSize="22"
+          fontWeight="720"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          RHI / driver object
+        </text>
+        <text
+          x={centerX(gfxPsoBox)}
+          y={gfxPsoBox.y + 128}
+          fill="rgba(34, 48, 61, 0.72)"
+          fontSize="21"
+          fontWeight="700"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          运行时对象 / 编译结果
+        </text>
+        <text
+          x={centerX(gfxPsoBox)}
+          y={gfxPsoBox.y + 158}
+          fill="rgba(34, 48, 61, 0.6)"
+          fontSize="19"
+          fontWeight="680"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          create or hit
         </text>
       </g>
       <g opacity={opacity * nodeReveal}>
@@ -2283,8 +2377,8 @@ function Page14Placeholder({
           x={centerX(recBox)}
           y={centerY(recBox) + 1}
           fill={scene.apiStroke}
-          fontSize="20"
-          fontWeight="780"
+          fontSize="24"
+          fontWeight="760"
           textAnchor="middle"
           dominantBaseline="middle"
         >
@@ -2292,55 +2386,107 @@ function Page14Placeholder({
         </text>
       </g>
       <StrokeArrow
-        d={roundedPolylinePath(psoToGpuPoints)}
-        stroke={LOOP_CLOUD_STROKE}
+        d={roundedPolylinePath(ueToGfxPoints)}
+        stroke={scene.apiStroke}
         opacity={opacity * routeReveal}
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
-        tipX={runtimeGpuX - 72}
-        tipY={runtimeGpuY}
+        tipX={gfxPsoBox.x - 8}
+        tipY={centerY(gfxPsoBox)}
         direction="right"
-        shaftWidth={3}
-        underlayWidth={5.5}
-        headSize={8}
-        testId="page14-draw-to-pso-arrow"
+        shaftWidth={4.4}
+        underlayWidth={7.6}
+        headSize={10.5}
+        testId="page14-ue-to-gfx-arrow"
       />
       <StrokeArrow
-        d={roundedPolylinePath(psoToRecPoints)}
+        d={roundedPolylinePath(gfxToGpuPoints)}
+        stroke={scene.apiStroke}
+        opacity={opacity * routeReveal}
+        headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
+        tipX={runtimeGpuX - 54}
+        tipY={runtimeGpuY}
+        direction="right"
+        shaftWidth={4.6}
+        underlayWidth={7.8}
+        headSize={11}
+        testId="page14-gfx-to-gpu-arrow"
+      />
+      <StrokeArrow
+        d={roundedPolylinePath(ueToRecPoints)}
         stroke={LOOP_CLOUD_STROKE}
         opacity={opacity * routeReveal}
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
         dashArray="12 10"
-        tipX={centerX(psoBox)}
+        tipX={centerX(uePsoBox)}
         tipY={recBox.y + recBox.height + 10}
         direction="up"
-        shaftWidth={3.1}
-        underlayWidth={5.6}
-        headSize={9}
-        testId="page14-pso-to-rec-arrow"
+        shaftWidth={4.4}
+        underlayWidth={7.6}
+        headSize={11}
+        testId="page14-ue-to-rec-arrow"
+      />
+      <ArrowLabelPill
+        x={recordLabelCenterX}
+        y={(recBox.y + recBox.height + uePsoBox.y) / 2 - 8}
+        width={156}
+        height={40}
+        label="record / save"
+        stroke="rgba(118, 163, 207, 0.48)"
+        fill="rgba(255, 251, 246, 0.98)"
+        fontSize={22}
+        fontWeight={760}
+        opacity={opacity * routeReveal}
+        testId="page14-ue-to-rec-label"
+      />
+      <ArrowLabelPill
+        x={createLabelCenterX}
+        y={uePsoBox.y - 64}
+        width={196}
+        height={40}
+        label="create / resolve"
+        stroke="rgba(208, 107, 68, 0.42)"
+        fill="rgba(255, 251, 246, 0.98)"
+        fontSize={22}
+        fontWeight={760}
+        opacity={opacity * routeReveal}
+        testId="page14-ue-to-gfx-label"
+      />
+      <ArrowLabelPill
+        x={bindLabelCenterX}
+        y={gfxPsoBox.y - 46}
+        width={176}
+        height={40}
+        label="bind / use"
+        stroke="rgba(208, 107, 68, 0.42)"
+        fill="rgba(255, 251, 246, 0.98)"
+        fontSize={22}
+        fontWeight={760}
+        opacity={opacity * routeReveal}
+        testId="page14-gfx-to-gpu-label"
       />
       <text
-        x={centerX(psoBox) + 74}
-        y={(recBox.y + recBox.height + psoBox.y) / 2 - 6}
-        fill="rgba(34, 48, 61, 0.72)"
-        fontSize="16"
+        x={centerX(PLACEHOLDER_BOARD)}
+        y={bottom(uePsoBox) + 48}
+        fill="rgba(34, 48, 61, 0.74)"
+        fontSize="22"
         fontWeight="720"
         textAnchor="middle"
         dominantBaseline="middle"
-        opacity={opacity * routeReveal}
+        opacity={opacity * nodeReveal}
       >
-        保存在本地
+        UE PSO 记录描述；Gfx PSO 是运行时对象 / 编译结果
       </text>
       <text
-        x={centerX(psoBox)}
-        y={bottom(psoBox) + 38}
+        x={centerX(PLACEHOLDER_BOARD)}
+        y={bottom(uePsoBox) + 78}
         fill="rgba(34, 48, 61, 0.7)"
-        fontSize="16"
+        fontSize="20"
         fontWeight="700"
         textAnchor="middle"
         dominantBaseline="middle"
         opacity={opacity * nodeReveal}
       >
-        注：Vulkan / Metal = BSS + State，OpenGL = BSS（无 State）
+        注：Vulkan / Metal = BSS + State，OpenGL = BSS（无显式 State）
       </text>
     </PlaceholderBoardShell>
   );
@@ -3041,29 +3187,27 @@ function Page19Placeholder({
   const diskReveal = resolveWindowProgress(entryProgress, 0.34, 0.84, easeOutQuint);
   const localOpacity = opacity;
   const leftBandOpacity = localOpacity * groupReveal;
-  const gpuOpacity =
-    localOpacity * resolveWindowProgress(entryProgress, 0.22, 0.58, easeOutQuint);
-  const memoryOpacity =
-    localOpacity * resolveWindowProgress(entryProgress, 0.28, 0.64, easeOutQuint);
+  const gpuOpacity = localOpacity * resolveWindowProgress(entryProgress, 0.2, 0.56, easeOutQuint);
+  const gfxOpacity = localOpacity * resolveWindowProgress(entryProgress, 0.26, 0.68, easeOutQuint);
   const diskOpacity = localOpacity * diskReveal;
   const summaryOpacity =
     localOpacity * resolveWindowProgress(entryProgress, 0.42, 0.9, easeOutQuint);
 
-  const stableToGpuPoints = [
-    {x: right(PAGE19_STABLE_BOX) + 12, y: PAGE19_MAIN_AXIS_Y},
-    {x: PAGE19_GPU_BOX.x, y: PAGE19_MAIN_AXIS_Y},
+  const stableToGfxPoints = [
+    {x: right(PAGE19_STABLE_BOX), y: centerY(PAGE19_API_BOX)},
+    {x: PAGE19_API_BOX.x, y: centerY(PAGE19_API_BOX)},
   ];
-  const gpuVertexToTextPoints = [
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_VERTEX_CENTER.y + 52},
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y - 32},
+  const vertexToGpuPoints = [
+    {x: right(PAGE19_VERTEX_BOX), y: PAGE19_TOP_ROW_Y},
+    {x: PAGE19_GPU_BOX.x, y: PAGE19_TOP_ROW_Y},
   ];
-  const gpuTextToPixelsPoints = [
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_LABEL_Y + 32},
-    {x: PAGE19_GPU_AXIS_X, y: PAGE19_GPU_PIXELS.y - 12},
+  const gpuToPixelsPoints = [
+    {x: right(PAGE19_GPU_BOX), y: PAGE19_TOP_ROW_Y},
+    {x: PAGE19_PIXEL_BOX.x, y: PAGE19_TOP_ROW_Y},
   ];
-  const gpuToMemPoints = [
-    {x: right(PAGE19_GPU_BOX), y: PAGE19_MAIN_AXIS_Y},
-    {x: PAGE19_MEMORY_BOX.x, y: PAGE19_MAIN_AXIS_Y},
+  const gfxToGpuPoints = [
+    {x: centerX(PAGE19_API_BOX), y: PAGE19_API_BOX.y},
+    {x: PAGE19_GPU_AXIS_X, y: bottom(PAGE19_GPU_BOX)},
   ];
 
   return (
@@ -3082,28 +3226,28 @@ function Page19Placeholder({
               markGeometryBox
             />
             <text
-              x={PAGE19_STABLE_BOX.x + 28}
-              y={PAGE19_STABLE_BOX.y + 38}
+              x={centerX(PAGE19_STABLE_BOX)}
+              y={PAGE19_STABLE_BOX.y + 42}
               fill={TEXT}
-              fontSize="20"
-              fontWeight="780"
-              textAnchor="start"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              stable.upipelinecache
-            </text>
-            <text
-              x={PAGE19_STABLE_BOX.x + 28}
-              y={PAGE19_STABLE_BOX.y + 74}
-              fill={ACCENT}
-              fontSize="22"
-              fontWeight="780"
-              textAnchor="start"
+              fontSize="34"
+              fontWeight="820"
+              textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
               UE PSO
+            </text>
+            <text
+              x={centerX(PAGE19_STABLE_BOX)}
+              y={PAGE19_STABLE_BOX.y + 78}
+              fill={TEXT}
+              fontSize="18"
+              fontWeight="760"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              stable.upipelinecache
             </text>
           </g>
           <g data-geometry-node-id="ue-1" data-geometry-node-label="PSO 1">
@@ -3147,79 +3291,107 @@ function Page19Placeholder({
           </g>
         </g>
 
-        <g opacity={gpuOpacity} data-geometry-node-id="gpu" data-geometry-node-label="GPU">
-          <g data-geometry-node-box="1">
-            <rect
-              x={PAGE19_GPU_BOX.x}
-              y={PAGE19_GPU_BOX.y}
-              width={PAGE19_GPU_BOX.width}
-              height={PAGE19_GPU_BOX.height}
-              rx={18}
-              fill="transparent"
-              stroke="none"
+        <g opacity={gpuOpacity}>
+          <g data-geometry-node-id="vertex-icon" data-geometry-node-label="VertexData icon">
+            <g data-geometry-node-box="1">
+              <rect
+                x={PAGE19_VERTEX_BOX.x}
+                y={PAGE19_VERTEX_BOX.y}
+                width={PAGE19_VERTEX_BOX.width}
+                height={PAGE19_VERTEX_BOX.height}
+                rx={PAGE19_VERTEX_BOX.radius}
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <VertexTriangles
+              cx={PAGE19_VERTEX_CENTER.x}
+              cy={PAGE19_VERTEX_CENTER.y}
+              opacity={gpuOpacity}
+              scale={0.62}
             />
           </g>
-          <VertexTriangles
-            cx={PAGE19_VERTEX_CENTER.x}
-            cy={PAGE19_VERTEX_CENTER.y}
-            opacity={gpuOpacity}
-            scale={0.62}
-          />
-          <text
-            x={PAGE19_GPU_AXIS_X}
-            y={PAGE19_GPU_LABEL_Y}
-            fill={TEXT}
-            fontSize="52"
-            fontWeight="800"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            GPU
-          </text>
-          <PixelGrid
-            x={PAGE19_GPU_PIXELS.x}
-            y={PAGE19_GPU_PIXELS.y}
-            opacity={gpuOpacity}
-            scale={1.08}
-            revealProgress={1}
-          />
+          <g data-geometry-node-id="gpu" data-geometry-node-label="GPU">
+            <g data-geometry-node-box="1">
+              <rect
+                x={PAGE19_GPU_BOX.x}
+                y={PAGE19_GPU_BOX.y}
+                width={PAGE19_GPU_BOX.width}
+                height={PAGE19_GPU_BOX.height}
+                rx={PAGE19_GPU_BOX.radius}
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <text
+              x={PAGE19_GPU_AXIS_X}
+              y={PAGE19_GPU_LABEL_Y}
+              fill={TEXT}
+              fontSize="52"
+              fontWeight="800"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              GPU
+            </text>
+          </g>
+          <g data-geometry-node-id="pixel-icon" data-geometry-node-label="Pixels icon">
+            <g data-geometry-node-box="1">
+              <rect
+                x={PAGE19_PIXEL_BOX.x}
+                y={PAGE19_PIXEL_BOX.y}
+                width={PAGE19_PIXEL_BOX.width}
+                height={PAGE19_PIXEL_BOX.height}
+                rx={PAGE19_PIXEL_BOX.radius}
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <PixelGrid
+              x={PAGE19_GPU_PIXELS.x}
+              y={PAGE19_GPU_PIXELS.y}
+              opacity={gpuOpacity}
+              scale={1.08}
+              revealProgress={1}
+            />
+          </g>
         </g>
 
-        <g opacity={memoryOpacity}>
-          <g data-geometry-node-id="memory-group" data-geometry-node-label="内存中 PSO">
+        <g opacity={gfxOpacity}>
+          <g data-geometry-node-id="gfx-pso" data-geometry-node-label="GfxPSO">
             <StageBox
-              box={PAGE19_MEMORY_BOX}
+              box={PAGE19_API_BOX}
               fill={SOFT_FILL}
               stroke={ACCENT}
               strokeWidth={2.8}
               markGeometryBox
             />
             <text
-              x={centerX(PAGE19_MEMORY_BOX)}
-              y={PAGE19_MEMORY_BOX.y + 28}
+              x={centerX(PAGE19_API_BOX)}
+              y={PAGE19_API_BOX.y + 28}
               fill={TEXT}
               fontSize="30"
-              fontWeight="780"
+              fontWeight="800"
               textAnchor="middle"
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              内存中 PSO
+              GfxPSO
             </text>
           </g>
 
-          <g data-geometry-node-id="mem-gl" data-geometry-node-label="OpenGL Program Binary">
+          <g data-geometry-node-id="api-gl" data-geometry-node-label="OpenGL Program Binary">
             <StageBox
-              box={PAGE19_MEMORY_GL_BOX}
+              box={PAGE19_API_GL_BOX}
               fill={CARD_FILL}
               stroke={NODE_STROKE}
               strokeWidth={2.1}
               markGeometryBox
             />
             <StackedLabel
-              x={centerX(PAGE19_MEMORY_GL_BOX)}
-              y={centerY(PAGE19_MEMORY_GL_BOX) + 1}
+              x={centerX(PAGE19_API_GL_BOX)}
+              y={centerY(PAGE19_API_GL_BOX) + 1}
               lines={["OpenGL", "Program Binary"]}
               fontSize={22}
               fontWeight={760}
@@ -3228,17 +3400,17 @@ function Page19Placeholder({
             />
           </g>
 
-          <g data-geometry-node-id="mem-vk" data-geometry-node-label="Vulkan Pipeline Cache">
+          <g data-geometry-node-id="api-vk" data-geometry-node-label="Vulkan Pipeline Cache">
             <StageBox
-              box={PAGE19_MEMORY_VK_BOX}
+              box={PAGE19_API_VK_BOX}
               fill={CARD_FILL}
               stroke={NODE_STROKE}
               strokeWidth={2.1}
               markGeometryBox
             />
             <StackedLabel
-              x={centerX(PAGE19_MEMORY_VK_BOX)}
-              y={centerY(PAGE19_MEMORY_VK_BOX) + 1}
+              x={centerX(PAGE19_API_VK_BOX)}
+              y={centerY(PAGE19_API_VK_BOX) + 1}
               lines={["Vulkan", "Pipeline Cache"]}
               fontSize={22}
               fontWeight={760}
@@ -3247,21 +3419,21 @@ function Page19Placeholder({
             />
           </g>
 
-          <g data-geometry-node-id="mem-metal" data-geometry-node-label="Metal Binary Archive 系统管理">
+          <g data-geometry-node-id="api-metal" data-geometry-node-label="Metal Binary Archive 系统管理">
             <StageBox
-              box={PAGE19_MEMORY_MT_BOX}
+              box={PAGE19_API_MT_BOX}
               fill={CARD_FILL}
               stroke={NODE_STROKE}
               strokeWidth={2.1}
               markGeometryBox
             />
             <StackedLabel
-              x={centerX(PAGE19_MEMORY_MT_BOX)}
-              y={centerY(PAGE19_MEMORY_MT_BOX) + 1}
+              x={centerX(PAGE19_API_MT_BOX)}
+              y={centerY(PAGE19_API_MT_BOX) + 1}
               lines={["Metal", "Binary Archive", "系统管理"]}
-              fontSize={18}
+              fontSize={17}
               fontWeight={760}
-              lineGap={16}
+              lineGap={15}
               markGeometryText
             />
           </g>
@@ -3456,85 +3628,69 @@ function Page19Placeholder({
         </g>
 
         <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_STABLE_BOX) + 12,
-            PAGE19_GPU_BOX.x,
-            PAGE19_MAIN_AXIS_Y,
-          )}
+          d={horizontalPath(right(PAGE19_STABLE_BOX), PAGE19_API_BOX.x, centerY(PAGE19_API_BOX))}
           stroke={ACCENT}
+          opacity={gfxOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, gfxOpacity)}
+          dashArray={revealDashArray(stableToGfxPoints, routeReveal)}
+          tipX={PAGE19_API_BOX.x}
+          tipY={centerY(PAGE19_API_BOX)}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.5}
+          headSize={8}
+        />
+        <StrokeArrow
+          d={horizontalPath(right(PAGE19_VERTEX_BOX), PAGE19_GPU_BOX.x, PAGE19_TOP_ROW_Y)}
+          stroke={scene.wireStroke}
           opacity={gpuOpacity}
           headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
-          dashArray={revealDashArray(stableToGpuPoints, routeReveal)}
+          dashArray={revealDashArray(vertexToGpuPoints, routeReveal)}
           tipX={PAGE19_GPU_BOX.x}
-          tipY={PAGE19_MAIN_AXIS_Y}
+          tipY={PAGE19_TOP_ROW_Y}
           direction="right"
           shaftWidth={3}
           underlayWidth={5.5}
           headSize={8}
         />
         <StrokeArrow
-          d={verticalPath(
-            PAGE19_GPU_AXIS_X,
-            PAGE19_VERTEX_CENTER.y + 52,
-            PAGE19_GPU_LABEL_Y - 32,
-          )}
+          d={horizontalPath(right(PAGE19_GPU_BOX), PAGE19_PIXEL_BOX.x, PAGE19_TOP_ROW_Y)}
           stroke={scene.wireStroke}
           opacity={gpuOpacity}
           headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
-          dashArray={revealDashArray(gpuVertexToTextPoints, routeReveal)}
-          tipX={PAGE19_GPU_AXIS_X}
-          tipY={PAGE19_GPU_LABEL_Y - 32}
-          direction="down"
+          dashArray={revealDashArray(gpuToPixelsPoints, routeReveal)}
+          tipX={PAGE19_PIXEL_BOX.x}
+          tipY={PAGE19_TOP_ROW_Y}
+          direction="right"
           shaftWidth={3}
           underlayWidth={5.5}
           headSize={8}
         />
         <StrokeArrow
-          d={verticalPath(
-            PAGE19_GPU_AXIS_X,
-            PAGE19_GPU_LABEL_Y + 32,
-            PAGE19_GPU_PIXELS.y - 12,
-          )}
-          stroke={scene.wireStroke}
-          opacity={gpuOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, gpuOpacity)}
-          dashArray={revealDashArray(gpuTextToPixelsPoints, routeReveal)}
-          tipX={PAGE19_GPU_AXIS_X}
-          tipY={PAGE19_GPU_PIXELS.y - 12}
-          direction="down"
-          shaftWidth={3}
-          underlayWidth={5.5}
-          headSize={8}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_GPU_BOX),
-            PAGE19_MEMORY_BOX.x,
-            PAGE19_MAIN_AXIS_Y,
-          )}
+          d={roundedPolylinePath(gfxToGpuPoints)}
           stroke={ACCENT}
-          opacity={memoryOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, memoryOpacity)}
-          dashArray={revealDashArray(gpuToMemPoints, routeReveal)}
-          tipX={PAGE19_MEMORY_BOX.x}
-          tipY={PAGE19_MAIN_AXIS_Y}
-          direction="right"
+          opacity={gfxOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, gfxOpacity)}
+          dashArray={revealDashArray(gfxToGpuPoints, routeReveal)}
+          tipX={PAGE19_GPU_AXIS_X}
+          tipY={bottom(PAGE19_GPU_BOX)}
+          direction="up"
           shaftWidth={3}
           underlayWidth={5.5}
           headSize={8}
         />
         <StrokeArrow
           d={horizontalPath(
-            right(PAGE19_MEMORY_GL_BOX) + 8,
-            PAGE19_DISK_GL_BOX.x - 8,
-            centerY(PAGE19_MEMORY_GL_BOX),
+            right(PAGE19_API_GL_BOX),
+            PAGE19_DISK_GL_BOX.x,
+            centerY(PAGE19_API_GL_BOX),
           )}
           stroke={scene.wireStroke}
           opacity={diskOpacity}
           headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
           dashArray="10 8"
-          tipX={PAGE19_DISK_GL_BOX.x - 8}
-          tipY={centerY(PAGE19_MEMORY_GL_BOX)}
+          tipX={PAGE19_DISK_GL_BOX.x}
+          tipY={centerY(PAGE19_API_GL_BOX)}
           direction="right"
           shaftWidth={2.4}
           underlayWidth={4.4}
@@ -3542,16 +3698,16 @@ function Page19Placeholder({
         />
         <StrokeArrow
           d={horizontalPath(
-            right(PAGE19_MEMORY_VK_BOX) + 8,
-            PAGE19_DISK_VK_BOX.x - 8,
-            centerY(PAGE19_MEMORY_VK_BOX),
+            right(PAGE19_API_VK_BOX),
+            PAGE19_DISK_VK_BOX.x,
+            centerY(PAGE19_API_VK_BOX),
           )}
           stroke={scene.wireStroke}
           opacity={diskOpacity}
           headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
           dashArray="10 8"
-          tipX={PAGE19_DISK_VK_BOX.x - 8}
-          tipY={centerY(PAGE19_MEMORY_VK_BOX)}
+          tipX={PAGE19_DISK_VK_BOX.x}
+          tipY={centerY(PAGE19_API_VK_BOX)}
           direction="right"
           shaftWidth={2.4}
           underlayWidth={4.4}
@@ -3559,16 +3715,16 @@ function Page19Placeholder({
         />
         <StrokeArrow
           d={horizontalPath(
-            right(PAGE19_MEMORY_MT_BOX) + 8,
-            PAGE19_DISK_MT_BOX.x - 8,
-            centerY(PAGE19_MEMORY_MT_BOX),
+            right(PAGE19_API_MT_BOX),
+            PAGE19_DISK_MT_BOX.x,
+            centerY(PAGE19_API_MT_BOX),
           )}
           stroke={scene.wireStroke}
           opacity={diskOpacity}
           headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
           dashArray="10 8"
-          tipX={PAGE19_DISK_MT_BOX.x - 8}
-          tipY={centerY(PAGE19_MEMORY_MT_BOX)}
+          tipX={PAGE19_DISK_MT_BOX.x}
+          tipY={centerY(PAGE19_API_MT_BOX)}
           direction="right"
           shaftWidth={2.4}
           underlayWidth={4.4}
@@ -3722,83 +3878,687 @@ function Page21Placeholder({
   opacity: number;
   entryProgress: number;
 }) {
-  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
-  const panelOpacity = opacity * reveal;
-  const leftCard = {x: 80, y: 146, width: 608, height: 402, radius: 28};
-  const rightCard1 = {x: 712, y: 146, width: 432, height: 102, radius: 24};
-  const rightCard2 = {x: 712, y: 296, width: 432, height: 102, radius: 24};
-  const rightCard3 = {x: 712, y: 446, width: 432, height: 114, radius: 24};
-
+  const reveal = resolveWindowProgress(entryProgress, 0.02, 0.82, easeOutQuint);
+  const panelReveal = resolveWindowProgress(opacity, 0, 0.5, easeOutQuint);
+  const panelOpacity = panelReveal * reveal;
+  const callbackRestore = resolveWindowProgress(entryProgress, 0.02, 0.1, easeOutQuint);
+  const callbackStructureReveal = resolveWindowProgress(
+    entryProgress,
+    0.03,
+    0.16,
+    easeOutQuint,
+  );
+  const callbackExit = resolveWindowProgress(entryProgress, 0.8, 0.96, easeInOutCubic);
+  const callbackStageOpacity = callbackRestore * (1 - callbackExit);
+  const callbackStageShiftX =
+    mix(96, 0, callbackRestore) + mix(0, -294, callbackExit);
+  const sharedCarrierOpacity = panelOpacity * resolveWindowProgress(
+    entryProgress,
+    0.04,
+    0.98,
+    easeOutQuint,
+  );
+  const sharedMorphProgress = resolveWindowProgress(
+    entryProgress,
+    0.7,
+    0.92,
+    easeInOutCubic,
+  );
+  const sharedContentProgress = resolveWindowProgress(
+    entryProgress,
+    0.82,
+    0.96,
+    easeOutQuint,
+  );
+  const sharedRouteReveal = resolveWindowProgress(
+    entryProgress,
+    0.14,
+    0.96,
+    easeOutQuint,
+  );
+  const footerOpacity = resolveWindowProgress(entryProgress, 0.88, 0.99, easeOutQuint);
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
-        <LateLeadCard
+        <Page18RestoreCarrier
           scene={scene}
-          box={leftCard}
-          eyebrow="PSO 缓存有效性边界"
-          headline="什么时候会失效？"
-          bodyLines={[
-            "先问边界：PSO Cache 不是跨内容、跨版本、跨环境永久复用。",
-            "Shader / PSO 描述、编译链、映射关系、驱动环境一变，",
-            "旧缓存就可能失效。",
-            "关键不是幻想永不失效，而是先分清复用边界和重建边界。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="left-card"
-          accent
-          headlineFontSize={24}
-          bodyFontSize={16.5}
-          bodyLineGap={23}
+          opacity={callbackStageOpacity}
+          reveal={callbackStructureReveal}
+          shiftX={callbackStageShiftX}
+          showSharedDeliveryElements={false}
         />
-        <LateInfoCard
+        <Page21SharedDeliveryLayer
           scene={scene}
-          box={rightCard1}
-          title="内容 / 状态变了"
-          lines={[
-            "Shader、Permute、Vertex Layout、",
-            "Render State 一变，就已经不是同一组 PSO。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="right-1"
-          compact
-          accent
-          bodyFontSize={16}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard2}
-          title="版本 / 构建变了"
-          lines={[
-            "SharedCode、codegen、Hash、scl 映射一变，",
-            "旧缓存通常就要重新 expand / build。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="right-2"
-          compact
-          bodyFontSize={16}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard3}
-          title="环境变了"
-          lines={[
-            "OS / Driver / GPU / API 一变，本地缓存就可能失效。",
-            "各 API 的持久化边界本来就不同。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="right-3"
-          compact
-          bodyFontSize={16}
-          lineGapOverride={21}
+          opacity={sharedCarrierOpacity}
+          morphProgress={sharedMorphProgress}
+          contentProgress={sharedContentProgress}
+          routeReveal={sharedRouteReveal}
         />
         <LateFooterBar
           scene={scene}
-          opacity={panelOpacity}
+          opacity={footerOpacity}
           geometryNodeId="footer"
-          text="缓存不是永不失效，而是把可复用边界和重建边界讲清楚。"
+          box={PAGE21_FOOTER_BOX}
+          text="玩家拿到 stable.upipelinecache + ShaderLibrary 后，运行时更不容易卡顿。"
         />
       </g>
     </PlaceholderBoardShell>
+  );
+}
+
+function Page18RestoreCarrier({
+  scene,
+  opacity,
+  reveal,
+  shiftX,
+  showSharedDeliveryElements = true,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  reveal: number;
+  shiftX: number;
+  showSharedDeliveryElements?: boolean;
+}) {
+  const stablePcBox = STABLE_PC_BOX;
+  const cookToSplitPoints = [
+    {x: centerX(COMPUTER_BOX), y: bottom(COMPUTER_BOX) + 8},
+    {x: centerX(COMPUTER_BOX), y: SPLIT_CENTER.y},
+    {x: SPLIT_CENTER.x - 8, y: SPLIT_CENTER.y},
+  ];
+  const splitToSclPoints = [
+    {x: SPLIT_CENTER.x, y: SPLIT_CENTER.y - 8},
+    {x: centerX(SCL_BOX), y: SCL_BOX.y + SCL_BOX.height},
+  ];
+  const splitToBytecodePoints = [
+    {x: SPLIT_CENTER.x + 8, y: SPLIT_CENTER.y},
+    {x: BYTECODE_BOX.x - 12, y: centerY(BYTECODE_BOX)},
+  ];
+  const bytecodeToPhonePoints = [
+    {x: right(BYTECODE_BOX) + 12, y: centerY(BYTECODE_BOX)},
+    {x: 920, y: centerY(BYTECODE_BOX)},
+    {x: 920, y: PHONE_GPU.y + 76},
+    {x: PHONE_BOX.x - 10, y: PHONE_GPU.y + 76},
+  ];
+  const recPhoneToRecPoints = [
+    {x: centerX(PHONE_BOX), y: PHONE_BOX.y - 8},
+    {x: centerX(PHONE_BOX), y: centerY(REC_BOX)},
+    {x: right(REC_BOX) + 12, y: centerY(REC_BOX)},
+  ];
+  const recToComputerPoints = [
+    {x: REC_BOX.x - 12, y: centerY(REC_BOX)},
+    {x: centerX(COMPUTER_BOX), y: centerY(REC_BOX)},
+    {x: centerX(COMPUTER_BOX), y: COMPUTER_BOX.y - 8},
+  ];
+  const stableExpandToMergePoints = [
+    {x: right(COMPUTER_BOX) + 18, y: PAGE15_EXPAND_MERGE_CENTER.y},
+    {x: PAGE15_EXPAND_MERGE_CENTER.x - 18, y: PAGE15_EXPAND_MERGE_CENTER.y},
+  ];
+  const stableExpandMergeToStablePcPoints = [
+    {x: PAGE15_EXPAND_MERGE_CENTER.x + 18, y: PAGE15_EXPAND_MERGE_CENTER.y},
+    {x: stablePcBox.x - 10, y: centerY(stablePcBox)},
+  ];
+  const sclToExpandMergePoints = [
+    {x: centerX(SCL_BOX), y: SCL_BOX.y - 10},
+    {x: PAGE15_EXPAND_MERGE_CENTER.x, y: PAGE15_EXPAND_MERGE_CENTER.y + 18},
+  ];
+  const stablePcToMergePoints = [
+    {x: right(stablePcBox) + 10, y: centerY(stablePcBox)},
+    {x: PAGE15_MERGE_CENTER.x - 20, y: PAGE15_MERGE_CENTER.y},
+  ];
+  const sclToMergePoints = [
+    {x: right(SCL_BOX) + 10, y: centerY(SCL_BOX)},
+    {x: PAGE15_MERGE_CENTER.x, y: centerY(SCL_BOX)},
+    {x: PAGE15_MERGE_CENTER.x, y: PAGE15_MERGE_CENTER.y + 18},
+  ];
+  const mergeToStablePoints = [
+    {x: PAGE15_MERGE_CENTER.x + 20, y: PAGE15_MERGE_CENTER.y},
+    {x: STABLE_UPIPE_BOX.x - 10, y: centerY(STABLE_UPIPE_BOX)},
+  ];
+  const stableToPhoneY = centerY(STABLE_UPIPE_BOX);
+  const stableToPhonePoints = [
+    {x: right(STABLE_UPIPE_BOX) + 10, y: stableToPhoneY},
+    {x: PHONE_BOX.x - 10, y: stableToPhoneY},
+  ];
+  const deviceReveal = resolveWindowProgress(reveal, 0.02, 0.16, easeOutQuint);
+  const cookCarrierOpacity = resolveWindowProgress(reveal, 0.06, 0.22, easeOutQuint);
+  const cookMainReveal = resolveWindowProgress(reveal, 0.08, 0.2, easeOutQuint);
+  const cookBranchReveal = resolveWindowProgress(reveal, 0.12, 0.26, easeOutQuint);
+  const bytecodeNodeOpacity = resolveWindowProgress(reveal, 0.14, 0.28, easeOutQuint);
+  const bytecodeRouteOpacity = resolveWindowProgress(reveal, 0.18, 0.34, easeOutQuint);
+  const bytecodeRouteReveal = resolveWindowProgress(reveal, 0.2, 0.36, easeOutQuint);
+  const sclOpacity = resolveWindowProgress(reveal, 0.12, 0.24, easeOutQuint);
+  const recOpacity = resolveWindowProgress(reveal, 0.28, 0.44, easeOutQuint);
+  const recEdge1Reveal = resolveWindowProgress(reveal, 0.28, 0.42, easeOutQuint);
+  const recEdge2Reveal = resolveWindowProgress(reveal, 0.32, 0.48, easeOutQuint);
+  const stableNode1Opacity = resolveWindowProgress(reveal, 0.46, 0.58, easeOutQuint);
+  const stableNode2Opacity = resolveWindowProgress(reveal, 0.52, 0.66, easeOutQuint);
+  const stableNode3Opacity = resolveWindowProgress(reveal, 0.58, 0.72, easeOutQuint);
+  const stableNode4Opacity = resolveWindowProgress(reveal, 0.64, 0.8, easeOutQuint);
+  const stableEdge1Opacity = resolveWindowProgress(reveal, 0.46, 0.58, easeOutQuint);
+  const stableEdge1Reveal = resolveWindowProgress(reveal, 0.46, 0.6, easeOutQuint);
+  const stableEdge2Opacity = resolveWindowProgress(reveal, 0.52, 0.64, easeOutQuint);
+  const stableEdge2Reveal = resolveWindowProgress(reveal, 0.52, 0.66, easeOutQuint);
+  const stableSupportEdge1Opacity = resolveWindowProgress(
+    reveal,
+    0.54,
+    0.68,
+    easeOutQuint,
+  );
+  const stableSupportEdge1Reveal = resolveWindowProgress(
+    reveal,
+    0.54,
+    0.7,
+    easeOutQuint,
+  );
+  const stableEdge3Opacity = resolveWindowProgress(reveal, 0.6, 0.72, easeOutQuint);
+  const stableEdge3Reveal = resolveWindowProgress(reveal, 0.6, 0.74, easeOutQuint);
+  const stableSupportEdge2Opacity = resolveWindowProgress(
+    reveal,
+    0.62,
+    0.76,
+    easeOutQuint,
+  );
+  const stableSupportEdge2Reveal = resolveWindowProgress(
+    reveal,
+    0.62,
+    0.78,
+    easeOutQuint,
+  );
+  const stableEdge4Opacity = resolveWindowProgress(reveal, 0.68, 0.82, easeOutQuint);
+  const stableEdge4Reveal = resolveWindowProgress(reveal, 0.68, 0.84, easeOutQuint);
+  const stableToPhoneOpacity = resolveWindowProgress(reveal, 0.74, 0.88, easeOutQuint);
+  const stableToPhoneReveal = resolveWindowProgress(reveal, 0.74, 0.9, easeOutQuint);
+  const cookLabelOpacity = resolveWindowProgress(reveal, 0.1, 0.24, easeOutQuint);
+
+  return (
+    <g
+      data-testid="page21-callback-stage"
+      opacity={opacity}
+      transform={`translate(${shiftX} 0)`}
+    >
+      <g data-testid="page21-callback-computer">
+        <ComputerDevice
+          scene={scene}
+          opacity={0.82 * deviceReveal}
+          scale={1}
+          showLabel
+        />
+      </g>
+      {showSharedDeliveryElements ? (
+        <g data-testid="page21-callback-phone">
+          <PhoneDevice
+            scene={scene}
+            opacity={deviceReveal}
+            scale={1}
+            landingFocus={0}
+            stableFocus={0}
+            showShell
+            showDeviceLabel={false}
+            showVertexLabel={false}
+            showPixelsLabel={false}
+            contentOpacity={0.92 * deviceReveal}
+          />
+        </g>
+      ) : null}
+      <ArtifactNode
+        box={SCL_BOX}
+        scene={scene}
+        opacity={sclOpacity}
+        label=".scl.csv"
+        geometryNodeId="page21-callback-scl"
+        geometryNodeLabel=".scl.csv"
+      />
+      {showSharedDeliveryElements ? (
+        <ArtifactNode
+          box={BYTECODE_BOX}
+          scene={scene}
+          opacity={bytecodeNodeOpacity}
+          label=".ushaderbytecode"
+          geometryNodeId="page21-callback-shader"
+          geometryNodeLabel=".ushaderbytecode"
+        />
+      ) : null}
+      <ArtifactNode
+        box={REC_BOX}
+        scene={scene}
+        opacity={recOpacity}
+        label="rec.upipelinecache"
+        geometryNodeId="page21-callback-rec"
+        geometryNodeLabel="rec.upipelinecache"
+      />
+      <ArtifactNode
+        box={stablePcBox}
+        scene={scene}
+        opacity={stableNode2Opacity}
+        label="stablepc.csv"
+        geometryNodeId="page21-callback-stablepc"
+        geometryNodeLabel="stablepc.csv"
+      />
+      {showSharedDeliveryElements ? (
+        <ArtifactNode
+          box={STABLE_UPIPE_BOX}
+          scene={scene}
+          opacity={stableNode4Opacity}
+          lines={["stable.", "upipelinecache"]}
+          geometryNodeId="page21-callback-pso"
+          geometryNodeLabel="stable.upipelinecache"
+        />
+      ) : null}
+      {cookCarrierOpacity > 0.001 ? (
+        <>
+          <circle
+            cx={SPLIT_CENTER.x}
+            cy={SPLIT_CENTER.y}
+            r="8"
+            fill="rgba(255, 251, 246, 0.98)"
+            stroke={scene.nodeStroke}
+            strokeWidth="2.2"
+            opacity={cookCarrierOpacity}
+          />
+          <StrokeArrow
+            testId="page21-callback-cook-arrow"
+            d={roundedPolylinePath(cookToSplitPoints)}
+            stroke={LOOP_CLOUD_STROKE}
+            opacity={cookCarrierOpacity}
+            headOpacity={revealHeadOpacity(cookMainReveal, cookCarrierOpacity)}
+            dashArray={revealDashArray(cookToSplitPoints, cookMainReveal)}
+            tipX={SPLIT_CENTER.x - 8}
+            tipY={SPLIT_CENTER.y}
+            direction="right"
+            shaftWidth={3.2}
+            underlayWidth={6}
+            headSize={9}
+          />
+          <text
+            x={(centerX(COMPUTER_BOX) + (SPLIT_CENTER.x - 8)) / 2}
+            y={SPLIT_CENTER.y - 28}
+            fill={LOOP_CLOUD_STROKE}
+            fontSize="24"
+            fontWeight="760"
+            textAnchor="middle"
+            opacity={cookLabelOpacity}
+          >
+            cook
+          </text>
+          <StrokeArrow
+            testId="page21-callback-split-to-scl-arrow"
+            d={roundedPolylinePath(splitToSclPoints)}
+            stroke={LOOP_CLOUD_STROKE}
+            opacity={cookCarrierOpacity}
+            headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
+            dashArray={revealDashArray(splitToSclPoints, cookBranchReveal)}
+            tipX={centerX(SCL_BOX)}
+            tipY={SCL_BOX.y + SCL_BOX.height}
+            direction="up"
+            shaftWidth={3.2}
+            underlayWidth={5.8}
+            headSize={9}
+          />
+          <StrokeArrow
+            testId="page21-callback-split-to-bytecode-arrow"
+            d={roundedPolylinePath(splitToBytecodePoints)}
+            stroke={LOOP_CLOUD_STROKE}
+            opacity={cookCarrierOpacity}
+            headOpacity={revealHeadOpacity(cookBranchReveal, cookCarrierOpacity)}
+            dashArray={revealDashArray(splitToBytecodePoints, cookBranchReveal)}
+            tipX={BYTECODE_BOX.x - 12}
+            tipY={centerY(BYTECODE_BOX)}
+            direction="right"
+            shaftWidth={3.2}
+            underlayWidth={5.8}
+            headSize={9}
+          />
+        </>
+      ) : null}
+      {showSharedDeliveryElements ? (
+        <StrokeArrow
+          testId="page21-callback-shader-to-phone-arrow"
+          d={roundedPolylinePath(bytecodeToPhonePoints)}
+          stroke={scene.apiStroke}
+          opacity={bytecodeRouteOpacity}
+          headOpacity={revealHeadOpacity(bytecodeRouteReveal, bytecodeRouteOpacity)}
+          dashArray={revealDashArray(bytecodeToPhonePoints, bytecodeRouteReveal)}
+          tipX={PHONE_BOX.x - 10}
+          tipY={PHONE_GPU.y + 76}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.8}
+          headSize={8}
+        />
+      ) : null}
+      <StrokeArrow
+        testId="page21-callback-phone-to-rec-arrow"
+        d={roundedPolylinePath(recPhoneToRecPoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={recOpacity}
+        headOpacity={revealHeadOpacity(recEdge1Reveal, recOpacity)}
+        dashArray={revealDashArray(recPhoneToRecPoints, recEdge1Reveal)}
+        tipX={right(REC_BOX) + 12}
+        tipY={centerY(REC_BOX)}
+        direction="left"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <StrokeArrow
+        testId="page21-callback-rec-to-computer-arrow"
+        d={roundedPolylinePath(recToComputerPoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={recOpacity}
+        headOpacity={revealHeadOpacity(recEdge2Reveal, recOpacity)}
+        dashArray={revealDashArray(recToComputerPoints, recEdge2Reveal)}
+        tipX={centerX(COMPUTER_BOX)}
+        tipY={COMPUTER_BOX.y - 8}
+        direction="down"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <g opacity={stableNode1Opacity}>
+        <circle
+          cx={PAGE15_EXPAND_MERGE_CENTER.x}
+          cy={PAGE15_EXPAND_MERGE_CENTER.y}
+          r="18"
+          fill="rgba(255, 251, 246, 0.98)"
+          stroke={scene.nodeStroke}
+          strokeWidth="2.4"
+        />
+        <text
+          x={PAGE15_EXPAND_MERGE_CENTER.x}
+          y={PAGE15_EXPAND_MERGE_CENTER.y + 1}
+          fill="#22303d"
+          fontSize="22"
+          fontWeight="760"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          +
+        </text>
+      </g>
+      <g opacity={stableNode3Opacity}>
+        <circle
+          cx={PAGE15_MERGE_CENTER.x}
+          cy={PAGE15_MERGE_CENTER.y}
+          r="18"
+          fill="rgba(255, 251, 246, 0.98)"
+          stroke={scene.nodeStroke}
+          strokeWidth="2.4"
+        />
+        <text
+          x={PAGE15_MERGE_CENTER.x}
+          y={PAGE15_MERGE_CENTER.y + 1}
+          fill="#22303d"
+          fontSize="22"
+          fontWeight="760"
+          textAnchor="middle"
+          dominantBaseline="middle"
+        >
+          +
+        </text>
+      </g>
+      <StrokeArrow
+        testId="page21-callback-expand-to-merge-arrow"
+        d={roundedPolylinePath(stableExpandToMergePoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableEdge1Opacity}
+        headOpacity={revealHeadOpacity(stableEdge1Reveal, stableEdge1Opacity)}
+        dashArray={revealDashArray(stableExpandToMergePoints, stableEdge1Reveal)}
+        tipX={PAGE15_EXPAND_MERGE_CENTER.x - 18}
+        tipY={PAGE15_EXPAND_MERGE_CENTER.y}
+        direction="right"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <text
+        x={(PAGE15_EXPAND_MERGE_CENTER.x + 18 + (stablePcBox.x - 10)) / 2}
+        y={PAGE15_EXPAND_MERGE_CENTER.y - 24}
+        fill={LOOP_CLOUD_STROKE}
+        fontSize="24"
+        fontWeight="760"
+        textAnchor="middle"
+        opacity={stableNode1Opacity}
+      >
+        expand
+      </text>
+      <StrokeArrow
+        testId="page21-callback-expand-merge-to-stablepc-arrow"
+        d={roundedPolylinePath(stableExpandMergeToStablePcPoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableEdge2Opacity}
+        headOpacity={revealHeadOpacity(stableEdge2Reveal, stableEdge2Opacity)}
+        dashArray={revealDashArray(
+          stableExpandMergeToStablePcPoints,
+          stableEdge2Reveal,
+        )}
+        tipX={stablePcBox.x - 10}
+        tipY={centerY(stablePcBox)}
+        direction="right"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <StrokeArrow
+        testId="page21-callback-scl-to-expand-merge-arrow"
+        d={roundedPolylinePath(sclToExpandMergePoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableSupportEdge1Opacity}
+        headOpacity={revealHeadOpacity(
+          stableSupportEdge1Reveal,
+          stableSupportEdge1Opacity,
+        )}
+        dashArray={revealDashArray(
+          sclToExpandMergePoints,
+          stableSupportEdge1Reveal,
+        )}
+        tipX={PAGE15_EXPAND_MERGE_CENTER.x}
+        tipY={PAGE15_EXPAND_MERGE_CENTER.y + 18}
+        direction="up"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <StrokeArrow
+        testId="page21-callback-stablepc-to-merge-arrow"
+        d={roundedPolylinePath(stablePcToMergePoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableEdge3Opacity}
+        headOpacity={revealHeadOpacity(stableEdge3Reveal, stableEdge3Opacity)}
+        dashArray={revealDashArray(stablePcToMergePoints, stableEdge3Reveal)}
+        tipX={PAGE15_MERGE_CENTER.x - 20}
+        tipY={PAGE15_MERGE_CENTER.y}
+        direction="right"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <StrokeArrow
+        testId="page21-callback-scl-to-merge-arrow"
+        d={roundedPolylinePath(sclToMergePoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableSupportEdge2Opacity}
+        headOpacity={revealHeadOpacity(
+          stableSupportEdge2Reveal,
+          stableSupportEdge2Opacity,
+        )}
+        dashArray={revealDashArray(sclToMergePoints, stableSupportEdge2Reveal)}
+        tipX={PAGE15_MERGE_CENTER.x}
+        tipY={PAGE15_MERGE_CENTER.y + 18}
+        direction="up"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      <StrokeArrow
+        testId="page21-callback-merge-to-stable-arrow"
+        d={roundedPolylinePath(mergeToStablePoints)}
+        stroke={LOOP_CLOUD_STROKE}
+        opacity={stableEdge4Opacity}
+        headOpacity={revealHeadOpacity(stableEdge4Reveal, stableEdge4Opacity)}
+        dashArray={revealDashArray(mergeToStablePoints, stableEdge4Reveal)}
+        tipX={STABLE_UPIPE_BOX.x - 10}
+        tipY={centerY(STABLE_UPIPE_BOX)}
+        direction="right"
+        shaftWidth={3.2}
+        underlayWidth={5.8}
+        headSize={9}
+      />
+      {showSharedDeliveryElements ? (
+        <StrokeArrow
+          testId="page21-callback-pso-to-phone-arrow"
+          d={roundedPolylinePath(stableToPhonePoints)}
+          stroke={scene.apiStroke}
+          opacity={stableToPhoneOpacity}
+          headOpacity={revealHeadOpacity(stableToPhoneReveal, stableToPhoneOpacity)}
+          dashArray={revealDashArray(stableToPhonePoints, stableToPhoneReveal)}
+          tipX={PHONE_BOX.x - 10}
+          tipY={stableToPhoneY}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.8}
+          headSize={8}
+        />
+      ) : null}
+    </g>
+  );
+}
+
+function Page21SharedDeliveryLayer({
+  scene,
+  opacity,
+  morphProgress,
+  contentProgress,
+  routeReveal,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  morphProgress: number;
+  contentProgress: number;
+  routeReveal: number;
+}) {
+  const psoBox = mixBox(STABLE_UPIPE_BOX, PAGE21_PSO_BOX, morphProgress);
+  const shaderBox = mixBox(BYTECODE_BOX, PAGE21_SHADER_BOX, morphProgress);
+  const phoneScale = mix(1, 1.34, morphProgress);
+  const phoneOffsetX = mix(0, -284, morphProgress);
+  const phoneWidth = PHONE_BOX.width * phoneScale;
+  const phoneHeight = PHONE_BOX.height * phoneScale;
+  const phoneCenter = {
+    x: centerX(PHONE_BOX) + phoneOffsetX,
+    y: centerY(PHONE_BOX),
+  };
+  const phoneMetrics = {
+    x: phoneCenter.x - phoneWidth / 2,
+    y: phoneCenter.y - phoneHeight / 2,
+    width: phoneWidth,
+    height: phoneHeight,
+  };
+  const upperRoute = [
+    {x: right(psoBox) + 10, y: centerY(psoBox)},
+    {x: phoneMetrics.x - 12, y: centerY(psoBox)},
+  ];
+  const lowerRoute = [
+    {x: right(shaderBox) + 10, y: centerY(shaderBox)},
+    {x: phoneMetrics.x - 12, y: centerY(shaderBox)},
+  ];
+  const transitionOpacity = opacity;
+  const oldContentOpacity = transitionOpacity * (1 - contentProgress);
+  const newContentOpacity = transitionOpacity * contentProgress;
+  const phoneLabelOpacity = resolveWindowProgress(contentProgress, 0.44, 1, easeOutQuint);
+  const routeOpacity = transitionOpacity;
+
+  return (
+    <>
+      <g data-testid="page21-pso-card">
+        <ArtifactNode
+          box={psoBox}
+          scene={scene}
+          opacity={oldContentOpacity}
+          lines={["stable.", "upipelinecache"]}
+          labelFontSize={26}
+          emphasized
+        />
+        <ArtifactNode
+          box={psoBox}
+          scene={scene}
+          opacity={newContentOpacity}
+          label="stable.upipelinecache"
+          detail="预构建 PSO"
+          geometryNodeId="pso-card"
+          geometryNodeLabel="stable.upipelinecache"
+          labelFontSize={23}
+          detailFontSize={17}
+          emphasized
+        />
+      </g>
+      <g data-testid="page21-shader-card">
+        <ArtifactNode
+          box={shaderBox}
+          scene={scene}
+          opacity={oldContentOpacity}
+          label=".ushaderbytecode"
+        />
+        <ArtifactNode
+          box={shaderBox}
+          scene={scene}
+          opacity={newContentOpacity}
+          label="ShaderLibrary"
+          detail=".ushaderbytecode"
+          geometryNodeId="shader-card"
+          geometryNodeLabel="ShaderLibrary"
+          labelFontSize={27}
+          detailFontSize={17}
+          emphasized
+        />
+      </g>
+      <g data-testid="page21-player-phone" opacity={transitionOpacity}>
+        <PhoneDevice
+          scene={scene}
+          opacity={1}
+          scale={phoneScale}
+          landingFocus={0}
+          stableFocus={0}
+          offsetX={phoneOffsetX}
+          showShell
+          showDeviceLabel
+          deviceLabel="玩家"
+          deviceLabelOpacity={phoneLabelOpacity}
+          showRuntimeLabel={false}
+          showVertexLabel={false}
+          showPixelsLabel={false}
+          contentOpacity={1}
+        />
+      </g>
+      <g opacity={routeOpacity}>
+        <StrokeArrow
+          testId="page21-pso-to-phone-arrow"
+          d={roundedPolylinePath(upperRoute)}
+          stroke={scene.apiStroke}
+          opacity={routeOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, routeOpacity)}
+          dashArray={revealDashArray(upperRoute, routeReveal)}
+          tipX={upperRoute[upperRoute.length - 1]!.x}
+          tipY={upperRoute[upperRoute.length - 1]!.y}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.4}
+          headSize={8}
+        />
+        <StrokeArrow
+          testId="page21-shader-to-phone-arrow"
+          d={roundedPolylinePath(lowerRoute)}
+          stroke={scene.apiStroke}
+          opacity={routeOpacity}
+          headOpacity={revealHeadOpacity(routeReveal, routeOpacity)}
+          dashArray={revealDashArray(lowerRoute, routeReveal)}
+          tipX={lowerRoute[lowerRoute.length - 1]!.x}
+          tipY={lowerRoute[lowerRoute.length - 1]!.y}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.4}
+          headSize={8}
+        />
+      </g>
+    </>
   );
 }
 
@@ -3898,11 +4658,12 @@ function Page24StrategyPage({
   const leftCard = {x: 44, y: 58, width: 520, height: 560, radius: 30};
   const rightCard = {x: 588, y: 58, width: 648, height: 560, radius: 30};
   const page24FooterBox = {x: 120, y: 628, width: 1040, height: 52, radius: 22};
-  const packageRows = [
-    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "LZ4"),
-    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "zstd"),
-    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === "Oodle Leviathan"),
-  ].filter((row): row is (typeof COMPRESSION_SUMMARY_ROWS)[number] => Boolean(row));
+  const packageRows = COMPRESSION_SUMMARY_ROWS.filter(
+    (row) =>
+      row.algorithm === "LZ4" ||
+      row.algorithm === "zstd" ||
+      row.algorithm === "Oodle Leviathan",
+  );
   const packageRowBoxes = packageRows.map((_, index) => ({
     x: leftCard.x + 18,
     y: leftCard.y + 82 + index * 140,
@@ -5526,6 +6287,7 @@ function EndingLinkItem({
   subtitle,
   href,
   geometryNodeId,
+  geometryWidth = 520,
   markGeometryText = false,
   titleFontSize = 24,
   subtitleFontSize = 17,
@@ -5537,6 +6299,7 @@ function EndingLinkItem({
   subtitle: string;
   href?: string;
   geometryNodeId?: string;
+  geometryWidth?: number;
   markGeometryText?: boolean;
   titleFontSize?: number;
   subtitleFontSize?: number;
@@ -5568,7 +6331,7 @@ function EndingLinkItem({
           <rect
             x={x - 4}
             y={y - Math.max(titleFontSize, subtitleFontSize)}
-            width={520}
+            width={geometryWidth}
             height={subtitleOffset + subtitleFontSize + 8}
             rx={8}
             fill="transparent"
@@ -5853,21 +6616,31 @@ function Page29GovernanceSourcePage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCode = {x: 72, y: 132, width: 520, height: 286, radius: 24};
-  const rightCode = {x: 610, y: 132, width: 584, height: 286, radius: 24};
-  const leftImage = {x: leftCode.x, y: 446, width: leftCode.width, height: 222, radius: 16};
+  const compileParamBox = {x: 330, y: 116, width: 620, height: 42, radius: 16};
+  const leftCode = {x: 72, y: 164, width: 520, height: 286, radius: 24};
+  const rightCode = {x: 610, y: 164, width: 584, height: 286, radius: 24};
+  const leftImage = {x: leftCode.x, y: 478, width: leftCode.width, height: 200, radius: 16};
   const rightImage = {
     x: rightCode.x,
-    y: 446,
+    y: 478,
     width: rightCode.width,
-    height: 232,
+    height: 208,
     radius: 16,
   };
-  const footerBox = {x: 120, y: 688, width: 1040, height: 54, radius: 22};
+  const footerBox = {x: 120, y: 700, width: 1040, height: 48, radius: 22};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+        <MicroToken
+          scene={scene}
+          box={compileParamBox}
+          label="编译参数：NUM_MATERIAL_TEXCOORDS_VERTEX = 2"
+          opacity={panelOpacity}
+          geometryNodeId="compile-param"
+          fontSize={17}
+          accent
+        />
         <LateCodeCard
           scene={scene}
           box={leftCode}
@@ -5893,7 +6666,7 @@ function Page29GovernanceSourcePage({
         <LateBareImage
           scene={scene}
           box={leftImage}
-          title="NUM_MATERIAL_TEXCOORDS_VERTEX = 1"
+          title="Mesh：1 个 UV"
           href="/supplement/ogl-mtl/uv-stride4-ia.png"
           clipId="page29-uv4"
           opacity={panelOpacity}
@@ -5906,7 +6679,7 @@ function Page29GovernanceSourcePage({
         <LateBareImage
           scene={scene}
           box={rightImage}
-          title="NUM_MATERIAL_TEXCOORDS_VERTEX = 2"
+          title="Mesh：2 个 UV"
           href="/supplement/ogl-mtl/uv-stride8-ia.png"
           clipId="page29-uv8"
           opacity={panelOpacity}
@@ -5928,7 +6701,7 @@ function Page29GovernanceSourcePage({
   );
 }
 
-function Page30GovernanceConclusionPage({
+function Page30PsoReadingPage({
   scene,
   opacity,
   entryProgress,
@@ -5939,75 +6712,68 @@ function Page30GovernanceConclusionPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftImage = {x: 86, y: 144, width: 516, height: 292, radius: 18};
-  const rightImage = {x: 678, y: 144, width: 516, height: 292, radius: 18};
-  const noteCard = {x: 88, y: 458, width: 1104, height: 100, radius: 24};
+  const readingCard = {x: 208, y: 148, width: 864, height: 446, radius: 30};
+  const noteX = readingCard.x + 58;
+  const linkX = readingCard.x + 58;
+  const linkStartY = readingCard.y + 144;
+  const linkStep = 76;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
-        <LateBareImage
-          scene={scene}
-          box={leftImage}
-          title={undefined}
-          href="/supplement/ogl-mtl/uv-stride4-ia.png"
-          clipId="page30-uv4"
-          opacity={panelOpacity}
-          preserveAspectRatio="xMidYMid meet"
-          titleFontSize={18}
-        />
-        <LateBareImage
-          scene={scene}
-          box={rightImage}
-          title={undefined}
-          href="/supplement/ogl-mtl/uv-stride8-ia.png"
-          clipId="page30-uv8"
-          opacity={panelOpacity}
-          preserveAspectRatio="xMidYMid meet"
-          titleFontSize={18}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={noteCard}
-          title="治理结论"
-          lines={[
-            "只要 stride / declaration 改了，后面往往就不再是同一组 PSO。",
-            "除了 UV / declaration，color buffer 等状态也会继续影响结果。",
-          ]}
-          opacity={panelOpacity}
-          geometryNodeId="note"
-          compact
-          accent
-          titleFontSize={21}
-          bodyFontSize={17}
-        />
-        {GOVERNANCE_DIMENSION_TOKENS.map((label, index) => {
-          const tokenBox = {
-            x: noteCard.x + 18 + index * 270,
-            y: 564,
-            width: 202,
-            height: 38,
-            radius: 14,
-          };
-          return (
-            <MicroToken
-              key={`governance-dimension-${label}`}
-              scene={scene}
-              box={tokenBox}
-              label={label}
-              opacity={panelOpacity}
-              geometryNodeId={["token-uv", "token-vd", "token-material", "token-color"][index]}
-              fontSize={16}
-              accent={index === 1}
+        <g
+          data-geometry-node-id="reading-card"
+          data-geometry-node-label="PSO Reading Card"
+        >
+          <StageBox
+            box={readingCard}
+            fill="rgba(255, 252, 247, 0.96)"
+            stroke={scene.nodeStroke}
+            strokeWidth={2.5}
+            markGeometryBox
+          />
+          <text
+            x={centerX(readingCard)}
+            y={readingCard.y + 46}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="26"
+            fontWeight="830"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            工程延伸
+          </text>
+          <text
+            x={noteX}
+            y={readingCard.y + 86}
+            fill="rgba(34, 48, 61, 0.68)"
+            fontSize="17"
+            fontWeight="680"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-id="reading-note"
+            data-geometry-node-label="PSO Reading Note"
+            data-geometry-node-text="1"
+          >
+            把 PSO 这一段的工程资料单独留在这里，包括 Mesa。
+          </text>
+          {ENDING_ENGINEERING_LINKS.map((item, index) => (
+            <EndingLinkItem
+              key={item.title}
+              x={linkX}
+              y={linkStartY + index * linkStep}
+              title={item.title}
+              subtitle={item.subtitle}
+              href={item.href}
+              geometryNodeId={`reading-link-${index + 1}`}
+              geometryWidth={756}
+              titleFontSize={23}
+              subtitleFontSize={16}
+              subtitleOffset={25}
             />
-          );
-        })}
-        <LateFooterBar
-          scene={scene}
-          opacity={panelOpacity}
-          geometryNodeId="footer"
-          text="最好的优化不是后置补救，而是前面就把输入约束好。"
-        />
+          ))}
+        </g>
       </g>
     </PlaceholderBoardShell>
   );
@@ -6391,65 +7157,30 @@ function Page32ReadingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 84, y: 136, width: 504, height: 356, radius: 30};
-  const rightCard = {x: 628, y: 136, width: 504, height: 356, radius: 30};
-  const gameCard = {x: 84, y: 526, width: 1048, height: 116, radius: 24};
+  const cultureCard = {x: 84, y: 136, width: 1048, height: 332, radius: 30};
+  const leftColumnX = cultureCard.x + 42;
+  const rightColumnX = cultureCard.x + 574;
+  const upperRowY = cultureCard.y + 112;
+  const lowerRowY = cultureCard.y + 224;
+  const gameCard = {x: 84, y: 502, width: 1048, height: 128, radius: 24};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
         <g
-          data-geometry-node-id="left-card"
-          data-geometry-node-label="Engineering Reading"
-        >
-          <StageBox
-            box={leftCard}
-            fill="rgba(255, 252, 247, 0.96)"
-            stroke={scene.nodeStroke}
-            strokeWidth={2.4}
-            markGeometryBox
-          />
-          <text
-            x={leftCard.x + 34}
-            y={leftCard.y + 42}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="23"
-            fontWeight="830"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            工程延伸
-          </text>
-          {ENDING_ENGINEERING_LINKS.map((item, index) => (
-            <EndingLinkItem
-              key={item.title}
-              x={leftCard.x + 34}
-              y={leftCard.y + 108 + index * 62}
-              title={item.title}
-              subtitle={item.subtitle}
-              href={item.href}
-              markGeometryText
-              titleFontSize={21}
-              subtitleFontSize={15}
-              subtitleOffset={22}
-            />
-          ))}
-        </g>
-        <g
-          data-geometry-node-id="right-card"
+          data-geometry-node-id="culture-card"
           data-geometry-node-label="Culture Reading"
         >
           <StageBox
-            box={rightCard}
+            box={cultureCard}
             fill="rgba(255, 252, 247, 0.96)"
             stroke={scene.nodeStroke}
             strokeWidth={2.4}
             markGeometryBox
           />
           <text
-            x={rightCard.x + 34}
-            y={rightCard.y + 42}
+            x={cultureCard.x + 34}
+            y={cultureCard.y + 42}
             fill="rgba(214, 102, 48, 0.96)"
             fontSize="23"
             fontWeight="830"
@@ -6459,16 +7190,32 @@ function Page32ReadingPage({
           >
             书与视频
           </text>
-          {ENDING_CULTURE_LINKS.map((item, index) => (
+          {ENDING_CULTURE_LINKS.slice(0, 2).map((item, index) => (
             <EndingLinkItem
               key={item.title}
-              x={rightCard.x + 34}
-              y={rightCard.y + 108 + index * 60}
+              x={leftColumnX}
+              y={index === 0 ? upperRowY : lowerRowY}
               title={item.title}
               subtitle={item.subtitle}
               href={item.href}
-              markGeometryText
-              titleFontSize={21}
+              geometryNodeId={`culture-link-${index + 1}`}
+              geometryWidth={408}
+              titleFontSize={22}
+              subtitleFontSize={15.5}
+              subtitleOffset={23}
+            />
+          ))}
+          {ENDING_CULTURE_LINKS.slice(2).map((item, index) => (
+            <EndingLinkItem
+              key={item.title}
+              x={rightColumnX}
+              y={index === 0 ? upperRowY : lowerRowY}
+              title={item.title}
+              subtitle={item.subtitle}
+              href={item.href}
+              geometryNodeId={`culture-link-${index + 3}`}
+              geometryWidth={408}
+              titleFontSize={22}
               subtitleFontSize={15.5}
               subtitleOffset={23}
             />
@@ -6508,12 +7255,13 @@ function Page32ReadingPage({
           {ENDING_GAME_LINKS.map((item, index) => (
             <EndingLinkItem
               key={item.title}
-              x={gameCard.x + 34 + index * 512}
+              x={gameCard.x + 34 + index * 516}
               y={gameCard.y + 68}
               title={item.title}
               subtitle={item.subtitle}
               href={item.href}
-              markGeometryText
+              geometryNodeId={`game-link-${index + 1}`}
+              geometryWidth={420}
               titleFontSize={20}
               subtitleFontSize={15}
               subtitleOffset={21}
@@ -6675,7 +7423,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   );
   const page21PlaceholderReveal = settledSegmentProgress(
     frame,
-    LOOP_PAGE19_TO_PAGE21_HANDOFF_FRAME,
+    LOOP_PAGE19_FRAME,
     LOOP_PAGE21_FRAME,
   );
   const page22PlaceholderReveal = settledSegmentProgress(
@@ -6688,24 +7436,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE22_FRAME,
     LOOP_PAGE24_FRAME,
   );
-  const page25PlaceholderReveal = settledSegmentProgress(
-    frame,
-    LOOP_PAGE24_FRAME,
-    LOOP_PAGE25_FRAME,
-  );
   const page26PlaceholderReveal = settledSegmentProgress(
     frame,
-    LOOP_PAGE25_FRAME,
+    LOOP_PAGE24_FRAME,
     LOOP_PAGE26_FRAME,
-  );
-  const page27PlaceholderReveal = settledSegmentProgress(
-    frame,
-    LOOP_PAGE26_FRAME,
-    LOOP_PAGE27_FRAME,
   );
   const page28PlaceholderReveal = settledSegmentProgress(
     frame,
-    LOOP_PAGE27_FRAME,
+    LOOP_PAGE26_FRAME,
     LOOP_PAGE28_FRAME,
   );
   const page29PlaceholderReveal = settledSegmentProgress(
@@ -6777,8 +7515,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   );
   const page21PlaceholderVisible = resolveWindowProgress(
     page21PlaceholderReveal,
-    0.08,
-    0.88,
+    0.02,
+    0.82,
     easeInOutCubic,
   );
   const page22PlaceholderVisible = resolveWindowProgress(
@@ -6793,20 +7531,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.88,
     easeInOutCubic,
   );
-  const page25PlaceholderVisible = resolveWindowProgress(
-    page25PlaceholderReveal,
-    0.08,
-    0.88,
-    easeInOutCubic,
-  );
   const page26PlaceholderVisible = resolveWindowProgress(
     page26PlaceholderReveal,
-    0.08,
-    0.88,
-    easeInOutCubic,
-  );
-  const page27PlaceholderVisible = resolveWindowProgress(
-    page27PlaceholderReveal,
     0.08,
     0.88,
     easeInOutCubic,
@@ -6875,15 +7601,17 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page16PlaceholderFocus = page16PlaceholderVisible * page16OverlayExit;
   const page17PlaceholderFocus = page17CarrierVisible * page17OverlayExit;
   const page19PlaceholderFocus = page19PlaceholderVisible * page19OverlayExit;
-  const page21OverlayExit = 1 - page22PlaceholderVisible;
+  const page21OverlayExit =
+    1 - resolveWindowProgress(page22PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
+  const page21PlaceholderFocus = page21PlaceholderVisible * page21OverlayExit;
   const page22OverlayExit = 1 - page24PlaceholderVisible;
-  const page24OverlayExit = 1 - page25PlaceholderVisible;
-  const page25OverlayExit = 1 - page26PlaceholderVisible;
-  const page26OverlayExit = 1 - page27PlaceholderVisible;
-  const page27OverlayExit = 1 - page28PlaceholderVisible;
+  const page24OverlayExit = 1 - page26PlaceholderVisible;
+  const page26OverlayExit = 1 - page28PlaceholderVisible;
   const page28OverlayExit = 1 - page29PlaceholderVisible;
-  const page29OverlayExit = 1 - page30PlaceholderVisible;
-  const page30OverlayExit = 1 - page31PlaceholderVisible;
+  const page29OverlayExit =
+    1 - resolveWindowProgress(page30PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
+  const page30OverlayExit =
+    1 - resolveWindowProgress(page31PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page31OverlayExit = 1 - page32PlaceholderVisible;
   const page32OverlayExit = 1 - page33PlaceholderVisible;
   const page13ImageOverlayExit =
@@ -6892,12 +7620,9 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     1 - resolveWindowProgress(page15Reveal, 0.02, 0.2, easeInOutCubic);
   const page18ImageOverlayExit =
     1 - resolveWindowProgress(page19PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
-  const page21PlaceholderFocus = page21PlaceholderVisible * page21OverlayExit;
   const page22PlaceholderFocus = page22PlaceholderVisible * page22OverlayExit;
   const page24PlaceholderFocus = page24PlaceholderVisible * page24OverlayExit;
-  const page25PlaceholderFocus = page25PlaceholderVisible * page25OverlayExit;
   const page26PlaceholderFocus = page26PlaceholderVisible * page26OverlayExit;
-  const page27PlaceholderFocus = page27PlaceholderVisible * page27OverlayExit;
   const page28PlaceholderFocus = page28PlaceholderVisible * page28OverlayExit;
   const page29PlaceholderFocus = page29PlaceholderVisible * page29OverlayExit;
   const page30PlaceholderFocus = page30PlaceholderVisible * page30OverlayExit;
@@ -7187,7 +7912,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page12Focus = page12Reveal * (1 - page13Reveal);
   const page13Focus = page13Reveal * (1 - page14PlaceholderReveal);
   const page15Focus = page15MainReveal * (1 - page16PlaceholderVisible);
-  const page18Focus = page18Reveal * (1 - page18ImageReveal);
+  const page18Focus = page18Reveal * (1 - page18ImageVisible);
   const placeholderFocus = Math.max(
     imageDeckBackdropOpacity,
     page13ImageFocus,
@@ -7199,9 +7924,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page21PlaceholderFocus,
     page22PlaceholderFocus,
     page24PlaceholderFocus,
-    page25PlaceholderFocus,
     page26PlaceholderFocus,
-    page27PlaceholderFocus,
     page28PlaceholderFocus,
     page29PlaceholderFocus,
     page30PlaceholderFocus,
@@ -7228,9 +7951,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page21PlaceholderVisible,
     page22PlaceholderVisible,
     page24PlaceholderVisible,
-    page25PlaceholderVisible,
     page26PlaceholderVisible,
-    page27PlaceholderVisible,
     page28PlaceholderVisible,
     page29PlaceholderVisible,
     page30PlaceholderVisible,
@@ -7281,8 +8002,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     easeInOutCubic(page15MainReveal),
   );
   const phoneScale = mix(phoneScalePhase15, 1.1, easeInOutCubic(stableReturnReveal));
-  const page14PhoneEmphasis = mix(1, 1.08, easeOutQuint(page14PlaceholderFocus));
-  const page14PhoneOffsetX = mix(0, -120, easeInOutCubic(page14PlaceholderFocus));
+  const page14PhoneEmphasis = mix(1, 1.16, easeOutQuint(page14PlaceholderFocus));
+  const page14PhoneOffsetX = mix(
+    0,
+    PAGE14_GPU_CENTER_X - PHONE_GPU.x,
+    easeInOutCubic(page14PlaceholderFocus),
+  );
 
   const baseNodeOpacity = stageContentReveal * page14LeftMute;
   const page16HandoffIn = resolveWindowProgress(
@@ -8256,7 +8981,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
         <Page21Placeholder
           scene={scene}
           opacity={page21PlaceholderFocus}
-          entryProgress={page21PlaceholderReveal}
+          entryProgress={page21PlaceholderVisible}
         />
       ) : null}
       {page22PlaceholderFocus > 0.001 ? (
@@ -8273,25 +8998,11 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           entryProgress={page24PlaceholderReveal}
         />
       ) : null}
-      {page25PlaceholderFocus > 0.001 ? (
-        <Page25StoragePage
-          scene={scene}
-          opacity={page25PlaceholderFocus}
-          entryProgress={page25PlaceholderReveal}
-        />
-      ) : null}
       {page26PlaceholderFocus > 0.001 ? (
         <Page26TimingPage
           scene={scene}
           opacity={page26PlaceholderFocus}
           entryProgress={page26PlaceholderReveal}
-        />
-      ) : null}
-      {page27PlaceholderFocus > 0.001 ? (
-        <Page27ParallelPage
-          scene={scene}
-          opacity={page27PlaceholderFocus}
-          entryProgress={page27PlaceholderReveal}
         />
       ) : null}
       {page28PlaceholderFocus > 0.001 ? (
@@ -8309,7 +9020,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
         />
       ) : null}
       {page30PlaceholderFocus > 0.001 ? (
-        <Page30GovernanceConclusionPage
+        <Page30PsoReadingPage
           scene={scene}
           opacity={page30PlaceholderFocus}
           entryProgress={page30PlaceholderReveal}

@@ -335,7 +335,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   };
   const page3WorkflowFrameOpacity =
     upperNodeOpacity * clamp01(1 - settledPage34Progress / 0.28);
-  const page3WorkflowFrameLeftX = 52;
+  const page3WorkflowFrameLeftX = shaderCodeBox.x - 32;
   const page3WorkflowFrameBox = {
     x: page3WorkflowFrameLeftX,
     y: shaderCodeBox.y - 18,
@@ -943,20 +943,20 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const page8ProofOpacity =
     clamp01((settledPage78Progress - 0.28) / 0.2) * (1 - page8SourceOpacity);
   const page8ProofScale = mix(0.9, 1, easeInOutCubic(page8ProofOpacity));
-  const page8ProofCueGap = 16;
+  const page8ProofCueGap = 18;
   const page8ProofMaterialBox: Box = {
-    x: page6CookedCenterX - 274,
-    y: page8ActiveUassetFrame.y - 74,
-    width: 392,
-    height: 68,
-    radius: 20,
+    x: page6CookedCenterX - 296,
+    y: page8ActiveUassetFrame.y - 88,
+    width: 428,
+    height: 80,
+    radius: 22,
   };
   const page8ProofCookedCueBox: Box = {
-    x: page6CookedCenterX - 94,
-    y: page8ProofMaterialBox.y + 17,
-    width: 188,
-    height: 34,
-    radius: 16,
+    x: page6CookedCenterX - 104,
+    y: page8ProofMaterialBox.y + 21,
+    width: 208,
+    height: 38,
+    radius: 17,
   };
   const page8ProofMaterialCenterX = boxCenterX(page8ProofMaterialBox);
   const page8ProofMaterialCenterY = boxCenterY(page8ProofMaterialBox);
@@ -1068,7 +1068,7 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
       textAnchor: "middle" as const,
     },
     {
-      label: "...!",
+      label: "...",
       x: page8PsoFieldXs[5],
       highlight: false,
       fontSize: 20.4,

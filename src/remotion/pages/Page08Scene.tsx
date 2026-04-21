@@ -4,6 +4,8 @@ import {CalloutBadge, StageBox, StrokeArrow} from "../primitives/diagramPrimitiv
 
 export function Page08Scene({scene}: {scene: SceneModel}) {
   const {
+    assetFill,
+    assetStroke,
     focusFill,
     issueStroke,
     neutralFill,
@@ -57,20 +59,20 @@ export function Page08Scene({scene}: {scene: SceneModel}) {
           >
             <StageBox
               box={page8ProofMaterialGlobalBox}
-              fill={neutralFill}
-              stroke={nodeStroke}
+              fill={assetFill}
+              stroke={assetStroke}
               strokeWidth={2.4}
             />
             <text
               x={page8ProofLabelGlobalCenterX}
               y={page8ProofMaterialGlobalCenter.y + 1}
-              fill="#22303d"
+              fill={assetStroke}
               fontSize="21.2"
               fontWeight="750"
               textAnchor="middle"
               dominantBaseline="middle"
             >
-              Material
+              Material A
             </text>
             <path
               d={verticalPath(
@@ -162,7 +164,7 @@ export function Page08Scene({scene}: {scene: SceneModel}) {
             textAnchor="start"
             dominantBaseline="middle"
           >
-            PSO Cache
+            UE PSO
           </text>
           <path
             d={verticalPath(

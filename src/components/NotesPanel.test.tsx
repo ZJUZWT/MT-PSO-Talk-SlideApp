@@ -44,45 +44,34 @@ function getByTextContent(text: string) {
 }
 
 describe("NotesPanel", () => {
-  it("renders page00 with the first objective fact about one-time shader precompile", () => {
+  it("renders page00 with the first objective fact about shader compilation as startup path", () => {
     const {container} = render(
       <NotesPanel state={buildState("page_00")} transition={null} />,
     );
 
     expect(screen.getByText("客观事实")).toBeInTheDocument();
     const objectiveFactCopies = container.querySelectorAll(".notes-point-copy--objective-facts");
-    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏预编译着色器，通常只要一次。");
+    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏必经之路——着色器编译");
     expect(
-      screen.getByText("预编译着色器", {
+      screen.getByText("着色器编译", {
         selector: ".notes-inline-emphasis--precompile",
       }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("一次", {selector: ".notes-inline-emphasis--once"}),
-    ).toBeInTheDocument();
-    expect(
-      getComputedStyle(
-        screen.getByText("预编译着色器", {
-          selector: ".notes-inline-emphasis--precompile",
-        }),
-      ).color,
-    ).toBe(
-      getComputedStyle(
-        screen.getByText("一次", {selector: ".notes-inline-emphasis--once"}),
-      ).color,
-    );
   });
 
-  it("renders page02 with the new PSO complexity fact and emphasizes exponential complexity", () => {
+  it("renders page02 with the new PSO state-space fact and emphasizes exponential growth", () => {
     const {container} = render(
       <NotesPanel state={buildState("page_02")} transition={null} />,
     );
 
+    const objectiveFactItems = container.querySelectorAll(".notes-point-item--objective-facts");
     const objectiveFactCopies = container.querySelectorAll(".notes-point-copy--objective-facts");
-    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏预编译着色器，通常只要一次。");
-    expect(objectiveFactCopies[1]?.textContent).toBe("PSO的复杂度是指数级别。");
+    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏必经之路——着色器编译");
+    expect(objectiveFactCopies[1]?.textContent).toBe("PSO 的状态组合空间呈指数级增长");
+    expect(objectiveFactItems[0]?.getAttribute("data-fact-state")).toBe("stable");
+    expect(objectiveFactItems[1]?.getAttribute("data-fact-state")).toBe("new");
     expect(
-      screen.getByText("指数级别", {
+      screen.getByText("指数级增长", {
         selector: ".notes-inline-emphasis--exponential",
       }),
     ).toBeInTheDocument();
@@ -94,12 +83,14 @@ describe("NotesPanel", () => {
     );
 
     expect(screen.getByText("当前 Session")).toBeInTheDocument();
-    expect(screen.getByText("本节第 4 / 6 页")).toBeInTheDocument();
+    expect(screen.getByText("第 4 / 6 页")).toBeInTheDocument();
+    expect(screen.queryByText("本节第 4 / 6 页")).not.toBeInTheDocument();
+    expect(container.querySelector(".notes-focus-pill")).toBeNull();
     expect(screen.getByText("客观事实")).toBeInTheDocument();
     const objectiveFactCopies = container.querySelectorAll(".notes-point-copy--objective-facts");
-    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏预编译着色器，通常只要一次。");
-    expect(objectiveFactCopies[1]?.textContent).toBe("PSO的复杂度是指数级别。");
-    expect(objectiveFactCopies[2]?.textContent).toBe("OpenGL无PSO，有Program");
+    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏必经之路——着色器编译");
+    expect(objectiveFactCopies[1]?.textContent).toBe("PSO 的状态组合空间呈指数级增长");
+    expect(objectiveFactCopies[2]?.textContent).toBe("OpenGL 无 PSO，只有 Program");
     expect(
       screen.getByText("PSO", {selector: ".notes-inline-emphasis--pso"}),
     ).toBeInTheDocument();
@@ -140,24 +131,89 @@ describe("NotesPanel", () => {
   it("renders page04 with cumulative objective facts from page03 and page04", () => {
     render(<NotesPanel state={buildState("page_04")} transition={null} />);
 
-    expect(getByTextContent("PSO的复杂度是指数级别。")).toBeInTheDocument();
-    expect(getByTextContent("OpenGL无PSO，有Program")).toBeInTheDocument();
-    expect(
-      screen.getByText("Vulkan / Metal 有 PSO 的概念。"),
-    ).toBeInTheDocument();
+    expect(getByTextContent("PSO 的状态组合空间呈指数级增长")).toBeInTheDocument();
+    expect(getByTextContent("OpenGL 无 PSO，只有 Program")).toBeInTheDocument();
+    const psoOptimizationFact = getByTextContent("Vulkan / Metal 有 PSO可以深度优化");
+    expect(psoOptimizationFact).toBeInTheDocument();
+    expect(psoOptimizationFact.querySelector(".notes-inline-emphasis--pso")).not.toBeNull();
   });
 
   it("renders page04_data with the new compile/link cost fact in cumulative objective facts", () => {
     render(<NotesPanel state={buildState("page_04_data")} transition={null} />);
 
-    expect(getByTextContent("PSO的复杂度是指数级别。")).toBeInTheDocument();
-    expect(getByTextContent("OpenGL无PSO，有Program")).toBeInTheDocument();
+    expect(getByTextContent("PSO 的状态组合空间呈指数级增长")).toBeInTheDocument();
+    expect(getByTextContent("OpenGL 无 PSO，只有 Program")).toBeInTheDocument();
+    const psoOptimizationFact = getByTextContent("Vulkan / Metal 有 PSO可以深度优化");
+    expect(psoOptimizationFact).toBeInTheDocument();
+    expect(psoOptimizationFact.querySelector(".notes-inline-emphasis--pso")).not.toBeNull();
+    expect(getByTextContent("Shader的Compile、Link耗时极高")).toBeInTheDocument();
     expect(
-      screen.getByText("Vulkan / Metal 有 PSO 的概念。"),
+      screen.getByText("Compile", {
+        selector: ".notes-inline-emphasis--compile-link",
+      }),
     ).toBeInTheDocument();
     expect(
-      getByTextContent("Compile、Link耗时极高，单帧不可接受"),
+      screen.getByText("Link", {
+        selector: ".notes-inline-emphasis--compile-link",
+      }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("极高", {
+        selector: ".notes-inline-emphasis--high-cost",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders page06 with the new Inline-mode shader storage fact as the freshly introduced fact", () => {
+    const {container} = render(
+      <NotesPanel state={buildState("page_06")} transition={null} />,
+    );
+
+    const objectiveFactItems = Array.from(
+      container.querySelectorAll(".notes-point-item--objective-facts"),
+    );
+    const objectiveFactCopies = Array.from(
+      container.querySelectorAll(".notes-point-copy--objective-facts"),
+    );
+    expect(objectiveFactCopies.at(-1)?.textContent).toBe("Inline模式下ShaderCode由资产自身持有");
+    expect(objectiveFactItems.at(-1)?.getAttribute("data-fact-state")).toBe("new");
+  });
+
+  it("renders page09 with the new Shared-mode global-asset fact as the freshly introduced fact", () => {
+    const {container} = render(
+      <NotesPanel state={buildState("page_09")} transition={null} />,
+    );
+
+    const objectiveFactItems = Array.from(
+      container.querySelectorAll(".notes-point-item--objective-facts"),
+    );
+    const objectiveFactCopies = Array.from(
+      container.querySelectorAll(".notes-point-copy--objective-facts"),
+    );
+    expect(objectiveFactCopies.at(-1)?.textContent).toBe("Shared模式下ShaderCode由全局资产持有");
+    expect(objectiveFactItems.at(-1)?.getAttribute("data-fact-state")).toBe("new");
+  });
+
+  it("renders page11 with the new collection-loop fact and numbered objective-fact badges", () => {
+    const {container} = render(
+      <NotesPanel state={buildState("page_11")} transition={null} />,
+    );
+
+    const objectiveFactItems = Array.from(
+      container.querySelectorAll(".notes-point-item--objective-facts"),
+    );
+    const objectiveFactCopies = Array.from(
+      container.querySelectorAll(".notes-point-copy--objective-facts"),
+    );
+    const objectiveFactBadges = Array.from(
+      container.querySelectorAll(".notes-point-bullet"),
+    ).map((node) => node.textContent);
+
+    expect(objectiveFactCopies.at(-1)?.textContent).toBe(
+      "由于②，PSO只能从真机上面收集到真实被使用的条目，而我们需要在测试环境跑收集循环。",
+    );
+    expect(objectiveFactItems.at(-1)?.getAttribute("data-fact-state")).toBe("new");
+    expect(objectiveFactBadges.slice(0, 4)).toEqual(["1", "2", "3", "4"]);
   });
 
   it("marks only the newly added objective fact as fresh during the page01 to page02 transition", () => {
@@ -174,21 +230,41 @@ describe("NotesPanel", () => {
     const objectiveFactItems = Array.from(
       currentLayer?.querySelectorAll(".notes-point-item--objective-facts") ?? [],
     );
+    const objectiveFactCopies = Array.from(
+      currentLayer?.querySelectorAll(".notes-point-copy--objective-facts") ?? [],
+    );
     expect(objectiveFactItems).toHaveLength(2);
-    expect(objectiveFactItems[0]?.textContent).toBe("启动游戏预编译着色器，通常只要一次。");
+    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏必经之路——着色器编译");
     expect(objectiveFactItems[0]?.getAttribute("data-fact-state")).toBe("stable");
-    expect(objectiveFactItems[1]?.textContent).toBe("PSO的复杂度是指数级别。");
+    expect(objectiveFactCopies[1]?.textContent).toBe("PSO 的状态组合空间呈指数级增长");
     expect(objectiveFactItems[1]?.getAttribute("data-fact-state")).toBe("new");
+  });
+
+  it("keeps only the current page's introduced fact glowing on page03", () => {
+    const {container} = render(
+      <NotesPanel state={buildState("page_03")} transition={null} />,
+    );
+
+    const objectiveFactItems = Array.from(
+      container.querySelectorAll(".notes-point-item--objective-facts"),
+    );
+    const objectiveFactCopies = Array.from(
+      container.querySelectorAll(".notes-point-copy--objective-facts"),
+    );
+    expect(objectiveFactCopies[0]?.textContent).toBe("启动游戏必经之路——着色器编译");
+    expect(objectiveFactItems[0]?.getAttribute("data-fact-state")).toBe("stable");
+    expect(objectiveFactCopies[1]?.textContent).toBe("PSO 的状态组合空间呈指数级增长");
+    expect(objectiveFactItems[1]?.getAttribute("data-fact-state")).toBe("stable");
+    expect(objectiveFactCopies[2]?.textContent).toBe("OpenGL 无 PSO，只有 Program");
+    expect(objectiveFactItems[2]?.getAttribute("data-fact-state")).toBe("new");
   });
 
   it("keeps cumulative objective facts on later pages and removes the old key-point summary", () => {
     render(<NotesPanel state={buildState("page_31")} transition={null} />);
 
-    expect(getByTextContent("PSO的复杂度是指数级别。")).toBeInTheDocument();
-    expect(getByTextContent("OpenGL无PSO，有Program")).toBeInTheDocument();
-    expect(
-      screen.getByText("Vulkan / Metal 有 PSO 的概念。"),
-    ).toBeInTheDocument();
+    expect(getByTextContent("PSO 的状态组合空间呈指数级增长")).toBeInTheDocument();
+    expect(getByTextContent("OpenGL 无 PSO，只有 Program")).toBeInTheDocument();
+    expect(getByTextContent("Vulkan / Metal 有 PSO可以深度优化")).toBeInTheDocument();
     expect(
       screen.queryByText(
         "计算链路是 geometryReviewArtifact -> geometryMetrics -> geometryScorePolicy，最后回写下一轮修改。",

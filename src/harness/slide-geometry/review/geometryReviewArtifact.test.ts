@@ -250,26 +250,26 @@ describe("geometryReviewArtifact", () => {
       sketchId: "formal-page21",
       nodes: [
         {
-          nodeId: "left-card",
-          label: "什么时候会失效？",
-          fontSizePx: 17.5,
-          lineCount: 5,
-          topPaddingPx: 14.2,
-          rightPaddingPx: -56.1,
-          bottomPaddingPx: 163.1,
-          leftPaddingPx: 22,
-          tightestPaddingPx: -56.1,
+          nodeId: "pso-card",
+          label: "stable.upipelinecache",
+          fontSizePx: 23,
+          lineCount: 1,
+          topPaddingPx: 20.4,
+          rightPaddingPx: -24.8,
+          bottomPaddingPx: 37.6,
+          leftPaddingPx: 18.2,
+          tightestPaddingPx: -24.8,
           textBounds: {
-            x: 126,
-            y: 160.2,
-            width: 602.1,
-            height: 224.7,
+            x: 144.2,
+            y: 176.4,
+            width: 344.8,
+            height: 24.2,
           },
           nodeBounds: {
-            x: 104,
-            y: 146,
-            width: 568,
-            height: 402,
+            x: 126,
+            y: 156,
+            width: 336,
+            height: 88,
           },
         },
       ],
@@ -278,18 +278,18 @@ describe("geometryReviewArtifact", () => {
     const artifact = buildGeometryReviewArtifact(page21!, {
       browserTextProbe,
     });
-    const leadCard = artifact.nodeTextMetrics.find(
-      (nodeMetric) => nodeMetric.nodeId === "left-card",
+    const psoCard = artifact.nodeTextMetrics.find(
+      (nodeMetric) => nodeMetric.nodeId === "pso-card",
     );
 
-    expect(leadCard).toMatchObject({
-      nodeId: "left-card",
-      lineCount: 5,
-      overflowPx: 56.1,
-      tightestPaddingPx: -56.1,
+    expect(psoCard).toMatchObject({
+      nodeId: "pso-card",
+      lineCount: 1,
+      overflowPx: 24.8,
+      tightestPaddingPx: -24.8,
     });
     expect(artifact.metrics.textOverflowCount).toBe(1);
-    expect(artifact.metrics.maxTextOverflowPx).toBe(56.1);
+    expect(artifact.metrics.maxTextOverflowPx).toBe(24.8);
     expect(artifact.scores.blockerOpen).toBe(true);
     expect(artifact.verdict).toBe("Fit overflowing labels before critic pass");
   });

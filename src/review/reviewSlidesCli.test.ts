@@ -16,12 +16,12 @@ describe("review slides CLI args", () => {
     expect(
       mod.parseReviewSlidesArgs([
         "--from",
-        "page_21",
+        "page_22",
         "--output-dir",
         "/tmp/custom-review",
       ]),
     ).toMatchObject({
-      fromStepId: "page_21",
+      fromStepId: "page_22",
       outputDir: "/tmp/custom-review",
     });
   });

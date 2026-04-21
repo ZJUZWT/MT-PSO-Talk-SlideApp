@@ -64,6 +64,7 @@ export type StoryDataTable = {
 export type StoryStep = {
   id: StoryStepId;
   label: string;
+  hiddenInNavigation?: boolean;
   caption: string;
   notes: string;
   keyPoints?: string[];

@@ -1,4 +1,4 @@
-import type {CSSProperties} from "react";
+import type {CSSProperties, ReactNode} from "react";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 
 type NotesPanelProps = {
@@ -18,29 +18,40 @@ type SessionInfo = {
 
 const OBJECTIVE_FACT_EMPHASIS = [
   {
-    text: "预编译着色器",
+    text: "着色器编译",
     className: "notes-inline-emphasis notes-inline-emphasis--precompile",
-    appliesTo: undefined,
+    appliesTo: (fact: string) => fact === "启动游戏必经之路——着色器编译",
   },
   {
-    text: "一次",
-    className: "notes-inline-emphasis notes-inline-emphasis--once",
-    appliesTo: undefined,
-  },
-  {
-    text: "指数级别",
+    text: "指数级增长",
     className: "notes-inline-emphasis notes-inline-emphasis--exponential",
-    appliesTo: (fact: string) => fact === "PSO的复杂度是指数级别。",
+    appliesTo: (fact: string) => fact === "PSO 的状态组合空间呈指数级增长",
   },
   {
     text: "PSO",
     className: "notes-inline-emphasis notes-inline-emphasis--pso",
-    appliesTo: (fact: string) => fact === "OpenGL无PSO，有Program",
+    appliesTo: (fact: string) =>
+      fact === "OpenGL 无 PSO，只有 Program" || fact === "Vulkan / Metal 有 PSO可以深度优化",
   },
   {
     text: "Program",
     className: "notes-inline-emphasis notes-inline-emphasis--program",
-    appliesTo: (fact: string) => fact === "OpenGL无PSO，有Program",
+    appliesTo: (fact: string) => fact === "OpenGL 无 PSO，只有 Program",
+  },
+  {
+    text: "Compile",
+    className: "notes-inline-emphasis notes-inline-emphasis--compile-link",
+    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+  },
+  {
+    text: "Link",
+    className: "notes-inline-emphasis notes-inline-emphasis--compile-link",
+    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+  },
+  {
+    text: "极高",
+    className: "notes-inline-emphasis notes-inline-emphasis--high-cost",
+    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
   },
 ] as const;
 
@@ -82,20 +93,25 @@ function resolveObjectiveFacts(
 function resolveNewObjectiveFacts(
   steps: WorkbenchState["steps"],
   currentStepId: WorkbenchState["currentStep"]["id"],
-  outgoingStepId?: WorkbenchState["stepId"],
 ) {
-  if (!outgoingStepId || outgoingStepId === currentStepId) {
+  const currentIndex = steps.findIndex((step) => step.id === currentStepId);
+  if (currentIndex <= 0) {
+    return new Set(resolveObjectiveFacts(steps, currentStepId));
+  }
+
+  const previousStepId = steps[currentIndex - 1]?.id;
+  if (!previousStepId || previousStepId === currentStepId) {
     return new Set<string>();
   }
 
   const currentFacts = resolveObjectiveFacts(steps, currentStepId);
-  const outgoingFacts = new Set(resolveObjectiveFacts(steps, outgoingStepId));
+  const previousFacts = new Set(resolveObjectiveFacts(steps, previousStepId));
 
-  return new Set(currentFacts.filter((fact) => !outgoingFacts.has(fact)));
+  return new Set(currentFacts.filter((fact) => !previousFacts.has(fact)));
 }
 
 function renderObjectiveFact(fact: string) {
-  const parts: Array<string | JSX.Element> = [];
+  const parts: ReactNode[] = [];
   let cursor = 0;
 
   while (cursor < fact.length) {
@@ -271,16 +287,16 @@ function NotesCard({
 
   return (
     <article className="notes-card">
-      <div className="notes-header">
-        <div className="notes-focus-pill">{step.focusTarget}</div>
-      </div>
-
       <section className="notes-session" aria-label="当前 Session">
-        <p className="notes-section-label">当前 Session</p>
-        <p className="notes-session-title">{sessionInfo.label}</p>
-        <p className="notes-session-copy">
-          本节第 {sessionInfo.stepIndex} / {sessionInfo.stepCount} 页
-        </p>
+        <div className="notes-session-row">
+          <div className="notes-session-heading">
+            <p className="notes-section-label notes-section-label--session">当前 Session</p>
+            <p className="notes-session-title">{sessionInfo.label}</p>
+          </div>
+          <p className="notes-session-copy">
+            第 {sessionInfo.stepIndex} / {sessionInfo.stepCount} 页
+          </p>
+        </div>
       </section>
 
       {objectiveFacts.length > 0 ? (
@@ -289,7 +305,7 @@ function NotesCard({
             客观事实
           </p>
           <ul className="notes-point-list notes-point-list--objective-facts">
-            {objectiveFacts.map((fact) => {
+            {objectiveFacts.map((fact, index) => {
               const factState = newObjectiveFacts.has(fact) ? "new" : "stable";
 
               return (
@@ -301,9 +317,11 @@ function NotesCard({
                   <span
                     className="notes-point-bullet"
                     data-testid="notes-point-bullet"
+                    data-fact-index={index + 1}
                     aria-hidden="true"
-                    style={{backgroundColor: "var(--accent)"}}
-                  />
+                  >
+                    {index + 1}
+                  </span>
                   <span
                     className="notes-point-copy notes-point-copy--objective-facts"
                     data-fact-state={factState}
@@ -396,9 +414,7 @@ export function NotesPanel({state, transition}: NotesPanelProps) {
     : null;
   const suppressOutgoingStep = state.currentStep.id.endsWith("_img");
   const effectiveOutgoingStep = suppressOutgoingStep ? null : outgoingStep;
-  const newObjectiveFacts = effectiveOutgoingStep
-    ? resolveNewObjectiveFacts(state.steps, state.currentStep.id, effectiveOutgoingStep.id)
-    : new Set<string>();
+  const newObjectiveFacts = resolveNewObjectiveFacts(state.steps, state.currentStep.id);
   const currentSessionInfo = resolveSessionInfo(state.currentStep.id, state.sessions);
   const outgoingSessionInfo = effectiveOutgoingStep
     ? resolveSessionInfo(effectiveOutgoingStep.id, state.sessions)

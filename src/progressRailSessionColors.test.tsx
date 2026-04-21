@@ -14,8 +14,18 @@ function buildState(
   stepId: StoryStepId,
   overrides: Partial<WorkbenchState> = {},
 ): WorkbenchState {
+  const steps = masterStoryboard.steps.filter(
+    (step) => step.hiddenInNavigation !== true,
+  );
+  const visibleStepIds = new Set(steps.map((step) => step.id));
+  const sessions = (masterStoryboard.sessions ?? [])
+    .map((session) => ({
+      ...session,
+      stepIds: session.stepIds.filter((entry) => visibleStepIds.has(entry)),
+    }))
+    .filter((session) => session.stepIds.length > 0);
   const currentStep =
-    masterStoryboard.steps.find((step) => step.id === stepId) ?? masterStoryboard.steps[0];
+    steps.find((step) => step.id === stepId) ?? steps[0];
 
   return {
     variantId: "bus-clean",
@@ -25,10 +35,10 @@ function buildState(
     goToPreviousStep: () => {},
     goToNextStep: () => {},
     aspectRatio: "16:9",
-    sessions: masterStoryboard.sessions ?? [],
-    steps: masterStoryboard.steps,
+    sessions,
+    steps,
     currentStep,
-    supportedStepIds: masterStoryboard.steps.map((step) => step.id),
+    supportedStepIds: steps.map((step) => step.id),
     variantOptions: VARIANT_OPTIONS,
     activeVariant: VARIANT_OPTIONS[0],
     ...overrides,
@@ -62,7 +72,7 @@ describe("progress rail session colors", () => {
     expect(readSessionToken("page_05").shellToken).toBe("session-2");
     expect(readSessionToken("page_11").shellToken).toBe("session-3");
     expect(readSessionToken("page_16").shellToken).toBe("session-4");
-    expect(readSessionToken("page_21").shellToken).toBe("session-5");
+    expect(readSessionToken("page_22").shellToken).toBe("session-5");
     expect(readSessionToken("page_24").shellToken).toBe("session-6");
     expect(readSessionToken("page_16").bubbleToken).toBe("session-4");
   });

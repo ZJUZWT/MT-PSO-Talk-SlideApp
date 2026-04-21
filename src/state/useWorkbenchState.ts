@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import {masterStoryboard} from "../storyboard-data/pso-storyboard";
 import type {
   StorySession,
@@ -25,10 +25,22 @@ export function isVariantId(value: string | null | undefined): value is VariantI
   return VARIANT_OPTIONS.some((option) => option.id === value);
 }
 
+function isVisibleStoryboardStep(step: StoryStep) {
+  return step.hiddenInNavigation !== true;
+}
+
 export function isStoryStepId(
   value: string | null | undefined,
 ): value is StoryStepId {
   return masterStoryboard.steps.some((step) => step.id === value);
+}
+
+export function isVisibleStoryStepId(
+  value: string | null | undefined,
+): value is StoryStepId {
+  return masterStoryboard.steps.some(
+    (step) => step.id === value && isVisibleStoryboardStep(step),
+  );
 }
 
 export type WorkbenchState = {
@@ -55,22 +67,49 @@ type InitialWorkbenchSelection = {
 export function useWorkbenchState(
   initialSelection: InitialWorkbenchSelection = {},
 ): WorkbenchState {
+  const visibleSteps = useMemo(
+    () => masterStoryboard.steps.filter(isVisibleStoryboardStep),
+    [],
+  );
+  const visibleStepIds = useMemo(
+    () => visibleSteps.map((step) => step.id),
+    [visibleSteps],
+  );
+  const visibleSessions = useMemo(
+    () =>
+      (masterStoryboard.sessions ?? [])
+        .map((session) => ({
+          ...session,
+          stepIds: session.stepIds.filter((stepId) => visibleStepIds.includes(stepId)),
+        }))
+        .filter((session) => session.stepIds.length > 0),
+    [visibleStepIds],
+  );
   const [selection, setSelection] = useState<{
     variantId: VariantId;
     stepId: StoryStepId;
   }>({
     variantId: initialSelection.variantId ?? DEFAULT_VARIANT_ID,
-    stepId: initialSelection.stepId ?? DEFAULT_STEP_ID,
+    stepId:
+      initialSelection.stepId && visibleStepIds.includes(initialSelection.stepId)
+        ? initialSelection.stepId
+        : DEFAULT_STEP_ID,
   });
-  const supportedStepIds = masterStoryboard.steps.map((step) => step.id);
-  const sessions = masterStoryboard.sessions ?? [];
+  const supportedStepIds = visibleStepIds;
+  const sessions = visibleSessions;
 
-  const currentStep =
-    masterStoryboard.steps.find((step) => step.id === selection.stepId) ??
-    masterStoryboard.steps[0];
-  const activeVariant =
-    VARIANT_OPTIONS.find((option) => option.id === selection.variantId) ??
-    VARIANT_OPTIONS[0];
+  const currentStep = useMemo(
+    () =>
+      visibleSteps.find((step) => step.id === selection.stepId) ??
+      visibleSteps[0],
+    [selection.stepId, visibleSteps],
+  );
+  const activeVariant = useMemo(
+    () =>
+      VARIANT_OPTIONS.find((option) => option.id === selection.variantId) ??
+      VARIANT_OPTIONS[0],
+    [selection.variantId],
+  );
 
   const setVariantId = (variantId: VariantId) => {
     setSelection((current) => ({
@@ -88,18 +127,18 @@ export function useWorkbenchState(
 
   const goToRelativeStep = (offset: -1 | 1) => {
     setSelection((current) => {
-      const currentIndex = masterStoryboard.steps.findIndex(
+      const currentIndex = visibleSteps.findIndex(
         (step) => step.id === current.stepId,
       );
       const safeCurrentIndex = currentIndex === -1 ? 0 : currentIndex;
       const nextIndex = Math.max(
         0,
-        Math.min(masterStoryboard.steps.length - 1, safeCurrentIndex + offset),
+        Math.min(visibleSteps.length - 1, safeCurrentIndex + offset),
       );
 
       return {
         variantId: current.variantId,
-        stepId: masterStoryboard.steps[nextIndex]?.id ?? current.stepId,
+        stepId: visibleSteps[nextIndex]?.id ?? current.stepId,
       };
     });
   };
@@ -117,7 +156,7 @@ export function useWorkbenchState(
     },
     aspectRatio: "16:9",
     sessions,
-    steps: masterStoryboard.steps,
+    steps: visibleSteps,
     currentStep,
     supportedStepIds,
     variantOptions: VARIANT_OPTIONS,

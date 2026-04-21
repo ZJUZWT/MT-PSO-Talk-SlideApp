@@ -78,14 +78,30 @@ describe("app.css regressions", () => {
     const freshFactRule = readRuleBlock(
       '.notes-point-item--objective-facts[data-fact-state="new"]',
     );
+    const freshFactBeforeRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-state="new"]::before',
+    );
     const freshFactAfterRule = readRuleBlock(
       '.notes-point-item--objective-facts[data-fact-state="new"]::after',
     );
 
     expect(freshFactRule).toMatch(/box-shadow:/);
     expect(freshFactRule).toMatch(/background:\s*linear-gradient\(/);
+    expect(freshFactBeforeRule).toMatch(/animation:\s*notes-objective-fact-glow/);
+    expect(freshFactBeforeRule).toMatch(/infinite/);
     expect(freshFactAfterRule).toMatch(/animation:\s*notes-objective-fact-sheen/);
+    expect(freshFactAfterRule).toMatch(/infinite/);
+    expect(appCss).toMatch(/@keyframes notes-objective-fact-glow/);
     expect(appCss).toMatch(/@keyframes notes-objective-fact-sheen/);
+  });
+
+  it("renders objective-fact markers as numbered circular badges instead of tiny dots", () => {
+    const factBadgeRule = readRuleBlock(".notes-point-bullet");
+
+    expect(factBadgeRule).toMatch(/display:\s*inline-grid;/);
+    expect(factBadgeRule).toMatch(/place-items:\s*center;/);
+    expect(factBadgeRule).toMatch(/border:\s*2px solid var\(--accent\);/);
+    expect(factBadgeRule).toMatch(/border-radius:\s*999px;/);
   });
 
 });

@@ -7,8 +7,14 @@ export type StagePromptOverlayContent = {
 };
 
 const STAGE_PROMPT_OVERLAY_CONTENT: readonly StagePromptOverlayContent[] = [
-  {stepId: "page_03", lines: ["Q: 为什么需要预编译着色器？"]},
-  {stepId: "page_04", lines: ["Q: 为什么不能在运行时 Compile、Link？"]},
+  {
+    stepId: "page_03",
+    lines: ["Q: 为什么需要预编译着色器？不能运行时Compile、Link？"],
+  },
+  {
+    stepId: "page_04",
+    lines: ["Q: 为什么需要预编译着色器？不能运行时Compile、Link？"],
+  },
   {
     stepId: "page_04_data",
     lines: ["A: Compile、Link 的复杂度很高"],

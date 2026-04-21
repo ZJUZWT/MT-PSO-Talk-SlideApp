@@ -97,7 +97,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Motion")).toHaveValue("half");
     expect(
       screen.getByRole("heading", {
-        name: "把模型映射到渲染语义",
+        name: "把函数原型映射到渲染语义",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_03");
     expect(
       screen.getByRole("heading", {
-        name: "Q: 为什么需要预编译着色器？",
+        name: "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe("App", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "Q: 为什么需要预编译着色器？",
+        name: "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -150,7 +150,7 @@ describe("App", () => {
     expect(screen.getByLabelText("Step")).toHaveValue("page_04");
     expect(
       screen.getByRole("heading", {
-        name: "Q: 为什么不能在运行时 Compile、Link？",
+        name: "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
         level: 1,
       }),
     ).toBeInTheDocument();
@@ -404,7 +404,7 @@ describe("App", () => {
     fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "渲染问题的最小模型",
+        "抽象函数",
       );
     });
     expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
@@ -415,14 +415,14 @@ describe("App", () => {
     fireEvent.keyDown(document.body, {key: "ArrowRight", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "把模型映射到渲染语义",
+        "把函数原型映射到渲染语义",
       );
     });
 
     fireEvent.keyDown(document.body, {key: "ArrowLeft", bubbles: true});
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "渲染问题的最小模型",
+        "抽象函数",
       );
     });
 
@@ -434,10 +434,10 @@ describe("App", () => {
     });
 
     for (const expectedTitle of [
-      "渲染问题的最小模型",
-      "把模型映射到渲染语义",
-      "Q: 为什么需要预编译着色器？",
-      "Q: 为什么不能在运行时 Compile、Link？",
+      "抽象函数",
+      "把函数原型映射到渲染语义",
+      "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
+      "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
       "A: Compile、Link 的复杂度很高",
       "Q: 为什么要开启 Shared Shader Code 开关？",
       "Q: 为什么要开启 Shared Shader Code 开关？",
@@ -472,7 +472,7 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Q: 为什么需要预编译着色器？",
+        "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
       );
     });
     expect(screen.getByLabelText("Speaker notes")).toHaveAttribute(
@@ -496,7 +496,7 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Q: 为什么需要预编译着色器？",
+        "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
       );
     });
 
@@ -509,15 +509,15 @@ describe("App", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("heading", {level: 1})).toHaveTextContent(
-        "Q: 为什么不能在运行时 Compile、Link？",
+        "Q: 为什么需要预编译着色器？不能运行时Compile、Link？",
       );
     });
   });
 
-  it("renders the progress rail with one current step and fourteen compact future steps", () => {
+  it("renders the progress rail without retired late-tail placeholders", () => {
     render(<App />);
 
-    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(37);
+    expect(document.querySelectorAll(".progress-step-shell")).toHaveLength(33);
     expect(
       document.querySelector(
         '.progress-step-shell[data-step-id="page_00"][data-state="current"][data-size-mode="expanded"]',
@@ -598,6 +598,18 @@ describe("App", () => {
         '.progress-step-shell[data-step-id="page_15"][data-state="future"][data-size-mode="compact"]',
       ),
     ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_21"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector(
+        '.progress-step-shell[data-step-id="page_30"][data-state="future"][data-size-mode="compact"]',
+      ),
+    ).toBeInTheDocument();
+    expect(document.querySelector('.progress-step-shell[data-step-id="page_25"]')).toBeNull();
+    expect(document.querySelector('.progress-step-shell[data-step-id="page_27"]')).toBeNull();
   });
 
   it("renders baseline notes as the current card with no outgoing step", () => {

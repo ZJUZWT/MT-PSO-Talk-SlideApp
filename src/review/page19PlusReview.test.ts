@@ -30,9 +30,7 @@ describe("page_19+ review harness", () => {
       "page_21",
       "page_22",
       "page_24",
-      "page_25",
       "page_26",
-      "page_27",
       "page_28",
       "page_29",
       "page_30",
@@ -74,19 +72,19 @@ describe("page_19+ review harness", () => {
       }),
     });
 
-    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_21")).toMatchObject({
-      stepId: "page_21",
+    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_22")).toMatchObject({
+      stepId: "page_22",
       status: "ok",
       reviewSource: "formal",
     });
     expect(
       summary.transitions.find(
         (entry: {fromStepId: string; toStepId: string}) =>
-          entry.fromStepId === "page_21" && entry.toStepId === "page_22",
+          entry.fromStepId === "page_19" && entry.toStepId === "page_21",
       ),
     ).toMatchObject({
-      fromStepId: "page_21",
-      toStepId: "page_22",
+      fromStepId: "page_19",
+      toStepId: "page_21",
       status: "missing_workload",
     });
   });
@@ -115,8 +113,8 @@ describe("page_19+ review harness", () => {
     });
 
     const summary = JSON.parse(readFileSync(join(outputDir, "summary.json"), "utf-8"));
-    const page21 = JSON.parse(
-      readFileSync(join(outputDir, "pages", "page_21.geometry.json"), "utf-8"),
+    const page22 = JSON.parse(
+      readFileSync(join(outputDir, "pages", "page_22.geometry.json"), "utf-8"),
     );
     const transition = JSON.parse(
       readFileSync(
@@ -126,8 +124,8 @@ describe("page_19+ review harness", () => {
     );
 
     expect(summary.fromStepId).toBe("page_19");
-    expect(page21.status).toBe("ok");
-    expect(page21.reviewSource).toBe("formal");
+    expect(page22.status).toBe("ok");
+    expect(page22.reviewSource).toBe("formal");
     expect(transition.status).toBe("ok");
     expect(
       readFileSync(
@@ -178,7 +176,7 @@ describe("page_19+ review harness", () => {
     });
   });
 
-  it("uses formal review surfaces for page_21 and page_22 instead of missing sketches", async () => {
+  it("uses formal review surfaces for page_22 and page_24 instead of missing sketches", async () => {
     const mod = await import("./page19PlusReview");
     const outputDir = createTempDir();
 
@@ -190,13 +188,13 @@ describe("page_19+ review harness", () => {
       }),
     });
 
-    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_21")).toMatchObject({
-      stepId: "page_21",
+    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_22")).toMatchObject({
+      stepId: "page_22",
       status: "ok",
       reviewSource: "formal",
     });
-    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_22")).toMatchObject({
-      stepId: "page_22",
+    expect(summary.pages.find((entry: {stepId: string}) => entry.stepId === "page_24")).toMatchObject({
+      stepId: "page_24",
       status: "ok",
       reviewSource: "formal",
     });
@@ -206,11 +204,11 @@ describe("page_19+ review harness", () => {
     const mod = await import("./page19PlusReview");
     const outputDir = createTempDir();
     const browserTextProbe: BrowserGeometryTextProbe = {
-      sketchId: "formal-page21",
+      sketchId: "formal-page22",
       nodes: [
         {
           nodeId: "left-card",
-          label: "什么时候会失效？",
+          label: "PSO 是对象，PSO Cache 是方法。",
           fontSizePx: 17.5,
           lineCount: 5,
           topPaddingPx: 14.2,
@@ -241,15 +239,15 @@ describe("page_19+ review harness", () => {
         status: "probe_not_requested",
       }),
       resolveBrowserTextProbe: async ({stepId}: {stepId: string}) =>
-        stepId === "page_21" ? browserTextProbe : null,
+        stepId === "page_22" ? browserTextProbe : null,
     });
 
-    const page21 = summary.pages.find(
-      (entry: {stepId: string}) => entry.stepId === "page_21",
+    const page22 = summary.pages.find(
+      (entry: {stepId: string}) => entry.stepId === "page_22",
     );
 
-    expect(page21).toMatchObject({
-      stepId: "page_21",
+    expect(page22).toMatchObject({
+      stepId: "page_22",
       status: "ok",
       summary: {
         keyMetrics: {
@@ -257,11 +255,11 @@ describe("page_19+ review harness", () => {
         },
       },
     });
-    if (!page21 || page21.status !== "ok") {
-      throw new Error("Expected page_21 review page entry");
+    if (!page22 || page22.status !== "ok") {
+      throw new Error("Expected page_22 review page entry");
     }
     expect(
-      page21.summary.worstNodes.find((node) => node.nodeId === "left-card"),
+      page22.summary.worstNodes.find((node) => node.nodeId === "left-card"),
     ).toMatchObject({
       nodeId: "left-card",
       overflowPx: 56.1,

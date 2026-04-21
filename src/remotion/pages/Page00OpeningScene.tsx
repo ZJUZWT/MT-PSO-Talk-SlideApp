@@ -1,16 +1,16 @@
 import {easeInOutCubic, mix} from "../geometry/geometry";
 import {resolveRemotionPublicAssetHref} from "../publicAssetPath";
 
-const IMAGE_COLUMN_X = 120;
-const IMAGE_COLUMN_WIDTH = 760;
-const RIGHT_LABEL_X = 930;
+const IMAGE_COLUMN_X = 88;
+const IMAGE_COLUMN_WIDTH = 820;
+const RIGHT_LABEL_X = 950;
 const LABEL_FONT_SIZE = 24;
 
 const TOP_HALF_CROP = "xMidYMin slice";
 const IMAGE_STEPS = [
   {
     label: "PSO Cache启用前",
-    box: {x: IMAGE_COLUMN_X, y: 60, width: IMAGE_COLUMN_WIDTH, height: 176, radius: 18},
+    box: {x: IMAGE_COLUMN_X, y: 48, width: IMAGE_COLUMN_WIDTH, height: 192, radius: 18},
     href: "/supplement/pso-stutter.png",
     clipId: "page00-before-image-clip",
     imageTestId: "page00-before-image",
@@ -18,7 +18,7 @@ const IMAGE_STEPS = [
   },
   {
     label: "编译着色器",
-    box: {x: IMAGE_COLUMN_X, y: 296, width: IMAGE_COLUMN_WIDTH, height: 128, radius: 18},
+    box: {x: IMAGE_COLUMN_X, y: 288, width: IMAGE_COLUMN_WIDTH, height: 144, radius: 18},
     href: "/supplement/pso-compile-shader.png",
     clipId: "page00-compile-image-clip",
     imageTestId: "page00-compile-image",
@@ -26,7 +26,7 @@ const IMAGE_STEPS = [
   },
   {
     label: "PSO Cache启用后",
-    box: {x: IMAGE_COLUMN_X, y: 484, width: IMAGE_COLUMN_WIDTH, height: 176, radius: 18},
+    box: {x: IMAGE_COLUMN_X, y: 480, width: IMAGE_COLUMN_WIDTH, height: 192, radius: 18},
     href: "/supplement/pso-precompile-smooth-peak.png",
     clipId: "page00-after-image-clip",
     imageTestId: "page00-after-image",
