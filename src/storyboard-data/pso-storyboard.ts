@@ -395,7 +395,7 @@ export const masterStoryboard: Storyboard = {
         "由于②，PSO 只能从真机收集真实被使用的条目，测试环境需要跑收集循环。",
       ],
       objectiveFacts: [
-        "由于②，PSO只能从真机上面收集到真实被使用的条目，而我们需要在测试环境跑收集循环。",
+        "由于②，PSO 只能从真机收集真实使用条目，所以测试环境必须跑收集循环",
       ],
       apiHighlights: [".ushaderbytecode"],
       notes:
@@ -634,7 +634,7 @@ export const masterStoryboard: Storyboard = {
         "build 使用当前版本 Cook 出来的双向映射完成 StableKey -> Hash 映射。",
         "stable.upipelinecache 这一层要被读成当前包体可以用作预编译的 UE PSO。",
       ],
-      objectiveFacts: ["Hash版本间不稳定，ShaderStableKey版本间稳定"],
+      objectiveFacts: ["Hash 跨版本不稳定，ShaderStableKey 跨版本稳定"],
       apiHighlights: [
         "所有历史版本的稳定UE PSO",
         "当前版本Cook出来的双向映射",
@@ -663,7 +663,7 @@ export const masterStoryboard: Storyboard = {
       caption:
         "说明页讲完之后，回到主流程舞台，把 `stable.upipelinecache` 真正接回手机侧，让收集、构建、再使用完整闭合。",
       objectiveFacts: [
-        "PSO收集闭环：Phone采集，Computer经Expand / Build，再回到Phone。",
+        "PSO 手机闭环：真机采集 -> Expand -> Build -> 给真机预编译",
       ],
       keyPoints: [
         "expand + build 的结果回到 Phone，闭环真正完成。",
@@ -720,8 +720,8 @@ export const masterStoryboard: Storyboard = {
         "Metal Binary Archive 2 先当作待验证分支，不先讲成确定答案。",
       ],
       objectiveFacts: [
-        "编译后的 PSO 可缓存成本地 binary，后续直接 Load。",
-        "本地 binary 强依赖 OS / 驱动 / 芯片，不能稳定分发。",
+        "编译后的 PSO 可写入本地 binary，后续直接 Load",
+        "本地 binary 强依赖 OS / 驱动 / 芯片，不能稳定分发",
       ],
       apiHighlights: [
         "stable.upipelinecache",
@@ -964,14 +964,14 @@ export const masterStoryboard: Storyboard = {
       caption:
         "在进入工程延伸前单独停一页，用同一份 vert / frag 和 state 开关，解释 PSO 为什么值得前置。",
       objectiveFacts: [
-        "PSO 信息能否兑现优化，取决于驱动 / 编译器。",
+        "PSO 信息能否兑现优化，取决于驱动 / 编译器",
       ],
       keyPoints: [
         "页内不再显示独立主标题；上方直接进入左右两块 `Vertex Shader / Fragment Shader`，第二排再落左右两块 state。",
-        "代码区不再放 cpp 和参数说明；`Vertex Shader / Fragment Shader` 直接占满左上和右上，不再额外挂外层框；代码行保留真实缩进，并加轻量语法高亮。",
+        "代码区不再放 cpp 和参数说明；`Vertex Shader / Fragment Shader` 直接占满左上和右上，不再额外挂外层框；代码行保留真实缩进，并继续放大至少两档，再配轻量语法高亮。",
         "原本右上角那组 state 开关下移成第二排，左边直接写 `Vulkan PSO：构建时Shader对此已知`，右边直接写 `OpenGL / GLES runtime：构建时Shader对此无感知`；外层框和 API 对照标签都去掉，也不再保留灰色补充说明。",
         "PC / Android 两边都只保留 `loop=10` 与 `loop=5000` 两组极值，列名统一改成 `VK off / VK on`。",
-        "双平台数据区都改成轻表格，表格直接吃满外层 node 宽度，表头上沿是一根直线；只保留行分隔和 `loop` 后的关键竖线，重点提示并回标题区，数值强调只留在关键数字本身。",
+        "双平台数据区都改成轻表格，表格直接吃满外层 node 宽度，表头上沿是一根直线；重点提示回收到各自 node 的右上角，PC 的 `VK off` 两个低耗时值改成绿色，明显的高耗时值改成橙色，`loop=5000` 行名保持黑色，同时把表格整体再往下压一点。",
       ],
       apiHighlights: [
         "Vertex Shader",
@@ -986,24 +986,25 @@ export const masterStoryboard: Storyboard = {
         "loop=5000",
       ],
       notes:
-        "这是插在 page_29 和 page_30 之间的解释页：去掉页内主标题和大总结卡，也去掉 `测试 Shader / State 开关` 两个可见组标题、外层框与 API 对照标签；上半区改成顶排两块 shader、第二排左右两个 state 开关，下半区保留轻表格化的双平台极值表，底部只留一条脚注。",
+        "这是插在 page_29 和 page_30 之间的解释页：去掉页内主标题和大总结卡，也去掉 `测试 Shader / State 开关` 两个可见组标题、外层框与 API 对照标签；上半区改成更大的顶排两块 shader、第二排左右两个 state 开关，下半区保留轻表格化的双平台极值表，重点提示挂到各自卡片右上角，底部只留一条脚注。",
       focusTarget: "Driver Optimization",
       timingHint:
         "page_29 先淡出，代码卡、state 卡与双平台极值表整体淡入；结束后再整体淡出到 page_30，不做背景闪回。",
       intro:
         "如果继续追问“为什么 Vulkan 这类 API 要把这么多信息前置进 PSO”，这一页先给出同一份 shader 和 state 可见性。",
       manuscript:
-        "第二十九页数据插页现在不再拿 cpp 和环境参数占空间，而是把测试前提直接收成顶排两块 shader。左边的大块是同一份 `Vertex Shader`：`uniform int loopCount` 驱动那段 heavy loop，最后把结果写进 `heavyColor`；右边的大块是极简 `Fragment Shader`，只做 `outColor = heavyColor;`。也就是说，这一页先把“参与测试的 shader 到底长什么样”讲清楚，而且 `vert / frag` 直接占领左上和右上，不再被可见组标题包一层；代码行现在还保留了真实缩进，并用轻量语法高亮把关键字、类型、数字和注释拆开，让 heavy loop 一眼能读。第二排两块 state 现在也不再拆成标题 + 灰色解释，而是直接把结论并进顶行：左边写 `Vulkan PSO：构建时Shader对此已知`，下面接 `blendAtt.colorWriteMask = 0;`；右边写 `OpenGL / GLES runtime：构建时Shader对此无感知`，下面接 `glColorMask(GL_FALSE, ...)`。这里也不再额外挂 `API 对照` 标签，只让观众直接看 state 内容。下面两张表继续只保留 `loop=10` 和 `loop=5000` 两组极值，列名统一收成 `VK off / VK on`，下半区仍然维持轻表格，但表格本体直接吃满外层 node 宽度，表头上沿只留一根直线，不再单独挂圆角内框；行分隔和 `loop` 后的一条关键竖线继续保留，重点通过标题下的轻提示和关键数字本身来承载。在 `PC（RTX 3080）` 上，`VK off` 从 `0.0653ms` 到 `0.0645ms` 几乎没波动，而 `VK on` 已经涨到 `59.1658ms`，`GL 0` 也到了 `32.0594ms`。这说明当 PSO 把足够多的编译期信息提前交给桌面驱动时，桌面驱动确实可能做非常激进的优化。可是在 `Android（Adreno）` 上，到了 `loop=5000`，`VK off` 已经是 `400.7728ms`，`VK on` 和 `GLES 0` 也都贴近 `400ms`，移动端驱动并没有兑现同级别收益。也就是说，PSO 不是为了把 state 打包得更整齐，而是为了把更多编译期信息提前交给驱动；至于这些信息最终能不能变成真正的优化，还是取决于桌面驱动和移动端驱动到底实现到了什么程度。",
+        "第二十九页数据插页现在不再拿 cpp 和环境参数占空间，而是把测试前提直接收成顶排两块 shader。左边的大块是同一份 `Vertex Shader`：`uniform int loopCount` 驱动那段 heavy loop，最后把结果写进 `heavyColor`；右边的大块是极简 `Fragment Shader`，只做 `outColor = heavyColor;`。也就是说，这一页先把“参与测试的 shader 到底长什么样”讲清楚，而且 `vert / frag` 直接占领左上和右上，不再被可见组标题包一层；这次代码字号又继续放大了至少两档，配上保留真实缩进的轻量语法高亮，让 heavy loop 不用凑近也能读。第二排两块 state 现在也不再拆成标题 + 灰色解释，而是直接把结论并进顶行：左边写 `Vulkan PSO：构建时Shader对此已知`，下面接 `blendAtt.colorWriteMask = 0;`；右边写 `OpenGL / GLES runtime：构建时Shader对此无感知`，下面接 `glColorMask(GL_FALSE, ...)`。这里也不再额外挂 `API 对照` 标签，只让观众直接看 state 内容。下面两张表继续只保留 `loop=10` 和 `loop=5000` 两组极值，列名统一收成 `VK off / VK on`，下半区仍然维持轻表格，但表格本体直接吃满外层 node 宽度，表头上沿只留一根直线，不再单独挂圆角内框；表格整体再往下压一点，把原来底部多出来的空白吃回去，同时把重点提示收进各自卡片右上角。在 `PC（RTX 3080）` 上，右上角会直接点出 `VK off` 从 `0.0653ms` 到 `0.0645ms` 几乎没波动，而且这两个低耗时值会用绿色标出来；与之相对，`59.1658ms` 和 `32.0594ms` 这种明显高耗时值会改成橙色，`loop=5000` 行名则回到黑色，不再和高低耗时强调抢注意力。这说明当 PSO 把足够多的编译期信息提前交给桌面驱动时，桌面驱动确实可能做非常激进的优化。可是在 `Android（Adreno）` 上，右上角重点会收成一句 `loop=5000` 三列都贴近 `400ms`，并把 `400.7728ms / 400.7216ms / 402.2887ms` 这组三列高耗时也统一刷成橙色，说明移动端驱动并没有兑现同级别收益。也就是说，PSO 不是为了把 state 打包得更整齐，而是为了把更多编译期信息提前交给驱动；至于这些信息最终能不能变成真正的优化，还是取决于桌面驱动和移动端驱动到底实现到了什么程度。",
       focusColorKey: "shared",
     },
     {
       id: "page_30",
-      label: "PSO 延伸阅读",
+      label: "工程延伸",
       caption:
         "把原来混在推荐页左栏里的 PSO 工程资料整块抽出来，单独作为 PSO 段落的收束页。",
       keyPoints: [
         "这一页只保留 4 条 PSO 工程资料：Unreal Engine 官方 `PSO Precaching`、我的 `PSO 小实验`、查力鹏的 `UE项目优化：PSO Cache`，以及 `Mesa 开源驱动`。",
         "Mesa 也一起放进来，表达这页收的是 PSO 工程路径，而不是只收 Unreal 自己的资料。",
+        "页面不再保留任何阅读卡或单条资料框；顶部页标题和介绍保留，正文直接纵向放 4 条链接和各自一句介绍。",
       ],
       apiHighlights: [
         "PSO Precaching for Unreal Engine",
@@ -1030,14 +1031,14 @@ export const masterStoryboard: Storyboard = {
         },
       ],
       notes:
-        "这一页就是把原来 page32 左侧那整块工程资料单独抽出来，包括 Mesa；后面的推荐页继续保留书、视频和游戏。",
+        "这一页就是把原来 page32 左侧那整块工程资料单独抽出来，包括 Mesa；顶部页标题和介绍保留，正文本身不再保留阅读卡和单条资料框，后面的推荐页继续保留书、视频和游戏。",
       focusTarget: "PSO Reading",
       timingHint:
-        "治理证据页淡出后，整张阅读卡单独淡入；这是新增页，所以后面页面锚点整体顺延，不压缩原有后续转场。",
+        "治理证据页淡出后，顶部页标题和正文这列资料整体淡入；这是新增页，所以后面页面锚点整体顺延，不压缩原有后续转场。",
       intro:
         "治理证据讲完以后，先把 PSO 这一段的工程资料单独留出来，再切去讲项目里的 harness。",
       manuscript:
-        "第三十页不再承担治理结论保留页，而是把原来混在推荐页左栏里的 PSO 工程资料整块抽出来，单独作为一个 `PSO 延伸阅读` 页。这里放 4 条工程路径：Unreal Engine 官方的 `PSO Precaching for Unreal Engine`、我的 `PSO 小实验`、查力鹏写的 `UE项目优化：PSO Cache`，以及 `Mesa 开源驱动` 仓库。Mesa 也一起放进来，是为了说明这页收的是 PSO 工程路径本身，不只是一条 Unreal 内部用法。这样做以后，PSO 相关的工程资料先在这里收口，后面的推荐页就只保留书、视频和游戏。",
+        "第三十页不再承担治理结论保留页，而是把原来混在推荐页左栏里的 PSO 工程资料整块抽出来，单独作为一个 `工程延伸` 页。这里放 4 条工程路径：Unreal Engine 官方的 `PSO Precaching for Unreal Engine`、我的 `PSO 小实验`、查力鹏写的 `UE项目优化：PSO Cache`，以及 `Mesa 开源驱动` 仓库。Mesa 也一起放进来，是为了说明这页收的是 PSO 工程路径本身，不只是一条 Unreal 内部用法。视觉上顶部页标题和介绍继续保留，但正文这里不再保留阅读卡，也不再给每条资料单独挂框，而是直接纵向放 4 条链接和各自一句介绍。这样做以后，PSO 相关的工程资料先在这里收口，后面的推荐页就只保留书、视频和游戏。",
       focusColorKey: "shared",
     },
     {

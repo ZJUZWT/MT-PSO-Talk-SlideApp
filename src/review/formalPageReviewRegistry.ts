@@ -1615,71 +1615,67 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("footer", "Footer", {x: 120, y: 648, width: 1040, height: 48}),
   ]),
   makeFormalReviewSketch("formal-page29-data", "page_29_data", "Page 29 data driver optimization", [
-    node("shader-card", "Shader", {x: 72, y: 56, width: 1136, height: 178}),
-    node("vertex-code", "Vertex Shader", {x: 72, y: 56, width: 552, height: 178}, {
+    node("shader-card", "Shader", {x: 72, y: 56, width: 1136, height: 194}),
+    node("vertex-code", "Vertex Shader", {x: 72, y: 56, width: 552, height: 194}, {
       containerId: "shader-card",
-      fontSizeOverride: 14,
+      fontSizeOverride: 16,
       fontWeightOverride: 760,
     }),
-    node("fragment-code", "Fragment Shader", {x: 656, y: 56, width: 552, height: 178}, {
+    node("fragment-code", "Fragment Shader", {x: 656, y: 56, width: 552, height: 194}, {
       containerId: "shader-card",
-      fontSizeOverride: 14,
+      fontSizeOverride: 16,
       fontWeightOverride: 740,
     }),
-    node("state-card", "State", {x: 72, y: 250, width: 1136, height: 78}),
-    node("state-vk", "Vulkan known at build", {x: 72, y: 250, width: 552, height: 78}, {
+    node("state-card", "State", {x: 72, y: 264, width: 1136, height: 78}),
+    node("state-vk", "Vulkan known at build", {x: 72, y: 264, width: 552, height: 78}, {
       containerId: "state-card",
       fontSizeOverride: 13,
       fontWeightOverride: 780,
     }),
-    node("state-gl", "OpenGL build-time blind", {x: 656, y: 250, width: 552, height: 78}, {
+    node("state-gl", "OpenGL build-time blind", {x: 656, y: 264, width: 552, height: 78}, {
       containerId: "state-card",
       fontSizeOverride: 13,
       fontWeightOverride: 760,
     }),
-    node("pc-card", "PC RTX3080", {x: 72, y: 356, width: 552, height: 270}),
-    node("pc-row-1", "loop=10", {x: 126, y: 474, width: 444, height: 56}, {
+    node("pc-card", "PC RTX3080", {x: 72, y: 368, width: 552, height: 282}),
+    node("pc-row-1", "loop=10", {x: 126, y: 506, width: 444, height: 60}, {
       containerId: "pc-card",
       fontSizeOverride: 16,
       fontWeightOverride: 760,
     }),
-    node("pc-row-2", "loop=5000", {x: 126, y: 530, width: 444, height: 56}, {
+    node("pc-row-2", "loop=5000", {x: 126, y: 566, width: 444, height: 60}, {
       containerId: "pc-card",
       fontSizeOverride: 16,
       fontWeightOverride: 760,
     }),
-    node("android-card", "Android Adreno", {x: 656, y: 356, width: 552, height: 270}),
-    node("android-row-1", "loop=10", {x: 710, y: 474, width: 444, height: 56}, {
+    node("android-card", "Android Adreno", {x: 656, y: 368, width: 552, height: 282}),
+    node("android-row-1", "loop=10", {x: 710, y: 506, width: 444, height: 60}, {
       containerId: "android-card",
       fontSizeOverride: 16,
       fontWeightOverride: 760,
     }),
-    node("android-row-2", "loop=5000", {x: 710, y: 530, width: 444, height: 56}, {
+    node("android-row-2", "loop=5000", {x: 710, y: 566, width: 444, height: 60}, {
       containerId: "android-card",
       fontSizeOverride: 16,
       fontWeightOverride: 760,
     }),
-    node("footer-note", "Footnote", {x: 72, y: 644, width: 1136, height: 36}, {
+    node("footer-note", "Footnote", {x: 72, y: 664, width: 1136, height: 36}, {
       fontSizeOverride: 15,
       fontWeightOverride: 760,
     }),
   ]),
   makeFormalReviewSketch("formal-page30", "page_30", "Page 30 PSO reading", [
     node("reading-card", "PSO Reading", {x: 208, y: 148, width: 864, height: 446}),
-    node("reading-note", "PSO Reading Note", {x: 266, y: 220, width: 736, height: 32}, {
-      containerId: "reading-card",
-      fontSizeOverride: 17,
-    }),
-    node("reading-link-1", "UE Precaching", {x: 262, y: 269, width: 756, height: 49}, {
+    node("reading-link-1", "UE Precaching", {x: 356, y: 268, width: 568, height: 50}, {
       containerId: "reading-card",
     }),
-    node("reading-link-2", "PSO Experiment", {x: 262, y: 345, width: 756, height: 49}, {
+    node("reading-link-2", "PSO Experiment", {x: 356, y: 350, width: 568, height: 50}, {
       containerId: "reading-card",
     }),
-    node("reading-link-3", "UE PSO Cache", {x: 262, y: 421, width: 756, height: 49}, {
+    node("reading-link-3", "UE PSO Cache", {x: 356, y: 432, width: 568, height: 50}, {
       containerId: "reading-card",
     }),
-    node("reading-link-4", "Mesa", {x: 262, y: 497, width: 756, height: 49}, {
+    node("reading-link-4", "Mesa", {x: 356, y: 514, width: 568, height: 50}, {
       containerId: "reading-card",
     }),
   ]),

@@ -199,6 +199,11 @@ type Page29ShaderToken = {
   text: string;
   tone?: Page29ShaderTone;
 };
+type Page29DataFocusTone = "default" | "good" | "high" | "muted";
+type Page29DataFocusToken = {
+  text: string;
+  tone?: Page29DataFocusTone;
+};
 
 const PAGE29_DATA_VERTEX_SHADER_LINES: readonly (readonly Page29ShaderToken[])[] = [
   [
@@ -724,6 +729,22 @@ function renderPage29ShaderLine(
       {token.text}
     </tspan>
   ));
+}
+
+function resolvePage29DataFocusFill(
+  tone: Page29DataFocusTone | undefined,
+  scene: SceneModel,
+) {
+  switch (tone) {
+    case "good":
+      return "#2f8a78";
+    case "high":
+      return scene.apiStroke;
+    case "muted":
+      return "rgba(34, 48, 61, 0.72)";
+    default:
+      return "#22303d";
+  }
 }
 
 function mergeTowardBoxTransform(
@@ -6606,7 +6627,7 @@ function Page29DataPlatformCard({
   scene: SceneModel;
   box: {x: number; y: number; width: number; height: number; radius: number};
   title: string;
-  focusNote: string;
+  focusNote: readonly Page29DataFocusToken[];
   headerLabels: readonly [string, string, string, string];
   rows: ReadonlyArray<{
     id: string;
@@ -6617,7 +6638,7 @@ function Page29DataPlatformCard({
   geometryNodeId: string;
 }) {
   const headerHeight = 30;
-  const rowHeight = 56;
+  const rowHeight = 60;
   const tableInset = 16;
   const tableX = box.x;
   const tableWidth = box.width;
@@ -6625,7 +6646,7 @@ function Page29DataPlatformCard({
   const contentWidth = tableWidth - tableInset * 2;
   const loopWidth = 112;
   const valueWidth = (contentWidth - loopWidth) / 3;
-  const tableY = box.y + 88;
+  const tableY = box.y + 108;
   const tableHeight = headerHeight + rowHeight * rows.length;
   const borderStroke = "rgba(92, 106, 118, 0.24)";
   const dividerStroke = "rgba(92, 106, 118, 0.16)";
@@ -6647,7 +6668,7 @@ function Page29DataPlatformCard({
       </g>
       <text
         x={box.x + 18}
-        y={box.y + 28}
+        y={box.y + 30}
         fill={scene.apiStroke}
         fontSize="23"
         fontWeight="820"
@@ -6658,16 +6679,24 @@ function Page29DataPlatformCard({
         {title}
       </text>
       <text
-        x={box.x + 18}
-        y={box.y + 58}
-        fill={scene.apiStroke}
-        fontSize="13.6"
-        fontWeight="760"
-        textAnchor="start"
+        x={box.x + box.width - 18}
+        y={box.y + 30}
+        fill="#22303d"
+        fontSize="14.2"
+        fontWeight="780"
+        textAnchor="end"
         dominantBaseline="middle"
         data-geometry-node-text="1"
       >
-        {focusNote}
+        {focusNote.map((segment, segmentIndex) => (
+          <tspan
+            key={`${geometryNodeId}-focus-${segmentIndex}`}
+            fill={resolvePage29DataFocusFill(segment.tone, scene)}
+            fontWeight={segment.tone === "good" || segment.tone === "high" ? "840" : "780"}
+          >
+            {segment.text}
+          </tspan>
+        ))}
       </text>
       <line
         x1={tableX}
@@ -6739,7 +6768,7 @@ function Page29DataPlatformCard({
             <text
               x={contentX + loopWidth / 2}
               y={rowTop + rowHeight / 2 + 1}
-              fill={isPeakRow ? scene.apiStroke : "#22303d"}
+              fill="#22303d"
               fontSize="17"
               fontWeight="800"
               textAnchor="middle"
@@ -6751,11 +6780,13 @@ function Page29DataPlatformCard({
             {row.values.map((value, valueIndex) => {
               const cellX = contentX + loopWidth + valueWidth * valueIndex;
               const isStableFocusCell = isPcCard && valueIndex === 0;
-              const isPcContrastCell = isPcCard && isPeakRow && valueIndex > 0;
-              const isAndroidPeakCell = !isPcCard && isPeakRow;
-              const cellTextColor =
-                isStableFocusCell || isPcContrastCell || isAndroidPeakCell ? scene.apiStroke : "#22303d";
-              const cellWeight = isStableFocusCell ? "830" : isPcContrastCell || isAndroidPeakCell ? "800" : "740";
+              const isHighLatencyCell = isPeakRow && (!isPcCard || valueIndex > 0);
+              const cellTextColor = isStableFocusCell
+                ? "#2f8a78"
+                : isHighLatencyCell
+                  ? scene.apiStroke
+                  : "#22303d";
+              const cellWeight = isStableFocusCell || isHighLatencyCell ? "830" : isPeakRow ? "790" : "740";
 
               return (
                 <g key={`${row.id}-${value}`}>
@@ -6829,9 +6860,9 @@ function Page29DataShaderCard({
         </g>
         <text
           x={vertexBox.x + 16}
-          y={vertexBox.y + 16}
+          y={vertexBox.y + 20}
           fill={scene.apiStroke}
-          fontSize="17"
+          fontSize="19"
           fontWeight="820"
           textAnchor="start"
           dominantBaseline="middle"
@@ -6843,10 +6874,10 @@ function Page29DataShaderCard({
           <text
             key={`page29-vertex-${index}`}
             x={vertexBox.x + 16}
-            y={vertexBox.y + 38 + index * 13.4}
+            y={vertexBox.y + 46 + index * 15.4}
             fill="#22303d"
             fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-            fontSize="11.7"
+            fontSize="13.8"
             fontWeight={index < 4 ? "760" : "650"}
             textAnchor="start"
             dominantBaseline="middle"
@@ -6868,9 +6899,9 @@ function Page29DataShaderCard({
         </g>
         <text
           x={fragmentBox.x + 16}
-          y={fragmentBox.y + 16}
+          y={fragmentBox.y + 20}
           fill={scene.apiStroke}
-          fontSize="17"
+          fontSize="19"
           fontWeight="820"
           textAnchor="start"
           dominantBaseline="middle"
@@ -6882,10 +6913,10 @@ function Page29DataShaderCard({
           <text
             key={`page29-fragment-${index}`}
             x={fragmentBox.x + 14}
-            y={fragmentBox.y + 38 + index * 13.4}
+            y={fragmentBox.y + 46 + index * 15.4}
             fill="rgba(34, 48, 61, 0.8)"
             fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-            fontSize="12"
+            fontSize="14"
             fontWeight={index < 3 ? "760" : "670"}
             textAnchor="start"
             dominantBaseline="middle"
@@ -7367,11 +7398,11 @@ function Page29DriverOptimizationPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const shaderCard = {x: 72, y: 56, width: 1136, height: 178, radius: 28};
-  const stateCard = {x: 72, y: 250, width: 1136, height: 78, radius: 28};
-  const pcCard = {x: 72, y: 356, width: 552, height: 270, radius: 28};
-  const androidCard = {x: 656, y: 356, width: 552, height: 270, radius: 28};
-  const footerBox = {x: 72, y: 644, width: 1136, height: 36, radius: 18};
+  const shaderCard = {x: 72, y: 56, width: 1136, height: 194, radius: 28};
+  const stateCard = {x: 72, y: 264, width: 1136, height: 78, radius: 28};
+  const pcCard = {x: 72, y: 368, width: 552, height: 282, radius: 28};
+  const androidCard = {x: 656, y: 368, width: 552, height: 282, radius: 28};
+  const footerBox = {x: 72, y: 664, width: 1136, height: 36, radius: 18};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -7382,8 +7413,14 @@ function Page29DriverOptimizationPage({
           scene={scene}
           box={pcCard}
           title="PC（RTX 3080）"
-          focusNote="重点：VK off = 0.0653 ms -> 0.0645 ms"
-          headerLabels={["loop", "VK off", "VK on", "GL 0"]}
+          focusNote={[
+            {text: "VK off ", tone: "muted"},
+            {text: "0.0653", tone: "good"},
+            {text: " ms -> ", tone: "muted"},
+            {text: "0.0645", tone: "good"},
+            {text: " ms", tone: "muted"},
+          ]}
+          headerLabels={["loop", "VK off", "VK on", "GL off"]}
           rows={PAGE29_DATA_PC_ROWS}
           opacity={panelOpacity}
           geometryNodeId="pc-card"
@@ -7392,8 +7429,12 @@ function Page29DriverOptimizationPage({
           scene={scene}
           box={androidCard}
           title="Android（Adreno）"
-          focusNote="重点：loop=5000 时三列都已经贴近 400 ms"
-          headerLabels={["loop", "VK off", "VK on", "GLES 0"]}
+          focusNote={[
+            {text: "loop=5000", tone: "default"},
+            {text: " 时三列都已经贴近 ", tone: "muted"},
+            {text: "400 ms", tone: "high"},
+          ]}
+          headerLabels={["loop", "VK off", "VK on", "GLES off"]}
           rows={PAGE29_DATA_ANDROID_ROWS}
           opacity={panelOpacity}
           geometryNodeId="android-card"
@@ -7421,11 +7462,10 @@ function Page30PsoReadingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const readingCard = {x: 208, y: 148, width: 864, height: 446, radius: 30};
-  const noteX = readingCard.x + 58;
-  const linkX = readingCard.x + 58;
-  const linkStartY = readingCard.y + 144;
-  const linkStep = 76;
+  const readingRegion = {x: 208, y: 148, width: 864, height: 446, radius: 0};
+  const linkX = 360;
+  const linkStartY = readingRegion.y + 120;
+  const linkStep = 82;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -7434,39 +7474,17 @@ function Page30PsoReadingPage({
           data-geometry-node-id="reading-card"
           data-geometry-node-label="PSO Reading Card"
         >
-          <StageBox
-            box={readingCard}
-            fill="rgba(255, 252, 247, 0.96)"
-            stroke={scene.nodeStroke}
-            strokeWidth={2.5}
-            markGeometryBox
-          />
-          <text
-            x={centerX(readingCard)}
-            y={readingCard.y + 46}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="26"
-            fontWeight="830"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            工程延伸
-          </text>
-          <text
-            x={noteX}
-            y={readingCard.y + 86}
-            fill="rgba(34, 48, 61, 0.68)"
-            fontSize="17"
-            fontWeight="680"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-id="reading-note"
-            data-geometry-node-label="PSO Reading Note"
-            data-geometry-node-text="1"
-          >
-            把 PSO 这一段的工程资料单独留在这里，包括 Mesa。
-          </text>
+          <g data-geometry-node-box="1">
+            <rect
+              x={readingRegion.x}
+              y={readingRegion.y}
+              width={readingRegion.width}
+              height={readingRegion.height}
+              rx={readingRegion.radius}
+              fill="transparent"
+              stroke="none"
+            />
+          </g>
           {ENDING_ENGINEERING_LINKS.map((item, index) => (
             <EndingLinkItem
               key={item.title}
@@ -7476,10 +7494,10 @@ function Page30PsoReadingPage({
               subtitle={item.subtitle}
               href={item.href}
               geometryNodeId={`reading-link-${index + 1}`}
-              geometryWidth={756}
-              titleFontSize={23}
+              geometryWidth={560}
+              titleFontSize={24}
               subtitleFontSize={16}
-              subtitleOffset={25}
+              subtitleOffset={26}
             />
           ))}
         </g>

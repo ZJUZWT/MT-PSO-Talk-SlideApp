@@ -740,53 +740,6 @@ select {
 
 .notes-inline-emphasis {
   font-weight: 840;
-}
-
-.notes-inline-emphasis--precompile {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--once {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--exponential {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--pso {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--program {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--compile-link {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--high-cost {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--asset-self {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--global-asset {
-  color: color-mix(in srgb, #5d8f68 86%, var(--ink) 14%);
-}
-
-.notes-inline-emphasis--global-index {
-  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
-}
-
-.notes-inline-emphasis--shared-mode {
-  color: color-mix(in srgb, #4f8b72 78%, var(--accent) 22%);
-}
-
-.notes-inline-emphasis--hash-index {
   color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
 }
 

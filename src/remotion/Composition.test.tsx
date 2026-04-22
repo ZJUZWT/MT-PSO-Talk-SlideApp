@@ -4291,6 +4291,16 @@ describe("MyComposition", () => {
   it("renders page 29_data as the code-plus-evidence page for PSO driver optimization", () => {
     setLegacyFrame(2230);
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const vertexLine = findTextNodes(container, "layout(location = 0) in vec3 inPos;")[0];
+    const fragmentLine = findTextNodes(container, "out vec4 outColor;")[0];
+    const stableLoop10 = findTextNodes(container, "0.0653")[0];
+    const stableLoop5000 = findTextNodes(container, "0.0645")[0];
+    const pcHighLoop5000VkOn = findTextNodes(container, "59.1658")[0];
+    const pcHighLoop5000GlOff = findTextNodes(container, "32.0594")[0];
+    const androidHighLoop5000VkOff = findTextNodes(container, "400.7728")[0];
+    const androidHighLoop5000VkOn = findTextNodes(container, "400.7216")[0];
+    const androidHighLoop5000GlesOff = findTextNodes(container, "402.2887")[0];
+    const peakLoopLabel = findTextNodes(container, "loop=5000")[0];
 
     expect(findTextNodes(container, "PSO驱动层的激进优化")[0]).toBeUndefined();
     expect(findTextNodes(container, "原始数据表格 + 对比总结")[0]).toBeUndefined();
@@ -4298,8 +4308,10 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "测试 Shader")[0]).toBeUndefined();
     expect(findTextNodes(container, "Vertex Shader")[0]).toBeDefined();
     expect(findTextNodes(container, "Fragment Shader")[0]).toBeDefined();
-    expect(findTextNodes(container, "layout(location = 0) in vec3 inPos;")[0]).toBeDefined();
-    expect(findTextNodes(container, "out vec4 outColor;")[0]).toBeDefined();
+    expect(vertexLine).toBeDefined();
+    expect(fragmentLine).toBeDefined();
+    expect(fontSizeOf(vertexLine)).toBeGreaterThanOrEqual(13.8);
+    expect(fontSizeOf(fragmentLine)).toBeGreaterThanOrEqual(14);
     expect(findTextNodes(container, "State 开关 / 驱动可见性")[0]).toBeUndefined();
     expect(findTextNodes(container, "API 对照：Vulkan / OpenGL")[0]).toBeUndefined();
     expect(findTextNodes(container, "API 对照：Vulkan / GLES")[0]).toBeUndefined();
@@ -4311,11 +4323,22 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "Android（Adreno）")[0]).toBeDefined();
     expect(findTextNodes(container, "VK off")[0]).toBeDefined();
     expect(findTextNodes(container, "VK on")[0]).toBeDefined();
+    expect(findTextNodes(container, "GL off")[0]).toBeDefined();
+    expect(findTextNodes(container, "GLES off")[0]).toBeDefined();
+    expect(findTextNodes(container, "GL 0")[0]).toBeUndefined();
+    expect(findTextNodes(container, "GLES 0")[0]).toBeUndefined();
     expect(findTextNodes(container, "loop=10")[0]).toBeDefined();
-    expect(findTextNodes(container, "loop=5000")[0]).toBeDefined();
-    expect(findTextNodes(container, "0.0653")[0]).toBeDefined();
-    expect(findTextNodes(container, "0.0645")[0]).toBeDefined();
-    expect(findTextNodes(container, "400.7728")[0]).toBeDefined();
+    expect(peakLoopLabel).toBeDefined();
+    expect(stableLoop10).toBeDefined();
+    expect(stableLoop5000).toBeDefined();
+    expect(stableLoop10?.getAttribute("fill")).toBe("#2f8a78");
+    expect(stableLoop5000?.getAttribute("fill")).toBe("#2f8a78");
+    expect(pcHighLoop5000VkOn?.getAttribute("fill")).toBe("#d06b44");
+    expect(pcHighLoop5000GlOff?.getAttribute("fill")).toBe("#d06b44");
+    expect(androidHighLoop5000VkOff?.getAttribute("fill")).toBe("#d06b44");
+    expect(androidHighLoop5000VkOn?.getAttribute("fill")).toBe("#d06b44");
+    expect(androidHighLoop5000GlesOff?.getAttribute("fill")).toBe("#d06b44");
+    expect(peakLoopLabel?.getAttribute("fill")).toBe("#22303d");
     expect(
       findTextNodes(
         container,

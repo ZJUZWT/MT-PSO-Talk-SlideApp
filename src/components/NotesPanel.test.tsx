@@ -303,9 +303,9 @@ describe("NotesPanel", () => {
     render(<NotesPanel state={buildState("page_17")} transition={null} />);
 
     expect(screen.getByText("涉及 API / 文件")).toBeInTheDocument();
-    expect(screen.getByText("stablepc.csv")).toBeInTheDocument();
-    expect(screen.getByText("当前 .scl.csv")).toBeInTheDocument();
-    expect(screen.getByText("stable.upipelinecache")).toBeInTheDocument();
+    expect(screen.getByText("所有历史版本的稳定UE PSO")).toBeInTheDocument();
+    expect(screen.getByText("当前版本Cook出来的双向映射")).toBeInTheDocument();
+    expect(screen.getByText("当前包体可以用作预编译的UE PSO")).toBeInTheDocument();
     expect(screen.queryByText("Build")).not.toBeInTheDocument();
   });
 
@@ -322,9 +322,29 @@ describe("NotesPanel", () => {
     );
 
     expect(objectiveFactCopies.at(-1)?.textContent).toBe(
-      "Hash版本间不稳定，ShaderStableKey版本间稳定",
+      "Hash 跨版本不稳定，ShaderStableKey 跨版本稳定",
     );
     expect(objectiveFactItems.at(-1)?.getAttribute("data-fact-state")).toBe("new");
+    expect(
+      screen.getByText("Hash", {
+        selector: ".notes-inline-emphasis--unstable",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("ShaderStableKey", {
+        selector: ".notes-inline-emphasis--stable-key",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("不稳定", {
+        selector: ".notes-inline-emphasis--unstable",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("稳定", {
+        selector: ".notes-inline-emphasis--stable-key",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("renders page18 API/file panel with all file nodes but no Phone or Closed Loop labels", () => {
@@ -352,8 +372,36 @@ describe("NotesPanel", () => {
 
     expect(
       getByTextContent(
-        "编译后的 PSO 可缓存成本地 binary，后续直接 Load。",
+        "编译后的 PSO 可写入本地 binary，后续直接 Load",
       ),
+    ).toBeInTheDocument();
+    expect(
+      getByTextContent("本地 binary 强依赖 OS / 驱动 / 芯片，不能稳定分发"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("写入", {
+        selector: ".notes-inline-emphasis--local-binary",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("binary", {
+        selector: ".notes-inline-emphasis--local-binary",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Load", {
+        selector: ".notes-inline-emphasis--local-binary",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("OS / 驱动 / 芯片", {
+        selector: ".notes-inline-emphasis--driver-runtime",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("不能稳定分发", {
+        selector: ".notes-inline-emphasis--driver-runtime",
+      }),
     ).toBeInTheDocument();
   });
 
@@ -417,18 +465,69 @@ describe("NotesPanel", () => {
     ).map((node) => node.textContent);
 
     expect(objectiveFactCopies.at(-1)?.textContent).toBe(
-      "由于②，PSO只能从真机上面收集到真实被使用的条目，而我们需要在测试环境跑收集循环。",
+      "由于②，PSO 只能从真机收集真实使用条目，所以测试环境必须跑收集循环",
     );
     expect(objectiveFactItems.at(-1)?.getAttribute("data-fact-state")).toBe("new");
     expect(objectiveFactBadges.slice(0, 4)).toEqual(["1", "2", "3", "4"]);
     expect(apiLabels).toEqual([".ushaderbytecode"]);
+    expect(
+      screen.getByText("真机", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("收集循环", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("renders page18 with the shortened closed-loop objective fact", () => {
     render(<NotesPanel state={buildState("page_18")} transition={null} />);
 
     expect(
-      getByTextContent("PSO收集闭环：Phone采集，Computer经Expand / Build，再回到Phone。"),
+      getByTextContent("PSO 手机闭环：真机采集 -> Expand -> Build -> 给真机预编译"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText("PSO", {selector: ".notes-inline-emphasis--pso"}).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText("真机采集", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Expand", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Build", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("预编译", {
+        selector: ".notes-inline-emphasis--runtime-loop",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders page29_data with the driver/compiler realization fact highlighted", () => {
+    render(<NotesPanel state={buildState("page_29_data")} transition={null} />);
+
+    expect(
+      getByTextContent("PSO 信息能否兑现优化，取决于驱动 / 编译器"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("兑现优化", {
+        selector: ".notes-inline-emphasis--driver-runtime",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("驱动 / 编译器", {
+        selector: ".notes-inline-emphasis--driver-runtime",
+      }),
     ).toBeInTheDocument();
   });
 
@@ -588,7 +687,7 @@ describe("NotesPanel", () => {
     expect(
       screen.getByText("770BF39593DD7BE95F23F2C8AF5D759BD6F8A1D3"),
     ).toBeInTheDocument();
-    expect(apiLabels).toEqual(["历史 .rec.upipelinecache", "历史 .scl.csv", "stablepc.csv"]);
+    expect(apiLabels).toEqual(["手机包收集到的UE PSO", "同版本 Cook 双向映射", "stablepc.csv"]);
     expect(screen.queryByText("Expand")).not.toBeInTheDocument();
   });
 

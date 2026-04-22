@@ -17,75 +17,173 @@ type SessionInfo = {
   stepCount: number;
 };
 
-const OBJECTIVE_FACT_EMPHASIS = [
+type ObjectiveFactEmphasisRule = {
+  text: string;
+  className: string;
+  appliesTo?: (fact: string) => boolean;
+};
+
+function factIncludesAll(...tokens: string[]) {
+  return (fact: string) => tokens.every((token) => fact.includes(token));
+}
+
+const OBJECTIVE_FACT_EMPHASIS: readonly ObjectiveFactEmphasisRule[] = [
   {
     text: "着色器编译",
     className: "notes-inline-emphasis notes-inline-emphasis--precompile",
-    appliesTo: (fact: string) => fact === "启动游戏必经之路——着色器编译",
+    appliesTo: factIncludesAll("启动游戏", "着色器编译"),
   },
   {
     text: "指数级增长",
     className: "notes-inline-emphasis notes-inline-emphasis--exponential",
-    appliesTo: (fact: string) => fact === "PSO 的状态组合空间呈指数级增长",
+    appliesTo: factIncludesAll("PSO", "指数级增长"),
   },
   {
     text: "PSO",
     className: "notes-inline-emphasis notes-inline-emphasis--pso",
     appliesTo: (fact: string) =>
-      fact === "OpenGL 无 PSO，只有 Program" || fact === "Vulkan / Metal 有 PSO可以深度优化",
+      factIncludesAll("OpenGL", "Program")(fact) ||
+      factIncludesAll("Vulkan / Metal", "PSO")(fact),
   },
   {
     text: "Program",
     className: "notes-inline-emphasis notes-inline-emphasis--program",
-    appliesTo: (fact: string) => fact === "OpenGL 无 PSO，只有 Program",
+    appliesTo: factIncludesAll("OpenGL", "Program"),
   },
   {
     text: "Compile",
     className: "notes-inline-emphasis notes-inline-emphasis--compile-link",
-    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+    appliesTo: factIncludesAll("Shader", "Compile", "Link"),
   },
   {
     text: "Link",
     className: "notes-inline-emphasis notes-inline-emphasis--compile-link",
-    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+    appliesTo: factIncludesAll("Shader", "Compile", "Link"),
   },
   {
     text: "极高",
     className: "notes-inline-emphasis notes-inline-emphasis--high-cost",
-    appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+    appliesTo: factIncludesAll("Shader", "Compile", "Link", "极高"),
   },
   {
     text: "资产自身",
     className: "notes-inline-emphasis notes-inline-emphasis--asset-self",
-    appliesTo: (fact: string) => fact === "Inline模式下ShaderCode由资产自身持有",
+    appliesTo: factIncludesAll("Inline模式", "资产自身"),
   },
   {
     text: "全局资产",
     className: "notes-inline-emphasis notes-inline-emphasis--global-asset",
-    appliesTo: (fact: string) =>
-      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+    appliesTo: factIncludesAll("Shared模式", "全局资产", "全局索引", "共享"),
   },
   {
     text: "全局索引",
     className: "notes-inline-emphasis notes-inline-emphasis--global-index",
-    appliesTo: (fact: string) =>
-      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+    appliesTo: factIncludesAll("Shared模式", "全局资产", "全局索引", "共享"),
   },
   {
     text: "共享",
     className: "notes-inline-emphasis notes-inline-emphasis--shared-mode",
-    appliesTo: (fact: string) =>
-      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+    appliesTo: factIncludesAll("Shared模式", "全局资产", "全局索引", "共享"),
   },
   {
     text: "ShaderHash",
     className: "notes-inline-emphasis notes-inline-emphasis--hash-index",
-    appliesTo: (fact: string) => fact === "UE PSO 以 ShaderHash 为索引定位对应的 ShaderCode",
+    appliesTo: factIncludesAll("UE PSO", "ShaderHash", "索引"),
   },
   {
     text: "索引",
     className: "notes-inline-emphasis notes-inline-emphasis--hash-index",
-    appliesTo: (fact: string) => fact === "UE PSO 以 ShaderHash 为索引定位对应的 ShaderCode",
+    appliesTo: factIncludesAll("UE PSO", "ShaderHash", "索引"),
+  },
+  {
+    text: "真机",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("由于②", "真机", "收集循环"),
+  },
+  {
+    text: "收集循环",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("由于②", "真机", "收集循环"),
+  },
+  {
+    text: "Hash",
+    className: "notes-inline-emphasis notes-inline-emphasis--unstable",
+    appliesTo: factIncludesAll("Hash", "ShaderStableKey", "跨版本"),
+  },
+  {
+    text: "ShaderStableKey",
+    className: "notes-inline-emphasis notes-inline-emphasis--stable-key",
+    appliesTo: factIncludesAll("Hash", "ShaderStableKey", "跨版本"),
+  },
+  {
+    text: "不稳定",
+    className: "notes-inline-emphasis notes-inline-emphasis--unstable",
+    appliesTo: factIncludesAll("Hash", "ShaderStableKey", "不稳定"),
+  },
+  {
+    text: "稳定",
+    className: "notes-inline-emphasis notes-inline-emphasis--stable-key",
+    appliesTo: factIncludesAll("Hash", "ShaderStableKey", "不稳定", "稳定"),
+  },
+  {
+    text: "PSO",
+    className: "notes-inline-emphasis notes-inline-emphasis--pso",
+    appliesTo: factIncludesAll("真机采集", "Expand", "Build", "预编译"),
+  },
+  {
+    text: "真机采集",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("真机采集", "Expand", "Build", "预编译"),
+  },
+  {
+    text: "Expand",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("真机采集", "Expand", "Build", "预编译"),
+  },
+  {
+    text: "Build",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("真机采集", "Expand", "Build", "预编译"),
+  },
+  {
+    text: "预编译",
+    className: "notes-inline-emphasis notes-inline-emphasis--runtime-loop",
+    appliesTo: factIncludesAll("真机采集", "Expand", "Build", "预编译"),
+  },
+  {
+    text: "写入",
+    className: "notes-inline-emphasis notes-inline-emphasis--local-binary",
+    appliesTo: factIncludesAll("可写入", "binary", "Load"),
+  },
+  {
+    text: "binary",
+    className: "notes-inline-emphasis notes-inline-emphasis--local-binary",
+    appliesTo: factIncludesAll("可写入", "binary", "Load"),
+  },
+  {
+    text: "Load",
+    className: "notes-inline-emphasis notes-inline-emphasis--local-binary",
+    appliesTo: factIncludesAll("可写入", "binary", "Load"),
+  },
+  {
+    text: "OS / 驱动 / 芯片",
+    className: "notes-inline-emphasis notes-inline-emphasis--driver-runtime",
+    appliesTo: factIncludesAll("本地 binary", "OS / 驱动 / 芯片", "不能稳定分发"),
+  },
+  {
+    text: "不能稳定分发",
+    className: "notes-inline-emphasis notes-inline-emphasis--driver-runtime",
+    appliesTo: factIncludesAll("本地 binary", "OS / 驱动 / 芯片", "不能稳定分发"),
+  },
+  {
+    text: "兑现优化",
+    className: "notes-inline-emphasis notes-inline-emphasis--driver-runtime",
+    appliesTo: factIncludesAll("PSO 信息", "兑现优化", "驱动 / 编译器"),
+  },
+  {
+    text: "驱动 / 编译器",
+    className: "notes-inline-emphasis notes-inline-emphasis--driver-runtime",
+    appliesTo: factIncludesAll("PSO 信息", "兑现优化", "驱动 / 编译器"),
   },
 ] as const;
 
@@ -167,7 +265,11 @@ function renderObjectiveFact(fact: string) {
         continue;
       }
 
-      if (!nextMatch || start < nextMatch.start) {
+      if (
+        !nextMatch ||
+        start < nextMatch.start ||
+        (start === nextMatch.start && token.text.length > nextMatch.text.length)
+      ) {
         nextMatch = {
           start,
           text: token.text,
