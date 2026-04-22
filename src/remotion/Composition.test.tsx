@@ -4429,12 +4429,14 @@ describe("MyComposition", () => {
 
     expect(systemFrame).toBeDefined();
     expect(systemFrameRect).toBeDefined();
-    expect(harnessMetrics.x + harnessMetrics.width / 2).toBeLessThan(lossMetrics.x + lossMetrics.width / 2);
+    expect(lossMetrics.y).toBeGreaterThan(harnessMetrics.y);
+    expect(feedbackMetrics.y).toBeGreaterThan(lossMetrics.y);
     expect(lossMetrics.x + lossMetrics.width / 2).toBeLessThan(
-      feedbackMetrics.x + feedbackMetrics.width / 2,
+      harnessMetrics.x + harnessMetrics.width / 2,
     );
-    expect(lossMetrics.y).toBeLessThan(harnessMetrics.y);
-    expect(Math.abs(feedbackMetrics.y - harnessMetrics.y)).toBeLessThanOrEqual(2);
+    expect(feedbackMetrics.x + feedbackMetrics.width / 2).toBeLessThan(
+      lossMetrics.x + lossMetrics.width / 2,
+    );
     expect(systemFrameMetrics.x).toBeLessThan(inputMetrics.x);
     expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
     expect(systemFrameMetrics.y).toBeLessThan(fxMetrics.y);
@@ -4442,7 +4444,7 @@ describe("MyComposition", () => {
     expect(rectCenterX(fxRect)).toBeLessThan(systemFrameMetrics.x + systemFrameMetrics.width / 2);
     expect(feedbackArrowPath?.getAttribute("d")).toContain("Q");
     expect(feedbackArrow).not.toBeNull();
-    expect(feedbackArrow?.x2).toBeLessThan(feedbackArrow!.x1);
+    expect(Math.abs((feedbackArrow?.x2 ?? 0) - (feedbackArrow?.x1 ?? 0))).toBeLessThanOrEqual(24);
     expect(feedbackArrow?.y2).toBeGreaterThan(feedbackArrow!.y1);
   });
 
@@ -4451,6 +4453,7 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
     const images = Array.from(container.querySelectorAll("image"));
 
+    expect(findTextNodes(container, "《逍遥游》")[0]).toBeUndefined();
     expect(
       findTextNodes(container, "今子有大树，患其无用，何不树之于无何有之乡，")[0],
     ).toBeDefined();
@@ -4475,7 +4478,7 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "以此作为这次分享的最后一句。")[0]).toBeDefined();
   });
 
-  it("renders page 33 with a square repo QR and symmetrically inset link columns", () => {
+  it("renders page 33 with a lower reading lane, a square repo QR, and symmetrically inset link columns", () => {
     setStepFrame("page_33", 56);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
@@ -4489,8 +4492,11 @@ describe("MyComposition", () => {
     )[0];
 
     expect(repoQrRect?.getAttribute("rx")).toBe("0");
+    expect(rectMetrics(repoQrRect).y).toBe(480);
     expect(textX(leftTitle)).toBe(124);
+    expect(textY(leftTitle)).toBe(544);
     expect(textX(rightTitle)).toBe(1156);
+    expect(textY(rightTitle)).toBe(544);
     expect(rightTitle?.getAttribute("text-anchor")).toBe("end");
     expect(rightSubtitle?.getAttribute("text-anchor")).toBe("end");
   });

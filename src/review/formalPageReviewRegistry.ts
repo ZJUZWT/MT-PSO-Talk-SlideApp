@@ -1793,15 +1793,15 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       fontWeightOverride: 830,
       textColorOverride: "#d66630",
     }),
-    node("concept-harness", "harness", {x: 244, y: 214, width: 300, height: 54}, {
+    node("concept-harness", "harness", {x: 594, y: 172, width: 300, height: 54}, {
       fontSizeOverride: 28,
       fontWeightOverride: 760,
     }),
-    node("concept-loss", "loss + back propagation", {x: 430, y: 154, width: 420, height: 54}, {
+    node("concept-loss", "loss + back propagation", {x: 502, y: 246, width: 420, height: 54}, {
       fontSizeOverride: 26,
       fontWeightOverride: 760,
     }),
-    node("concept-feedback", "feedback system", {x: 706, y: 214, width: 332, height: 54}, {
+    node("concept-feedback", "feedback system", {x: 430, y: 324, width: 332, height: 54}, {
       fontSizeOverride: 27,
       fontWeightOverride: 760,
     }),
@@ -1832,28 +1832,23 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     }),
   ]),
   makeFormalReviewSketch("formal-page33", "page_33", "Page 33 final epilogue", [
-    textNode("quote-title", "《逍遥游》", {x: 390, y: 96, width: 500, height: 52}, {
-      fontSizeOverride: 33,
-      fontWeightOverride: 830,
-      textColorOverride: "#d66630",
-    }),
-    textNode("quote-body", "Closing Quote", {x: 192, y: 172, width: 896, height: 240}, {
+    textNode("quote-body", "Closing Quote", {x: 192, y: 138, width: 896, height: 270}, {
       fontSizeOverride: 40,
       fontWeightOverride: 760,
     }),
-    textNode("quote-footer", "Quote Footer", {x: 370, y: 442, width: 540, height: 34}, {
+    textNode("quote-footer", "Quote Footer", {x: 370, y: 416, width: 540, height: 34}, {
       fontSizeOverride: 21,
       fontWeightOverride: 640,
     }),
-    node("left-link-1", "Foundation", {x: 120, y: 518, width: 280, height: 46}),
-    node("left-link-2", "Ideology Course", {x: 120, y: 604, width: 280, height: 46}),
-    node("repo-qr", "Repo QR", {x: 540, y: 476, width: 200, height: 200}),
-    node("repo-url", "Repo URL", {x: 438, y: 678, width: 404, height: 30}, {
+    node("left-link-1", "Foundation", {x: 120, y: 522, width: 280, height: 46}),
+    node("left-link-2", "Ideology Course", {x: 120, y: 608, width: 280, height: 46}),
+    node("repo-qr", "Repo QR", {x: 540, y: 480, width: 200, height: 200}),
+    node("repo-url", "Repo URL", {x: 438, y: 681, width: 404, height: 30}, {
       fontSizeOverride: 15.5,
       fontWeightOverride: 650,
     }),
-    node("right-link-1", "Outer Wilds", {x: 880, y: 518, width: 280, height: 46}),
-    node("right-link-2", "Type Help", {x: 880, y: 604, width: 280, height: 46}),
+    node("right-link-1", "Outer Wilds", {x: 880, y: 522, width: 280, height: 46}),
+    node("right-link-2", "Type Help", {x: 880, y: 608, width: 280, height: 46}),
   ]),
 ];
 

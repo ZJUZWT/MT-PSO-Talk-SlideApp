@@ -525,14 +525,14 @@ describe("formal page review registry", () => {
     expect(conceptHarness).toBeDefined();
     expect(conceptLoss).toBeDefined();
     expect(conceptFeedback).toBeDefined();
-    expect((conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2).toBeLessThan(
+    expect(conceptLoss?.y ?? 0).toBeGreaterThan(conceptHarness?.y ?? 0);
+    expect(conceptFeedback?.y ?? 0).toBeGreaterThan(conceptLoss?.y ?? 0);
+    expect((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2).toBeLessThan(
+      (conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2,
+    );
+    expect((conceptFeedback?.x ?? 0) + (conceptFeedback?.width ?? 0) / 2).toBeLessThan(
       (conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2,
     );
-    expect((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2).toBeLessThan(
-      (conceptFeedback?.x ?? 0) + (conceptFeedback?.width ?? 0) / 2,
-    );
-    expect(conceptLoss?.y ?? 0).toBeLessThan(conceptHarness?.y ?? 0);
-    expect(Math.abs((conceptFeedback?.y ?? 0) - (conceptHarness?.y ?? 0))).toBeLessThanOrEqual(2);
     expect(modelInput?.containerId).toBe("model-system-frame");
     expect(modelFx?.containerId).toBe("model-system-frame");
     expect(modelOutput?.containerId).toBe("model-system-frame");
@@ -555,7 +555,6 @@ describe("formal page review registry", () => {
     expect(page33).toBeDefined();
     expect(page33?.nodes.map((node) => node.id)).toEqual(
       expect.arrayContaining([
-        "quote-title",
         "quote-body",
         "quote-footer",
         "left-link-1",
@@ -567,6 +566,8 @@ describe("formal page review registry", () => {
       ]),
     );
 
+    const quoteTitle = page33?.nodes.find((node) => node.id === "quote-title");
+    const quoteFooter = page33?.nodes.find((node) => node.id === "quote-footer");
     const leftLink = page33?.nodes.find((node) => node.id === "left-link-1");
     const rightLink = page33?.nodes.find((node) => node.id === "right-link-1");
     const repoQr = page33?.nodes.find((node) => node.id === "repo-qr");
@@ -575,6 +576,8 @@ describe("formal page review registry", () => {
     const leftGap = (repoQr?.x ?? 0) - ((leftLink?.x ?? 0) + (leftLink?.width ?? 0));
     const rightGap = (rightLink?.x ?? 0) - ((repoQr?.x ?? 0) + (repoQr?.width ?? 0));
 
+    expect(quoteTitle).toBeUndefined();
+    expect((repoQr?.y ?? 0) - ((quoteFooter?.y ?? 0) + (quoteFooter?.height ?? 0))).toBeGreaterThanOrEqual(24);
     expect(leftMargin).toBeGreaterThanOrEqual(120);
     expect(rightMargin).toBeGreaterThanOrEqual(120);
     expect(Math.abs(leftMargin - rightMargin)).toBeLessThanOrEqual(2);

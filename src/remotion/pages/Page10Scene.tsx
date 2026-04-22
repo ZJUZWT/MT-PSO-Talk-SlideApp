@@ -7790,15 +7790,15 @@ function Page32FeedbackBridgePage({
   const conceptCards = [
     {
       ...PAGE32_ABSTRACTION_PILLS[0],
-      box: {x: 244, y: 214, width: 300, height: 54, radius: 24},
+      box: {x: 594, y: 172, width: 300, height: 54, radius: 24},
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[1],
-      box: {x: 430, y: 154, width: 420, height: 54, radius: 24},
+      box: {x: 502, y: 246, width: 420, height: 54, radius: 24},
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[2],
-      box: {x: 706, y: 214, width: 332, height: 54, radius: 24},
+      box: {x: 430, y: 324, width: 332, height: 54, radius: 24},
     },
   ] as const;
   const harnessCard = conceptCards[0]!;
@@ -7809,10 +7809,14 @@ function Page32FeedbackBridgePage({
   const modelCenterBox = {x: 450, y: 430, width: 344, height: 128, radius: 24};
   const modelOutputBox = {x: 940, y: 448, width: 172, height: 92, radius: 20};
   const modelAxisY = centerY(modelInputBox);
-  const feedbackSystemAnchor = {
-    x: centerX(modelSystemFrameBox) - 6,
-    y: modelSystemFrameBox.y + 16,
-  };
+  const feedbackSystemAnchor = {x: centerX(modelCenterBox) - 12, y: modelSystemFrameBox.y + 16};
+  const loopLaneX = 1028;
+  const loopBackPoints = [
+    {x: right(feedbackCard.box) + 12, y: centerY(feedbackCard.box)},
+    {x: loopLaneX, y: centerY(feedbackCard.box)},
+    {x: loopLaneX, y: centerY(harnessCard.box)},
+    {x: right(harnessCard.box) + 12, y: centerY(harnessCard.box)},
+  ];
   const footerBox = {x: 184, y: 648, width: 912, height: 38};
 
   return (
@@ -7861,30 +7865,30 @@ function Page32FeedbackBridgePage({
         ))}
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: centerX(harnessCard.box) + 86, y: harnessCard.box.y - 8},
-            {x: centerX(harnessCard.box) + 142, y: lossCard.box.y - 28},
-            {x: lossCard.box.x + 90, y: bottom(lossCard.box) + 8},
+            {x: centerX(harnessCard.box) - 12, y: bottom(harnessCard.box) + 8},
+            {x: centerX(harnessCard.box) - 94, y: centerY(harnessCard.box) + 44},
+            {x: centerX(lossCard.box) - 92, y: lossCard.box.y - 8},
           )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={lossCard.box.x + 90}
-          tipY={bottom(lossCard.box) + 8}
-          direction="up"
+          tipX={centerX(lossCard.box) - 92}
+          tipY={lossCard.box.y - 8}
+          direction="down"
           shaftWidth={3.1}
           underlayWidth={6}
           headSize={8.5}
         />
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: right(lossCard.box) - 96, y: bottom(lossCard.box) + 8},
-            {x: right(lossCard.box) + 54, y: lossCard.box.y - 28},
-            {x: feedbackCard.box.x + 74, y: feedbackCard.box.y - 8},
+            {x: centerX(lossCard.box) - 18, y: bottom(lossCard.box) + 8},
+            {x: centerX(lossCard.box) - 110, y: centerY(lossCard.box) + 48},
+            {x: centerX(feedbackCard.box) - 66, y: feedbackCard.box.y - 8},
           )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={feedbackCard.box.x + 74}
+          tipX={centerX(feedbackCard.box) - 66}
           tipY={feedbackCard.box.y - 8}
           direction="down"
           shaftWidth={3.1}
@@ -7893,8 +7897,8 @@ function Page32FeedbackBridgePage({
         />
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: centerX(feedbackCard.box), y: bottom(feedbackCard.box) + 10},
-            {x: centerX(feedbackCard.box) - 48, y: modelSystemFrameBox.y - 28},
+            {x: centerX(feedbackCard.box) + 18, y: bottom(feedbackCard.box) + 10},
+            {x: centerX(feedbackCard.box) + 10, y: modelSystemFrameBox.y - 32},
             {x: feedbackSystemAnchor.x, y: feedbackSystemAnchor.y - 8},
           )}
           stroke={scene.apiStroke}
@@ -7909,16 +7913,12 @@ function Page32FeedbackBridgePage({
           testId="page32-feedback-to-system"
         />
         <StrokeArrow
-          d={quadraticCurvePath(
-            {x: feedbackCard.box.x + 48, y: feedbackCard.box.y - 10},
-            {x: center, y: titleBox.y + 8},
-            {x: right(harnessCard.box) - 36, y: harnessCard.box.y - 10},
-          )}
+          d={roundedPolylinePath(loopBackPoints, 20)}
           stroke="rgba(214, 102, 48, 0.68)"
           opacity={conceptOpacity * 0.92}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity * 0.92)}
-          tipX={right(harnessCard.box) - 36}
-          tipY={harnessCard.box.y - 10}
+          tipX={right(harnessCard.box) + 12}
+          tipY={centerY(harnessCard.box)}
           direction="left"
           shaftWidth={2.8}
           underlayWidth={5}
@@ -8093,79 +8093,68 @@ function Page33ReadingPage({
   const quoteOpacity = opacity * resolveWindowProgress(entryProgress, 0.08, 0.62, easeOutQuint);
   const linksOpacity = opacity * resolveWindowProgress(entryProgress, 0.42, 0.9, easeOutQuint);
   const quoteCenterX = centerX(PLACEHOLDER_BOARD);
-  const quoteTitleBox = {x: 430, y: 110, width: 420, height: 48};
-  const quoteLineStartY = 188;
+  const quoteBodyBox = {x: 192, y: 138, width: 896, height: 270};
+  const quoteLineStartY = 168;
   const quoteLineGap = 70;
-  const quoteFooterBox = {x: 430, y: 430, width: 420, height: 44};
+  const quoteFooterBox = {x: 430, y: 416, width: 420, height: 44};
   const leftColumnX = 124;
   const rightColumnX = 1156;
-  const linkStartY = 540;
+  const linkStartY = 544;
   const linkStep = 86;
   const columnWidth = 280;
-  const qrBox = {x: 540, y: 476, width: 200, height: 200, radius: 0};
-  const qrUrlY = 696;
+  const qrBox = {x: 540, y: 480, width: 200, height: 200, radius: 0};
+  const qrUrlY = 699;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform="translate(0 -42)">
-        <g
-          data-geometry-node-id="quote-title"
-          data-geometry-node-label="Closing Quote Title"
-        >
-          <g data-geometry-node-box="1">
-            <rect
-              x={quoteTitleBox.x}
-              y={quoteTitleBox.y}
-              width={quoteTitleBox.width}
-              height={quoteTitleBox.height}
-              rx={10}
-              fill="transparent"
-              stroke="none"
-            />
-          </g>
-          <text
-            x={quoteCenterX}
-            y={quoteTitleBox.y + quoteTitleBox.height / 2}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="33"
-            fontWeight="830"
-            textAnchor="middle"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-            opacity={quoteOpacity}
+        <g>
+          <g
+            data-geometry-node-id="quote-body"
+            data-geometry-node-label="Closing Quote"
           >
-            《逍遥游》
-          </text>
-          {ZHUANGZI_CLOSING_LINES.map((line, index) => (
-            <g
-              key={line}
-            >
-              <g data-geometry-node-box="1">
-                <rect
-                  x={192}
-                  y={quoteLineStartY + index * quoteLineGap - 30}
-                  width={896}
-                  height={60}
-                  rx={10}
-                  fill="transparent"
-                  stroke="none"
-                />
-              </g>
-              <text
-                x={quoteCenterX}
-                y={quoteLineStartY + index * quoteLineGap}
-                fill="#22303d"
-                fontSize={index < 2 ? "39" : "43"}
-                fontWeight={index < 2 ? "730" : "790"}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                data-geometry-node-text="1"
-                opacity={quoteOpacity}
-              >
-                {line}
-              </text>
+            <g data-geometry-node-box="1">
+              <rect
+                x={quoteBodyBox.x}
+                y={quoteBodyBox.y}
+                width={quoteBodyBox.width}
+                height={quoteBodyBox.height}
+                rx={10}
+                fill="transparent"
+                stroke="none"
+              />
             </g>
-          ))}
+            {ZHUANGZI_CLOSING_LINES.map((line, index) => (
+              <g
+                key={line}
+              >
+                <g data-geometry-node-box="1">
+                  <rect
+                    x={192}
+                    y={quoteLineStartY + index * quoteLineGap - 30}
+                    width={896}
+                    height={60}
+                    rx={10}
+                    fill="transparent"
+                    stroke="none"
+                  />
+                </g>
+                <text
+                  x={quoteCenterX}
+                  y={quoteLineStartY + index * quoteLineGap}
+                  fill="#22303d"
+                  fontSize={index < 2 ? "39" : "43"}
+                  fontWeight={index < 2 ? "730" : "790"}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  data-geometry-node-text="1"
+                  opacity={quoteOpacity}
+                >
+                  {line}
+                </text>
+              </g>
+            ))}
+          </g>
           <g
             data-geometry-node-id="quote-footer"
             data-geometry-node-label="Quote Footer"
