@@ -1074,19 +1074,19 @@ export const masterStoryboard: Storyboard = {
       caption:
         "把 harness 往上抽象以后，不再是竖排四卡，而是借用第一页的 `Input -> f(x) -> Output` 骨架，作为这一段的抽象终点。",
       keyPoints: [
-        "页面下半复用第一页的 `Input -> f(x) -> Output` 三盒骨架，作为抽象后的稳定落点。",
-        "上半只保留 3 个竖向 pill：`harness`、`loss + back propagation`、`feedback system`，再从 `feedback system` 落到 `f(x)`。",
+        "页面下半复用第一页的 `Input -> f(x) -> Output` 三盒骨架，并加一个整体框，作为抽象后的稳定系统落点。",
+        "上半只保留 3 个竖向 pill：`harness`、`loss + back propagation`、`feedback system`，再从 `feedback system` 以弧线落到整个下半系统。",
         "`feedback system` 依旧向上回指 `harness`，让“反馈系统又回到具体系统”这件事留在图里。",
       ],
       notes:
-        "这一页继续承担桥的职责，但视觉上明显更接近第一页，让观众感到这是又一次抽象压缩，而不是新增一套图例。",
+        "这一页继续承担桥的职责，但视觉上明显更接近第一页，让观众感到这是又一次抽象压缩，而不是新增一套图例；`f(x)` 稍向左偏，让中轴弧线和下半主链更顺。",
       focusTarget: "Abstract Function Skeleton",
       timingHint:
         "从 page_31 轻淡入这一页，先给题眼，再让上半抽象链与下半 `Input -> f(x) -> Output` 骨架一起成立。",
       intro:
         "从这一页开始，不再继续解释 harness 本身，而是把它抽象回一个更基础、更熟悉的函数骨架。",
       manuscript:
-        "第三十二页不再是 4 个竖排大卡，而是把第一页那个 `Input -> f(x) -> Output` 骨架重新拿回来，作为这一段抽象之后的落点。上面只留下 3 个竖向 pill：`harness`、`loss + back propagation`、`feedback system`。它们一路往下落到中间的 `f(x)`，同时 `feedback system` 还会向上回指 `harness`，表示这种抽象出来的反馈结构，又可以重新回到具体系统里。这样讲的时候，观众看到的不是一套新名词，而是“从具体问题往回推，最后又压回更高一层模型”的过程。",
+        "第三十二页不再是 4 个竖排大卡，而是把第一页那个 `Input -> f(x) -> Output` 骨架重新拿回来，作为这一段抽象之后的落点。上面只留下 3 个竖向 pill：`harness`、`loss + back propagation`、`feedback system`。下面则用一个轻框把 `Input -> f(x) -> Output` 整体包起来，再让 `feedback system` 用一条向左下弯的弧线落到这个整体系统上，而不是只扎到 `f(x)` 一点。`f(x)` 本身也稍微往左偏，让左右主链更舒展、整页读起来更顺。同时 `feedback system` 还会向上回指 `harness`，表示这种抽象出来的反馈结构，又可以重新回到具体系统里。这样讲的时候，观众看到的不是一套新名词，而是“从具体问题往回推，最后又压回更高一层模型”的过程。",
       focusColorKey: "shared",
     },
     {

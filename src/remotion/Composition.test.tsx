@@ -414,6 +414,26 @@ function parsePathPoints(path: Element | null | undefined) {
   };
 }
 
+function parseQuadraticPath(path: Element | null | undefined) {
+  const d = path?.getAttribute("d");
+  const match = d?.match(
+    /M ([-\d.]+) ([-\d.]+) Q ([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    x1: Number(match[1]),
+    y1: Number(match[2]),
+    cx: Number(match[3]),
+    cy: Number(match[4]),
+    x2: Number(match[5]),
+    y2: Number(match[6]),
+  };
+}
+
 function parsePolylineVertices(group: Element | null | undefined) {
   const d = group?.querySelector("path")?.getAttribute("d") ?? "";
 
@@ -4380,6 +4400,35 @@ describe("MyComposition", () => {
         "从一个具体问题往回推时 也许会借到一些看似无用的东西",
       )[0],
     ).toBeDefined();
+
+    const systemFrame = container.querySelector('[data-geometry-node-id="model-system-frame"]');
+    const systemFrameRect = systemFrame?.querySelector("rect[data-geometry-node-box='1']");
+    const inputGroup = findVisibleBoxGroupByLabel(container, "Input");
+    const fxGroup = findVisibleBoxGroupByLabel(container, "f(x)");
+    const outputGroup = findVisibleBoxGroupByLabel(container, "Output");
+    const inputRect = inputGroup?.querySelector("rect[data-geometry-node-box='1']");
+    const fxRect = fxGroup?.querySelector("rect[data-geometry-node-box='1']");
+    const outputRect = outputGroup?.querySelector("rect[data-geometry-node-box='1']");
+    const systemFrameMetrics = rectMetrics(systemFrameRect);
+    const inputMetrics = rectMetrics(inputRect);
+    const fxMetrics = rectMetrics(fxRect);
+    const outputMetrics = rectMetrics(outputRect);
+    const feedbackArrowPath = container.querySelector(
+      '[data-testid="page32-feedback-to-system"] path',
+    );
+    const feedbackArrow = parseQuadraticPath(feedbackArrowPath);
+
+    expect(systemFrame).toBeDefined();
+    expect(systemFrameRect).toBeDefined();
+    expect(systemFrameMetrics.x).toBeLessThan(inputMetrics.x);
+    expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
+    expect(systemFrameMetrics.y).toBeLessThan(fxMetrics.y);
+    expect(systemFrameMetrics.bottom).toBeGreaterThan(inputMetrics.bottom);
+    expect(rectCenterX(fxRect)).toBeLessThan(systemFrameMetrics.x + systemFrameMetrics.width / 2);
+    expect(feedbackArrowPath?.getAttribute("d")).toContain("Q");
+    expect(feedbackArrow).not.toBeNull();
+    expect(feedbackArrow?.x2).toBeLessThan(feedbackArrow!.x1);
+    expect(feedbackArrow?.y2).toBeGreaterThan(feedbackArrow!.y1);
   });
 
   it("renders page 33 as the final quote-plus-recommendations ending page", () => {

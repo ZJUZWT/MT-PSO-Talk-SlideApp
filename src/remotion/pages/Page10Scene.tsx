@@ -7797,10 +7797,15 @@ function Page32FeedbackBridgePage({
   const harnessCard = conceptCards[0]!;
   const lossCard = conceptCards[1]!;
   const feedbackCard = conceptCards[2]!;
-  const modelInputBox = {x: 220, y: 432, width: 160, height: 88, radius: 20};
-  const modelCenterBox = {x: 470, y: 418, width: 340, height: 116, radius: 24};
-  const modelOutputBox = {x: 900, y: 432, width: 160, height: 88, radius: 20};
+  const modelSystemFrameBox = {x: 150, y: 392, width: 960, height: 168, radius: 34};
+  const modelInputBox = {x: 178, y: 432, width: 160, height: 88, radius: 20};
+  const modelCenterBox = {x: 450, y: 414, width: 300, height: 124, radius: 24};
+  const modelOutputBox = {x: 862, y: 432, width: 160, height: 88, radius: 20};
   const modelAxisY = centerY(modelInputBox);
+  const feedbackSystemAnchor = {
+    x: modelSystemFrameBox.x + 442,
+    y: modelSystemFrameBox.y + 16,
+  };
   const loopLaneX = right(feedbackCard.box) + 94;
   const loopBackPoints = [
     {x: right(feedbackCard.box) + 10, y: centerY(feedbackCard.box)},
@@ -7879,20 +7884,21 @@ function Page32FeedbackBridgePage({
           headSize={8.5}
         />
         <StrokeArrow
-          d={verticalPath(
-            centerX(feedbackCard.box),
-            bottom(feedbackCard.box) + 10,
-            modelCenterBox.y - 10,
+          d={quadraticCurvePath(
+            {x: centerX(feedbackCard.box), y: bottom(feedbackCard.box) + 10},
+            {x: centerX(feedbackCard.box) - 12, y: modelSystemFrameBox.y + 42},
+            {x: feedbackSystemAnchor.x, y: feedbackSystemAnchor.y - 8},
           )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={centerX(feedbackCard.box)}
-          tipY={modelCenterBox.y - 10}
+          tipX={feedbackSystemAnchor.x}
+          tipY={feedbackSystemAnchor.y}
           direction="down"
           shaftWidth={3.1}
           underlayWidth={6}
           headSize={8.5}
+          testId="page32-feedback-to-system"
         />
         <StrokeArrow
           d={roundedPolylinePath(loopBackPoints, 0)}
@@ -7906,6 +7912,19 @@ function Page32FeedbackBridgePage({
           underlayWidth={5}
           headSize={8.5}
         />
+        <g
+          opacity={modelOpacity * 0.94}
+          data-geometry-node-id="model-system-frame"
+          data-geometry-node-label="Input / f(x) / Output system"
+        >
+          <StageBox
+            box={modelSystemFrameBox}
+            fill="rgba(255, 251, 246, 0.16)"
+            stroke="rgba(118, 163, 207, 0.42)"
+            strokeWidth={2.4}
+            markGeometryBox
+          />
+        </g>
         <g
           opacity={modelOpacity}
           data-geometry-node-id="model-input"

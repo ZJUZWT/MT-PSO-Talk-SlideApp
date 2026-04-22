@@ -15,6 +15,7 @@ describe("formal page review registry", () => {
         "page_01",
         "page_02",
         "page_03",
+        "page_04",
         "page_04_data",
         "page_05",
         "page_14",
@@ -155,6 +156,30 @@ describe("formal page review registry", () => {
     );
 
     const artifact = buildGeometryReviewArtifact(page04Data!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_04 as a first-class formal PSO review surface", () => {
+    const page04 = findFormalPageReviewSketchByStepId("page_04");
+
+    expect(page04).toBeDefined();
+    expect(page04?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "workflow-frame",
+        "depth",
+        "blend",
+        "description",
+        "pso",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page04!);
 
     expect(artifact.metrics.overlapCount).toBe(0);
     expect(artifact.metrics.crossingCount).toBe(0);
@@ -480,11 +505,25 @@ describe("formal page review registry", () => {
         "concept-harness",
         "concept-loss",
         "concept-feedback",
+        "model-system-frame",
         "model-input",
         "model-fx",
         "model-output",
         "bridge-footer",
       ]),
+    );
+
+    const modelSystemFrame = page32?.nodes.find((node) => node.id === "model-system-frame");
+    const modelFx = page32?.nodes.find((node) => node.id === "model-fx");
+    const modelInput = page32?.nodes.find((node) => node.id === "model-input");
+    const modelOutput = page32?.nodes.find((node) => node.id === "model-output");
+
+    expect(modelSystemFrame).toBeDefined();
+    expect(modelInput?.containerId).toBe("model-system-frame");
+    expect(modelFx?.containerId).toBe("model-system-frame");
+    expect(modelOutput?.containerId).toBe("model-system-frame");
+    expect((modelFx?.x ?? 0) + (modelFx?.width ?? 0) / 2).toBeLessThan(
+      (modelSystemFrame?.x ?? 0) + (modelSystemFrame?.width ?? 0) / 2,
     );
 
     const artifact = buildGeometryReviewArtifact(page32!);

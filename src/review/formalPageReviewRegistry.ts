@@ -275,6 +275,59 @@ const page03FormalReviewSketch = makeFormalReviewSketch(
   ],
 );
 
+const page04FormalReviewSketch = makeFormalReviewSketch(
+  "formal-page04",
+  "page_04",
+  "Page 04 PSO workflow stack",
+  [
+    node("workflow-frame", "", {x: 264, y: 92, width: 664, height: 281}, {
+      renderStyle: "outline",
+    }),
+    node("shader-code", "RawShaderCode", {x: 286, y: 110, width: 156, height: 54}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 18,
+      fontWeightOverride: 760,
+    }),
+    node("shader-binary", "BinaryShaderCode", {x: 536, y: 110, width: 152, height: 54}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 18,
+      fontWeightOverride: 760,
+    }),
+    node("depth", "Depth", {x: 700, y: 110, width: 92, height: 54}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 18,
+      fontWeightOverride: 760,
+    }),
+    node("blend", "Blend", {x: 814, y: 110, width: 92, height: 54}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 18,
+      fontWeightOverride: 760,
+    }),
+    node("description", "Description", {x: 460, y: 211, width: 360, height: 44}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 23,
+      fontWeightOverride: 700,
+    }),
+    node("pso", "PSO", {x: 460, y: 303, width: 360, height: 52}, {
+      containerId: "workflow-frame",
+      fontSizeOverride: 30,
+      fontWeightOverride: 760,
+    }),
+    node("vertex-data", "VertexData", {x: 210, y: 424, width: 150, height: 88}, {
+      fontSizeOverride: 16,
+      fontWeightOverride: 720,
+    }),
+    node("gpu", "GPU", {x: 420, y: 402, width: 440, height: 126}, {
+      fontSizeOverride: 52,
+      fontWeightOverride: 760,
+    }),
+    node("pixels", "Pixels", {x: 920, y: 424, width: 150, height: 88}, {
+      fontSizeOverride: 16,
+      fontWeightOverride: 720,
+    }),
+  ],
+);
+
 const page04DataFormalReviewSketch = makeFormalReviewSketch(
   "formal-page04-data",
   "page_04_data",
@@ -1752,15 +1805,23 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       fontSizeOverride: 27,
       fontWeightOverride: 760,
     }),
-    node("model-input", "Input", {x: 220, y: 432, width: 160, height: 88}, {
+    node("model-system-frame", "Input / f(x) / Output system", {x: 150, y: 392, width: 960, height: 168}, {
+      renderStyle: "outline",
+      fontSizeOverride: 18,
+      fontWeightOverride: 760,
+    }),
+    node("model-input", "Input", {x: 178, y: 432, width: 160, height: 88}, {
+      containerId: "model-system-frame",
       fontSizeOverride: 28,
       fontWeightOverride: 680,
     }),
-    node("model-fx", "f(x)", {x: 470, y: 418, width: 340, height: 116}, {
+    node("model-fx", "f(x)", {x: 450, y: 414, width: 300, height: 124}, {
+      containerId: "model-system-frame",
       fontSizeOverride: 36,
       fontWeightOverride: 700,
     }),
-    node("model-output", "Output", {x: 900, y: 432, width: 160, height: 88}, {
+    node("model-output", "Output", {x: 862, y: 432, width: 160, height: 88}, {
+      containerId: "model-system-frame",
       fontSizeOverride: 28,
       fontWeightOverride: 680,
     }),
@@ -1806,6 +1867,7 @@ const FORMAL_PAGE_REVIEW_SKETCHES: GeometrySketchDefinition[] = [
   page01FormalReviewSketch,
   page02FormalReviewSketch,
   page03FormalReviewSketch,
+  page04FormalReviewSketch,
   page04DataFormalReviewSketch,
   page05FormalReviewSketch,
   page14FormalReviewSketch,
