@@ -622,9 +622,12 @@ describe("formal page review registry", () => {
     ).toBeLessThanOrEqual(2);
     expect((conceptLoss?.y ?? 0) - (conceptHarness?.y ?? 0)).toBeGreaterThanOrEqual(90);
     expect((conceptFeedback?.y ?? 0) - (conceptLoss?.y ?? 0)).toBeGreaterThanOrEqual(90);
-    expect((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2).toBeLessThan(
-      (conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2 - 100,
-    );
+    expect(
+      Math.abs(
+        ((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2) -
+          ((conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2),
+      ),
+    ).toBeLessThanOrEqual(2);
     expect(modelInput?.containerId).toBe("model-system-frame");
     expect(modelFx?.containerId).toBe("model-system-frame");
     expect(modelOutput?.containerId).toBe("model-system-frame");
@@ -755,11 +758,27 @@ describe("formal page review registry", () => {
         "footer",
       ]),
     );
+    expect(page24?.nodes.find((node) => node.id === "left-card")?.height).toBe(532);
+    expect(page24?.nodes.find((node) => node.id === "right-card")?.height).toBe(532);
+    expect(page24?.nodes.find((node) => node.id === "package-row-3")?.height).toBeGreaterThan(78);
 
     const artifact = buildGeometryReviewArtifact(page24!);
 
     expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
     expect(artifact.metrics.textOverflowCount).toBe(0);
     expect(artifact.metrics.minContainmentPad).toBeGreaterThanOrEqual(4);
+  });
+
+  it("keeps page_26 formal dual cards taller to avoid late-tail overflow", () => {
+    const page26 = findFormalPageReviewSketchByStepId("page_26");
+
+    expect(page26).toBeDefined();
+    expect(page26?.nodes.find((node) => node.id === "usage-mask-path")?.height).toBe(532);
+    expect(page26?.nodes.find((node) => node.id === "parallel-path")?.height).toBe(532);
+
+    const artifact = buildGeometryReviewArtifact(page26!);
+
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
   });
 });

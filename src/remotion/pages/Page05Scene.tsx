@@ -241,7 +241,7 @@ export function Page05Scene({scene}: {scene: SceneModel}) {
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
-                  UE PSO = Shaders+States+？
+                  UE PSO = Shaders + States + ?
                 </text>
                 <StageBox
                   box={page5UePsoShaderBox}
@@ -258,7 +258,7 @@ export function Page05Scene({scene}: {scene: SceneModel}) {
                   textAnchor="middle"
                   dominantBaseline="middle"
                 >
-                  VertexShader Hash / PixelShader Hash
+                  VS Hash / PS Hash
                 </text>
                 {PAGE5_UE_PSO_META_ITEMS.map((item) => (
                   <g key={item.label}>

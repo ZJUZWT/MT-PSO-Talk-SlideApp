@@ -2857,7 +2857,7 @@ function Page16Placeholder({
         box={recBox}
         label="ShaderHash + State"
         subLabel="（历史版本）"
-        detail="rec.upipelinecache"
+        detail=".rec.upipelinecache"
         opacity={recOpacity}
         labelFontSize={20}
         subLabelFontSize={17.5}
@@ -4283,9 +4283,9 @@ function Page18RestoreCarrier({
         box={REC_BOX}
         scene={scene}
         opacity={recOpacity}
-        label="rec.upipelinecache"
+        label=".rec.upipelinecache"
         geometryNodeId="page21-callback-rec"
-        geometryNodeLabel="rec.upipelinecache"
+        geometryNodeLabel=".rec.upipelinecache"
       />
       <ArtifactNode
         box={stablePcBox}
@@ -5051,48 +5051,45 @@ function Page24StrategyPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 84, y: 136, width: 556, height: 432, radius: 28};
-  const rightCard = {x: 658, y: 136, width: 538, height: 432, radius: 28};
+  const leftCard = {x: 84, y: 68, width: 556, height: 532, radius: 28};
+  const rightCard = {x: 658, y: 68, width: 538, height: 532, radius: 28};
   const page24FooterBox = {x: 164, y: 610, width: 948, height: 54, radius: 22};
   const packageHeaderBox = {
     x: leftCard.x + 24,
-    y: leftCard.y + 88,
+    y: leftCard.y + 92,
     width: leftCard.width - 48,
-    height: 34,
+    height: 40,
     radius: 14,
   };
-  const packageRows = COMPRESSION_SUMMARY_ROWS.filter(
-    (row) =>
-      row.algorithm === "LZ4" ||
-      row.algorithm === "zstd" ||
-      row.algorithm === "Oodle Leviathan",
-  );
-  const packageRowBoxes = packageRows.map((_, index) => ({
+  const packageRows = ["LZ4", "zstd", "Oodle Leviathan"].map((algorithm) =>
+    COMPRESSION_SUMMARY_ROWS.find((row) => row.algorithm === algorithm),
+  ) as Array<(typeof COMPRESSION_SUMMARY_ROWS)[number]>;
+  const packageRowBoxes = packageRows.map((row, index) => ({
     x: leftCard.x + 24,
-    y: leftCard.y + 132 + index * 86,
+    y: leftCard.y + 146 + index * 104,
     width: leftCard.width - 48,
-    height: 78,
+    height: row.algorithm === "Oodle Leviathan" ? 98 : 96,
     radius: 20,
   }));
   const virtualGuideBox = {
     x: rightCard.x + 24,
-    y: rightCard.y + 88,
+    y: rightCard.y + 92,
     width: rightCard.width - 48,
-    height: 98,
+    height: 112,
     radius: 22,
   };
   const memoryBox = {
     x: rightCard.x + 24,
-    y: rightCard.y + 202,
+    y: rightCard.y + 220,
     width: 220,
-    height: 160,
+    height: 188,
     radius: 22,
   };
   const diskBox = {
     x: rightCard.x + 294,
-    y: rightCard.y + 202,
+    y: rightCard.y + 220,
     width: 220,
-    height: 160,
+    height: 188,
     radius: 22,
   };
 
@@ -5175,7 +5172,7 @@ function Page24StrategyPage({
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            平台数据（体积 / 解压）
+            平台数据（编码 ms / 解压 ms）
           </text>
           <text
             x={right(packageHeaderBox) - 18}
@@ -5192,9 +5189,13 @@ function Page24StrategyPage({
           {packageRows.map((row, index) => {
             const rowBox = packageRowBoxes[index]!;
             const rowNodeId = `package-row-${index + 1}`;
-            const metricsLeftX = rowBox.x + 168;
-            const metricsRightX = rowBox.x + 286;
-            const algorithmFontSize = row.algorithm === "Oodle Leviathan" ? 20.5 : 22.5;
+            const isOodleRow = row.algorithm === "Oodle Leviathan";
+            const algorithmDividerX = rowBox.x + 146;
+            const ratioDividerX = right(rowBox) - 84;
+            const metricsColumnWidth = (ratioDividerX - algorithmDividerX) / 2;
+            const metricsLeftX = algorithmDividerX + 12;
+            const metricsRightX = algorithmDividerX + metricsColumnWidth + 12;
+            const algorithmFontSize = isOodleRow ? 19.5 : 22.5;
 
             return (
               <g
@@ -5210,16 +5211,16 @@ function Page24StrategyPage({
                   markGeometryBox
                 />
                 <line
-                  x1={rowBox.x + 154}
-                  x2={rowBox.x + 154}
+                  x1={algorithmDividerX}
+                  x2={algorithmDividerX}
                   y1={rowBox.y + 16}
                   y2={bottom(rowBox) - 16}
                   stroke="rgba(92, 106, 118, 0.12)"
                   strokeWidth={1.2}
                 />
                 <line
-                  x1={right(rowBox) - 84}
-                  x2={right(rowBox) - 84}
+                  x1={ratioDividerX}
+                  x2={ratioDividerX}
                   y1={rowBox.y + 14}
                   y2={bottom(rowBox) - 14}
                   stroke="rgba(92, 106, 118, 0.12)"
@@ -5227,7 +5228,7 @@ function Page24StrategyPage({
                 />
                 <text
                   x={rowBox.x + 18}
-                  y={rowBox.y + 39}
+                  y={isOodleRow ? rowBox.y + 30 : centerY(rowBox)}
                   fill="#22303d"
                   fontSize={algorithmFontSize}
                   fontWeight="820"
@@ -5235,11 +5236,22 @@ function Page24StrategyPage({
                   dominantBaseline="middle"
                   data-geometry-node-text="1"
                 >
-                  {row.algorithm}
+                  {isOodleRow ? (
+                    <>
+                      <tspan x={rowBox.x + 18} dy="0">
+                        Oodle
+                      </tspan>
+                      <tspan x={rowBox.x + 18} dy="22">
+                        Leviathan
+                      </tspan>
+                    </>
+                  ) : (
+                    row.algorithm
+                  )}
                 </text>
                 <text
                   x={right(rowBox) - 18}
-                  y={rowBox.y + 39}
+                  y={centerY(rowBox)}
                   fill={scene.apiStroke}
                   fontSize="24.5"
                   fontWeight="820"
@@ -5251,7 +5263,7 @@ function Page24StrategyPage({
                 </text>
                 <text
                   x={metricsLeftX}
-                  y={rowBox.y + 30}
+                  y={rowBox.y + 34}
                   fill="#22303d"
                   fontSize="15.4"
                   fontWeight="760"
@@ -5262,8 +5274,8 @@ function Page24StrategyPage({
                   {`Win ${row.windows}`}
                 </text>
                 <text
-                  x={metricsRightX}
-                  y={rowBox.y + 30}
+                  x={metricsLeftX}
+                  y={rowBox.y + 60}
                   fill="#22303d"
                   fontSize="15.4"
                   fontWeight="760"
@@ -5274,8 +5286,8 @@ function Page24StrategyPage({
                   {`Mac ${row.macos}`}
                 </text>
                 <text
-                  x={metricsLeftX}
-                  y={rowBox.y + 52}
+                  x={metricsRightX}
+                  y={rowBox.y + 34}
                   fill="#22303d"
                   fontSize="15.4"
                   fontWeight="760"
@@ -5287,7 +5299,7 @@ function Page24StrategyPage({
                 </text>
                 <text
                   x={metricsRightX}
-                  y={rowBox.y + 52}
+                  y={rowBox.y + 60}
                   fill="#22303d"
                   fontSize="15.4"
                   fontWeight="760"
@@ -5630,6 +5642,67 @@ function Page24StrategyPage({
           >
             按需回填
           </text>
+          <g
+            data-geometry-node-id="virtualization-evidence"
+            data-geometry-node-label="Virtualization Evidence"
+          >
+            <line
+              x1={rightCard.x + 24}
+              x2={right(rightCard) - 24}
+              y1={bottom(rightCard) - 60}
+              y2={bottom(rightCard) - 60}
+              stroke="rgba(92, 106, 118, 0.16)"
+              strokeWidth={1.4}
+            />
+            <text
+              x={rightCard.x + 24}
+              y={bottom(rightCard) - 40}
+              fill={scene.apiStroke}
+              fontSize="15"
+              fontWeight="800"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              PSO 冷热分化
+            </text>
+            <text
+              x={rightCard.x + 24}
+              y={bottom(rightCard) - 20}
+              fill="rgba(34, 48, 61, 0.7)"
+              fontSize="14"
+              fontWeight="700"
+              textAnchor="start"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              少量热 PSO 常驻 · 大量长尾 PSO 按需回填
+            </text>
+            <text
+              x={right(rightCard) - 24}
+              y={bottom(rightCard) - 40}
+              fill={scene.apiStroke}
+              fontSize="22"
+              fontWeight="820"
+              textAnchor="end"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              2 / 8
+            </text>
+            <text
+              x={right(rightCard) - 24}
+              y={bottom(rightCard) - 20}
+              fill="rgba(34, 48, 61, 0.58)"
+              fontSize="12.5"
+              fontWeight="700"
+              textAnchor="end"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              热 / 总
+            </text>
+          </g>
         </g>
         <LateFooterBar
           scene={scene}
@@ -5943,83 +6016,76 @@ function Page26TimingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 84, y: 136, width: 556, height: 432, radius: 28};
-  const rightCard = {x: 658, y: 136, width: 538, height: 432, radius: 28};
+  const leftCard = {x: 84, y: 68, width: 556, height: 532, radius: 28};
+  const rightCard = {x: 658, y: 68, width: 538, height: 532, radius: 28};
   const eventStrip = {
     x: leftCard.x + 24,
-    y: leftCard.y + 88,
+    y: leftCard.y + 92,
     width: leftCard.width - 48,
-    height: 84,
+    height: 92,
     radius: 20,
   };
   const eventCurrentBox = {
-    x: eventStrip.x + 18,
-    y: eventStrip.y + 26,
-    width: 124,
-    height: 40,
+    x: eventStrip.x + 24,
+    y: eventStrip.y + 30,
+    width: 138,
+    height: 46,
     radius: 15,
   };
   const eventDownloadBox = {
-    x: eventStrip.x + 160,
-    y: eventStrip.y + 26,
-    width: 152,
-    height: 40,
-    radius: 15,
-  };
-  const eventCompileBox = {
-    x: eventStrip.x + 338,
-    y: eventStrip.y + 26,
-    width: 156,
-    height: 40,
+    x: eventStrip.x + 208,
+    y: eventStrip.y + 30,
+    width: 276,
+    height: 46,
     radius: 15,
   };
   const gameMaskBox = {
     x: leftCard.x + 24,
-    y: leftCard.y + 186,
+    y: leftCard.y + 210,
     width: 246,
-    height: 136,
+    height: 150,
     radius: 22,
   };
   const compileMaskBox = {
     x: leftCard.x + 286,
-    y: leftCard.y + 186,
+    y: leftCard.y + 210,
     width: 246,
-    height: 136,
+    height: 150,
     radius: 22,
   };
   const usageMaskNote = {
     x: leftCard.x + 24,
-    y: leftCard.y + 334,
+    y: leftCard.y + 382,
     width: leftCard.width - 48,
-    height: 54,
+    height: 74,
     radius: 18,
   };
   const parallelGuideBox = {
     x: rightCard.x + 24,
-    y: rightCard.y + 88,
+    y: rightCard.y + 92,
     width: rightCard.width - 48,
-    height: 96,
+    height: 112,
     radius: 22,
   };
   const parallelLayersBox = {
     x: rightCard.x + 24,
-    y: rightCard.y + 196,
+    y: rightCard.y + 218,
     width: rightCard.width - 48,
-    height: 154,
+    height: 196,
     radius: 22,
   };
   const parallelSummaryBox = {
     x: rightCard.x + 24,
-    y: rightCard.y + 360,
+    y: rightCard.y + 430,
     width: rightCard.width - 48,
-    height: 40,
+    height: 56,
     radius: 16,
   };
   const page26FooterBox = {x: 164, y: 610, width: 948, height: 54, radius: 22};
   const parallelRows = [
     {label: "SIMD", detail: "单核向量化"},
     {label: "Thread", detail: "多 worker 并发"},
-    {label: "GPU", detail: "批量离线算子"},
+    {label: "GPU", detail: "大规模并行 kernel"},
   ] as const;
 
   return (
@@ -6098,33 +6164,33 @@ function Page26TimingPage({
             {[
               {
                 box: eventCurrentBox,
-                lines: ["当前在", "地图 A"],
+                lines: ["在 A 地图"],
               },
               {
                 box: eventDownloadBox,
-                lines: ["地图 B", "下载完成"],
-              },
-              {
-                box: eventCompileBox,
-                lines: ["触发", "预编译"],
+                lines: ["点击下载", "B+C"],
               },
             ].map((item, index) => (
               <g key={`page26-event-${index}`}>
                 <StageBox
                   box={item.box}
                   fill="rgba(255, 255, 255, 0.92)"
-                  stroke={index === 2 ? scene.apiStroke : "rgba(92, 106, 118, 0.34)"}
-                  strokeWidth={index === 2 ? 2.2 : 1.9}
+                  stroke={index === 1 ? scene.apiStroke : "rgba(92, 106, 118, 0.34)"}
+                  strokeWidth={index === 1 ? 2.2 : 1.9}
                   markGeometryBox
                 />
                 {item.lines.map((line, lineIndex) => (
                   <text
                     key={`${line}-${lineIndex}`}
                     x={centerX(item.box)}
-                    y={item.box.y + 14 + lineIndex * 14}
+                    y={item.lines.length === 1 ? centerY(item.box) + 1 : item.box.y + 14 + lineIndex * 14}
                     fill="#22303d"
-                    fontSize={lineIndex === 0 ? "14.2" : "16.4"}
-                    fontWeight={lineIndex === 0 ? "760" : "820"}
+                    fontSize={
+                      item.lines.length === 1 ? "16.2" : lineIndex === 0 ? "14.2" : "16.4"
+                    }
+                    fontWeight={
+                      item.lines.length === 1 ? "820" : lineIndex === 0 ? "760" : "820"
+                    }
                     textAnchor="middle"
                     dominantBaseline="middle"
                     data-geometry-node-text="1"
@@ -6136,23 +6202,11 @@ function Page26TimingPage({
             ))}
             <StrokeArrow
               d={horizontalPath(right(eventCurrentBox) + 8, eventDownloadBox.x - 8, centerY(eventCurrentBox))}
-              stroke="rgba(92, 106, 118, 0.76)"
+              stroke={scene.apiStroke}
               opacity={panelOpacity}
               headOpacity={panelOpacity}
               tipX={eventDownloadBox.x - 8}
               tipY={centerY(eventCurrentBox)}
-              direction="right"
-              shaftWidth={2.4}
-              underlayWidth={4.2}
-              headSize={6.2}
-            />
-            <StrokeArrow
-              d={horizontalPath(right(eventDownloadBox) + 8, eventCompileBox.x - 8, centerY(eventDownloadBox))}
-              stroke={scene.apiStroke}
-              opacity={panelOpacity}
-              headOpacity={panelOpacity}
-              tipX={eventCompileBox.x - 8}
-              tipY={centerY(eventDownloadBox)}
               direction="right"
               shaftWidth={2.5}
               underlayWidth={4.5}
@@ -6184,20 +6238,20 @@ function Page26TimingPage({
             </text>
             <StackedLabel
               x={centerX(gameMaskBox)}
-              y={gameMaskBox.y + 60}
+              y={gameMaskBox.y + 66}
               lines={["Game", "UsageMask = A"]}
               fontSize={20}
               fontWeight={820}
-              lineGap={20}
+              lineGap={21}
               markGeometryText
             />
             <StackedLabel
               x={centerX(gameMaskBox)}
-              y={gameMaskBox.y + 104}
+              y={gameMaskBox.y + 116}
               lines={["只保留当前游戏", "真的在用的集合"]}
               fontSize={15}
               fontWeight={700}
-              lineGap={16}
+              lineGap={17}
               fill="rgba(34, 48, 61, 0.72)"
               markGeometryText
             />
@@ -6227,20 +6281,20 @@ function Page26TimingPage({
             </text>
             <StackedLabel
               x={centerX(compileMaskBox)}
-              y={compileMaskBox.y + 60}
-              lines={["Compile", "UsageMask = A + B"]}
+              y={compileMaskBox.y + 66}
+              lines={["Compile", "UsageMask = B+C"]}
               fontSize={20}
               fontWeight={820}
-              lineGap={20}
+              lineGap={21}
               markGeometryText
             />
             <StackedLabel
               x={centerX(compileMaskBox)}
-              y={compileMaskBox.y + 104}
-              lines={["地图 B 下载完成后", "立刻把 B 加进调度"]}
+              y={compileMaskBox.y + 116}
+              lines={["点击下载 B+C 后", "立刻把 B+C 加进调度"]}
               fontSize={15}
               fontWeight={700}
-              lineGap={16}
+              lineGap={17}
               fill="rgba(34, 48, 61, 0.72)"
               markGeometryText
             />
@@ -6258,7 +6312,7 @@ function Page26TimingPage({
             />
             <text
               x={usageMaskNote.x + 18}
-              y={usageMaskNote.y + 19}
+              y={usageMaskNote.y + 24}
               fill={scene.apiStroke}
               fontSize="17"
               fontWeight="780"
@@ -6266,11 +6320,11 @@ function Page26TimingPage({
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              Game = A 与 Compile = A + B 可以同时成立
+              Game = A 与 Compile = B+C 可以同时成立
             </text>
             <text
               x={usageMaskNote.x + 18}
-              y={usageMaskNote.y + 39}
+              y={usageMaskNote.y + 50}
               fill="rgba(34, 48, 61, 0.76)"
               fontSize="15.5"
               fontWeight="700"
@@ -6342,7 +6396,7 @@ function Page26TimingPage({
             />
             <text
               x={parallelGuideBox.x + 20}
-              y={parallelGuideBox.y + 24}
+              y={parallelGuideBox.y + 26}
               fill={scene.apiStroke}
               fontSize="17"
               fontWeight="800"
@@ -6354,7 +6408,7 @@ function Page26TimingPage({
             </text>
             <text
               x={parallelGuideBox.x + 28}
-              y={parallelGuideBox.y + 62}
+              y={parallelGuideBox.y + 68}
               fill="#22303d"
               fontSize="20"
               fontWeight="800"
@@ -6366,7 +6420,7 @@ function Page26TimingPage({
             </text>
             <text
               x={parallelGuideBox.x + 28}
-              y={parallelGuideBox.y + 84}
+              y={parallelGuideBox.y + 92}
               fill="rgba(34, 48, 61, 0.72)"
               fontSize="15.3"
               fontWeight="700"
@@ -6378,7 +6432,7 @@ function Page26TimingPage({
             </text>
             <text
               x={centerX(parallelGuideBox)}
-              y={parallelGuideBox.y + 62}
+              y={parallelGuideBox.y + 68}
               fill="#22303d"
               fontSize="20"
               fontWeight="800"
@@ -6390,7 +6444,7 @@ function Page26TimingPage({
             </text>
             <text
               x={centerX(parallelGuideBox)}
-              y={parallelGuideBox.y + 84}
+              y={parallelGuideBox.y + 92}
               fill="rgba(34, 48, 61, 0.72)"
               fontSize="15.3"
               fontWeight="700"
@@ -6402,7 +6456,7 @@ function Page26TimingPage({
             </text>
             <text
               x={right(parallelGuideBox) - 28}
-              y={parallelGuideBox.y + 62}
+              y={parallelGuideBox.y + 68}
               fill="#22303d"
               fontSize="20"
               fontWeight="800"
@@ -6414,7 +6468,7 @@ function Page26TimingPage({
             </text>
             <text
               x={right(parallelGuideBox) - 28}
-              y={parallelGuideBox.y + 84}
+              y={parallelGuideBox.y + 92}
               fill="rgba(34, 48, 61, 0.72)"
               fontSize="15.3"
               fontWeight="700"
@@ -6425,28 +6479,28 @@ function Page26TimingPage({
               SIMD / Thread / GPU
             </text>
             <StrokeArrow
-              d={horizontalPath(parallelGuideBox.x + 164, centerX(parallelGuideBox) - 82, parallelGuideBox.y + 62)}
-              stroke="rgba(92, 106, 118, 0.72)"
+              d={horizontalPath(parallelGuideBox.x + 164, centerX(parallelGuideBox) - 82, parallelGuideBox.y + 68)}
+              stroke="rgba(92, 106, 118, 0.78)"
               opacity={panelOpacity}
               headOpacity={panelOpacity}
               tipX={centerX(parallelGuideBox) - 82}
-              tipY={parallelGuideBox.y + 62}
+              tipY={parallelGuideBox.y + 68}
               direction="right"
-              shaftWidth={2.1}
-              underlayWidth={4}
-              headSize={5.8}
+              shaftWidth={2.4}
+              underlayWidth={4.4}
+              headSize={8.2}
             />
             <StrokeArrow
-              d={horizontalPath(centerX(parallelGuideBox) + 82, right(parallelGuideBox) - 164, parallelGuideBox.y + 62)}
-              stroke="rgba(92, 106, 118, 0.72)"
+              d={horizontalPath(centerX(parallelGuideBox) + 82, right(parallelGuideBox) - 164, parallelGuideBox.y + 68)}
+              stroke="rgba(92, 106, 118, 0.78)"
               opacity={panelOpacity}
               headOpacity={panelOpacity}
               tipX={right(parallelGuideBox) - 164}
-              tipY={parallelGuideBox.y + 62}
+              tipY={parallelGuideBox.y + 68}
               direction="right"
-              shaftWidth={2.1}
-              underlayWidth={4}
-              headSize={5.8}
+              shaftWidth={2.4}
+              underlayWidth={4.4}
+              headSize={8.2}
             />
           </g>
           <g
@@ -6473,8 +6527,8 @@ function Page26TimingPage({
               并行层级
             </text>
             {parallelRows.map((row, index) => {
-              const rowTop = parallelLayersBox.y + 42 + index * 38;
-              const rowCenter = rowTop + 17;
+              const rowTop = parallelLayersBox.y + 48 + index * 48;
+              const rowCenter = rowTop + 19;
               const isLast = index === parallelRows.length - 1;
 
               return (
@@ -6507,8 +6561,8 @@ function Page26TimingPage({
                     <line
                       x1={parallelLayersBox.x + 20}
                       x2={right(parallelLayersBox) - 20}
-                      y1={rowTop + 30}
-                      y2={rowTop + 30}
+                      y1={rowTop + 36}
+                      y2={rowTop + 36}
                       stroke="rgba(92, 106, 118, 0.14)"
                       strokeWidth={1.5}
                     />
@@ -8015,7 +8069,7 @@ function Page32FeedbackBridgePage({
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[1],
-      box: {x: 286, y: 252, width: 420, height: 54, radius: 24},
+      box: {x: 430, y: 252, width: 420, height: 54, radius: 24},
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[2],
@@ -9861,7 +9915,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
                   box={REC_BOX}
                   scene={scene}
                   opacity={recOpacity}
-                  label="rec.upipelinecache"
+                  label=".rec.upipelinecache"
                   emphasized={page15Focus > 0.2}
                 />
               ) : null}

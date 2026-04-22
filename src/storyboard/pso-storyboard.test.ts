@@ -157,6 +157,17 @@ describe("masterStoryboard", () => {
     expect(stepById.get("page_31")?.hiddenInNavigation).not.toBe(true);
   });
 
+  it("keeps page26 as staying in A while downloading B+C for compile scheduling", () => {
+    const page26 = masterStoryboard.steps.find((step) => step.id === "page_26");
+
+    expect(page26).toBeDefined();
+    expect(page26?.manuscript).toContain("地图 A");
+    expect(page26?.manuscript).toContain("点击下载 B+C");
+    expect(page26?.manuscript).toContain("Compile UsageMask = B+C");
+    expect(page26?.manuscript).not.toContain("地图 B 被下载");
+    expect(page26?.manuscript).not.toContain("Compile UsageMask = A + B");
+  });
+
   it("exposes formula-first guidance, raw-to-binary OpenGL, Vulkan PSO packaging, then the split expand/build loop chapter after SharedCode", () => {
     const pageById = new Map(masterStoryboard.steps.map((step) => [step.id, step]));
     const requireStep = (id: string) => {
@@ -236,7 +247,7 @@ describe("masterStoryboard", () => {
     expect(page02.manuscript).toContain("像素");
     expect(page03.label).toContain("OpenGL");
     expect(page03.caption).toContain("Raw");
-    expect(page03.objectiveFacts).toContain("OpenGL 无 PSO，只有 Program");
+    expect(page03.objectiveFacts).toContain("OpenGL ES 无 PSO，只有 Program");
     expect(page03.manuscript).toContain("Raw ShaderCode");
     expect(page03.manuscript).toContain("Binary ShaderCode");
     expect(page03.manuscript).toContain("glCompileShader()");
@@ -443,7 +454,8 @@ describe("masterStoryboard", () => {
     expect(page26.manuscript).toContain("Game UsageMask");
     expect(page26.manuscript).toContain("Compile UsageMask");
     expect(page26.manuscript).toContain("地图 A");
-    expect(page26.manuscript).toContain("地图 B 被下载");
+    expect(page26.manuscript).toContain("点击下载 B+C");
+    expect(page26.manuscript).toContain("B+C");
     expect(page26.manuscript).toContain("分集合");
     expect(page26.manuscript).toContain("并行化");
     expect(page26.manuscript).toContain("SIMD");

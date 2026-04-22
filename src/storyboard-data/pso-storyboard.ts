@@ -118,7 +118,7 @@ export const masterStoryboard: Storyboard = {
         "再在左上角挂一张缩略 `PSO = Shader + State` 卡，提前埋下“状态里到底装了什么”的钩子。",
       ],
       notes:
-        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出；同时在 GPU 上方补一个最小的 `Pipeline State` 节点，并用一条写着 `GfxAPI设置` 的实线自上而下接进 GPU。然后再把缩略 `PSO = Shader + State` 预告卡挂到左上角空白带里，只轻量点一下 state 里会收很多维度，不压住下方节点，也不把第三页那些 OpenGL 细节提前讲散。",
+        "这一页不是跳到全新构图，而是在第一页三个固定槽位里完成演化。左边变成 VertexData 图形，中间变成 GPU，右边变成 4x4 像素输出；同时在 GPU 上方补一个最小的 `Pipeline State` 节点，并用一条写着 `GfxAPI设置` 的实线自上而下接进 GPU。然后再把缩略 `PSO = Shader + State` 预告卡挂到左上角空白带里（全场首次给出缩写展开：`PSO = Pipeline State Object`），只轻量点一下 state 里会收很多维度，不压住下方节点，也不把第三页那些 OpenGL 细节提前讲散。",
       focusTarget: "GPU",
       timingHint: "让三处位置保持稳定，只让内容和轮廓形变。",
       intro:
@@ -132,7 +132,7 @@ export const masterStoryboard: Storyboard = {
       label: "OpenGL：运行时组装 Program",
       caption:
         "把 Raw ShaderCode 先 compile 成 Binary ShaderCode，再经过 link 得到 Program；这一页只讲结构和调用链。",
-      objectiveFacts: ["OpenGL 无 PSO，只有 Program"],
+      objectiveFacts: ["OpenGL ES 无 PSO，只有 Program"],
       keyPoints: [
         "Shader 在运行时经历 compile -> link -> use 的链路。",
         "Depth/Blend 等状态调用与 Program 一起汇入 GPU。",
@@ -237,43 +237,43 @@ export const masterStoryboard: Storyboard = {
       label: "UE Cook：资产进入渲染主线",
       objectiveFacts: ["UE PSO 以 ShaderHash 为索引定位对应的 ShaderCode"],
       caption:
-        "把实际资产接进来：Mesh 生成 VertexData，Material 经过 cook 变成 Cooked ShaderCode，再继续整理成 Binary ShaderCode；右上角直接复用前面那张结构卡，但标题改成居中的 `UE PSO = Shaders+States+？`，中间拆成两个小框 `UsageMask` / `BindCount`。",
+        "把实际资产接进来：Mesh 生成 VertexData，Material 经过 cook 变成 Cooked ShaderCode，再继续整理成 Binary ShaderCode；右上角直接复用前面那张结构卡，但标题改成居中的 `UE PSO = Shaders + States + ?`，中间拆成两个小框 `UsageMask` / `BindCount`。",
       keyPoints: [
         "Mesh 对应 VertexData，Material 对应 Shader 产物。",
         "Cooked ShaderCode 是连接资产语义与运行语义的关键桥梁。",
-        "右上角保持和前面同构的结构卡，标题居中，顶部写 `VertexShader Hash / PixelShader Hash`，中间用两个小框承接 `UsageMask` / `BindCount`，下面 state 框继续落成 Enum / Struct 名字。",
+        "右上角保持和前面同构的结构卡，标题居中，顶部写 `VS Hash / PS Hash`（也就是 VertexShader Hash / PixelShader Hash 的简写），中间用两个小框承接 `UsageMask` / `BindCount`，下面 state 框继续落成 Enum / Struct 名字。",
       ],
       notes:
-        "这一页是慢慢过渡到 UE 的关键。先不要把 PSO 那些中间层重新塞回主舞台，而是回到更干净的主轴：资产先变成运行时真正要喂给 GPU 的东西。Mesh 对应 VertexData，Material 先产出 Cooked ShaderCode，再继续落到 Binary ShaderCode，然后送向 GPU。右上角不再贴另一种风格的代码卡，而是直接复用前面那张结构卡的版式，但标题改成居中的 `UE PSO = Shaders+States+？`：顶部写 `VertexShader Hash / PixelShader Hash`，中间把 `UsageMask`、`BindCount` 恢复成两个与下方两列状态对齐的小框，下面尽量直接落成 `Struct / Enum` 名字，其中 `UsageMask` 要更显眼一点。",
+        "这一页是慢慢过渡到 UE 的关键。先不要把 PSO 那些中间层重新塞回主舞台，而是回到更干净的主轴：资产先变成运行时真正要喂给 GPU 的东西。Mesh 对应 VertexData，Material 先产出 Cooked ShaderCode，再继续落到 Binary ShaderCode，然后送向 GPU。右上角不再贴另一种风格的代码卡，而是直接复用前面那张结构卡的版式，但标题改成居中的 `UE PSO = Shaders + States + ?`：顶部写 `VS Hash / PS Hash`（下文简写为 VS Hash / PS Hash，即 VertexShader Hash / PixelShader Hash），中间把 `UsageMask`、`BindCount` 恢复成两个与下方两列状态对齐的小框，下面尽量直接落成 `Struct / Enum` 名字，其中 `UsageMask` 要更显眼一点。",
       focusTarget: "Cook",
       timingHint:
         "让 Vulkan 页里偏技术产物的视角，平滑过渡到 UE 里的资产视角，同时保持 GPU 和 Pixels 的位置稳定。",
       intro:
         "到了 UE 语境，大家更容易接触到的不是 raw shader 文件本身，而是 Material 和 Mesh 这些资产入口。",
       manuscript:
-        "第五页先不急着把 PSO 当成主角讲满，而是先把实际资产接进来。Mesh 会整理出运行时要用的 VertexData；Material 会在 cook 过程中先产出 Cooked ShaderCode，再进一步整理成 Binary ShaderCode，最后再送向 GPU。与此同时，右上角直接放一张和前面同构的结构卡，但标题改成居中的 `UE PSO = Shaders+States+？`：顶部 shader 框写成 `VertexShader Hash / PixelShader Hash`，中间把 `UsageMask`、`BindCount` 恢复成两个与下方两列状态对齐的小框，重点先让观众看到 UE 这里确实存在 `UsageMask` 这一层使用侧信息；下面 5 个状态框尽量直接落成 UE 里的名字，比如 `FVertexDeclarationElementList`、`FGraphicsPipelineRenderTargetsInfo`、`FDepthStencilStateInitializerRHI`、`FBlendStateInitializerRHI / FRasterizerStateInitializerRHI`、`EPrimitiveType / NumSamples / FRHIRenderPassInfo`。这样观众看到的是同一种结构语言，只是语义从“抽象的 PSO 组成”切到“UE PSO 里具体会落什么”，而且会先意识到除了 shader 和 states，UE 侧还额外挂着一些使用侧信息。",
+        "第五页先不急着把 PSO 当成主角讲满，而是先把实际资产接进来。Mesh 会整理出运行时要用的 VertexData；Material 会在 cook 过程中先产出 Cooked ShaderCode，再进一步整理成 Binary ShaderCode，最后再送向 GPU。与此同时，右上角直接放一张和前面同构的结构卡，但标题改成居中的 `UE PSO = Shaders + States + ?`：顶部 shader 框写成 `VS Hash / PS Hash`（即 VertexShader Hash / PixelShader Hash，下文一律使用简写），中间把 `UsageMask`、`BindCount` 恢复成两个与下方两列状态对齐的小框，重点先让观众看到 UE 这里确实存在 `UsageMask` 这一层使用侧信息；下面 5 个状态框尽量直接落成 UE 里的名字，比如 `FVertexDeclarationElementList`、`FGraphicsPipelineRenderTargetsInfo`、`FDepthStencilStateInitializerRHI`、`FBlendStateInitializerRHI / FRasterizerStateInitializerRHI`、`EPrimitiveType / NumSamples / FRHIRenderPassInfo`。这样观众看到的是同一种结构语言，只是语义从“抽象的 PSO 组成”切到“UE PSO 里具体会落什么”，而且会先意识到除了 shader 和 states，UE 侧还额外挂着一些使用侧信息。",
       focusColorKey: "ue",
     },
     {
       id: "page_06",
       label: "UE 分层：区分因素落在哪一层",
       caption:
-        "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：Platform 在 UMaterial，FeatureLevel / QualityLevel 在 Resource，ShaderType / VertexFactory / Permutation 在 ShaderMap。",
+        "先不急着讲 code 存储，而是先回答 shader 的区分因素分别落在哪一层：FeatureLevel / QualityLevel 在 Resource，ShaderPlatform 挂在 Resource→ShaderMap 这段本地资产链上，ShaderType / VertexFactory / PermutationId 在 ShaderMap。",
       keyPoints: [
         "不同维度的区分因素落在不同层级，不是同层混放。",
         "Inline模式下ShaderCode由资产自身持有。",
-        "先讲清分层职责，再讲运行时如何取 code。",
+        "ShaderPlatform 作为 uasset 内的本地资产，挂在 Resource 到 ShaderMap 这段主链中间；运行时进程只跑一个平台，cooked 包里只装对应平台的 shader map。",
       ],
       objectiveFacts: ["Inline模式下ShaderCode由资产自身持有"],
       notes:
-        "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左侧保留三张 selector 表：ShaderPlatform、FeatureLevel / QualityLevel、ShaderType / VertexFactory / Permutation；右侧保留 UMaterial -> FMaterialResource -> FMaterialShaderMap 这一条主链。同时补一句基础事实：Inline模式下ShaderCode由资产自身持有。这里不展开 InlineCode 存储细节，只给一个很弱的后续锚点，让观众先建立“哪一层负责区分什么”的认知。",
+        "第六页是拆页后的第一张，只负责讲清楚区分因素到底落在哪一层。左上是 FeatureLevel / QualityLevel 双列 selector 表，左下是 ShaderPlatform selector 表——ShaderPlatform 改成从 FMaterialResource → FMaterialShaderMap 这段主链中间用一条短的虚线箭头指出来，表示它是 uasset 内的本地资产层（cook 阶段切分，随资产一起存在，但不进入 uasset 内部的运行时 key 组合）。右侧保留 UMaterial -> FMaterialResource -> FMaterialShaderMap 主链，以及右上 ShaderType / VertexFactory / PermutationId selector 表，PermutationId 示例只给 `Perm_0` 并附一个半透明 `(Perm_N)`。同时补一句基础事实：Inline模式下ShaderCode由资产自身持有。",
       focusTarget: "InlineCode",
       timingHint:
-        "从第五页问号位置放大以后，先让左侧两串结构成为主体：三张 selector 表和 UMaterial / FMaterialResource / FMaterialShaderMap 一一对齐，右侧 InlineCode 只保留弱锚点，不展开细节。",
+        "从第五页问号位置放大以后，先让 UMaterial→Resource→ShaderMap 主链成立；再让 FL/QL 表在左上落位，ShaderPlatform 表在左下落位并短虚线指向 Resource→ShaderMap 中段；右上 PermutationId 表同时显出。",
       intro:
         "真正进入 InlineCode 之前，先把一个更基础的问题讲透：shader 到底是在 UE 的哪一层被区分开的。",
       manuscript:
-        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，第一步先不要急着钻进 code 存储，而是先看区分因素落在哪一层。ShaderPlatform 决定的是目标图形平台，所以它在 UMaterial 这一层就已经分开；FeatureLevel 和 QualityLevel 决定的是具体资源展开方式，所以它们落在 FMaterialResource 这一层；而 ShaderType、VertexFactory、Permutation 这些真正决定某个 shader 变体的组合键，则落在 FMaterialShaderMap 这一层。同时先补一个很关键的事实：Inline模式下ShaderCode由资产自身持有。第六页的目标只有一个：让观众先建立“不同维度的区分发生在不同层级”这个空间认知，后面再去看运行时如何真正拿到 InlineCode。",
+        "把第五页 Material 到 Cooked ShaderCode 之间那个问号放大以后，第一步先不要急着钻进 code 存储，而是先看区分因素落在哪一层。右侧主链仍然是 UMaterial -> FMaterialResource -> FMaterialShaderMap：FeatureLevel 和 QualityLevel 决定的是具体资源展开方式，所以它们落在 FMaterialResource 这一层，在左上以双列 selector 表呈现；ShaderType、VertexFactory、PermutationId 这些真正决定某个 shader 变体的组合键，则落在 FMaterialShaderMap 这一层，在右上以三列 selector 表呈现。ShaderPlatform 这一位放在左下，用一条短的虚线箭头指向 FMaterialResource 到 FMaterialShaderMap 这段主链的中间——它是 uasset 内部的一种本地资产标签，cook 阶段就把产物按平台切开：运行时进程只跑一个平台，cooked 包里也只装对应平台的 shader map；它不进入 uasset 内部的运行时 key 组合，所以视觉上从主链侧面挂出来，而不是占主链上的一个节点。Material 侧的 PermutationId 几乎恒为 0，所以示例就写 `Perm_0`；非 0 的情况主要出现在 Mesh / Global shader 的 `SHADER_PERMUTATION_BOOL` 组合里，附一个半透明的 `(Perm_N)` 作为弱提示。同时先补一个很关键的事实：Inline模式下ShaderCode由资产自身持有。",
       focusColorKey: "ue",
     },
     {
@@ -329,7 +329,7 @@ export const masterStoryboard: Storyboard = {
       objectiveFacts: ["Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享"],
       relatedLinks: [
         {
-          label: "UE Shader Code Library（官方文档）",
+          label: "FShaderCodeLibrary（API 参考）",
           url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/RenderCore/FShaderCodeLibrary",
         },
       ],
@@ -547,7 +547,7 @@ export const masterStoryboard: Storyboard = {
       keyPoints: [
         "手机包收集到的 UE PSO 不是跨版本稳定身份，必须先翻译回 StableKey 语义。",
         "expand 用和 UE PSO 同版本 Cook 出来的双向映射，把 UE PSO 记录提升成 stablepc.csv。",
-        "画面右下角直接把问题写出来：为什么不直接用 `rec.upipelinecache`，还要 `expand`？",
+        "画面右下角直接把问题写出来：为什么不直接用 `.rec.upipelinecache`，还要 `expand`？",
       ],
       apiHighlights: ["手机包收集到的UE PSO", "同版本 Cook 双向映射", "stablepc.csv"],
       relatedLinks: [
@@ -621,7 +621,7 @@ export const masterStoryboard: Storyboard = {
       intro:
         "手机把回流记录送回电脑之后，第一个真正需要解释的问题不是 build，而是为什么电脑侧必须先做一次 expand。",
       manuscript:
-        "第十六页先只讲 expand。画面右下角会先直接把问题摆出来：为什么不直接用 `rec.upipelinecache`，还要 expand？因为手机包收集到的 `UE PSO` 里虽然已经有 `ShaderHash + State`，但 `ShaderHash` 本身不是跨版本稳定身份。只要 shader 代码生成、共享方式或者编译结果变了，旧 Hash 就可能失效。所以电脑侧必须拿和这份 UE PSO 同版本 Cook 出来的双向映射，把旧 `ShaderHash` 重新翻译回 `ShaderStableKey` 视角，再和原来的状态一起整理成 `stablepc.csv`。这里的 stable 指的是语义稳定，不是 hash 稳定。比如旧版本里两个 `StableKey` 可能恰好落到同一个旧 `ShaderHash`，运行时只记到一条 Hash 记录；expand 之后，这条记录会重新展开成两个 `StableKey + State` 组合。也就是说，expand 的意义不是重命名文件，而是把手机包收集到的 UE PSO 观察提升回跨版本还能理解的 stable 语义。",
+        "第十六页先只讲 expand。画面右下角会先直接把问题摆出来：为什么不直接用 `.rec.upipelinecache`，还要 expand？因为手机包收集到的 `UE PSO` 里虽然已经有 `ShaderHash + State`，但 `ShaderHash` 本身不是跨版本稳定身份。只要 shader 代码生成、共享方式或者编译结果变了，旧 Hash 就可能失效。所以电脑侧必须拿和这份 UE PSO 同版本 Cook 出来的双向映射，把旧 `ShaderHash` 重新翻译回 `ShaderStableKey` 视角，再和原来的状态一起整理成 `stablepc.csv`。这里的 stable 指的是语义稳定，不是 hash 稳定。比如旧版本里两个 `StableKey` 可能恰好落到同一个旧 `ShaderHash`，运行时只记到一条 Hash 记录；expand 之后，这条记录会重新展开成两个 `StableKey + State` 组合。也就是说，expand 的意义不是重命名文件，而是把手机包收集到的 UE PSO 观察提升回跨版本还能理解的 stable 语义。",
       focusColorKey: "shared",
     },
     {
@@ -639,12 +639,6 @@ export const masterStoryboard: Storyboard = {
         "所有历史版本的稳定UE PSO",
         "当前版本Cook出来的双向映射",
         "当前包体可以用作预编译的UE PSO",
-      ],
-      relatedLinks: [
-        {
-          label: "Pipeline Cache 概览（Khronos）",
-          url: "https://www.khronos.org/opengl/wiki/Program_Binary",
-        },
       ],
       notes:
         "第十七页是 build 专用说明页。这里必须强调：`stablepc.csv` 上面那层语义，代表的是所有历史版本沉淀下来的稳定 UE PSO；而 `.scl.csv` 这次已经不是历史版本那份，而是当前版本 Cook 出来的双向映射。`build` 的职责，是把这些稳定语义重新投影回当前版本的 `ShaderHash + State`，形成当前包体可以用作预编译的 UE PSO，也就是 `stable.upipelinecache`。",
@@ -816,7 +810,7 @@ export const masterStoryboard: Storyboard = {
       keyPoints: [
         "左半不再只读成 `ShaderCode` 压缩数据板，而是明确读成 `减体积`：判据是 `高体积 / 高重复 / 体积成本敏感`，熟悉类比是 `纹理压缩`。",
         "右半不再只读成 UE 中 PSO 的 `LRU + mmap` 实现细节，而是明确读成 `虚拟化`：判据是 `冷热分化明显 / 物理资源受限 / 允许按需回填`，熟悉类比是 `虚拟内存`。",
-        "页面继续保留左侧 3 行真实压缩数据，但右侧删掉结构条、flow lane 和底部方法胶囊，只保留核心的热区 / 冷区 / 换出 / 回填关系。",
+        "左侧表头明确标成 `编码 ms / 解压 ms`，移动端单值补上 `解压` 前缀；右侧在 `按需回填` 下方补一条 `PSO 冷热分化` 的证据带，与左卡 3 行数据在视觉上对齐。",
       ],
       apiHighlights: [
         "LZ4",
@@ -826,14 +820,14 @@ export const masterStoryboard: Storyboard = {
         "LRU + mmap",
       ],
       notes:
-        "这页不再像“UE 里的两个实现细节”，而是像一张方法论双栏卡。左边讲资源太重时先想 `减体积`，PSO / ShaderCode 为什么满足这种条件；右边讲资源不必全量常驻时再想 `虚拟化`，PSO 为什么又满足冷热分化和按需回填这套判据。",
+        "这页不再像“UE 里的两个实现细节”，而是像一张方法论双栏卡。左边讲资源太重时先想 `减体积`，PSO / ShaderCode 为什么满足这种条件；左侧 3 行压缩数据表头明确读成 `编码 ms / 解压 ms`，Win / Mac 双指标保留斜杠结构，Android / iOS 单值前缀 `解压`。右边讲资源不必全量常驻时再想 `虚拟化`，PSO 为什么又满足冷热分化和按需回填这套判据；右卡下方额外补一条 `PSO 冷热分化 · 2 / 8` 的证据带，和左卡的数据行对齐，避免右侧比左侧明显空。",
       focusTarget: "Method Pattern",
       timingHint:
-        "左侧 `减体积` 证据板先落位，右侧 `虚拟化` 关系图随后落位，footer 最后补入，不再追加右下方法胶囊。",
+        "左侧 `减体积` 证据板先落位，右侧 `虚拟化` 关系图随后落位，右卡底部的 `PSO 冷热分化` 证据带与 footer 最后补入，不再追加右下方法胶囊。",
       intro:
         "边界讲清之后，先把“资源太重怎么办”收成一套更高层的方法论。",
       manuscript:
-        "第二十四页现在不再把左边讲成一张包体数据板、右边讲成一张 UE 实现图，而是先抽成两个更高层的方向。左边是 `减体积`：当一类资源高体积、高重复，而且体积成本本身就敏感时，最先该想的是能不能改资源表达。这里给的熟悉类比是 `纹理压缩`，而 PSO / ShaderCode 这边对应到的就是 `ShaderCode` 压缩、去重和共享化。所以左半继续保留 `LZ4`、`zstd`、`Oodle Leviathan` 这 3 行真实数据，但它们现在服务的是“为什么这是减体积”这条方法，而不是单纯罗列工具名。右边是 `虚拟化`：当对象存在明显冷热分化，物理资源又有限，而且允许按需回填时，就可以把“逻辑上可见”和“物理上常驻”分开。这里给的熟悉类比是 `虚拟内存`，而 PSO 这边对应到的就是热数据常驻、冷数据外存、需要时再映射回来。所以右半不再铺满 `驻留层 / 换出 / 回填 / 映射 / 载体` 这类辅助层级，而只保留热区、冷区和换出 / 回填两根核心关系线。这样整页就被压成一句更像模式的话：资源太重时，先想能不能 `减体积`，再想能不能 `虚拟化`。",
+        "第二十四页现在不再把左边讲成一张包体数据板、右边讲成一张 UE 实现图，而是先抽成两个更高层的方向。左边是 `减体积`：当一类资源高体积、高重复，而且体积成本本身就敏感时，最先该想的是能不能改资源表达。这里给的熟悉类比是 `纹理压缩`，而 PSO / ShaderCode 这边对应到的就是 `ShaderCode` 压缩、去重和共享化。所以左半继续保留 `LZ4`、`zstd`、`Oodle Leviathan` 这 3 行真实数据，但它们现在服务的是“为什么这是减体积”这条方法，而不是单纯罗列工具名；表头明确成 `编码 ms / 解压 ms`，移动端只跑了解压，单值前缀 `解压`，避免和 Win / Mac 的编码 / 解压双值混淆。右边是 `虚拟化`：当对象存在明显冷热分化，物理资源又有限，而且允许按需回填时，就可以把“逻辑上可见”和“物理上常驻”分开。这里给的熟悉类比是 `虚拟内存`，而 PSO 这边对应到的就是热数据常驻、冷数据外存、需要时再映射回来。所以右半不再铺满 `驻留层 / 换出 / 回填 / 映射 / 载体` 这类辅助层级，而只保留热区、冷区和换出 / 回填两根核心关系线；底部再补一条 `PSO 冷热分化 · 2 / 8` 的证据带，与左卡 3 行数据在视觉节奏上对齐。这样整页就被压成一句更像模式的话：资源太重时，先想能不能 `减体积`，再想能不能 `虚拟化`。",
       focusColorKey: "shared",
     },
     {
@@ -864,27 +858,23 @@ export const masterStoryboard: Storyboard = {
       caption:
         "先决定这一轮做哪一部分，再决定怎样更快做完。",
       keyPoints: [
-        "左半明确读成 `分集合`：判据是 `对象可聚类 / 需求具上下文 / 允许分组裁剪`，熟悉类比是 `画质分档`；PSO 对应是 `UsageMask / Per-Map Compile`。",
+        "左半明确读成 `分集合`：判据是 `对象可聚类 / 需求具上下文 / 允许分组裁剪`，熟悉类比是 `画质分档`；PSO 对应是 `Game UsageMask / Compile UsageMask`（自研扩展） / `Per-Map Compile`。",
         "右半明确读成 `并行化`：判据是 `任务可拆分 / 依赖稀疏 / 结果可汇总`，不再画 queue / worker 拓扑，而是只保留 `SIMD / Thread / GPU` 三层并行层级。",
         "这页的逻辑从“两个 UE 技巧”改成“编译过慢时的两种常见方法”：`分集合` 决定做什么，`并行化` 决定怎么更快做完。",
       ],
       apiHighlights: [
-        "Game UsageMask",
-        "Compile UsageMask",
-        "Per-Map Compile",
-        "SIMD",
-        "Thread",
-        "GPU",
+        "UE 策略：Game UsageMask / Compile UsageMask（自研扩展）/ Per-Map Compile",
+        "通用并行层级：SIMD / Thread / GPU",
       ],
       notes:
-        "这一页不再试图用很多盒子讲清两个 UE 内部实现，而是直接讲两种高层方法：左边 `分集合`，右边 `并行化`。`UsageMask` 只是分集合的一种实现，而 `SIMD / Thread / GPU` 只是并行化的三个层级。",
+        "这一页不再试图用很多盒子讲清两个 UE 内部实现，而是直接讲两种高层方法：左边 `分集合`，右边 `并行化`。`UsageMask` 只是分集合的一种实现，其中 `Game UsageMask` 是 UE 原生字段，`Compile UsageMask` 是我们在其之上自研的扩展机制（预编译侧允许直接挂 `B+C` 这种待命中的集合，不替代 UE 字段）。右侧 `SIMD / Thread / GPU` 是通用并行层级，并非特指 PSO 编译本身；PSO 编译主要在 CPU，GPU 这一行更多代表跨平台驱动侧的异步编译与大规模 kernel 场景。",
       focusTarget: "Compile Method",
       timingHint:
-        "左列先显事件链和 `Game = A / Compile = A + B`，右列再显并行层级与短结论，不再追加 queue / worker 拓扑。",
+        "左列先显两段事件链和 `Game UsageMask = A / Compile UsageMask = B+C`，右列再显并行层级与短结论，不再追加 queue / worker 拓扑。",
       intro:
         "第三组策略开始进入“编译速度”本身：先想能不能分集合，再想能不能并行化。",
       manuscript:
-        "第二十六页现在也不再讲两个孤立技巧，而是讲编译过慢时的两种更一般的方法。左边是 `分集合`：当对象本身可以聚类，需求又带着很强的上下文时，就不必把所有东西一把梭都做完，而是可以先按集合切开。这里给的熟悉类比是 `画质分档`，而 PSO 这边的实现就是 `UsageMask / Per-Map Compile`。所以画面继续坚持先从事件讲起：当前玩家在地图 A，这时地图 B 被下载完成，我们就希望立刻启动地图 B 对应的 PSO 编译。于是同一时刻会出现两个视角：站在当前游戏视角，`Game UsageMask = A`；站在编译调度视角，`Compile UsageMask = A + B`。这条路解决的是“这一轮到底做哪一部分”。右边是 `并行化`：当任务可以拆开，彼此依赖不强，最后结果又能汇总时，就可以把同样的集合更快做完。这里不再硬找一个不太贴切的日常类比，而是直接给出工程上更常见的三层并行层级：`SIMD / Thread / GPU`。所以这一页最后想让观众记住的不是某个 UE 术语，而是一句更高层的话：编译过慢时，先看能不能 `分集合`，再看能不能 `并行化`。",
+        "第二十六页现在也不再讲两个孤立技巧，而是讲编译过慢时的两种更一般的方法。左边是 `分集合`：当对象本身可以聚类，需求又带着很强的上下文时，就不必把所有东西一把梭都做完，而是可以先按集合切开。这里给的熟悉类比是 `画质分档`，而 PSO 这边的实现分两层：`Game UsageMask` 是 UE 原生字段，由运行时依据当前场景 / 地图置位；`Compile UsageMask` 是我们自研的扩展机制，允许预编译侧直接挂载一组待命中的集合，不替代 UE 字段。所以画面继续坚持先从事件讲起：当前玩家在地图 A，这时点击下载 B+C，我们就希望立刻把 B+C 作为下一轮待编译集合挂进去。于是同一时刻会出现两个视角：站在当前游戏视角，`Game UsageMask = A`；站在编译调度视角，`Compile UsageMask = B+C`。这条路解决的是“这一轮到底做哪一部分”。右边是 `并行化`：当任务可以拆开，彼此依赖不强，最后结果又能汇总时，就可以把同样的集合更快做完。这里不再硬找一个不太贴切的日常类比，而是直接给出工程上更常见的三层并行层级：`SIMD / Thread / GPU`，其中 PSO 编译主要跑在 CPU，GPU 这一行更多代表跨平台驱动侧异步编译 / 大规模并行 kernel 这一类通用场景。所以这一页最后想让观众记住的不是某个 UE 术语，而是一句更高层的话：编译过慢时，先看能不能 `分集合`，再看能不能 `并行化`。",
       focusColorKey: "shared",
     },
     {
@@ -1105,6 +1095,10 @@ export const masterStoryboard: Storyboard = {
         "二维码与左右两边各 2 个条目一起略微下压，给上方引句留出更多呼吸空间；右列标题与副标题统一右对齐。",
       ],
       relatedLinks: [
+        {
+          label: "《银河帝国》（艾萨克·阿西莫夫）",
+          url: "",
+        },
         {
           label: "人类高质量思政课",
           url: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",

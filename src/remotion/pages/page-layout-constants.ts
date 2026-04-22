@@ -145,7 +145,7 @@ export const PAGE6_UASSET_FRAME: Box = {
 };
 export const PAGE6_PLATFORM_TABLE_BOX: Box = {
   x: 66,
-  y: 66,
+  y: 322,
   width: 336,
   height: 136,
   radius: 18,
@@ -173,9 +173,9 @@ export const PAGE6_RESOURCE_BOTTOM_BOX: Box = {
 };
 export const PAGE6_RESOURCE_TABLE_BOX: Box = {
   x: 66,
-  y: 248,
+  y: 155,
   width: 336,
-  height: 166,
+  height: 136,
   radius: 18,
 };
 export const PAGE6_SHADERMAP_BOX: Box = {

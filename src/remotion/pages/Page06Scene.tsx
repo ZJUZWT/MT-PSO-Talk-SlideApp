@@ -130,7 +130,7 @@ export function Page06Scene({scene}: {scene: SceneModel}) {
       {page6DashedOpacity > 0.001 ? (
         <g opacity={page6DashedOpacity}>
           <StrokeArrow
-            testId="page6-platform-resource-spine"
+            testId="page6-material-resource-flql-spine"
             d={horizontalPath(
               page6LeftDashedLineStartX,
               page6LeftDashedLineCurrentEndX,
@@ -147,22 +147,24 @@ export function Page06Scene({scene}: {scene: SceneModel}) {
             headSize={8}
             dashArray="10 8"
           />
-          <g data-testid="page6-platform-resource-cross">
-            <path
-              d={`M ${page6CrossCenterX - page6CrossHalf} ${page6CrossCenterY - page6CrossHalf} L ${page6CrossCenterX + page6CrossHalf} ${page6CrossCenterY + page6CrossHalf}`}
-              fill="none"
-              stroke="#22303d"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-            <path
-              d={`M ${page6CrossCenterX + page6CrossHalf} ${page6CrossCenterY - page6CrossHalf} L ${page6CrossCenterX - page6CrossHalf} ${page6CrossCenterY + page6CrossHalf}`}
-              fill="none"
-              stroke="#22303d"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </g>
+          <StrokeArrow
+            testId="page6-platform-resource-spine"
+            d={horizontalPath(
+              page6LeftDashedLineStartX,
+              page6LeftDashedLineCurrentEndX,
+              page6CrossCenterY,
+            )}
+            stroke="#22303d"
+            opacity={page6DashedOpacity}
+            tipX={page6LeftDashedLineCurrentEndX}
+            tipY={page6CrossCenterY}
+            direction="left"
+            shaftWidth={2}
+            underlayWidth={3.8}
+            underlayOpacity={0.08}
+            headSize={8}
+            dashArray="10 8"
+          />
         </g>
       ) : null}
 
@@ -416,8 +418,8 @@ export function Page06Scene({scene}: {scene: SceneModel}) {
               },
               {
                 width: 132,
-                label: "Permutation",
-                note: ["Fog=On", "Lightmap=Off"],
+                label: "PermutationId",
+                note: ["Perm_0", "(Perm_N)"],
               },
             ]}
           />

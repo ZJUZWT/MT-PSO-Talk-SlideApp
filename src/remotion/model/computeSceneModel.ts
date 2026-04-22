@@ -785,10 +785,10 @@ export function computeSceneModel(frame: number, variantId: VariantId = "bus-cle
   const page6ShaderTableLinkEndY = boxBottom(PAGE6_SHADER_TABLE_BOX);
   const page6CrossCenterX = boxCenterX(PAGE6_PLATFORM_TABLE_BOX);
   const page6CrossCenterY =
-    (boxBottom(page6MaterialBox) + PAGE6_RESOURCE_BOX.y) / 2;
+    (boxBottom(PAGE6_RESOURCE_BOX) + PAGE6_SHADERMAP_BOX.y) / 2;
   const page6CrossHalf = 9;
   const page6LeftDashedLineStartX = page6OwnershipLaneX;
-  const page6LeftDashedLineEndX = page6CrossCenterX + page6CrossHalf + 8;
+  const page6LeftDashedLineEndX = boxRight(PAGE6_PLATFORM_TABLE_BOX) + 12;
   const page6LeftDashedLineCurrentEndX = mix(
     page6LeftDashedLineStartX,
     page6LeftDashedLineEndX,

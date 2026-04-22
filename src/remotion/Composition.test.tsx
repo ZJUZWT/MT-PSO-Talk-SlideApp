@@ -2909,7 +2909,7 @@ describe("MyComposition", () => {
 
     expect(findSvgTextNodesByContent(page15Container, "构建机").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, ".ushaderbytecode").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page15Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page15Container, ".rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page15Container, "stablepc.csv").length).toBe(0);
 
     unmount15();
@@ -2919,7 +2919,7 @@ describe("MyComposition", () => {
     );
 
     expect(findSvgTextNodesByContent(page16Container, "expand").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page16Container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page16Container, ".rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page16Container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page16Container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page16Container, "H_old").length).toBeGreaterThanOrEqual(1);
@@ -3204,7 +3204,7 @@ describe("MyComposition", () => {
 
     const historyTitle = highestOpacityNode(page16Container, "ShaderHash + State");
     const historyVersion = highestOpacityNode(page16Container, "（历史版本）");
-    const historyFile = highestOpacityNode(page16Container, "rec.upipelinecache");
+    const historyFile = highestOpacityNode(page16Container, ".rec.upipelinecache");
     const stableTitle = highestOpacityNode(page16Container, "ShaderStableKey + State");
     const stableFile = highestOpacityNode(page16Container, "stablepc.csv");
     const mappingTitle = highestOpacityNode(page16Container, "ShaderHash <-> ShaderStableKey");
@@ -3391,7 +3391,7 @@ describe("MyComposition", () => {
       ),
     ).toHaveLength(1);
     expect(
-      findSvgTextNodesByContent(container, "rec.upipelinecache").filter(
+      findSvgTextNodesByContent(container, ".rec.upipelinecache").filter(
         (node) => effectiveOpacity(node) > 0.08,
       ).length,
     ).toBeGreaterThanOrEqual(1);
@@ -3688,7 +3688,7 @@ describe("MyComposition", () => {
     setLegacyFrame(1032);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, ".rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "stable.").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
@@ -3854,7 +3854,7 @@ describe("MyComposition", () => {
     const page5PsoCard = container.querySelector('[data-testid="page5-page1-table-box"] rect');
     const page5PsoLink = container.querySelector('[data-testid="page5-page1-table-dashed-link"]');
     const page5PsoLinkPoints = parseSimplePathPoints(page5PsoLink);
-    const psoTitle = findTextNodes(container, "UE PSO = Shaders+States+？")[0];
+    const psoTitle = findTextNodes(container, "UE PSO = Shaders + States + ?")[0];
     const usageMaskGroup = findBoxGroupByLabel(container, "UsageMask");
     const bindCountGroup = findBoxGroupByLabel(container, "BindCount");
     const usageMaskBox = usageMaskGroup?.querySelector("rect");
@@ -3865,7 +3865,7 @@ describe("MyComposition", () => {
     const graphicsPipelineLabel = findTextNodes(container, "FGraphicsPipeline")[0];
 
     expect(psoTitle).toBeDefined();
-    expect(findTextNodes(container, "VertexShader Hash / PixelShader Hash").length).toBeGreaterThanOrEqual(1);
+    expect(findTextNodes(container, "VS Hash / PS Hash").length).toBeGreaterThanOrEqual(1);
     expect(usageMaskLabel).toBeDefined();
     expect(bindCountLabel).toBeDefined();
     expect(usageMaskBox).not.toBeNull();
@@ -4121,7 +4121,9 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "纹理压缩")[0]).toBeDefined();
     expect(findTextNodes(container, "虚拟化")[0]).toBeDefined();
     expect(findTextNodes(container, "虚拟内存")[0]).toBeDefined();
-    expect(findTextNodes(container, "UE 中 PSO：LRU + mmap")[0]).toBeDefined();
+    expect(findTextNodes(container, "UE 中 PSO 如何使用这个优化")[0]).toBeDefined();
+    expect(findTextNodes(container, "LRU")[0]).toBeDefined();
+    expect(findTextNodes(container, "mmap")[0]).toBeDefined();
     expect(findTextNodes(container, "LZ4")[0]).toBeDefined();
     expect(findTextNodes(container, "zstd")[0]).toBeDefined();
     expect(findTextNodes(container, "Oodle Leviathan")[0]).toBeDefined();
@@ -4149,13 +4151,17 @@ describe("MyComposition", () => {
     const diskRect = container.querySelector(
       '[data-geometry-node-id="disk"] rect[data-geometry-node-box="1"]',
     );
+    const oodleLabel = findTextNodes(container, "Oodle Leviathan")[0];
 
     expect(rectMetrics(packageCardRect).width).toBeGreaterThanOrEqual(520);
-    expect(rectMetrics(rightCardRect).width).toBeGreaterThanOrEqual(648);
-    expect(rectMetrics(packageCardRect).y).toBeLessThanOrEqual(60);
-    expect(rectMetrics(rightCardRect).y).toBeLessThanOrEqual(60);
-    expect(rectMetrics(memoryRect).width).toBeGreaterThanOrEqual(250);
-    expect(rectMetrics(diskRect).width).toBeGreaterThanOrEqual(250);
+    expect(rectMetrics(rightCardRect).width).toBeGreaterThanOrEqual(530);
+    expect(rectMetrics(packageCardRect).height).toBeGreaterThanOrEqual(532);
+    expect(rectMetrics(rightCardRect).height).toBeGreaterThanOrEqual(532);
+    expect(rectMetrics(packageCardRect).y).toBeLessThanOrEqual(84);
+    expect(rectMetrics(rightCardRect).y).toBeLessThanOrEqual(84);
+    expect(rectMetrics(memoryRect).width).toBeGreaterThanOrEqual(220);
+    expect(rectMetrics(diskRect).width).toBeGreaterThanOrEqual(220);
+    expect(oodleLabel?.querySelectorAll("tspan")).toHaveLength(2);
     expect(
       container.querySelector('[data-geometry-node-id="flow-lane"] rect[data-geometry-node-box="1"]'),
     ).toBeNull();
@@ -4166,51 +4172,48 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const rowRect = container.querySelector(
-      '[data-geometry-node-id="package-row-1"] rect[data-geometry-node-box="1"]',
+      '[data-geometry-node-id="package-row-3"] rect[data-geometry-node-box="1"]',
     );
     const footerRect = container.querySelector(
       '[data-geometry-node-id="footer"] g[data-geometry-node-box="1"] rect',
     );
 
-    expect(rectMetrics(rowRect).height).toBeGreaterThanOrEqual(116);
+    expect(rectMetrics(rowRect).height).toBeGreaterThanOrEqual(98);
     expect(
       container.querySelector('[data-geometry-node-id="memory-method-1"] rect[data-geometry-node-box="1"]'),
     ).toBeNull();
-    expect(rectMetrics(footerRect).width).toBeGreaterThanOrEqual(1040);
+    expect(rectMetrics(footerRect).width).toBeGreaterThanOrEqual(940);
     expect(findTextNodes(container, "资源过重：先减体积，再考虑虚拟化。")[0]).toBeDefined();
     expect(findTextNodes(container, "release/results 亮点摘录")[0]).toBeUndefined();
     expect(findTextNodes(container, "任务独立")[0]).toBeUndefined();
     expect(findTextNodes(container, "Algorithm")[0]).toBeUndefined();
   });
 
-  it("keeps page 24 platform pills as explicit geometry nodes inside each package row", () => {
+  it("keeps page 24 metric lines readable inside each compression row", () => {
     setLegacyFrame(1734);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const rowRect = container.querySelector(
       '[data-geometry-node-id="package-row-1"] rect[data-geometry-node-box="1"]',
     );
-    const windowsRect = container.querySelector(
-      '[data-geometry-node-id="package-row-1-windows"] rect',
-    );
-    const macosRect = container.querySelector(
-      '[data-geometry-node-id="package-row-1-macos"] rect',
-    );
-    const androidRect = container.querySelector(
-      '[data-geometry-node-id="package-row-1-android"] rect',
-    );
-    const iosRect = container.querySelector(
-      '[data-geometry-node-id="package-row-1-ios"] rect',
-    );
+    const windowsText = findTextNodes(container, "Win 2.9 / 0.14")[0];
+    const macosText = findTextNodes(container, "Mac 2.1 / 0.05")[0];
+    const androidText = findTextNodes(container, "And 0.26")[0];
+    const iosText = findTextNodes(container, "iOS 0.04")[0];
 
-    expect(windowsRect).not.toBeNull();
-    expect(macosRect).not.toBeNull();
-    expect(androidRect).not.toBeNull();
-    expect(iosRect).not.toBeNull();
-    expect(rectMetrics(windowsRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
-    expect(rectMetrics(macosRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
-    expect(rectMetrics(androidRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
-    expect(rectMetrics(iosRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(windowsText).toBeDefined();
+    expect(macosText).toBeDefined();
+    expect(androidText).toBeDefined();
+    expect(iosText).toBeDefined();
+    expect(Number(windowsText?.getAttribute("x"))).toBe(Number(macosText?.getAttribute("x")));
+    expect(Number(androidText?.getAttribute("x"))).toBe(Number(iosText?.getAttribute("x")));
+    expect(Number(windowsText?.getAttribute("x"))).toBeLessThan(Number(androidText?.getAttribute("x")));
+    expect(Number(windowsText?.getAttribute("y"))).toBeLessThan(Number(macosText?.getAttribute("y")));
+    expect(Number(androidText?.getAttribute("y"))).toBeLessThan(Number(iosText?.getAttribute("y")));
+    expect(Number(windowsText?.getAttribute("y"))).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(Number(macosText?.getAttribute("y"))).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(Number(androidText?.getAttribute("y"))).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
+    expect(Number(iosText?.getAttribute("y"))).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
   });
 
   it("renders page 26 as split-set and parallelization methodology cards", () => {
@@ -4222,7 +4225,13 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "Game")[0]).toBeDefined();
     expect(findTextNodes(container, "UsageMask = A")[0]).toBeDefined();
     expect(findTextNodes(container, "Compile")[0]).toBeDefined();
-    expect(findTextNodes(container, "UsageMask = A + B")[0]).toBeDefined();
+    expect(findTextNodes(container, "UsageMask = B+C")[0]).toBeDefined();
+    expect(findTextNodes(container, "在 A 地图")[0]).toBeDefined();
+    expect(findTextNodes(container, "点击下载")[0]).toBeDefined();
+    expect(findTextNodes(container, "B+C")[0]).toBeDefined();
+    expect(findTextNodes(container, "A 地图")[0]).toBeUndefined();
+    expect(findTextNodes(container, "地图 B")[0]).toBeUndefined();
+    expect(findTextNodes(container, "下载完成")[0]).toBeUndefined();
     expect(findTextNodes(container, "并行化")[0]).toBeDefined();
     expect(findTextNodes(container, "SIMD / Thread / GPU")[0]).toBeDefined();
     expect(findTextNodes(container, "并行层级")[0]).toBeDefined();
@@ -4240,8 +4249,10 @@ describe("MyComposition", () => {
 
     expect(rectMetrics(parallelPathRect).x).toBeGreaterThan(rectMetrics(usagePathRect).right);
     expect(rectMetrics(parallelLayersRect).x).toBeGreaterThan(rectMetrics(compileMaskRect).right);
+    expect(rectMetrics(usagePathRect).height).toBeGreaterThanOrEqual(532);
+    expect(rectMetrics(parallelPathRect).height).toBeGreaterThanOrEqual(532);
     expect(container.querySelector('[data-geometry-node-id="parallel-queue"] rect')).toBeNull();
-    expect(findTextNodes(container, "并行化只改变执行方式")[0]).toBeDefined();
+    expect(findTextNodes(container, "并行化只改执行方式，不改这轮要编哪些")[0]).toBeDefined();
   });
 
   it("renders page 29 as the merged code-plus-image governance page", () => {
@@ -4502,9 +4513,13 @@ describe("MyComposition", () => {
     expect(Math.abs(feedbackMetrics.x + feedbackMetrics.width / 2 - (systemFrameMetrics.x + systemFrameMetrics.width / 2))).toBeLessThanOrEqual(2);
     expect(lossMetrics.y).toBeGreaterThan(harnessMetrics.y + 60);
     expect(feedbackMetrics.y).toBeGreaterThan(lossMetrics.y + 60);
-    expect(lossMetrics.x + lossMetrics.width / 2).toBeLessThan(
-      harnessMetrics.x + harnessMetrics.width / 2 - 100,
-    );
+    expect(
+      Math.abs(
+        lossMetrics.x +
+          lossMetrics.width / 2 -
+          (harnessMetrics.x + harnessMetrics.width / 2),
+      ),
+    ).toBeLessThanOrEqual(2);
     expect(systemFrameMetrics.x).toBeLessThan(inputMetrics.x);
     expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
     expect(systemFrameMetrics.y).toBeLessThan(fxMetrics.y);

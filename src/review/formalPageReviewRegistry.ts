@@ -524,7 +524,7 @@ const page05FormalReviewSketch = makeFormalReviewSketch(
       fontWeightOverride: 720,
     }),
     node("ue-pso-card", "", {x: 796, y: 34, width: 430, height: 302}),
-    textNode("ue-pso-title", "UE PSO = Shaders+States+？", {
+    textNode("ue-pso-title", "UE PSO = Shaders + States + ?", {
       x: 796,
       y: 40,
       width: 430,
@@ -534,7 +534,7 @@ const page05FormalReviewSketch = makeFormalReviewSketch(
       fontSizeOverride: 18.5,
       fontWeightOverride: 820,
     }),
-    node("ue-pso-shader", "VertexShader Hash / PixelShader Hash", {
+    node("ue-pso-shader", "VS Hash / PS Hash", {
       x: 812,
       y: 70,
       width: 398,
@@ -1380,25 +1380,28 @@ const page22FormalReviewSketch = makeFormalReviewSketch(
 
 const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
   makeFormalReviewSketch("formal-page24", "page_24", "Page 24 strategy", [
-    node("left-card", "Package", {x: 84, y: 136, width: 556, height: 432}),
-    node("package-row-1", "LZ4", {x: 108, y: 268, width: 508, height: 78}, {
+    node("left-card", "Package", {x: 84, y: 68, width: 556, height: 532}),
+    node("package-row-1", "LZ4", {x: 108, y: 214, width: 508, height: 96}, {
       containerId: "left-card",
     }),
-    node("package-row-2", "zstd", {x: 108, y: 354, width: 508, height: 78}, {
+    node("package-row-2", "zstd", {x: 108, y: 318, width: 508, height: 96}, {
       containerId: "left-card",
     }),
-    node("package-row-3", "Oodle Leviathan", {x: 108, y: 440, width: 508, height: 78}, {
+    node("package-row-3", "Oodle Leviathan", {x: 108, y: 422, width: 508, height: 98}, {
       containerId: "left-card",
-      fontSizeOverride: 20,
+      textRuns: [
+        {text: "Oodle", x: 18, y: 30, fontSize: 19.5, fontWeight: 820},
+        {text: "Leviathan", x: 18, y: 52, fontSize: 19.5, fontWeight: 820},
+      ],
     }),
-    node("right-card", "Memory", {x: 658, y: 136, width: 538, height: 432}),
-    node("virtual-guide", "UE PSO virtualization guide", {x: 682, y: 224, width: 490, height: 98}, {
+    node("right-card", "Memory", {x: 658, y: 68, width: 538, height: 532}),
+    node("virtual-guide", "UE PSO virtualization guide", {x: 682, y: 160, width: 490, height: 112}, {
       containerId: "right-card",
     }),
-    node("memory", "Memory Residency", {x: 682, y: 338, width: 220, height: 160}, {
+    node("memory", "Memory Residency", {x: 682, y: 288, width: 220, height: 188}, {
       containerId: "right-card",
     }),
-    node("disk", "External IO", {x: 952, y: 338, width: 220, height: 160}, {
+    node("disk", "External IO", {x: 952, y: 288, width: 220, height: 188}, {
       containerId: "right-card",
     }),
     node("footer", "Footer", {x: 164, y: 610, width: 948, height: 54}),
@@ -1417,7 +1420,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page26", "page_26", "Page 26 timing", [
-    node("usage-mask-path", "Split Compile Set", {x: 84, y: 136, width: 556, height: 432}, {
+    node("usage-mask-path", "Split Compile Set", {x: 84, y: 68, width: 556, height: 532}, {
       textRuns: [
         {text: "分集合", x: 18, y: 30, fontSize: 31, fontWeight: 840},
         {
@@ -1429,19 +1432,24 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
         },
       ],
     }),
-    node("event-strip", "Context Trigger", {x: 108, y: 224, width: 508, height: 84}, {
+    node("event-strip", "Context Trigger", {x: 108, y: 160, width: 508, height: 92}, {
       containerId: "usage-mask-path",
-      textRuns: [{text: "上下文触发", x: 18, y: 18, fontSize: 16, fontWeight: 800}],
+      textRuns: [
+        {text: "上下文触发", x: 18, y: 18, fontSize: 16, fontWeight: 800},
+        {text: "在 A 地图", x: 93, y: 60, fontSize: 16.2, fontWeight: 820, textAnchor: "middle"},
+        {text: "点击下载", x: 346, y: 52, fontSize: 14.2, fontWeight: 760, textAnchor: "middle"},
+        {text: "B+C", x: 346, y: 66, fontSize: 16.4, fontWeight: 820, textAnchor: "middle"},
+      ],
     }),
-    node("game-mask", "Game Mask", {x: 108, y: 322, width: 246, height: 136}, {
+    node("game-mask", "Game Mask", {x: 108, y: 278, width: 246, height: 150}, {
       containerId: "usage-mask-path",
       textRuns: [
         {text: "当前游戏视角", x: 20, y: 22, fontSize: 15, fontWeight: 800},
-        {text: "Game", x: 123, y: 52, fontSize: 20, fontWeight: 820, textAnchor: "middle"},
+        {text: "Game", x: 123, y: 58, fontSize: 20, fontWeight: 820, textAnchor: "middle"},
         {
           text: "UsageMask = A",
           x: 123,
-          y: 71,
+          y: 79,
           fontSize: 20,
           fontWeight: 820,
           textAnchor: "middle",
@@ -1449,7 +1457,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
         {
           text: "只保留当前游戏",
           x: 123,
-          y: 102,
+          y: 108,
           fontSize: 15,
           fontWeight: 700,
           textAnchor: "middle",
@@ -1457,52 +1465,52 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
         {
           text: "真的在用的集合",
           x: 123,
-          y: 117,
+          y: 125,
           fontSize: 15,
           fontWeight: 700,
           textAnchor: "middle",
         },
       ],
     }),
-    node("compile-mask", "Compile Mask", {x: 370, y: 322, width: 246, height: 136}, {
+    node("compile-mask", "Compile Mask", {x: 370, y: 278, width: 246, height: 150}, {
       containerId: "usage-mask-path",
       textRuns: [
         {text: "编译调度视角", x: 20, y: 22, fontSize: 15, fontWeight: 800},
-        {text: "Compile", x: 123, y: 52, fontSize: 20, fontWeight: 820, textAnchor: "middle"},
+        {text: "Compile", x: 123, y: 58, fontSize: 20, fontWeight: 820, textAnchor: "middle"},
         {
-          text: "UsageMask = A + B",
+          text: "UsageMask = B+C",
           x: 123,
-          y: 71,
+          y: 79,
           fontSize: 20,
           fontWeight: 820,
           textAnchor: "middle",
         },
         {
-          text: "地图 B 下载完成后",
+          text: "点击下载 B+C 后",
           x: 123,
-          y: 102,
+          y: 108,
           fontSize: 15,
           fontWeight: 700,
           textAnchor: "middle",
         },
         {
-          text: "立刻把 B 加进调度",
+          text: "立刻把 B+C 加进调度",
           x: 123,
-          y: 117,
+          y: 125,
           fontSize: 15,
           fontWeight: 700,
           textAnchor: "middle",
         },
       ],
     }),
-    node("usage-mask-note", "UsageMask Note", {x: 108, y: 470, width: 508, height: 54}, {
+    node("usage-mask-note", "UsageMask Note", {x: 108, y: 450, width: 508, height: 74}, {
       containerId: "usage-mask-path",
       textRuns: [
-        {text: "Game = A 与 Compile = A + B 可以同时成立", x: 18, y: 19, fontSize: 17, fontWeight: 780},
-        {text: "分集合决定这一轮做什么", x: 18, y: 39, fontSize: 15.5, fontWeight: 700},
+        {text: "Game = A 与 Compile = B+C 可以同时成立", x: 18, y: 24, fontSize: 17, fontWeight: 780},
+        {text: "分集合决定这一轮做什么", x: 18, y: 50, fontSize: 15.5, fontWeight: 700},
       ],
     }),
-    node("parallel-path", "Parallel Compile", {x: 658, y: 136, width: 538, height: 432}, {
+    node("parallel-path", "Parallel Compile", {x: 658, y: 68, width: 538, height: 532}, {
       textRuns: [
         {text: "并行化", x: 18, y: 30, fontSize: 31, fontWeight: 840},
         {
@@ -1514,22 +1522,22 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
         },
       ],
     }),
-    node("parallel-guide", "Parallel guide", {x: 682, y: 224, width: 490, height: 96}, {
+    node("parallel-guide", "Parallel guide", {x: 682, y: 160, width: 490, height: 112}, {
       containerId: "parallel-path",
     }),
-    node("parallel-layers", "Parallel Layers", {x: 682, y: 332, width: 490, height: 154}, {
+    node("parallel-layers", "Parallel Layers", {x: 682, y: 286, width: 490, height: 196}, {
       containerId: "parallel-path",
       textRuns: [
         {text: "并行层级", x: 20, y: 22, fontSize: 16.5, fontWeight: 800},
-        {text: "SIMD", x: 24, y: 59, fontSize: 27, fontWeight: 820},
-        {text: "单核向量化", x: 176, y: 59, fontSize: 18, fontWeight: 720},
-        {text: "Thread", x: 24, y: 97, fontSize: 27, fontWeight: 820},
-        {text: "多 worker 并发", x: 176, y: 97, fontSize: 18, fontWeight: 720},
-        {text: "GPU", x: 24, y: 135, fontSize: 27, fontWeight: 820},
-        {text: "批量离线算子", x: 176, y: 135, fontSize: 18, fontWeight: 720},
+        {text: "SIMD", x: 24, y: 67, fontSize: 27, fontWeight: 820},
+        {text: "单核向量化", x: 176, y: 67, fontSize: 18, fontWeight: 720},
+        {text: "Thread", x: 24, y: 115, fontSize: 27, fontWeight: 820},
+        {text: "多 worker 并发", x: 176, y: 115, fontSize: 18, fontWeight: 720},
+        {text: "GPU", x: 24, y: 163, fontSize: 27, fontWeight: 820},
+        {text: "大规模并行 kernel", x: 176, y: 163, fontSize: 18, fontWeight: 720},
       ],
     }),
-    node("parallel-summary", "Parallel summary", {x: 682, y: 496, width: 490, height: 40}, {
+    node("parallel-summary", "Parallel summary", {x: 682, y: 498, width: 490, height: 56}, {
       containerId: "parallel-path",
     }),
     node("footer", "Footer", {x: 164, y: 610, width: 948, height: 54}),
@@ -1721,7 +1729,7 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       fontSizeOverride: 28,
       fontWeightOverride: 760,
     }),
-    node("concept-loss", "loss + back propagation", {x: 286, y: 252, width: 420, height: 54}, {
+    node("concept-loss", "loss + back propagation", {x: 430, y: 252, width: 420, height: 54}, {
       fontSizeOverride: 26,
       fontWeightOverride: 760,
     }),
