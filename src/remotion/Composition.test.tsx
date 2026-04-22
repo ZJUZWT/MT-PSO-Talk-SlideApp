@@ -4113,27 +4113,27 @@ describe("MyComposition", () => {
     });
   });
 
-  it("renders page 24 as the package-and-memory strategy host", () => {
+  it("renders page 24 as a methodology split between compression and virtualization", () => {
     setLegacyFrame(1734);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "包体")[0]).toBeDefined();
-    expect(findTextNodes(container, "ShaderCode 压缩")[0]).toBeDefined();
-    expect(findTextNodes(container, "内存")[0]).toBeDefined();
+    expect(findTextNodes(container, "减体积")[0]).toBeDefined();
+    expect(findTextNodes(container, "纹理压缩")[0]).toBeDefined();
+    expect(findTextNodes(container, "虚拟化")[0]).toBeDefined();
+    expect(findTextNodes(container, "虚拟内存")[0]).toBeDefined();
     expect(findTextNodes(container, "UE 中 PSO：LRU + mmap")[0]).toBeDefined();
     expect(findTextNodes(container, "LZ4")[0]).toBeDefined();
     expect(findTextNodes(container, "zstd")[0]).toBeDefined();
     expect(findTextNodes(container, "Oodle Leviathan")[0]).toBeDefined();
-    expect(findTextNodes(container, "驻留层")[0]).toBeDefined();
-    expect(findTextNodes(container, "换出 / 回填")[0]).toBeDefined();
-    expect(findTextNodes(container, "映射 / 载体")[0]).toBeDefined();
-    expect(findTextNodes(container, "选取策略")[0]).toBeDefined();
-    expect(findTextNodes(container, "回填路径")[0]).toBeDefined();
-    expect(findTextNodes(container, "外存载体")[0]).toBeDefined();
-    expect(findTextNodes(container, "并行")[0]).toBeUndefined();
+    expect(findTextNodes(container, "内存驻留区")[0]).toBeDefined();
+    expect(findTextNodes(container, "外存 / IO")[0]).toBeDefined();
+    expect(findTextNodes(container, "换出")[0]).toBeDefined();
+    expect(findTextNodes(container, "按需回填")[0]).toBeDefined();
+    expect(findTextNodes(container, "驻留层")[0]).toBeUndefined();
+    expect(findTextNodes(container, "选取策略")[0]).toBeUndefined();
   });
 
-  it("keeps page 24 as two expanded formal boards with a denser right-side strategy skeleton", () => {
+  it("keeps page 24 as two expanded formal boards with a simplified right-side residency view", () => {
     setLegacyFrame(1734);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
@@ -4146,9 +4146,6 @@ describe("MyComposition", () => {
     const memoryRect = container.querySelector(
       '[data-geometry-node-id="memory"] rect[data-geometry-node-box="1"]',
     );
-    const flowLaneRect = container.querySelector(
-      '[data-geometry-node-id="flow-lane"] rect[data-geometry-node-box="1"]',
-    );
     const diskRect = container.querySelector(
       '[data-geometry-node-id="disk"] rect[data-geometry-node-box="1"]',
     );
@@ -4157,31 +4154,30 @@ describe("MyComposition", () => {
     expect(rectMetrics(rightCardRect).width).toBeGreaterThanOrEqual(648);
     expect(rectMetrics(packageCardRect).y).toBeLessThanOrEqual(60);
     expect(rectMetrics(rightCardRect).y).toBeLessThanOrEqual(60);
-    expect(rectMetrics(memoryRect).width).toBeGreaterThanOrEqual(268);
-    expect(rectMetrics(diskRect).width).toBeGreaterThanOrEqual(268);
-    expect(rectMetrics(flowLaneRect).height).toBeGreaterThanOrEqual(188);
+    expect(rectMetrics(memoryRect).width).toBeGreaterThanOrEqual(250);
+    expect(rectMetrics(diskRect).width).toBeGreaterThanOrEqual(250);
+    expect(
+      container.querySelector('[data-geometry-node-id="flow-lane"] rect[data-geometry-node-box="1"]'),
+    ).toBeNull();
   });
 
-  it("keeps page 24 details readable without falling back to old placeholder copy", () => {
+  it("keeps page 24 details readable without falling back to the old method-capsule layout", () => {
     setLegacyFrame(1734);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const rowRect = container.querySelector(
       '[data-geometry-node-id="package-row-1"] rect[data-geometry-node-box="1"]',
     );
-    const methodCard = container.querySelector(
-      '[data-geometry-node-id="memory-method-1"] rect[data-geometry-node-box="1"]',
-    );
     const footerRect = container.querySelector(
       '[data-geometry-node-id="footer"] g[data-geometry-node-box="1"] rect',
     );
 
-    expect(rectMetrics(rowRect).height).toBeGreaterThanOrEqual(132);
-    expect(rectMetrics(methodCard).width).toBeGreaterThanOrEqual(190);
-    expect(rectMetrics(footerRect).width).toBeGreaterThanOrEqual(1040);
+    expect(rectMetrics(rowRect).height).toBeGreaterThanOrEqual(116);
     expect(
-      findTextNodes(container, "包体：ShaderCode 压缩；内存：UE 中 PSO 的 LRU + mmap。")[0],
-    ).toBeDefined();
+      container.querySelector('[data-geometry-node-id="memory-method-1"] rect[data-geometry-node-box="1"]'),
+    ).toBeNull();
+    expect(rectMetrics(footerRect).width).toBeGreaterThanOrEqual(1040);
+    expect(findTextNodes(container, "资源过重：先减体积，再考虑虚拟化。")[0]).toBeDefined();
     expect(findTextNodes(container, "release/results 亮点摘录")[0]).toBeUndefined();
     expect(findTextNodes(container, "任务独立")[0]).toBeUndefined();
     expect(findTextNodes(container, "Algorithm")[0]).toBeUndefined();
@@ -4217,38 +4213,35 @@ describe("MyComposition", () => {
     expect(rectMetrics(iosRect).bottom).toBeLessThanOrEqual(rectMetrics(rowRect).bottom);
   });
 
-  it("renders page 26 as two parallel precompile-optimization paths", () => {
+  it("renders page 26 as split-set and parallelization methodology cards", () => {
     setLegacyFrame(1914);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "路径 1：减少编译集合")[0]).toBeDefined();
+    expect(findTextNodes(container, "分集合")[0]).toBeDefined();
+    expect(findTextNodes(container, "画质分档")[0]).toBeDefined();
     expect(findTextNodes(container, "Game")[0]).toBeDefined();
     expect(findTextNodes(container, "UsageMask = A")[0]).toBeDefined();
     expect(findTextNodes(container, "Compile")[0]).toBeDefined();
     expect(findTextNodes(container, "UsageMask = A + B")[0]).toBeDefined();
-    expect(findTextNodes(container, "路径 2：提升编译吞吐")[0]).toBeDefined();
-    expect(findTextNodes(container, "任务独立")[0]).toBeDefined();
-    expect(findTextNodes(container, "纯 CPU 计算")[0]).toBeDefined();
-    expect(
-      findTextNodes(
-        container,
-        "UsageMask 减少集合，并行提升吞吐；两个不是同一个内容，但都在优化预编译速度。",
-      )[0],
-    ).toBeDefined();
+    expect(findTextNodes(container, "并行化")[0]).toBeDefined();
+    expect(findTextNodes(container, "SIMD / Thread / GPU")[0]).toBeDefined();
+    expect(findTextNodes(container, "并行层级")[0]).toBeDefined();
+    expect(findTextNodes(container, "分集合决定做什么，并行化决定怎样更快做完。")[0]).toBeDefined();
   });
 
-  it("keeps page 26 usage-mask and parallel content as separate columns", () => {
+  it("keeps page 26 usage-mask and parallel content as separate columns without the old queue-worker topology", () => {
     setLegacyFrame(1914);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     const usagePathRect = container.querySelector('[data-geometry-node-id="usage-mask-path"] rect');
     const parallelPathRect = container.querySelector('[data-geometry-node-id="parallel-path"] rect');
     const compileMaskRect = container.querySelector('[data-geometry-node-id="compile-mask"] rect');
-    const queueRect = container.querySelector('[data-geometry-node-id="parallel-queue"] rect');
+    const parallelLayersRect = container.querySelector('[data-geometry-node-id="parallel-layers"] rect');
 
     expect(rectMetrics(parallelPathRect).x).toBeGreaterThan(rectMetrics(usagePathRect).right);
-    expect(rectMetrics(queueRect).x).toBeGreaterThan(rectMetrics(compileMaskRect).right);
-    expect(findTextNodes(container, "同样目标下，一条路减集合，一条路提吞吐。")[0]).toBeDefined();
+    expect(rectMetrics(parallelLayersRect).x).toBeGreaterThan(rectMetrics(compileMaskRect).right);
+    expect(container.querySelector('[data-geometry-node-id="parallel-queue"] rect')).toBeNull();
+    expect(findTextNodes(container, "并行化只改变执行方式")[0]).toBeDefined();
   });
 
   it("renders page 29 as the merged code-plus-image governance page", () => {

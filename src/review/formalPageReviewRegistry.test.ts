@@ -738,24 +738,21 @@ describe("formal page review registry", () => {
     expect(artifact.scores.blockerOpen).toBe(false);
   });
 
-  it("models page_24 platform pills as explicit child review surfaces", () => {
+  it("models page_24 as a comparison table plus a virtualization guide", () => {
     const page24 = findFormalPageReviewSketchByStepId("page_24");
 
     expect(page24).toBeDefined();
     expect(page24?.nodes.map((node) => node.id)).toEqual(
       expect.arrayContaining([
-        "package-row-1-windows",
-        "package-row-1-macos",
-        "package-row-1-android",
-        "package-row-1-ios",
-        "package-row-2-windows",
-        "package-row-2-macos",
-        "package-row-2-android",
-        "package-row-2-ios",
-        "package-row-3-windows",
-        "package-row-3-macos",
-        "package-row-3-android",
-        "package-row-3-ios",
+        "left-card",
+        "package-row-1",
+        "package-row-2",
+        "package-row-3",
+        "right-card",
+        "virtual-guide",
+        "memory",
+        "disk",
+        "footer",
       ]),
     );
 
