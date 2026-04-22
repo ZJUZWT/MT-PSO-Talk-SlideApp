@@ -95,17 +95,17 @@ const LOOP_PAGE24_FRAME = loopFrame("page_24");
 const LOOP_PAGE26_FRAME = loopFrame("page_26");
 const LOOP_PAGE28_FRAME = loopFrame("page_28");
 const LOOP_PAGE29_FRAME = loopFrame("page_29");
+const LOOP_PAGE29_DATA_FRAME = loopFrame("page_29_data");
 const LOOP_PAGE30_FRAME = loopFrame("page_30");
 const LOOP_PAGE31_FRAME = loopFrame("page_31");
 const LOOP_PAGE32_FRAME = loopFrame("page_32");
 const LOOP_PAGE33_FRAME = loopFrame("page_33");
 const LOOP_CLOUD_STROKE = "rgba(118, 163, 207, 0.94)";
 const PLACEHOLDER_BOARD = {x: 148, y: 104, width: 984, height: 512, radius: 36};
-const PAGE14_UE_CENTER_X = 1280 * 0.25;
-const PAGE14_GFX_CENTER_X = 1280 * 0.5;
-const PAGE14_GPU_CENTER_X = 1280 * 0.75;
+const PAGE14_UE_CENTER_X = 300;
+const PAGE14_GFX_CENTER_X = 732;
+const PAGE14_GPU_CENTER_X = 1072;
 const LATE_INLINE_TITLE_REMOVAL_SHIFT_Y = -52;
-const LATE_CLOSING_QUOTE_SHIFT_Y = -42;
 const SUPPLEMENT_IMAGE_BOX = {x: 46, y: 36, width: 1188, height: 648, radius: 28};
 const PAGE15_SUPPLEMENT_IMAGE_BOX = {x: 46, y: 52, width: 1188, height: 430, radius: 28};
 const PLACEHOLDER_PAGE16_CARD_1 = {x: 190, y: 220, width: 250, height: 124, radius: 22};
@@ -117,12 +117,12 @@ const PLACEHOLDER_PAGE18_LEFT = {x: 186, y: 228, width: 246, height: 214, radius
 const PLACEHOLDER_PAGE18_CENTER = {x: 492, y: 228, width: 298, height: 214, radius: 24};
 const PLACEHOLDER_PAGE18_RIGHT = {x: 850, y: 228, width: 220, height: 214, radius: 24};
 const PLACEHOLDER_PAGE18_FOOTER = {x: 240, y: 488, width: 780, height: 74, radius: 24};
-const PAGE16_REC_TARGET_BOX = {x: 120, y: 272, width: 320, height: 104, radius: 24};
-const PAGE16_SCL_TARGET_BOX = {x: 510, y: 100, width: 280, height: 84, radius: 22};
+const PAGE16_REC_TARGET_BOX = {x: 100, y: 272, width: 360, height: 104, radius: 24};
+const PAGE16_SCL_TARGET_BOX = {x: 480, y: 100, width: 340, height: 84, radius: 22};
 const PAGE16_STABLE_PC_TARGET_BOX = {
-  x: 860,
+  x: 820,
   y: 272,
-  width: 320,
+  width: 360,
   height: 104,
   radius: 24,
 };
@@ -133,18 +133,18 @@ const PAGE16_EXAMPLE_BRANCH_X = 390;
 const PAGE16_EXAMPLE_KEY1_CENTER = {x: 560, y: 504};
 const PAGE16_EXAMPLE_KEY2_CENTER = {x: 560, y: 564};
 const PAGE17_STABLE_PC_TARGET_BOX = {
-  x: 120,
+  x: 100,
   y: 272,
-  width: 320,
+  width: 360,
   height: 104,
   radius: 24,
 };
-const PAGE17_SCL_TARGET_BOX = {x: 510, y: 100, width: 280, height: 84, radius: 22};
+const PAGE17_SCL_TARGET_BOX = {x: 480, y: 100, width: 340, height: 84, radius: 22};
 const PAGE17_BUILD_CENTER = {x: 650, y: 324};
 const PAGE17_STABLE_UPIPE_TARGET_BOX = {
-  x: 860,
+  x: 820,
   y: 266,
-  width: 320,
+  width: 360,
   height: 116,
   radius: 24,
 };
@@ -170,6 +170,117 @@ const ENDING_ENGINEERING_LINKS = [
     href: "https://gitlab.freedesktop.org/mesa/mesa",
   },
 ] as const;
+const PAGE29_DATA_PC_ROWS = [
+  {
+    id: "pc-row-1",
+    loop: "loop=10",
+    values: ["0.0653", "0.0801", "0.0614"] as const,
+  },
+  {
+    id: "pc-row-2",
+    loop: "loop=5000",
+    values: ["0.0645", "59.1658", "32.0594"] as const,
+  },
+] as const;
+const PAGE29_DATA_ANDROID_ROWS = [
+  {
+    id: "android-row-1",
+    loop: "loop=10",
+    values: ["3.3054", "0.8471", "3.3199"] as const,
+  },
+  {
+    id: "android-row-2",
+    loop: "loop=5000",
+    values: ["400.7728", "400.7216", "402.2887"] as const,
+  },
+] as const;
+type Page29ShaderTone = "plain" | "keyword" | "type" | "number" | "function" | "comment";
+type Page29ShaderToken = {
+  text: string;
+  tone?: Page29ShaderTone;
+};
+
+const PAGE29_DATA_VERTEX_SHADER_LINES: readonly (readonly Page29ShaderToken[])[] = [
+  [
+    {text: "layout", tone: "keyword"},
+    {text: "(location = "},
+    {text: "0", tone: "number"},
+    {text: ") "},
+    {text: "in", tone: "keyword"},
+    {text: " "},
+    {text: "vec3", tone: "type"},
+    {text: " inPos;"},
+  ],
+  [
+    {text: "out", tone: "keyword"},
+    {text: " "},
+    {text: "vec4", tone: "type"},
+    {text: " heavyColor;"},
+  ],
+  [
+    {text: "uniform", tone: "keyword"},
+    {text: " "},
+    {text: "int", tone: "type"},
+    {text: " loopCount;"},
+  ],
+  [
+    {text: "void", tone: "keyword"},
+    {text: " "},
+    {text: "main", tone: "function"},
+    {text: "() {"},
+  ],
+  [
+    {text: "  "},
+    {text: "vec4", tone: "type"},
+    {text: " acc = "},
+    {text: "vec4", tone: "type"},
+    {text: "(inPos, "},
+    {text: "1.0", tone: "number"},
+    {text: ");"},
+  ],
+  [
+    {text: "  "},
+    {text: "for", tone: "keyword"},
+    {text: " ("},
+    {text: "int", tone: "type"},
+    {text: " i = "},
+    {text: "0", tone: "number"},
+    {text: "; i < loopCount; ++i) {"},
+  ],
+  [
+    {text: "    acc = "},
+    {text: "sin", tone: "function"},
+    {text: "(acc) * "},
+    {text: "cos", tone: "function"},
+    {text: "(acc);"},
+    {text: " // heavy loop", tone: "comment"},
+  ],
+  [{text: "  }"}],
+  [{text: "  heavyColor = acc;"}],
+  [{text: "}"}],
+] as const;
+const PAGE29_DATA_FRAGMENT_SHADER_LINES: readonly (readonly Page29ShaderToken[])[] = [
+  [
+    {text: "in", tone: "keyword"},
+    {text: " "},
+    {text: "vec4", tone: "type"},
+    {text: " heavyColor;"},
+  ],
+  [
+    {text: "out", tone: "keyword"},
+    {text: " "},
+    {text: "vec4", tone: "type"},
+    {text: " outColor;"},
+  ],
+  [
+    {text: "void", tone: "keyword"},
+    {text: " "},
+    {text: "main", tone: "function"},
+    {text: "() {"},
+  ],
+  [{text: "  outColor = heavyColor;"}],
+  [{text: "}"}],
+] as const;
 const ENDING_CULTURE_LINKS: ReadonlyArray<{
   title: string;
   subtitle: string;
@@ -180,18 +291,9 @@ const ENDING_CULTURE_LINKS: ReadonlyArray<{
     subtitle: "艾萨克·阿西莫夫",
   },
   {
-    title: "《反杜林论》",
-    subtitle: "弗里德里希·恩格斯",
-  },
-  {
-    title: "马克思主义哲学",
+    title: "人类高质量思政课",
     subtitle: "沈枯燥 / 哔哩哔哩",
     href: "https://www.bilibili.com/video/BV1m7UkBDEeB?spm_id_from=333.788.videopod.sections",
-  },
-  {
-    title: "重读资本论",
-    subtitle: "王德峰 / 哔哩哔哩",
-    href: "https://www.bilibili.com/list/ml2680793867?oid=938973897&bvid=BV1wT4y1r78r",
   },
 ] as const;
 const ENDING_GAME_LINKS = [
@@ -322,18 +424,36 @@ const LOCAL_VERTEX_FACTORY_CODE_LINES = [
   "#endif",
   "}",
 ] as const;
-const HARNESS_TRIGGER_TOKENS = [
-  "hook",
-  "workflow_gate.py",
-  "review:mechanical",
-  "front Edge probe",
+const LIVE_HARNESS_SOURCE_TOKENS = [
+  "workflow gate",
+  "front probe",
+  "browser capture",
+  "blind critics",
 ] as const;
-const HARNESS_GATES = [
-  "overlap = 0",
-  "crossing = 0",
-  "nodePierce = 0",
-  "textOverflow = 0",
+const LIVE_HARNESS_DECISION_TOKENS = [
+  "通过则停止",
+  "不通过继续",
 ] as const;
+const PAGE32_BRIDGE_TITLE = "反馈系统与人的学习";
+const PAGE32_ABSTRACTION_PILLS = [
+  {id: "concept-harness", label: "harness", emphasized: true, labelFontSize: 28, width: 300},
+  {
+    id: "concept-loss",
+    label: "loss + back propagation",
+    emphasized: false,
+    labelFontSize: 26,
+    width: 420,
+  },
+  {
+    id: "concept-feedback",
+    label: "feedback system",
+    emphasized: true,
+    labelFontSize: 27,
+    width: 332,
+  },
+] as const;
+const PAGE32_BRIDGE_FOOTER =
+  "从一个具体问题往回推时 也许会借到一些看似无用的东西";
 const PARALLEL_NOTES = [
   "同步成本",
   "共享状态",
@@ -346,35 +466,13 @@ const PAGE17_KEY1_CENTER = {x: 754, y: 508};
 const PAGE17_KEY2_CENTER = {x: 754, y: 556};
 const PAGE17_HASHA_CENTER = {x: 1004, y: 508};
 const PAGE17_HASHB_CENTER = {x: 1004, y: 556};
-const PAGE19_MAIN_AXIS_Y = 359;
 const PAGE19_TOP_ROW_Y = 78;
 const PAGE19_STABLE_BOX = {
-  x: 108,
-  y: 164,
-  width: 324,
-  height: 392,
+  x: 142,
+  y: 206,
+  width: 262,
+  height: 228,
   radius: 30,
-};
-const PAGE19_UE_ROW_1 = {
-  x: 130,
-  y: 268,
-  width: 280,
-  height: 56,
-  radius: 18,
-};
-const PAGE19_UE_ROW_2 = {
-  x: 130,
-  y: 360,
-  width: 280,
-  height: 56,
-  radius: 18,
-};
-const PAGE19_UE_ROW_3 = {
-  x: 130,
-  y: 452,
-  width: 280,
-  height: 56,
-  radius: 18,
 };
 const PAGE19_VERTEX_BOX = {x: 402, y: 34, width: 88, height: 88, radius: 18};
 const PAGE19_VERTEX_CENTER = {x: 446, y: 78};
@@ -390,68 +488,26 @@ const PAGE19_GPU_AXIS_X = 640;
 const PAGE19_PIXEL_BOX = {x: 790, y: 40, width: 68, height: 76, radius: 16};
 const PAGE19_GPU_PIXELS = {x: 794, y: 48};
 const PAGE19_API_BOX = {
-  x: 478,
-  y: 164,
-  width: 324,
-  height: 392,
+  x: 509,
+  y: 206,
+  width: 262,
+  height: 228,
   radius: 32,
-};
-const PAGE19_API_GL_BOX = {
-  x: 500,
-  y: 218,
-  width: 280,
-  height: 70,
-  radius: 18,
-};
-const PAGE19_API_VK_BOX = {
-  x: 500,
-  y: 326,
-  width: 280,
-  height: 70,
-  radius: 18,
-};
-const PAGE19_API_MT_BOX = {
-  x: 500,
-  y: 434,
-  width: 280,
-  height: 70,
-  radius: 18,
 };
 const PAGE19_DISK_BOX = {
-  x: 848,
-  y: 164,
-  width: 324,
-  height: 392,
+  x: 876,
+  y: 206,
+  width: 262,
+  height: 228,
   radius: 32,
 };
-const PAGE19_DISK_GL_BOX = {
-  x: 870,
-  y: 218,
-  width: 280,
-  height: 70,
-  radius: 18,
-};
-const PAGE19_DISK_VK_BOX = {
-  x: 870,
-  y: 326,
-  width: 280,
-  height: 70,
-  radius: 18,
-};
-const PAGE19_DISK_MT_BOX = {
-  x: 870,
-  y: 434,
-  width: 280,
-  height: 70,
-  radius: 18,
-};
 const PAGE19_BINARY_NOTE_BOXES = [
-  {x: 108, y: 564, width: 324, height: 78, radius: 20},
-  {x: 478, y: 564, width: 324, height: 78, radius: 20},
-  {x: 848, y: 564, width: 324, height: 78, radius: 20},
+  {x: 142, y: 500, width: 262, height: 78, radius: 20},
+  {x: 509, y: 500, width: 262, height: 78, radius: 20},
+  {x: 876, y: 500, width: 262, height: 78, radius: 20},
 ] as const;
 const PAGE19_BINARY_ARCHIVE2_BADGE = {
-  x: 927,
+  x: 924,
   y: 648,
   width: 166,
   height: 44,
@@ -603,6 +659,14 @@ function roundedPolylinePath(
   return commands.join(" ");
 }
 
+function quadraticCurvePath(
+  start: {x: number; y: number},
+  control: {x: number; y: number},
+  end: {x: number; y: number},
+) {
+  return `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`;
+}
+
 function polylineLength(points: Array<{x: number; y: number}>) {
   let length = 0;
 
@@ -629,6 +693,37 @@ function revealHeadOpacity(progress: number, opacity: number) {
 
 function emphasizeWidth(base: number, focus: number) {
   return mix(base, base + 1.8, easeInOutCubic(focus));
+}
+
+function resolvePage29ShaderToneFill(defaultFill: string, tone: Page29ShaderTone | undefined) {
+  switch (tone) {
+    case "keyword":
+      return "#da7a41";
+    case "type":
+      return "#5878a6";
+    case "number":
+      return "#2f8a78";
+    case "function":
+      return "#b0623b";
+    case "comment":
+      return "rgba(92, 106, 118, 0.76)";
+    default:
+      return defaultFill;
+  }
+}
+
+function renderPage29ShaderLine(
+  line: readonly Page29ShaderToken[],
+  defaultFill: string,
+) {
+  return line.map((token, tokenIndex) => (
+    <tspan
+      key={`${token.text}-${tokenIndex}`}
+      fill={resolvePage29ShaderToneFill(defaultFill, token.tone)}
+    >
+      {token.text}
+    </tspan>
+  ));
 }
 
 function mergeTowardBoxTransform(
@@ -908,29 +1003,37 @@ function ArtifactNode({
   scene,
   opacity,
   label,
+  subLabel,
   lines,
   detail,
   geometryNodeId,
   geometryNodeLabel,
   labelFontSize = 26,
+  subLabelFontSize,
   detailFontSize = 16,
   detailColor = "rgba(34, 48, 61, 0.74)",
+  subLabelColor = "rgba(34, 48, 61, 0.68)",
   emphasized = false,
 }: {
   box: {x: number; y: number; width: number; height: number; radius: number};
   scene: SceneModel;
   opacity: number;
   label?: string;
+  subLabel?: string;
   lines?: string[];
   detail?: string;
   geometryNodeId?: string;
   geometryNodeLabel?: string;
   labelFontSize?: number;
+  subLabelFontSize?: number;
   detailFontSize?: number;
   detailColor?: string;
+  subLabelColor?: string;
   emphasized?: boolean;
 }) {
   const hasDetail = Boolean(detail && !lines);
+  const hasStackedDetail = Boolean(detail && lines);
+  const hasSubtitle = Boolean(subLabel && label);
   const resolvedGeometryLabel =
     geometryNodeLabel ?? label ?? lines?.join(" / ") ?? geometryNodeId;
 
@@ -960,20 +1063,39 @@ function ArtifactNode({
         strokeWidth={emphasized ? 3.2 : 2.7}
       />
       {lines ? (
-        <StackedLabel
-          x={centerX(box)}
-          y={centerY(box) + 2}
-          lines={lines}
-          fontSize={labelFontSize}
-          fontWeight={760}
-          lineGap={28}
-          markGeometryText={Boolean(geometryNodeId)}
-        />
+        <>
+          <StackedLabel
+            x={centerX(box)}
+            y={centerY(box) + (hasStackedDetail ? -10 : 2)}
+            lines={lines}
+            fontSize={labelFontSize}
+            fontWeight={760}
+            lineGap={hasStackedDetail ? 23 : 28}
+            markGeometryText={Boolean(geometryNodeId)}
+          />
+          {hasStackedDetail ? (
+            <text
+              x={centerX(box)}
+              y={centerY(box) + 26}
+              fill={detailColor}
+              fontSize={detailFontSize}
+              fontWeight="700"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text={geometryNodeId ? "1" : undefined}
+            >
+              {detail}
+            </text>
+          ) : null}
+        </>
       ) : label ? (
         <>
           <text
             x={centerX(box)}
-            y={centerY(box) + (hasDetail ? -12 : 2)}
+            y={
+              centerY(box) +
+              (hasSubtitle && hasDetail ? -24 : hasSubtitle ? -12 : hasDetail ? -12 : 2)
+            }
             fill="#22303d"
             fontSize={labelFontSize}
             fontWeight="760"
@@ -983,10 +1105,24 @@ function ArtifactNode({
           >
             {label}
           </text>
+          {hasSubtitle ? (
+            <text
+              x={centerX(box)}
+              y={centerY(box) + (hasDetail ? 2 : 16)}
+              fill={subLabelColor}
+              fontSize={subLabelFontSize ?? Math.max(labelFontSize - 2, 16)}
+              fontWeight="720"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text={geometryNodeId ? "1" : undefined}
+            >
+              {subLabel}
+            </text>
+          ) : null}
           {hasDetail ? (
             <text
               x={centerX(box)}
-              y={centerY(box) + 20}
+              y={centerY(box) + (hasSubtitle ? 28 : 20)}
               fill={detailColor}
               fontSize={detailFontSize}
               fontWeight="700"
@@ -2222,30 +2358,26 @@ function Page14Placeholder({
   const runtimeGpuX = PHONE_GPU.x + phoneOffsetX;
   const runtimeGpuY = PHONE_GPU.y;
   const uePsoBox = {
-    x: PAGE14_UE_CENTER_X - 124,
-    y: runtimeGpuY - 94,
-    width: 248,
-    height: 188,
+    x: PAGE14_UE_CENTER_X - 128,
+    y: runtimeGpuY - 98,
+    width: 256,
+    height: 196,
     radius: 24,
   };
   const gfxPsoBox = {
-    x: PAGE14_GFX_CENTER_X - 122,
+    x: PAGE14_GFX_CENTER_X - 112,
     y: uePsoBox.y,
-    width: 244,
+    width: 224,
     height: uePsoBox.height,
     radius: 24,
   };
   const recBox = {
-    x: centerX(uePsoBox) - 152,
+    x: 148,
     y: uePsoBox.y - 196,
     width: 304,
-    height: 84,
+    height: 88,
     radius: 22,
   };
-  const recordLabelCenterX = 226;
-  const createLabelCenterX = 486;
-  const bindLabelCenterX = (right(gfxPsoBox) + 8 + (runtimeGpuX - 54)) / 2;
-
   const ueToGfxPoints = [
     {x: right(uePsoBox) + 8, y: centerY(uePsoBox)},
     {x: gfxPsoBox.x - 8, y: centerY(gfxPsoBox)},
@@ -2256,9 +2388,12 @@ function Page14Placeholder({
   ];
   const ueToRecPoints = [
     {x: centerX(uePsoBox), y: uePsoBox.y - 12},
-    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 28},
-    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 10},
+    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 24},
+    {x: centerX(uePsoBox), y: recBox.y + recBox.height + 8},
   ];
+  const recordLabelCenterX = centerX(uePsoBox) - 76;
+  const createLabelCenterX = (ueToGfxPoints[0]!.x + ueToGfxPoints[1]!.x) / 2;
+  const bindLabelCenterX = (gfxToGpuPoints[0]!.x + gfxToGpuPoints[1]!.x) / 2;
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
@@ -2418,7 +2553,7 @@ function Page14Placeholder({
         headOpacity={revealHeadOpacity(routeReveal, opacity * routeReveal)}
         dashArray="12 10"
         tipX={centerX(uePsoBox)}
-        tipY={recBox.y + recBox.height + 10}
+        tipY={recBox.y + recBox.height + 8}
         direction="up"
         shaftWidth={4.4}
         underlayWidth={7.6}
@@ -2427,21 +2562,21 @@ function Page14Placeholder({
       />
       <ArrowLabelPill
         x={recordLabelCenterX}
-        y={(recBox.y + recBox.height + uePsoBox.y) / 2 - 8}
-        width={156}
+        y={252}
+        width={140}
         height={40}
         label="record / save"
         stroke="rgba(118, 163, 207, 0.48)"
         fill="rgba(255, 251, 246, 0.98)"
-        fontSize={22}
+        fontSize={21}
         fontWeight={760}
         opacity={opacity * routeReveal}
         testId="page14-ue-to-rec-label"
       />
       <ArrowLabelPill
         x={createLabelCenterX}
-        y={uePsoBox.y - 64}
-        width={196}
+        y={350}
+        width={176}
         height={40}
         label="create / resolve"
         stroke="rgba(208, 107, 68, 0.42)"
@@ -2453,8 +2588,8 @@ function Page14Placeholder({
       />
       <ArrowLabelPill
         x={bindLabelCenterX}
-        y={gfxPsoBox.y - 46}
-        width={176}
+        y={350}
+        width={140}
         height={40}
         label="bind / use"
         stroke="rgba(208, 107, 68, 0.42)"
@@ -2478,7 +2613,7 @@ function Page14Placeholder({
       </text>
       <text
         x={centerX(PLACEHOLDER_BOARD)}
-        y={bottom(uePsoBox) + 78}
+        y={bottom(uePsoBox) + 88}
         fill="rgba(34, 48, 61, 0.7)"
         fontSize="20"
         fontWeight="700"
@@ -2561,54 +2696,68 @@ function Page16Placeholder({
       <ArtifactNode
         scene={scene}
         box={recBox}
-        label="rec.upipelinecache"
-        detail="ShaderHash + State (历史版本)"
+        label="ShaderHash + State"
+        subLabel="（历史版本）"
+        detail="rec.upipelinecache"
         opacity={recOpacity}
-        labelFontSize={24}
-        detailFontSize={17}
+        labelFontSize={20}
+        subLabelFontSize={17.5}
+        detailFontSize={15.5}
       />
       <ArtifactNode
         scene={scene}
         box={stablePcBox}
-        label="stablepc.csv"
-        detail="ShaderStableKey + State"
+        label="ShaderStableKey + State"
+        detail="stablepc.csv"
         opacity={sharedOpacity}
-        labelFontSize={24}
-        detailFontSize={17}
+        labelFontSize={19.5}
+        detailFontSize={15.5}
         emphasized
       />
       <text
         x={centerX(recBox)}
         y={recBox.y - 24}
         fill={scene.apiStroke}
-        fontSize="20"
+        fontSize="18.5"
         fontWeight="760"
         textAnchor="middle"
         dominantBaseline="middle"
         opacity={sharedOpacity}
       >
-        历史 runtime
+        手机包收集到的UE PSO
       </text>
       <ArtifactNode
         scene={scene}
         box={sclBox}
-        label=".scl.csv"
-        detail="ShaderHash <-> ShaderStableKey"
+        label="ShaderHash <-> ShaderStableKey"
+        detail=".scl.csv"
         opacity={sharedOpacity}
-        labelFontSize={24}
-        detailFontSize={16}
+        labelFontSize={18.5}
+        detailFontSize={15}
       />
       <text
         x={centerX(sclBox)}
-        y={sclBox.y - 22}
+        y={sclBox.y - 34}
         fill={scene.apiStroke}
-        fontSize="20"
-        fontWeight="760"
+        fontSize="15.2"
+        fontWeight="720"
         textAnchor="middle"
         dominantBaseline="middle"
         opacity={sharedOpacity}
       >
-        历史映射
+        和UE PSO同版本Cook出来的
+      </text>
+      <text
+        x={centerX(sclBox)}
+        y={sclBox.y - 14}
+        fill={scene.apiStroke}
+        fontSize="17.2"
+        fontWeight="780"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={sharedOpacity}
+      >
+        双向映射
       </text>
       <CalloutBadge
         x={sharedCenter.x}
@@ -2678,19 +2827,19 @@ function Page16Placeholder({
         dominantBaseline="middle"
         opacity={noteOpacity}
       >
-        历史 .scl.csv
+        双向映射字典
       </text>
       <text
         x={right(sclBox) + 18}
         y={sclBox.y + 48}
         fill={scene.apiStroke}
-        fontSize="19"
+        fontSize="17.5"
         fontWeight="760"
         textAnchor="start"
         dominantBaseline="middle"
         opacity={noteOpacity}
       >
-        必须与 rec.upipelinecache 同版本
+        必须和 UE PSO 同版本 Cook 出来
       </text>
       <g opacity={noteOpacity}>
         <StageBox
@@ -2902,34 +3051,72 @@ function Page17Placeholder({
 
   return (
     <PlaceholderBoardShell opacity={opacity}>
+      <text
+        x={centerX(stablePcBox)}
+        y={stablePcBox.y - 24}
+        fill={scene.apiStroke}
+        fontSize="18.2"
+        fontWeight="760"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={sharedOpacity}
+      >
+        所有历史版本的稳定UE PSO
+      </text>
       <ArtifactNode
         scene={scene}
         box={stablePcBox}
-        label="stablepc.csv"
-        detail="ShaderStableKey + State"
+        label="ShaderStableKey + State"
+        detail="stablepc.csv"
         opacity={sharedOpacity}
-        labelFontSize={24}
-        detailFontSize={17}
+        labelFontSize={19.5}
+        detailFontSize={15.5}
         emphasized
       />
+      <text
+        x={centerX(stableUpipeBox)}
+        y={stableUpipeBox.y - 24}
+        fill={scene.apiStroke}
+        fontSize="17.6"
+        fontWeight="760"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={opacity}
+      >
+        当前包体可以用作预编译的UE PSO
+      </text>
       <ArtifactNode
         scene={scene}
         box={stableUpipeBox}
-        label="stable.upipelinecache"
-        detail="ShaderHash + State (current)"
+        label="ShaderHash + State"
+        subLabel="（当前版本）"
+        detail="stable.upipelinecache"
         opacity={opacity}
-        labelFontSize={22}
-        detailFontSize={16}
+        labelFontSize={19}
+        subLabelFontSize={17}
+        detailFontSize={15}
         emphasized
       />
+      <text
+        x={centerX(currentSclBox)}
+        y={currentSclBox.y - 24}
+        fill={scene.apiStroke}
+        fontSize="17.4"
+        fontWeight="760"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        opacity={sharedOpacity}
+      >
+        当前版本Cook出来的双向映射
+      </text>
       <ArtifactNode
         scene={scene}
         box={currentSclBox}
-        label=".scl.csv"
-        detail="ShaderHash <-> ShaderStableKey"
+        label="ShaderHash <-> ShaderStableKey"
+        detail=".scl.csv"
         opacity={sharedOpacity}
-        labelFontSize={24}
-        detailFontSize={16}
+        labelFontSize={18.5}
+        detailFontSize={15}
       />
       <CalloutBadge
         x={PAGE17_BUILD_CENTER.x}
@@ -3178,8 +3365,6 @@ function Page19Placeholder({
   entryProgress: number;
 }) {
   const ACCENT = scene.apiStroke;
-  const NODE_STROKE = scene.nodeStroke;
-  const CARD_FILL = scene.neutralFill;
   const SOFT_FILL = scene.focusFill;
   const TEXT = "#22303d";
   const groupReveal = resolveWindowProgress(entryProgress, 0.08, 0.44, easeOutQuint);
@@ -3227,9 +3412,9 @@ function Page19Placeholder({
             />
             <text
               x={centerX(PAGE19_STABLE_BOX)}
-              y={PAGE19_STABLE_BOX.y + 42}
+              y={centerY(PAGE19_STABLE_BOX) - 18}
               fill={TEXT}
-              fontSize="34"
+              fontSize="38"
               fontWeight="820"
               textAnchor="middle"
               dominantBaseline="middle"
@@ -3239,9 +3424,9 @@ function Page19Placeholder({
             </text>
             <text
               x={centerX(PAGE19_STABLE_BOX)}
-              y={PAGE19_STABLE_BOX.y + 78}
+              y={centerY(PAGE19_STABLE_BOX) + 18}
               fill={TEXT}
-              fontSize="18"
+              fontSize="17"
               fontWeight="760"
               textAnchor="middle"
               dominantBaseline="middle"
@@ -3249,45 +3434,6 @@ function Page19Placeholder({
             >
               stable.upipelinecache
             </text>
-          </g>
-          <g data-geometry-node-id="ue-1" data-geometry-node-label="PSO 1">
-            <StageBox
-              box={PAGE19_UE_ROW_1}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              label="PSO 1"
-              labelSize={23}
-              labelWeight={760}
-              markGeometryBox
-              markGeometryText
-            />
-          </g>
-          <g data-geometry-node-id="ue-2" data-geometry-node-label="PSO 2">
-            <StageBox
-              box={PAGE19_UE_ROW_2}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              label="PSO 2"
-              labelSize={23}
-              labelWeight={760}
-              markGeometryBox
-              markGeometryText
-            />
-          </g>
-          <g data-geometry-node-id="ue-3" data-geometry-node-label="PSO ...">
-            <StageBox
-              box={PAGE19_UE_ROW_3}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              label="PSO ..."
-              labelSize={23}
-              labelWeight={760}
-              markGeometryBox
-              markGeometryText
-            />
           </g>
         </g>
 
@@ -3359,7 +3505,7 @@ function Page19Placeholder({
         </g>
 
         <g opacity={gfxOpacity}>
-          <g data-geometry-node-id="gfx-pso" data-geometry-node-label="GfxPSO">
+          <g data-geometry-node-id="gfx-pso" data-geometry-node-label="内存中GfxPSO">
             <StageBox
               box={PAGE19_API_BOX}
               fill={SOFT_FILL}
@@ -3369,7 +3515,7 @@ function Page19Placeholder({
             />
             <text
               x={centerX(PAGE19_API_BOX)}
-              y={PAGE19_API_BOX.y + 28}
+              y={centerY(PAGE19_API_BOX)}
               fill={TEXT}
               fontSize="30"
               fontWeight="800"
@@ -3377,65 +3523,8 @@ function Page19Placeholder({
               dominantBaseline="middle"
               data-geometry-node-text="1"
             >
-              GfxPSO
+              内存中GfxPSO
             </text>
-          </g>
-
-          <g data-geometry-node-id="api-gl" data-geometry-node-label="OpenGL Program Binary">
-            <StageBox
-              box={PAGE19_API_GL_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              markGeometryBox
-            />
-            <StackedLabel
-              x={centerX(PAGE19_API_GL_BOX)}
-              y={centerY(PAGE19_API_GL_BOX) + 1}
-              lines={["OpenGL", "Program Binary"]}
-              fontSize={22}
-              fontWeight={760}
-              lineGap={20}
-              markGeometryText
-            />
-          </g>
-
-          <g data-geometry-node-id="api-vk" data-geometry-node-label="Vulkan Pipeline Cache">
-            <StageBox
-              box={PAGE19_API_VK_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              markGeometryBox
-            />
-            <StackedLabel
-              x={centerX(PAGE19_API_VK_BOX)}
-              y={centerY(PAGE19_API_VK_BOX) + 1}
-              lines={["Vulkan", "Pipeline Cache"]}
-              fontSize={22}
-              fontWeight={760}
-              lineGap={20}
-              markGeometryText
-            />
-          </g>
-
-          <g data-geometry-node-id="api-metal" data-geometry-node-label="Metal Binary Archive 系统管理">
-            <StageBox
-              box={PAGE19_API_MT_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2.1}
-              markGeometryBox
-            />
-            <StackedLabel
-              x={centerX(PAGE19_API_MT_BOX)}
-              y={centerY(PAGE19_API_MT_BOX) + 1}
-              lines={["Metal", "Binary Archive", "系统管理"]}
-              fontSize={17}
-              fontWeight={760}
-              lineGap={15}
-              markGeometryText
-            />
           </g>
         </g>
 
@@ -3450,9 +3539,9 @@ function Page19Placeholder({
             />
             <text
               x={centerX(PAGE19_DISK_BOX)}
-              y={PAGE19_DISK_BOX.y + 28}
+              y={centerY(PAGE19_DISK_BOX)}
               fill={TEXT}
-              fontSize="28"
+              fontSize="31"
               fontWeight="780"
               textAnchor="middle"
               dominantBaseline="middle"
@@ -3460,55 +3549,6 @@ function Page19Placeholder({
             >
               硬盘中的 PSO
             </text>
-          </g>
-          <g data-geometry-node-id="disk-gl" data-geometry-node-label="Program Binary Cache">
-            <StageBox
-              box={PAGE19_DISK_GL_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2}
-              markGeometryBox
-            />
-            <StackedLabel
-              x={centerX(PAGE19_DISK_GL_BOX)}
-              y={centerY(PAGE19_DISK_GL_BOX) + 1}
-              lines={["Program Binary", "Cache"]}
-              fontSize={20}
-              fontWeight={760}
-              lineGap={18}
-              markGeometryText
-            />
-          </g>
-          <g data-geometry-node-id="disk-vk" data-geometry-node-label="VulkanPSO.cache">
-            <StageBox
-              box={PAGE19_DISK_VK_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2}
-              label="VulkanPSO.cache"
-              labelSize={19}
-              labelWeight={760}
-              markGeometryBox
-              markGeometryText
-            />
-          </g>
-          <g data-geometry-node-id="disk-metal" data-geometry-node-label="BinaryArchive functions.data">
-            <StageBox
-              box={PAGE19_DISK_MT_BOX}
-              fill={CARD_FILL}
-              stroke={NODE_STROKE}
-              strokeWidth={2}
-              markGeometryBox
-            />
-            <StackedLabel
-              x={centerX(PAGE19_DISK_MT_BOX)}
-              y={centerY(PAGE19_DISK_MT_BOX) + 1}
-              lines={["BinaryArchive", "functions.data"]}
-              fontSize={18}
-              fontWeight={760}
-              lineGap={16}
-              markGeometryText
-            />
           </g>
         </g>
 
@@ -3555,7 +3595,7 @@ function Page19Placeholder({
                 x={item.box.x + 18}
                 y={item.box.y + 20}
                 fill={index === 0 ? scene.apiStroke : "#22303d"}
-                fontSize={item.title.length > 22 ? "15.5" : "17"}
+                fontSize={index === 2 ? "15" : "17"}
                 fontWeight="820"
                 textAnchor="start"
                 dominantBaseline="middle"
@@ -3567,7 +3607,7 @@ function Page19Placeholder({
                 x={item.box.x + 18}
                 y={item.box.y + 43}
                 fill="rgba(34, 48, 61, 0.8)"
-                fontSize="14"
+                fontSize={index === 0 ? "13" : "12.5"}
                 fontWeight="700"
                 textAnchor="start"
                 dominantBaseline="middle"
@@ -3579,7 +3619,7 @@ function Page19Placeholder({
                 x={item.box.x + 18}
                 y={item.box.y + 61}
                 fill="rgba(34, 48, 61, 0.66)"
-                fontSize="13"
+                fontSize="12.5"
                 fontWeight="660"
                 textAnchor="start"
                 dominantBaseline="middle"
@@ -3680,51 +3720,13 @@ function Page19Placeholder({
           headSize={8}
         />
         <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_API_GL_BOX),
-            PAGE19_DISK_GL_BOX.x,
-            centerY(PAGE19_API_GL_BOX),
-          )}
+          d={horizontalPath(right(PAGE19_API_BOX), PAGE19_DISK_BOX.x, centerY(PAGE19_API_BOX))}
           stroke={scene.wireStroke}
           opacity={diskOpacity}
           headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
           dashArray="10 8"
-          tipX={PAGE19_DISK_GL_BOX.x}
-          tipY={centerY(PAGE19_API_GL_BOX)}
-          direction="right"
-          shaftWidth={2.4}
-          underlayWidth={4.4}
-          headSize={6.4}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_API_VK_BOX),
-            PAGE19_DISK_VK_BOX.x,
-            centerY(PAGE19_API_VK_BOX),
-          )}
-          stroke={scene.wireStroke}
-          opacity={diskOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
-          dashArray="10 8"
-          tipX={PAGE19_DISK_VK_BOX.x}
-          tipY={centerY(PAGE19_API_VK_BOX)}
-          direction="right"
-          shaftWidth={2.4}
-          underlayWidth={4.4}
-          headSize={6.4}
-        />
-        <StrokeArrow
-          d={horizontalPath(
-            right(PAGE19_API_MT_BOX),
-            PAGE19_DISK_MT_BOX.x,
-            centerY(PAGE19_API_MT_BOX),
-          )}
-          stroke={scene.wireStroke}
-          opacity={diskOpacity}
-          headOpacity={revealHeadOpacity(routeReveal, diskOpacity)}
-          dashArray="10 8"
-          tipX={PAGE19_DISK_MT_BOX.x}
-          tipY={centerY(PAGE19_API_MT_BOX)}
+          tipX={PAGE19_DISK_BOX.x}
+          tipY={centerY(PAGE19_API_BOX)}
           direction="right"
           shaftWidth={2.4}
           underlayWidth={4.4}
@@ -4573,71 +4575,300 @@ function Page22Placeholder({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftCard = {x: 88, y: 146, width: 600, height: 402, radius: 28};
-  const rightCard1 = {x: 712, y: 146, width: 424, height: 102, radius: 24};
-  const rightCard2 = {x: 712, y: 296, width: 424, height: 102, radius: 24};
-  const rightCard3 = {x: 712, y: 446, width: 424, height: 114, radius: 24};
+  const leftColumn = {x: 60, y: 138, width: 396, height: 434, radius: 30};
+  const factsColumn = {x: 480, y: 138, width: 320, height: 434, radius: 28};
+  const rightColumn = {x: 824, y: 138, width: 396, height: 434, radius: 30};
+  const rowStartY = leftColumn.y + 70;
+  const rowGap = 12;
+  const rowHeight = 62;
+  const factBadgeRadius = 18;
+  const factBadgeSpacing = 72;
+  const factGlowOuterRadius = factBadgeRadius + 12;
+  const factGlowInnerRadius = factBadgeRadius + 7;
+  const rowCenters = Array.from({length: 5}, (_, index) =>
+    rowStartY + rowHeight / 2 + index * (rowHeight + rowGap),
+  );
+  const rows = [
+    {
+      left: ["不打开 SharedShaderCode"],
+      facts: [6, 8],
+      right: ["PSO 收集了之后也没法应用到下一次；", "只有 Hash，根本没法反查 ShaderCode。"],
+    },
+    {
+      left: ["不做 PSO 预编译"],
+      facts: [5],
+      right: ["编译高峰原封不动甩给玩家。"],
+    },
+    {
+      left: ["直接分发构建机构建的二进制"],
+      facts: [12, 13],
+      right: ["构建机上能用，玩家机器上不一定能用。"],
+    },
+    {
+      left: ["cook 时一把梭算完"],
+      facts: [2, 9],
+      right: ["PSO 指数膨胀，数量直接起飞。"],
+    },
+    {
+      left: ["新包直接吃上一个版本的", ".rec.upipelinecache"],
+      facts: [10, 11],
+      right: ["新包里的 Hash，和旧包可能早就对不上了。"],
+    },
+  ] as const;
+  const separatorY = rowCenters
+    .slice(0, -1)
+    .map((center) => center + rowHeight / 2 + rowGap / 2 - 1);
+  const leftGapArrowX = (right(leftColumn) + factsColumn.x) / 2;
+  const rightGapArrowX = (right(factsColumn) + rightColumn.x) / 2;
+  const gapArrowTopY = rowCenters[0]! - 18;
+  const gapArrowBottomY = rowCenters[rowCenters.length - 1]! + 18;
+  const footerBox = {x: 204, y: 606, width: 872, height: 54, radius: 24};
+  const sampleBStripBox = {x: 426, y: 674, width: 428, height: 72, radius: 18};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
-        <LateLeadCard
-          scene={scene}
-          box={leftCard}
-          eyebrow="核心区分"
-          headline="PSO 是对象，PSO Cache 是方法。"
-          bodyLines={[
-            "它附属于 Shader，用启动时间 + 内存空间换运行时卡顿率。",
-            "没有 PSO Cache，项目也可能照样跑得很好。",
-            "所以它是手段，不是每个项目都必须上的答案。",
-          ]}
+        <g
           opacity={panelOpacity}
-          geometryNodeId="left-card"
-          accent
-          headlineFontSize={26}
-          bodyFontSize={17}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard1}
-          title="PSO：对象"
-          lines={["被创建、绑定、命中的运行时对象。"]}
+          data-geometry-node-id="left-column"
+          data-geometry-node-label="非要这么干？"
+        >
+          <g data-geometry-node-box="1">
+            <StageBox
+              box={leftColumn}
+              fill="rgba(255, 248, 240, 0.94)"
+              stroke={scene.apiStroke}
+              strokeWidth={2.5}
+            />
+          </g>
+          <text
+            x={centerX(leftColumn)}
+            y={leftColumn.y + 28}
+            fill={scene.apiStroke}
+            fontSize="24"
+            fontWeight="820"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            非要这么干？
+          </text>
+          {separatorY.map((y) => (
+            <line
+              key={`page22-left-separator-${y}`}
+              x1={leftColumn.x + 18}
+              y1={y}
+              x2={right(leftColumn) - 18}
+              y2={y}
+              stroke="rgba(92, 106, 118, 0.18)"
+              strokeWidth={1.2}
+            />
+          ))}
+          {rows.map((row, index) => (
+            <g key={`page22-left-row-${index}`}>
+              {row.left.map((line, lineIndex) => (
+                <text
+                  key={`${line}-${lineIndex}`}
+                  x={centerX(leftColumn)}
+                  y={
+                    row.left.length === 1
+                      ? rowCenters[index]
+                      : rowCenters[index] - 12 + lineIndex * 24
+                  }
+                  fill="#22303d"
+                  fontSize="18.5"
+                  fontWeight={lineIndex === 0 ? "820" : "760"}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  data-geometry-node-text="1"
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          ))}
+        </g>
+        <StrokeArrow
+          testId="page22-left-gap-arrow"
+          d={verticalPath(leftGapArrowX, gapArrowTopY, gapArrowBottomY)}
+          stroke="rgba(92, 106, 118, 0.62)"
           opacity={panelOpacity}
-          geometryNodeId="right-1"
-          compact
-          accent
-          bodyFontSize={17}
+          headOpacity={panelOpacity}
+          tipX={leftGapArrowX}
+          tipY={gapArrowBottomY}
+          direction="down"
+          shaftWidth={2.4}
+          underlayWidth={4.4}
+          headSize={6.8}
         />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard2}
-          title="PSO Cache：方法"
-          lines={["依赖 Shader Module 提供数据；", ".ushaderbytecode / .scl.csv 会参与。"]}
+        <g
           opacity={panelOpacity}
-          geometryNodeId="right-2"
-          compact
-          bodyFontSize={15.5}
-          lineGapOverride={20}
-        />
-        <LateInfoCard
-          scene={scene}
-          box={rightCard3}
-          title="代价 / 适用"
-          lines={[
-            "不是所有项目都需要它；",
-            "而且代价往往比想象中更大。",
-          ]}
+          data-geometry-node-id="facts-column"
+          data-geometry-node-label="事实链"
+        >
+          <g data-geometry-node-box="1">
+            <StageBox
+              box={factsColumn}
+              fill="rgba(255, 255, 255, 0.92)"
+              stroke="rgba(92, 106, 118, 0.34)"
+              strokeWidth={2.2}
+            />
+          </g>
+          <text
+            x={centerX(factsColumn)}
+            y={factsColumn.y + 28}
+            fill={scene.apiStroke}
+            fontSize="23"
+            fontWeight="820"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            事实
+          </text>
+          {separatorY.map((y) => (
+            <line
+              key={`page22-facts-separator-${y}`}
+              x1={factsColumn.x + 18}
+              y1={y}
+              x2={right(factsColumn) - 18}
+              y2={y}
+              stroke="rgba(92, 106, 118, 0.18)"
+              strokeWidth={1.2}
+            />
+          ))}
+          {rows.map((row, index) => (
+            <g key={`page22-fact-row-${index}`}>
+              {row.facts.map((factId, factIndex) => {
+                const badgeX =
+                  centerX(factsColumn) +
+                  (factIndex - (row.facts.length - 1) / 2) * factBadgeSpacing;
+                const badgeY = rowCenters[index];
+
+                return (
+                  <g key={`page22-fact-row-${index}-${factId}`}>
+                    <g
+                      opacity={panelOpacity}
+                      data-testid={`page22-fact-glow-row${index}-fact${factId}`}
+                    >
+                      <circle
+                        cx={badgeX}
+                        cy={badgeY}
+                        r={factGlowOuterRadius}
+                        fill="rgba(198, 111, 76, 0.10)"
+                      />
+                      <circle
+                        cx={badgeX}
+                        cy={badgeY}
+                        r={factGlowInnerRadius}
+                        fill="rgba(198, 111, 76, 0.18)"
+                      />
+                    </g>
+                    <CalloutBadge
+                      x={badgeX}
+                      y={badgeY}
+                      label={String(factId)}
+                      stroke={scene.apiStroke}
+                      fill="rgba(255, 248, 240, 0.98)"
+                      radius={factBadgeRadius}
+                      opacity={panelOpacity}
+                      testId={`page22-fact-badge-row${index}-fact${factId}`}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          ))}
+        </g>
+        <StrokeArrow
+          testId="page22-right-gap-arrow"
+          d={verticalPath(rightGapArrowX, gapArrowTopY, gapArrowBottomY)}
+          stroke="rgba(92, 106, 118, 0.62)"
           opacity={panelOpacity}
-          geometryNodeId="right-3"
-          compact
-          bodyFontSize={16.5}
-          lineGapOverride={21}
+          headOpacity={panelOpacity}
+          tipX={rightGapArrowX}
+          tipY={gapArrowBottomY}
+          direction="down"
+          shaftWidth={2.4}
+          underlayWidth={4.4}
+          headSize={6.8}
         />
+        <g
+          opacity={panelOpacity}
+          data-geometry-node-id="right-column"
+          data-geometry-node-label="那就会这样"
+        >
+          <g data-geometry-node-box="1">
+            <StageBox
+              box={rightColumn}
+              fill="rgba(249, 247, 244, 0.94)"
+              stroke="rgba(92, 106, 118, 0.32)"
+              strokeWidth={2.1}
+            />
+          </g>
+          <text
+            x={centerX(rightColumn)}
+            y={rightColumn.y + 28}
+            fill={scene.apiStroke}
+            fontSize="24"
+            fontWeight="820"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            那就会这样
+          </text>
+          {separatorY.map((y) => (
+            <line
+              key={`page22-right-separator-${y}`}
+              x1={rightColumn.x + 18}
+              y1={y}
+              x2={right(rightColumn) - 18}
+              y2={y}
+              stroke="rgba(92, 106, 118, 0.18)"
+              strokeWidth={1.2}
+            />
+          ))}
+          {rows.map((row, index) => (
+            <g key={`page22-right-row-${index}`}>
+              {row.right.map((line, lineIndex) => (
+                <text
+                  key={`${line}-${lineIndex}`}
+                  x={centerX(rightColumn)}
+                  y={
+                    row.right.length === 1
+                      ? rowCenters[index]
+                      : rowCenters[index] - 12 + lineIndex * 24
+                  }
+                  fill="#22303d"
+                  fontSize="17.5"
+                  fontWeight={lineIndex === 0 ? "790" : "720"}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  data-geometry-node-text="1"
+                >
+                  {line}
+                </text>
+              ))}
+            </g>
+          ))}
+        </g>
         <LateFooterBar
           scene={scene}
           opacity={panelOpacity}
           geometryNodeId="footer"
           text="PSO 的成本不会消失，只会转移。"
+          box={footerBox}
+        />
+        <LateBareImage
+          scene={scene}
+          box={sampleBStripBox}
+          href="/supplement/ogl-mtl/ios-compile-count.png"
+          clipId="page22-sample-b-strip"
+          opacity={panelOpacity}
+          geometryNodeId="sample-b-strip"
+          geometryNodeLabel="SampleBStrip"
+          preserveAspectRatio="xMidYMid meet"
         />
       </g>
     </PlaceholderBoardShell>
@@ -6362,6 +6593,430 @@ function EndingLinkItem({
   );
 }
 
+function Page29DataPlatformCard({
+  scene,
+  box,
+  title,
+  focusNote,
+  headerLabels,
+  rows,
+  opacity,
+  geometryNodeId,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  title: string;
+  focusNote: string;
+  headerLabels: readonly [string, string, string, string];
+  rows: ReadonlyArray<{
+    id: string;
+    loop: string;
+    values: readonly [string, string, string];
+  }>;
+  opacity: number;
+  geometryNodeId: string;
+}) {
+  const headerHeight = 30;
+  const rowHeight = 56;
+  const tableInset = 16;
+  const tableX = box.x;
+  const tableWidth = box.width;
+  const contentX = tableX + tableInset;
+  const contentWidth = tableWidth - tableInset * 2;
+  const loopWidth = 112;
+  const valueWidth = (contentWidth - loopWidth) / 3;
+  const tableY = box.y + 88;
+  const tableHeight = headerHeight + rowHeight * rows.length;
+  const borderStroke = "rgba(92, 106, 118, 0.24)";
+  const dividerStroke = "rgba(92, 106, 118, 0.16)";
+  const isPcCard = geometryNodeId === "pc-card";
+
+  return (
+    <g
+      opacity={opacity}
+      data-geometry-node-id={geometryNodeId}
+      data-geometry-node-label={title}
+    >
+      <g data-geometry-node-box="1">
+        <StageBox
+          box={box}
+          fill="rgba(255, 252, 247, 0.94)"
+          stroke="rgba(92, 106, 118, 0.38)"
+          strokeWidth={2}
+        />
+      </g>
+      <text
+        x={box.x + 18}
+        y={box.y + 28}
+        fill={scene.apiStroke}
+        fontSize="23"
+        fontWeight="820"
+        textAnchor="start"
+        dominantBaseline="middle"
+        data-geometry-node-text="1"
+      >
+        {title}
+      </text>
+      <text
+        x={box.x + 18}
+        y={box.y + 58}
+        fill={scene.apiStroke}
+        fontSize="13.6"
+        fontWeight="760"
+        textAnchor="start"
+        dominantBaseline="middle"
+        data-geometry-node-text="1"
+      >
+        {focusNote}
+      </text>
+      <line
+        x1={tableX}
+        y1={tableY}
+        x2={tableX + tableWidth}
+        y2={tableY}
+        stroke={borderStroke}
+        strokeWidth="1.2"
+      />
+      {[headerHeight, headerHeight + rowHeight].map((offset) => (
+        <line
+          key={`${geometryNodeId}-h-${offset}`}
+          x1={tableX}
+          y1={tableY + offset}
+          x2={tableX + tableWidth}
+          y2={tableY + offset}
+          stroke={dividerStroke}
+          strokeWidth="1"
+        />
+      ))}
+      <line
+        x1={contentX + loopWidth}
+        y1={tableY}
+        x2={contentX + loopWidth}
+        y2={tableY + tableHeight}
+        stroke={dividerStroke}
+        strokeWidth="1"
+      />
+      {headerLabels.map((label, index) => {
+        const cellLeft = contentX + (index === 0 ? 0 : loopWidth + valueWidth * (index - 1));
+        const cellWidth = index === 0 ? loopWidth : valueWidth;
+
+        return (
+          <text
+            key={`${title}-${label}`}
+            x={cellLeft + cellWidth / 2}
+            y={tableY + headerHeight / 2 + 1}
+            fill={index === 0 ? "rgba(34, 48, 61, 0.7)" : "rgba(34, 48, 61, 0.72)"}
+            fontSize="15"
+            fontWeight="760"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {label}
+          </text>
+        );
+      })}
+      {rows.map((row, rowIndex) => {
+        const rowTop = tableY + headerHeight + rowIndex * rowHeight;
+        const isPeakRow = rowIndex === rows.length - 1;
+
+        return (
+          <g
+            key={row.id}
+            data-geometry-node-id={row.id}
+            data-geometry-node-label={row.loop}
+          >
+            <g data-geometry-node-box="1">
+              <rect
+                x={tableX}
+                y={rowTop}
+                width={tableWidth}
+                height={rowHeight}
+                rx="0"
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <text
+              x={contentX + loopWidth / 2}
+              y={rowTop + rowHeight / 2 + 1}
+              fill={isPeakRow ? scene.apiStroke : "#22303d"}
+              fontSize="17"
+              fontWeight="800"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              {row.loop}
+            </text>
+            {row.values.map((value, valueIndex) => {
+              const cellX = contentX + loopWidth + valueWidth * valueIndex;
+              const isStableFocusCell = isPcCard && valueIndex === 0;
+              const isPcContrastCell = isPcCard && isPeakRow && valueIndex > 0;
+              const isAndroidPeakCell = !isPcCard && isPeakRow;
+              const cellTextColor =
+                isStableFocusCell || isPcContrastCell || isAndroidPeakCell ? scene.apiStroke : "#22303d";
+              const cellWeight = isStableFocusCell ? "830" : isPcContrastCell || isAndroidPeakCell ? "800" : "740";
+
+              return (
+                <g key={`${row.id}-${value}`}>
+                  <text
+                    x={cellX + valueWidth / 2}
+                    y={rowTop + rowHeight / 2 + 1}
+                    fill={cellTextColor}
+                    fontSize="18"
+                    fontWeight={cellWeight}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    data-geometry-node-text="1"
+                  >
+                    {value}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function Page29DataShaderCard({
+  scene,
+  box,
+  opacity,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  opacity: number;
+}) {
+  const codeGap = 32;
+  const columnWidth = (box.width - codeGap) / 2;
+  const vertexBox = {x: box.x, y: box.y, width: columnWidth, height: box.height, radius: 20};
+  const fragmentBox = {
+    x: box.x + columnWidth + codeGap,
+    y: box.y,
+    width: columnWidth,
+    height: box.height,
+    radius: 20,
+  };
+
+  return (
+    <g
+      opacity={opacity}
+      data-geometry-node-id="shader-card"
+      data-geometry-node-label="测试 Shader"
+    >
+      <g data-geometry-node-box="1">
+        <rect
+          x={box.x}
+          y={box.y}
+          width={box.width}
+          height={box.height}
+          rx={box.radius}
+          fill="transparent"
+          stroke="none"
+        />
+      </g>
+      <g data-geometry-node-id="vertex-code" data-geometry-node-label="Vertex Shader">
+        <g data-geometry-node-box="1">
+          <StageBox
+            box={vertexBox}
+            fill="rgba(249, 247, 244, 0.96)"
+            stroke="rgba(92, 106, 118, 0.24)"
+            strokeWidth={1.6}
+          />
+        </g>
+        <text
+          x={vertexBox.x + 16}
+          y={vertexBox.y + 16}
+          fill={scene.apiStroke}
+          fontSize="17"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          Vertex Shader
+        </text>
+        {PAGE29_DATA_VERTEX_SHADER_LINES.map((line, index) => (
+          <text
+            key={`page29-vertex-${index}`}
+            x={vertexBox.x + 16}
+            y={vertexBox.y + 38 + index * 13.4}
+            fill="#22303d"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="11.7"
+            fontWeight={index < 4 ? "760" : "650"}
+            textAnchor="start"
+            dominantBaseline="middle"
+            xmlSpace="preserve"
+            data-geometry-node-text="1"
+          >
+            {renderPage29ShaderLine(line, "#22303d")}
+          </text>
+        ))}
+      </g>
+      <g data-geometry-node-id="fragment-code" data-geometry-node-label="Fragment Shader">
+        <g data-geometry-node-box="1">
+          <StageBox
+            box={fragmentBox}
+            fill="rgba(255, 249, 243, 0.94)"
+            stroke="rgba(92, 106, 118, 0.22)"
+            strokeWidth={1.6}
+          />
+        </g>
+        <text
+          x={fragmentBox.x + 16}
+          y={fragmentBox.y + 16}
+          fill={scene.apiStroke}
+          fontSize="17"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          Fragment Shader
+        </text>
+        {PAGE29_DATA_FRAGMENT_SHADER_LINES.map((line, index) => (
+          <text
+            key={`page29-fragment-${index}`}
+            x={fragmentBox.x + 14}
+            y={fragmentBox.y + 38 + index * 13.4}
+            fill="rgba(34, 48, 61, 0.8)"
+            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+            fontSize="12"
+            fontWeight={index < 3 ? "760" : "670"}
+            textAnchor="start"
+            dominantBaseline="middle"
+            xmlSpace="preserve"
+            data-geometry-node-text="1"
+          >
+            {renderPage29ShaderLine(line, "rgba(34, 48, 61, 0.8)")}
+          </text>
+        ))}
+      </g>
+    </g>
+  );
+}
+
+function Page29DataStateCard({
+  scene,
+  box,
+  opacity,
+}: {
+  scene: SceneModel;
+  box: {x: number; y: number; width: number; height: number; radius: number};
+  opacity: number;
+}) {
+  const columnGap = 32;
+  const columnWidth = (box.width - columnGap) / 2;
+  const vulkanRow = {x: box.x, y: box.y, width: columnWidth, height: box.height, radius: 18};
+  const glRow = {
+    x: box.x + columnWidth + columnGap,
+    y: box.y,
+    width: columnWidth,
+    height: box.height,
+    radius: 18,
+  };
+
+  return (
+    <g
+      opacity={opacity}
+      data-geometry-node-id="state-card"
+      data-geometry-node-label="State 开关"
+    >
+      <g data-geometry-node-box="1">
+        <rect
+          x={box.x}
+          y={box.y}
+          width={box.width}
+          height={box.height}
+          rx={box.radius}
+          fill="transparent"
+          stroke="none"
+        />
+      </g>
+      <g
+        data-geometry-node-id="state-vk"
+        data-geometry-node-label="Vulkan PSO: build-time Shader visibility"
+      >
+        <g data-geometry-node-box="1">
+          <StageBox
+            box={vulkanRow}
+            fill="rgba(255, 249, 242, 0.94)"
+            stroke={scene.apiStroke}
+            strokeWidth={1.6}
+          />
+        </g>
+        <text
+          x={vulkanRow.x + 14}
+          y={vulkanRow.y + 23}
+          fill={scene.apiStroke}
+          fontSize="13.4"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          Vulkan PSO：构建时Shader对此已知
+        </text>
+        <text
+          x={vulkanRow.x + 14}
+          y={vulkanRow.y + 51}
+          fill="#22303d"
+          fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+          fontSize="14"
+          fontWeight="700"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          blendAtt.colorWriteMask = 0;
+        </text>
+      </g>
+      <g
+        data-geometry-node-id="state-gl"
+        data-geometry-node-label="OpenGL GLES runtime: build-time Shader blind"
+      >
+        <g data-geometry-node-box="1">
+          <StageBox
+            box={glRow}
+            fill="rgba(249, 247, 244, 0.96)"
+            stroke="rgba(92, 106, 118, 0.24)"
+            strokeWidth={1.6}
+          />
+        </g>
+        <text
+          x={glRow.x + 14}
+          y={glRow.y + 23}
+          fill={scene.apiStroke}
+          fontSize="12.9"
+          fontWeight="820"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          OpenGL / GLES runtime：构建时Shader对此无感知
+        </text>
+        <text
+          x={glRow.x + 14}
+          y={glRow.y + 51}
+          fill="#22303d"
+          fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
+          fontSize="13.2"
+          fontWeight="700"
+          textAnchor="start"
+          dominantBaseline="middle"
+          data-geometry-node-text="1"
+        >
+          glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        </text>
+      </g>
+    </g>
+  );
+}
+
 function Page28GovernanceSurfacePage({
   scene,
   opacity,
@@ -6701,6 +7356,60 @@ function Page29GovernanceSourcePage({
   );
 }
 
+function Page29DriverOptimizationPage({
+  scene,
+  opacity,
+  entryProgress,
+}: {
+  scene: SceneModel;
+  opacity: number;
+  entryProgress: number;
+}) {
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
+  const panelOpacity = opacity * reveal;
+  const shaderCard = {x: 72, y: 56, width: 1136, height: 178, radius: 28};
+  const stateCard = {x: 72, y: 250, width: 1136, height: 78, radius: 28};
+  const pcCard = {x: 72, y: 356, width: 552, height: 270, radius: 28};
+  const androidCard = {x: 656, y: 356, width: 552, height: 270, radius: 28};
+  const footerBox = {x: 72, y: 644, width: 1136, height: 36, radius: 18};
+
+  return (
+    <PlaceholderBoardShell opacity={panelOpacity}>
+      <g>
+        <Page29DataShaderCard scene={scene} box={shaderCard} opacity={panelOpacity} />
+        <Page29DataStateCard scene={scene} box={stateCard} opacity={panelOpacity} />
+        <Page29DataPlatformCard
+          scene={scene}
+          box={pcCard}
+          title="PC（RTX 3080）"
+          focusNote="重点：VK off = 0.0653 ms -> 0.0645 ms"
+          headerLabels={["loop", "VK off", "VK on", "GL 0"]}
+          rows={PAGE29_DATA_PC_ROWS}
+          opacity={panelOpacity}
+          geometryNodeId="pc-card"
+        />
+        <Page29DataPlatformCard
+          scene={scene}
+          box={androidCard}
+          title="Android（Adreno）"
+          focusNote="重点：loop=5000 时三列都已经贴近 400 ms"
+          headerLabels={["loop", "VK off", "VK on", "GLES 0"]}
+          rows={PAGE29_DATA_ANDROID_ROWS}
+          opacity={panelOpacity}
+          geometryNodeId="android-card"
+        />
+        <LateFooterBar
+          scene={scene}
+          opacity={panelOpacity}
+          geometryNodeId="footer-note"
+          text="同一份 heavy shader 下，NV 的 Vulkan mask=0 几乎不随 loop 波动；移动端驱动并没有兑现同级别的编译期优化。"
+          box={footerBox}
+        />
+      </g>
+    </PlaceholderBoardShell>
+  );
+}
+
 function Page30PsoReadingPage({
   scene,
   opacity,
@@ -6790,363 +7499,255 @@ function Page31HarnessPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const loopCard = {x: 84, y: 138, width: 644, height: 418, radius: 30};
-  const helperCard = {x: 752, y: 138, width: 378, height: 418, radius: 30};
-  const loopNodes = [
+  const ringOpacity = opacity * resolveWindowProgress(entryProgress, 0.08, 0.76, easeOutQuint);
+  const helperOpacity = opacity * resolveWindowProgress(entryProgress, 0.18, 0.88, easeOutQuint);
+  const ringCenter = {x: centerX(PLACEHOLDER_BOARD), y: 340};
+  const outerRingRadius = 190;
+  const innerRingRadius = 164;
+  const hookBox = {x: 526, y: 166, width: 228, height: 74, radius: 24};
+  const dataBox = {x: 844, y: 292, width: 212, height: 86, radius: 24};
+  const imageBox = {x: 522, y: 452, width: 236, height: 86, radius: 24};
+  const receiptBox = {x: 224, y: 292, width: 220, height: 86, radius: 24};
+  const sourceTokens = [
     {
-      id: "agent-node",
-      label: "Agent 修改页面",
-      lines: ["Agent 修改", "页面"],
-      box: {x: 104, y: 224, width: 176, height: 72, radius: 22},
+      id: "source-1",
+      label: LIVE_HARNESS_SOURCE_TOKENS[0],
+      box: {x: 520, y: 112, width: 236, height: 42, radius: 18},
       accent: true,
-      fontSize: 20,
     },
     {
-      id: "edge-node",
-      label: "前台 Edge 真实取数",
-      lines: ["前台 Edge", "真实取数"],
-      box: {x: 320, y: 224, width: 176, height: 72, radius: 22},
+      id: "source-2",
+      label: LIVE_HARNESS_SOURCE_TOKENS[1],
+      box: {x: 906, y: 228, width: 180, height: 42, radius: 18},
       accent: false,
-      fontSize: 19,
     },
     {
-      id: "artifact-node",
-      label: "geometryReviewArtifact",
-      lines: ["geometryReview", "Artifact"],
-      box: {x: 536, y: 224, width: 176, height: 72, radius: 22},
+      id: "source-3",
+      label: LIVE_HARNESS_SOURCE_TOKENS[2],
+      box: {x: 480, y: 560, width: 320, height: 42, radius: 18},
       accent: false,
-      fontSize: 18,
     },
     {
-      id: "metrics-node",
-      label: "geometryMetrics",
-      lines: ["geometry", "Metrics"],
-      box: {x: 536, y: 432, width: 176, height: 72, radius: 22},
+      id: "source-4",
+      label: LIVE_HARNESS_SOURCE_TOKENS[3],
+      box: {x: 146, y: 228, width: 194, height: 42, radius: 18},
       accent: false,
-      fontSize: 18.5,
-    },
-    {
-      id: "policy-node",
-      label: "geometryScorePolicy",
-      lines: ["geometryScore", "Policy"],
-      box: {x: 320, y: 432, width: 176, height: 72, radius: 22},
-      accent: false,
-      fontSize: 18,
-    },
-    {
-      id: "feedback-node",
-      label: "回写下一轮修改",
-      lines: ["回写建议", "下一轮修改"],
-      box: {x: 104, y: 432, width: 176, height: 72, radius: 22},
-      accent: true,
-      fontSize: 19,
     },
   ] as const;
-  const loopNodeById = new Map(loopNodes.map((entry) => [entry.id, entry]));
-  const agentNode = loopNodeById.get("agent-node")!;
-  const edgeNode = loopNodeById.get("edge-node")!;
-  const artifactNode = loopNodeById.get("artifact-node")!;
-  const metricsNode = loopNodeById.get("metrics-node")!;
-  const policyNode = loopNodeById.get("policy-node")!;
-  const feedbackNode = loopNodeById.get("feedback-node")!;
+  const decisionTokens = [
+    {
+      id: "decision-1",
+      label: LIVE_HARNESS_DECISION_TOKENS[0],
+      box: {x: 126, y: 394, width: 196, height: 44, radius: 18},
+    },
+    {
+      id: "decision-2",
+      label: LIVE_HARNESS_DECISION_TOKENS[1],
+      box: {x: 126, y: 446, width: 196, height: 44, radius: 18},
+    },
+  ] as const;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
       <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
-        <g
-          data-geometry-node-id="loop-card"
-          data-geometry-node-label="Harness Loop"
-        >
-          <StageBox
-            box={loopCard}
-            fill="rgba(255, 255, 255, 0.92)"
-            stroke="rgba(92, 106, 118, 0.4)"
-            strokeWidth={2.1}
-            markGeometryBox
+        <g opacity={ringOpacity * 0.96}>
+          <circle
+            cx={ringCenter.x}
+            cy={ringCenter.y}
+            r={outerRingRadius}
+            fill="rgba(255, 255, 255, 0.88)"
+            stroke="rgba(92, 106, 118, 0.2)"
+            strokeWidth="2.4"
           />
+          <circle
+            cx={ringCenter.x}
+            cy={ringCenter.y}
+            r={innerRingRadius}
+            fill="none"
+            stroke="rgba(92, 106, 118, 0.16)"
+            strokeWidth="44"
+          />
+          <circle
+            cx={ringCenter.x}
+            cy={ringCenter.y}
+            r={innerRingRadius}
+            fill="none"
+            stroke="rgba(214, 102, 48, 0.18)"
+            strokeWidth="12"
+          />
+        </g>
+        <g opacity={ringOpacity}>
           <text
-            x={loopCard.x + 22}
-            y={loopCard.y + 26}
+            x={ringCenter.x}
+            y={296}
             fill={scene.apiStroke}
-            fontSize="21"
-            fontWeight="820"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            完整回环
-          </text>
-          <text
-            x={loopCard.x + 22}
-            y={loopCard.y + 56}
-            fill="rgba(34, 48, 61, 0.68)"
-            fontSize="16.5"
-            fontWeight="700"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            {"Agent 改完后，自动走“真实取数 -> 计算 -> 回写”这一圈"}
-          </text>
-          {loopNodes.map(({id, label, lines, box, accent, fontSize}) => (
-            <g
-              key={id}
-              data-geometry-node-id={id}
-              data-geometry-node-label={label}
-            >
-              <StageBox
-                box={box}
-                fill={accent ? "rgba(248, 236, 226, 0.96)" : "rgba(249, 247, 244, 0.94)"}
-                stroke={accent ? scene.apiStroke : "rgba(92, 106, 118, 0.42)"}
-                strokeWidth={accent ? 2.4 : 2}
-                markGeometryBox
-              />
-              <StackedLabel
-                x={centerX(box)}
-                y={centerY(box)}
-                lines={[...lines]}
-                fontSize={fontSize}
-                fontWeight={770}
-                lineGap={20}
-                fill={accent ? scene.apiStroke : "#22303d"}
-                markGeometryText
-              />
-            </g>
-          ))}
-          <StrokeArrow
-            d={horizontalPath(right(agentNode.box) + 8, edgeNode.box.x - 8, centerY(agentNode.box))}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={edgeNode.box.x - 8}
-            tipY={centerY(agentNode.box)}
-            direction="right"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <StrokeArrow
-            d={horizontalPath(right(edgeNode.box) + 8, artifactNode.box.x - 8, centerY(edgeNode.box))}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={artifactNode.box.x - 8}
-            tipY={centerY(edgeNode.box)}
-            direction="right"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <StrokeArrow
-            d={verticalPath(centerX(artifactNode.box), bottom(artifactNode.box) + 6, metricsNode.box.y - 8)}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={centerX(artifactNode.box)}
-            tipY={metricsNode.box.y - 8}
-            direction="down"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <StrokeArrow
-            d={horizontalPath(metricsNode.box.x - 8, right(policyNode.box) + 8, centerY(metricsNode.box))}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={right(policyNode.box) + 8}
-            tipY={centerY(metricsNode.box)}
-            direction="left"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <StrokeArrow
-            d={horizontalPath(policyNode.box.x - 8, right(feedbackNode.box) + 8, centerY(policyNode.box))}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={right(feedbackNode.box) + 8}
-            tipY={centerY(policyNode.box)}
-            direction="left"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <StrokeArrow
-            d={verticalPath(centerX(feedbackNode.box), feedbackNode.box.y - 8, bottom(agentNode.box) + 6)}
-            stroke={scene.apiStroke}
-            opacity={panelOpacity}
-            tipX={centerX(feedbackNode.box)}
-            tipY={bottom(agentNode.box) + 6}
-            direction="up"
-            shaftWidth={2.6}
-            underlayWidth={5}
-            headSize={7.2}
-          />
-          <text
-            x={centerX(loopCard)}
-            y={loopCard.y + 352}
-            fill="rgba(34, 48, 61, 0.72)"
-            fontSize="17"
-            fontWeight="700"
+            fontSize="16"
+            fontWeight="800"
             textAnchor="middle"
             dominantBaseline="middle"
-            data-geometry-node-text="1"
+            letterSpacing="0.12em"
           >
-            先拿真实浏览器结果，再把事实压成 metrics / policy，最后回写下一轮修改。
+            LIVE HARNESS
           </text>
-        </g>
-        <g
-          data-geometry-node-id="helper-card"
-          data-geometry-node-label="Hook And Gates"
-        >
-          <StageBox
-            box={helperCard}
-            fill="rgba(255, 255, 255, 0.92)"
-            stroke="rgba(92, 106, 118, 0.4)"
-            strokeWidth={2.1}
-            markGeometryBox
-          />
           <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 24}
-            fill={scene.apiStroke}
-            fontSize="20"
+            x={ringCenter.x}
+            y={332}
+            fill="#22303d"
+            fontSize="31"
             fontWeight="820"
-            textAnchor="start"
+            textAnchor="middle"
             dominantBaseline="middle"
-            data-geometry-node-text="1"
           >
-            Hook / 真实取数
+            先看真实结果
           </text>
           <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 64}
-            fill="rgba(34, 48, 61, 0.56)"
-            fontSize="15.5"
+            x={ringCenter.x}
+            y={372}
+            fill="rgba(34, 48, 61, 0.72)"
+            fontSize="24"
             fontWeight="760"
-            textAnchor="start"
+            textAnchor="middle"
             dominantBaseline="middle"
-            data-geometry-node-text="1"
           >
-            触发入口
-          </text>
-          {HARNESS_TRIGGER_TOKENS.map((label, index) => {
-            const box = {
-              x: helperCard.x + 22 + (index % 2) * 172,
-              y: helperCard.y + 92 + Math.floor(index / 2) * 56,
-              width: index % 2 === 0 ? 156 : 164,
-              height: 42,
-              radius: 18,
-            };
-
-            return (
-              <MicroToken
-                key={label}
-                scene={scene}
-                box={box}
-                label={label}
-                opacity={panelOpacity}
-                geometryNodeId={`trigger-${index + 1}`}
-                fontSize={label.length > 14 ? 14.5 : 15.2}
-                accent={index === 0}
-              />
-            );
-          })}
-          <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 224}
-            fill="#22303d"
-            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-            fontSize="15.5"
-            fontWeight="680"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            UserPromptSubmit / Stop 进 hook
-          </text>
-          <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 248}
-            fill="#22303d"
-            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-            fontSize="15.5"
-            fontWeight="680"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            workflow_gate.py 分流后再跑 review
-          </text>
-          <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 288}
-            fill="rgba(34, 48, 61, 0.56)"
-            fontSize="15.5"
-            fontWeight="760"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            数学门槛
-          </text>
-          {HARNESS_GATES.map((label, index) => {
-            const box = {
-              x: helperCard.x + 22 + (index % 2) * 172,
-              y: helperCard.y + 314 + Math.floor(index / 2) * 56,
-              width: index % 2 === 0 ? 156 : 164,
-              height: 42,
-              radius: 18,
-            };
-
-            return (
-              <MicroToken
-                key={label}
-                scene={scene}
-                box={box}
-                label={label}
-                opacity={panelOpacity}
-                geometryNodeId={`gate-${index + 1}`}
-                fontSize={15.5}
-                accent={index === 0}
-              />
-            );
-          })}
-          <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 430}
-            fill="#22303d"
-            fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
-            fontSize="15"
-            fontWeight="680"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            real render -&gt; facts -&gt; metrics -&gt; policy
-          </text>
-          <text
-            x={helperCard.x + 18}
-            y={helperCard.y + 456}
-            fill="rgba(34, 48, 61, 0.74)"
-            fontSize="15.5"
-            fontWeight="680"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            这页讲的是仓库里的真实自动回环，不是概念示意图。
+            再决定停或继续
           </text>
         </g>
-        <LateFooterBar
+        <ArtifactNode
+          box={hookBox}
           scene={scene}
-          opacity={panelOpacity}
-          geometryNodeId="footer"
-          text="Agent 改完后，hook 会带着真实 Edge 数据和几何门槛把结果再送回下一轮修改。"
+          opacity={ringOpacity}
+          label="Hook"
+          subLabel="进入"
+          emphasized
+          labelFontSize={27}
+          subLabelFontSize={19}
+          geometryNodeId="hook-node"
+          geometryNodeLabel="Hook 进入"
+        />
+        <ArtifactNode
+          box={dataBox}
+          scene={scene}
+          opacity={ringOpacity}
+          label="网页数据评分"
+          emphasized={false}
+          labelFontSize={24}
+          geometryNodeId="data-node"
+          geometryNodeLabel="网页数据评分"
+        />
+        <ArtifactNode
+          box={imageBox}
+          scene={scene}
+          opacity={ringOpacity}
+          label="网页图片评分"
+          emphasized={false}
+          labelFontSize={24}
+          geometryNodeId="image-node"
+          geometryNodeLabel="网页图片评分"
+        />
+        <ArtifactNode
+          box={receiptBox}
+          scene={scene}
+          opacity={ringOpacity}
+          label="回执循环"
+          emphasized
+          labelFontSize={28}
+          geometryNodeId="receipt-node"
+          geometryNodeLabel="回执循环"
+        />
+        {sourceTokens.map(({id, label, box, accent}) => (
+          <MicroToken
+            key={id}
+            scene={scene}
+            box={box}
+            label={label}
+            opacity={helperOpacity}
+            geometryNodeId={id}
+            fontSize={label === "browser capture" ? 14.4 : 14.8}
+            accent={accent}
+          />
+        ))}
+        {decisionTokens.map(({id, label, box}) => (
+          <MicroToken
+            key={id}
+            scene={scene}
+            box={box}
+            label={label}
+            opacity={helperOpacity}
+            geometryNodeId={id}
+            fontSize={15}
+            accent
+          />
+        ))}
+        <StrokeArrow
+          d={quadraticCurvePath(
+            {x: right(hookBox) - 6, y: centerY(hookBox)},
+            {x: 854, y: 188},
+            {x: centerX(dataBox), y: dataBox.y - 10},
+          )}
+          stroke={scene.apiStroke}
+          opacity={ringOpacity * 0.96}
+          headOpacity={revealHeadOpacity(reveal, ringOpacity * 0.96)}
+          tipX={centerX(dataBox)}
+          tipY={dataBox.y - 10}
+          direction="down"
+          shaftWidth={3.2}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={quadraticCurvePath(
+            {x: centerX(dataBox), y: bottom(dataBox) + 10},
+            {x: 958, y: 486},
+            {x: right(imageBox) + 10, y: centerY(imageBox)},
+          )}
+          stroke={scene.apiStroke}
+          opacity={ringOpacity * 0.96}
+          headOpacity={revealHeadOpacity(reveal, ringOpacity * 0.96)}
+          tipX={right(imageBox) + 10}
+          tipY={centerY(imageBox)}
+          direction="left"
+          shaftWidth={3.2}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={quadraticCurvePath(
+            {x: imageBox.x - 10, y: centerY(imageBox)},
+            {x: 386, y: 516},
+            {x: centerX(receiptBox), y: bottom(receiptBox) + 10},
+          )}
+          stroke={scene.apiStroke}
+          opacity={ringOpacity * 0.96}
+          headOpacity={revealHeadOpacity(reveal, ringOpacity * 0.96)}
+          tipX={centerX(receiptBox)}
+          tipY={bottom(receiptBox) + 10}
+          direction="up"
+          shaftWidth={3.2}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={quadraticCurvePath(
+            {x: centerX(receiptBox), y: receiptBox.y - 10},
+            {x: 332, y: 182},
+            {x: hookBox.x - 10, y: centerY(hookBox)},
+          )}
+          stroke={scene.apiStroke}
+          opacity={ringOpacity * 0.96}
+          headOpacity={revealHeadOpacity(reveal, ringOpacity * 0.96)}
+          tipX={hookBox.x - 10}
+          tipY={centerY(hookBox)}
+          direction="right"
+          shaftWidth={3.2}
+          underlayWidth={6}
+          headSize={8.5}
         />
       </g>
     </PlaceholderBoardShell>
   );
 }
 
-function Page32ReadingPage({
+function Page32FeedbackBridgePage({
   scene,
   opacity,
   entryProgress,
@@ -7157,123 +7758,279 @@ function Page32ReadingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const cultureCard = {x: 84, y: 136, width: 1048, height: 332, radius: 30};
-  const leftColumnX = cultureCard.x + 42;
-  const rightColumnX = cultureCard.x + 574;
-  const upperRowY = cultureCard.y + 112;
-  const lowerRowY = cultureCard.y + 224;
-  const gameCard = {x: 84, y: 502, width: 1048, height: 128, radius: 24};
+  const titleOpacity = opacity * resolveWindowProgress(entryProgress, 0.08, 0.38, easeOutQuint);
+  const conceptOpacity = opacity * resolveWindowProgress(entryProgress, 0.14, 0.72, easeOutQuint);
+  const modelOpacity = opacity * resolveWindowProgress(entryProgress, 0.22, 0.84, easeOutQuint);
+  const footerOpacity = opacity * resolveWindowProgress(entryProgress, 0.54, 0.92, easeOutQuint);
+  const center = centerX(PLACEHOLDER_BOARD);
+  const titleBox = {x: 338, y: 112, width: 604, height: 52};
+  const conceptBaseY = 174;
+  const conceptGap = 72;
+  const conceptCards = PAGE32_ABSTRACTION_PILLS.map((entry, index) => ({
+    ...entry,
+    box: {
+      x: center - entry.width / 2,
+      y: conceptBaseY + index * conceptGap,
+      width: entry.width,
+      height: 54,
+      radius: 24,
+    },
+  }));
+  const harnessCard = conceptCards[0]!;
+  const lossCard = conceptCards[1]!;
+  const feedbackCard = conceptCards[2]!;
+  const modelInputBox = {x: 220, y: 432, width: 160, height: 88, radius: 20};
+  const modelCenterBox = {x: 470, y: 418, width: 340, height: 116, radius: 24};
+  const modelOutputBox = {x: 900, y: 432, width: 160, height: 88, radius: 20};
+  const modelAxisY = centerY(modelInputBox);
+  const loopLaneX = right(feedbackCard.box) + 94;
+  const loopBackPoints = [
+    {x: right(feedbackCard.box) + 10, y: centerY(feedbackCard.box)},
+    {x: loopLaneX, y: centerY(feedbackCard.box)},
+    {x: loopLaneX, y: centerY(harnessCard.box)},
+    {x: right(harnessCard.box) + 10, y: centerY(harnessCard.box)},
+  ];
+  const footerBox = {x: 216, y: 620, width: 848, height: 38};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <g transform={`translate(0 ${LATE_INLINE_TITLE_REMOVAL_SHIFT_Y})`}>
+      <g transform="translate(0 -12)">
         <g
-          data-geometry-node-id="culture-card"
-          data-geometry-node-label="Culture Reading"
+          data-geometry-node-id="bridge-title"
+          data-geometry-node-label="Feedback Bridge Title"
+        >
+          <g data-geometry-node-box="1">
+            <rect
+              x={titleBox.x}
+              y={titleBox.y}
+              width={titleBox.width}
+              height={titleBox.height}
+              rx={10}
+              fill="transparent"
+              stroke="none"
+            />
+          </g>
+          <text
+            x={center}
+            y={titleBox.y + titleBox.height / 2}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="34"
+            fontWeight="830"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+            opacity={titleOpacity}
+          >
+            {PAGE32_BRIDGE_TITLE}
+          </text>
+        </g>
+        {conceptCards.map(({id, label, emphasized, labelFontSize, box}) => (
+          <ArtifactNode
+            key={id}
+            box={box}
+            scene={scene}
+            opacity={conceptOpacity}
+            label={label}
+            emphasized={emphasized}
+            labelFontSize={labelFontSize}
+            geometryNodeId={id}
+          />
+        ))}
+        <StrokeArrow
+          d={verticalPath(centerX(harnessCard.box), bottom(harnessCard.box) + 8, lossCard.box.y - 8)}
+          stroke={scene.apiStroke}
+          opacity={conceptOpacity}
+          headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
+          tipX={centerX(harnessCard.box)}
+          tipY={lossCard.box.y - 8}
+          direction="down"
+          shaftWidth={3.1}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={verticalPath(centerX(lossCard.box), bottom(lossCard.box) + 8, feedbackCard.box.y - 8)}
+          stroke={scene.apiStroke}
+          opacity={conceptOpacity}
+          headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
+          tipX={centerX(lossCard.box)}
+          tipY={feedbackCard.box.y - 8}
+          direction="down"
+          shaftWidth={3.1}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={verticalPath(
+            centerX(feedbackCard.box),
+            bottom(feedbackCard.box) + 10,
+            modelCenterBox.y - 10,
+          )}
+          stroke={scene.apiStroke}
+          opacity={conceptOpacity}
+          headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
+          tipX={centerX(feedbackCard.box)}
+          tipY={modelCenterBox.y - 10}
+          direction="down"
+          shaftWidth={3.1}
+          underlayWidth={6}
+          headSize={8.5}
+        />
+        <StrokeArrow
+          d={roundedPolylinePath(loopBackPoints, 0)}
+          stroke="rgba(214, 102, 48, 0.68)"
+          opacity={conceptOpacity * 0.92}
+          headOpacity={revealHeadOpacity(reveal, conceptOpacity * 0.92)}
+          tipX={right(harnessCard.box) + 10}
+          tipY={centerY(harnessCard.box)}
+          direction="left"
+          shaftWidth={2.8}
+          underlayWidth={5}
+          headSize={8.5}
+        />
+        <g
+          opacity={modelOpacity}
+          data-geometry-node-id="model-input"
+          data-geometry-node-label="Input"
         >
           <StageBox
-            box={cultureCard}
-            fill="rgba(255, 252, 247, 0.96)"
+            box={modelInputBox}
+            fill="rgba(255, 251, 246, 0.98)"
             stroke={scene.nodeStroke}
-            strokeWidth={2.4}
+            strokeWidth={2.8}
             markGeometryBox
           />
           <text
-            x={cultureCard.x + 34}
-            y={cultureCard.y + 42}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="23"
-            fontWeight="830"
-            textAnchor="start"
+            x={centerX(modelInputBox)}
+            y={modelAxisY + 4}
+            fill="#22303d"
+            fontSize="28"
+            fontWeight="650"
+            textAnchor="middle"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            书与视频
+            Input
           </text>
-          {ENDING_CULTURE_LINKS.slice(0, 2).map((item, index) => (
-            <EndingLinkItem
-              key={item.title}
-              x={leftColumnX}
-              y={index === 0 ? upperRowY : lowerRowY}
-              title={item.title}
-              subtitle={item.subtitle}
-              href={item.href}
-              geometryNodeId={`culture-link-${index + 1}`}
-              geometryWidth={408}
-              titleFontSize={22}
-              subtitleFontSize={15.5}
-              subtitleOffset={23}
-            />
-          ))}
-          {ENDING_CULTURE_LINKS.slice(2).map((item, index) => (
-            <EndingLinkItem
-              key={item.title}
-              x={rightColumnX}
-              y={index === 0 ? upperRowY : lowerRowY}
-              title={item.title}
-              subtitle={item.subtitle}
-              href={item.href}
-              geometryNodeId={`culture-link-${index + 3}`}
-              geometryWidth={408}
-              titleFontSize={22}
-              subtitleFontSize={15.5}
-              subtitleOffset={23}
-            />
-          ))}
+        </g>
+        <StrokeArrow
+          d={horizontalPath(
+            right(modelInputBox) + 24,
+            modelCenterBox.x - 24,
+            modelAxisY,
+          )}
+          stroke={scene.wireStroke}
+          opacity={modelOpacity}
+          headOpacity={revealHeadOpacity(reveal, modelOpacity)}
+          tipX={modelCenterBox.x - 24}
+          tipY={modelAxisY}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.6}
+          headSize={8.5}
+        />
+        <g
+          opacity={modelOpacity}
+          data-geometry-node-id="model-fx"
+          data-geometry-node-label="f(x)"
+        >
+          <StageBox
+            box={modelCenterBox}
+            fill={scene.focusFill}
+            stroke={scene.apiStroke}
+            strokeWidth={3.2}
+            markGeometryBox
+          />
+          <text
+            x={centerX(modelCenterBox)}
+            y={centerY(modelCenterBox) + 4}
+            fill="#22303d"
+            fontSize="36"
+            fontWeight="700"
+            letterSpacing="-0.04em"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            f(x)
+          </text>
+        </g>
+        <StrokeArrow
+          d={horizontalPath(
+            right(modelCenterBox) + 24,
+            modelOutputBox.x - 24,
+            modelAxisY,
+          )}
+          stroke={scene.wireStroke}
+          opacity={modelOpacity}
+          headOpacity={revealHeadOpacity(reveal, modelOpacity)}
+          tipX={modelOutputBox.x - 24}
+          tipY={modelAxisY}
+          direction="right"
+          shaftWidth={3}
+          underlayWidth={5.6}
+          headSize={8.5}
+        />
+        <g
+          opacity={modelOpacity}
+          data-geometry-node-id="model-output"
+          data-geometry-node-label="Output"
+        >
+          <StageBox
+            box={modelOutputBox}
+            fill="rgba(255, 251, 246, 0.98)"
+            stroke={scene.nodeStroke}
+            strokeWidth={2.8}
+            markGeometryBox
+          />
+          <text
+            x={centerX(modelOutputBox)}
+            y={modelAxisY + 4}
+            fill="#22303d"
+            fontSize="28"
+            fontWeight="650"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+          >
+            Output
+          </text>
         </g>
         <g
-          data-geometry-node-id="game-card"
-          data-geometry-node-label="Game Reading"
+          data-geometry-node-id="bridge-footer"
+          data-geometry-node-label="Feedback Bridge Footer"
         >
-          <StageBox
-            box={gameCard}
-            fill="rgba(255, 252, 247, 0.96)"
-            stroke={scene.nodeStroke}
-            strokeWidth={2.2}
-            markGeometryBox
-          />
-          <text
-            x={gameCard.x + 34}
-            y={gameCard.y + 26}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="22"
-            fontWeight="830"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-          >
-            推荐游戏
-          </text>
-          <line
-            x1={centerX(gameCard)}
-            y1={gameCard.y + 20}
-            x2={centerX(gameCard)}
-            y2={gameCard.y + gameCard.height - 20}
-            stroke="rgba(92, 106, 118, 0.26)"
-            strokeWidth="1.6"
-          />
-          {ENDING_GAME_LINKS.map((item, index) => (
-            <EndingLinkItem
-              key={item.title}
-              x={gameCard.x + 34 + index * 516}
-              y={gameCard.y + 68}
-              title={item.title}
-              subtitle={item.subtitle}
-              href={item.href}
-              geometryNodeId={`game-link-${index + 1}`}
-              geometryWidth={420}
-              titleFontSize={20}
-              subtitleFontSize={15}
-              subtitleOffset={21}
+          <g data-geometry-node-box="1">
+            <rect
+              x={footerBox.x}
+              y={footerBox.y}
+              width={footerBox.width}
+              height={footerBox.height}
+              rx={8}
+              fill="transparent"
+              stroke="none"
             />
-          ))}
+          </g>
+          <text
+            x={center}
+            y={footerBox.y + footerBox.height / 2}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="29"
+            fontWeight="800"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+              opacity={footerOpacity}
+            >
+            {PAGE32_BRIDGE_FOOTER}
+          </text>
         </g>
       </g>
     </PlaceholderBoardShell>
   );
 }
 
-function Page33QuotePage({
+function Page33ReadingPage({
   scene,
   opacity,
   entryProgress,
@@ -7282,67 +8039,194 @@ function Page33QuotePage({
   opacity: number;
   entryProgress: number;
 }) {
-  const reveal = resolveWindowProgress(entryProgress, 0.12, 0.92, easeOutQuint);
+  const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
+  const quoteOpacity = opacity * resolveWindowProgress(entryProgress, 0.08, 0.62, easeOutQuint);
+  const linksOpacity = opacity * resolveWindowProgress(entryProgress, 0.42, 0.9, easeOutQuint);
+  const quoteCenterX = centerX(PLACEHOLDER_BOARD);
+  const quoteTitleBox = {x: 430, y: 110, width: 420, height: 48};
+  const quoteLineStartY = 188;
+  const quoteLineGap = 70;
+  const quoteFooterBox = {x: 430, y: 430, width: 420, height: 44};
+  const leftCard = {x: 84, y: 494, width: 510, height: 170, radius: 24};
+  const rightCard = {x: 622, y: 494, width: 510, height: 170, radius: 24};
+  const linkStartY = leftCard.y + 74;
+  const linkStep = 62;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <g transform={`translate(0 ${LATE_CLOSING_QUOTE_SHIFT_Y})`}>
-        <g data-geometry-node-id="quote" data-geometry-node-label="Closing Quote">
-          <g data-geometry-node-box="1">
-            <rect
-              x={192}
-              y={152}
-              width={896}
-              height={398}
-              rx={24}
-              fill="transparent"
-              stroke="none"
-            />
-          </g>
-          {ZHUANGZI_CLOSING_LINES.map((line, index) => (
-            <text
-              key={line}
-              x={centerX(PLACEHOLDER_BOARD)}
-              y={196 + index * 86}
-              fill="#22303d"
-              fontSize={index < 2 ? "39" : "43"}
-              fontWeight={index < 2 ? "730" : "790"}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              data-geometry-node-text="1"
-            >
-              {line}
-            </text>
-          ))}
-        </g>
+      <g transform="translate(0 -42)">
         <g
-          data-geometry-node-id="footer"
-          data-geometry-node-label="Quote Footer"
+          data-geometry-node-id="quote-title"
+          data-geometry-node-label="Closing Quote Title"
         >
           <g data-geometry-node-box="1">
             <rect
-              x={430}
-              y={566}
-              width={420}
-              height={52}
-              rx={12}
+              x={quoteTitleBox.x}
+              y={quoteTitleBox.y}
+              width={quoteTitleBox.width}
+              height={quoteTitleBox.height}
+              rx={10}
               fill="transparent"
               stroke="none"
             />
           </g>
           <text
-            x={centerX(PLACEHOLDER_BOARD)}
-            y="594"
-            fill="rgba(34, 48, 61, 0.56)"
-            fontSize="21"
-            fontWeight="640"
+            x={quoteCenterX}
+            y={quoteTitleBox.y + quoteTitleBox.height / 2}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="33"
+            fontWeight="830"
             textAnchor="middle"
             dominantBaseline="middle"
             data-geometry-node-text="1"
+            opacity={quoteOpacity}
           >
-            以此作为这次分享的最后一句。
+            《逍遥游》
           </text>
+          {ZHUANGZI_CLOSING_LINES.map((line, index) => (
+            <g
+              key={line}
+            >
+              <g data-geometry-node-box="1">
+                <rect
+                  x={192}
+                  y={quoteLineStartY + index * quoteLineGap - 30}
+                  width={896}
+                  height={60}
+                  rx={10}
+                  fill="transparent"
+                  stroke="none"
+                />
+              </g>
+              <text
+                x={quoteCenterX}
+                y={quoteLineStartY + index * quoteLineGap}
+                fill="#22303d"
+                fontSize={index < 2 ? "39" : "43"}
+                fontWeight={index < 2 ? "730" : "790"}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                data-geometry-node-text="1"
+                opacity={quoteOpacity}
+              >
+                {line}
+              </text>
+            </g>
+          ))}
+          <g
+            data-geometry-node-id="quote-footer"
+            data-geometry-node-label="Quote Footer"
+          >
+            <g data-geometry-node-box="1">
+              <rect
+                x={quoteFooterBox.x}
+                y={quoteFooterBox.y}
+                width={quoteFooterBox.width}
+                height={quoteFooterBox.height}
+                rx={8}
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <text
+              x={quoteCenterX}
+              y={quoteFooterBox.y + quoteFooterBox.height / 2}
+              fill="rgba(34, 48, 61, 0.64)"
+              fontSize="21"
+              fontWeight="640"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+              opacity={quoteOpacity}
+            >
+              以此作为这次分享的最后一句。
+            </text>
+          </g>
+        </g>
+        <g
+          data-geometry-node-id="left-links-card"
+          data-geometry-node-label="Book And Video Reading"
+        >
+          <StageBox
+            box={leftCard}
+            fill="rgba(255, 252, 247, 0.96)"
+            stroke={scene.nodeStroke}
+            strokeWidth={2.2}
+            markGeometryBox
+          />
+          <text
+            x={leftCard.x + 30}
+            y={leftCard.y + 28}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="22"
+            fontWeight="830"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+            opacity={linksOpacity}
+          >
+            书与视频
+          </text>
+          <g opacity={linksOpacity}>
+            {ENDING_CULTURE_LINKS.map((item, index) => (
+              <EndingLinkItem
+                key={item.title}
+                x={leftCard.x + 30}
+                y={linkStartY + index * linkStep}
+                title={item.title}
+                subtitle={item.subtitle}
+                href={item.href}
+              geometryNodeId={`left-link-${index + 1}`}
+                geometryWidth={448}
+                titleFontSize={22}
+                subtitleFontSize={16}
+                subtitleOffset={22}
+              />
+            ))}
+          </g>
+        </g>
+        <g
+          data-geometry-node-id="right-links-card"
+          data-geometry-node-label="Game Reading"
+        >
+          <StageBox
+            box={rightCard}
+            fill="rgba(255, 252, 247, 0.96)"
+            stroke={scene.nodeStroke}
+            strokeWidth={2.2}
+            markGeometryBox
+          />
+          <text
+            x={rightCard.x + 30}
+            y={rightCard.y + 28}
+            fill="rgba(214, 102, 48, 0.96)"
+            fontSize="22"
+            fontWeight="830"
+            textAnchor="start"
+            dominantBaseline="middle"
+            data-geometry-node-text="1"
+            opacity={linksOpacity}
+          >
+            推荐游戏
+          </text>
+          <g opacity={linksOpacity}>
+            {ENDING_GAME_LINKS.map((item, index) => (
+              <EndingLinkItem
+                key={item.title}
+                x={rightCard.x + 30}
+                y={linkStartY + index * linkStep}
+                title={item.title}
+                subtitle={item.subtitle}
+                href={item.href}
+              geometryNodeId={`right-link-${index + 1}`}
+                geometryWidth={448}
+                titleFontSize={22}
+                subtitleFontSize={16}
+                subtitleOffset={22}
+              />
+            ))}
+          </g>
         </g>
       </g>
     </PlaceholderBoardShell>
@@ -7451,9 +8335,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     LOOP_PAGE28_FRAME,
     LOOP_PAGE29_FRAME,
   );
-  const page30PlaceholderReveal = settledSegmentProgress(
+  const page29DataPlaceholderReveal = settledSegmentProgress(
     frame,
     LOOP_PAGE29_FRAME,
+    LOOP_PAGE29_DATA_FRAME,
+  );
+  const page30PlaceholderReveal = settledSegmentProgress(
+    frame,
+    LOOP_PAGE29_DATA_FRAME,
     LOOP_PAGE30_FRAME,
   );
   const page31PlaceholderReveal = settledSegmentProgress(
@@ -7549,6 +8438,12 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     0.92,
     easeInOutCubic,
   );
+  const page29DataPlaceholderVisible = resolveWindowProgress(
+    page29DataPlaceholderReveal,
+    0.08,
+    0.92,
+    easeInOutCubic,
+  );
   const page30PlaceholderVisible = resolveWindowProgress(
     page30PlaceholderReveal,
     0.08,
@@ -7570,7 +8465,7 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page33PlaceholderVisible = resolveWindowProgress(
     page33PlaceholderReveal,
     0.08,
-    0.92,
+    0.9,
     easeInOutCubic,
   );
   const page09ImageVisible = resolveWindowProgress(
@@ -7609,11 +8504,15 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page26OverlayExit = 1 - page28PlaceholderVisible;
   const page28OverlayExit = 1 - page29PlaceholderVisible;
   const page29OverlayExit =
+    1 - resolveWindowProgress(page29DataPlaceholderVisible, 0.02, 0.22, easeInOutCubic);
+  const page29DataOverlayExit =
     1 - resolveWindowProgress(page30PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page30OverlayExit =
     1 - resolveWindowProgress(page31PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
-  const page31OverlayExit = 1 - page32PlaceholderVisible;
-  const page32OverlayExit = 1 - page33PlaceholderVisible;
+  const page31OverlayExit =
+    1 - resolveWindowProgress(page32PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
+  const page32OverlayExit =
+    1 - resolveWindowProgress(page33PlaceholderVisible, 0.02, 0.22, easeInOutCubic);
   const page13ImageOverlayExit =
     1 - resolveWindowProgress(page15ImageReveal, 0.08, 0.3, easeInOutCubic);
   const page15ImageOverlayExit =
@@ -7625,6 +8524,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
   const page26PlaceholderFocus = page26PlaceholderVisible * page26OverlayExit;
   const page28PlaceholderFocus = page28PlaceholderVisible * page28OverlayExit;
   const page29PlaceholderFocus = page29PlaceholderVisible * page29OverlayExit;
+  const page29DataPlaceholderFocus =
+    page29DataPlaceholderVisible * page29DataOverlayExit;
   const page30PlaceholderFocus = page30PlaceholderVisible * page30OverlayExit;
   const page31PlaceholderFocus = page31PlaceholderVisible * page31OverlayExit;
   const page32PlaceholderFocus = page32PlaceholderVisible * page32OverlayExit;
@@ -7927,10 +8828,10 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page26PlaceholderFocus,
     page28PlaceholderFocus,
     page29PlaceholderFocus,
+    page29DataPlaceholderFocus,
     page30PlaceholderFocus,
     page31PlaceholderFocus,
     page32PlaceholderFocus,
-    page33PlaceholderFocus,
   );
   const placeholderStageFade = resolveWindowProgress(
     placeholderFocus,
@@ -7954,10 +8855,10 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
     page26PlaceholderVisible,
     page28PlaceholderVisible,
     page29PlaceholderVisible,
+    page29DataPlaceholderVisible,
     page30PlaceholderVisible,
     page31PlaceholderVisible,
     page32PlaceholderVisible,
-    page33PlaceholderVisible,
   );
   const onepageStageSuppression = resolveWindowProgress(
     onepageHold,
@@ -8597,7 +9498,8 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
               box={SCL_BOX}
               scene={scene}
               opacity={sclNodeOpacity}
-              label=".scl.csv"
+              label=".scl.csv(.shk)"
+              labelFontSize={20}
               emphasized={page12Focus > 0.2}
             />
           ) : null}
@@ -9019,6 +9921,13 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
           entryProgress={page29PlaceholderReveal}
         />
       ) : null}
+      {page29DataPlaceholderFocus > 0.001 ? (
+        <Page29DriverOptimizationPage
+          scene={scene}
+          opacity={page29DataPlaceholderFocus}
+          entryProgress={page29DataPlaceholderReveal}
+        />
+      ) : null}
       {page30PlaceholderFocus > 0.001 ? (
         <Page30PsoReadingPage
           scene={scene}
@@ -9034,14 +9943,14 @@ export function Page10Scene({scene}: {scene: SceneModel}) {
         />
       ) : null}
       {page32PlaceholderFocus > 0.001 ? (
-        <Page32ReadingPage
+        <Page32FeedbackBridgePage
           scene={scene}
           opacity={page32PlaceholderFocus}
           entryProgress={page32PlaceholderReveal}
         />
       ) : null}
       {page33PlaceholderFocus > 0.001 ? (
-        <Page33QuotePage
+        <Page33ReadingPage
           scene={scene}
           opacity={page33PlaceholderFocus}
           entryProgress={page33PlaceholderReveal}

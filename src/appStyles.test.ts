@@ -48,7 +48,7 @@ describe("app.css regressions", () => {
 
   it("keeps a dedicated heading band above the runtime canvas", () => {
     expect(readRuleBlock(".stage-frame")).toMatch(
-      /grid-template-rows:\s*var\(--stage-heading-height,\s*8\.75rem\)\s+minmax\(0,\s*1fr\);/,
+      /grid-template-rows:\s*minmax\(var\(--stage-heading-height,\s*8\.75rem\),\s*auto\)\s+minmax\(0,\s*1fr\);/,
     );
 
     expect(readRuleBlock(".stage-heading")).toMatch(
@@ -95,6 +95,27 @@ describe("app.css regressions", () => {
     expect(appCss).toMatch(/@keyframes notes-objective-fact-sheen/);
   });
 
+  it("gives explicitly highlighted sidebar objective facts their own glow treatment", () => {
+    const highlightedFactRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-highlighted="true"]',
+    );
+    const highlightedFactBeforeRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-highlighted="true"]::before',
+    );
+    const highlightedFactAfterRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-highlighted="true"]::after',
+    );
+    const highlightedFactBulletRule = readRuleBlock(
+      '.notes-point-item--objective-facts[data-fact-highlighted="true"] .notes-point-bullet',
+    );
+
+    expect(highlightedFactRule).toMatch(/box-shadow:/);
+    expect(highlightedFactRule).toMatch(/background:\s*linear-gradient\(/);
+    expect(highlightedFactBeforeRule).toMatch(/animation:\s*notes-objective-fact-glow/);
+    expect(highlightedFactAfterRule).toMatch(/animation:\s*notes-objective-fact-sheen/);
+    expect(highlightedFactBulletRule).toMatch(/box-shadow:/);
+  });
+
   it("renders objective-fact markers as numbered circular badges instead of tiny dots", () => {
     const factBadgeRule = readRuleBlock(".notes-point-bullet");
 
@@ -102,6 +123,23 @@ describe("app.css regressions", () => {
     expect(factBadgeRule).toMatch(/place-items:\s*center;/);
     expect(factBadgeRule).toMatch(/border:\s*2px solid var\(--accent\);/);
     expect(factBadgeRule).toMatch(/border-radius:\s*999px;/);
+  });
+
+  it("adds a separator line between later objective-fact rows for scanability", () => {
+    const factListRule = readRuleBlock(".notes-point-list--objective-facts");
+    const factSeparatorRule = readRuleBlock(".notes-point-separator--objective-facts");
+    const factDividerRule = readRuleBlock(".notes-point-divider--objective-facts");
+
+    expect(factListRule).toMatch(/gap:\s*0;/);
+    expect(factSeparatorRule).toMatch(/min-height:\s*0\.52rem;/);
+    expect(factSeparatorRule).toMatch(/align-items:\s*center;/);
+    expect(factSeparatorRule).toMatch(/position:\s*relative;/);
+    expect(factSeparatorRule).toMatch(/z-index:\s*1;/);
+    expect(factSeparatorRule).toMatch(/background:\s*var\(--paper\);/);
+    expect(factDividerRule).toMatch(/display:\s*block;/);
+    expect(factDividerRule).toMatch(/inline-size:\s*100%;/);
+    expect(factDividerRule).toMatch(/height:\s*1px;/);
+    expect(factDividerRule).toMatch(/background:\s*rgba\(34,\s*48,\s*61,\s*0\.1\);/);
   });
 
 });

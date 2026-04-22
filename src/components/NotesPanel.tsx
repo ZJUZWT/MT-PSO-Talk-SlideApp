@@ -1,3 +1,4 @@
+import {Fragment} from "react";
 import type {CSSProperties, ReactNode} from "react";
 import type {WorkbenchState} from "../state/useWorkbenchState";
 
@@ -52,6 +53,39 @@ const OBJECTIVE_FACT_EMPHASIS = [
     text: "极高",
     className: "notes-inline-emphasis notes-inline-emphasis--high-cost",
     appliesTo: (fact: string) => fact === "Shader的Compile、Link耗时极高",
+  },
+  {
+    text: "资产自身",
+    className: "notes-inline-emphasis notes-inline-emphasis--asset-self",
+    appliesTo: (fact: string) => fact === "Inline模式下ShaderCode由资产自身持有",
+  },
+  {
+    text: "全局资产",
+    className: "notes-inline-emphasis notes-inline-emphasis--global-asset",
+    appliesTo: (fact: string) =>
+      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+  },
+  {
+    text: "全局索引",
+    className: "notes-inline-emphasis notes-inline-emphasis--global-index",
+    appliesTo: (fact: string) =>
+      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+  },
+  {
+    text: "共享",
+    className: "notes-inline-emphasis notes-inline-emphasis--shared-mode",
+    appliesTo: (fact: string) =>
+      fact === "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+  },
+  {
+    text: "ShaderHash",
+    className: "notes-inline-emphasis notes-inline-emphasis--hash-index",
+    appliesTo: (fact: string) => fact === "UE PSO 以 ShaderHash 为索引定位对应的 ShaderCode",
+  },
+  {
+    text: "索引",
+    className: "notes-inline-emphasis notes-inline-emphasis--hash-index",
+    appliesTo: (fact: string) => fact === "UE PSO 以 ShaderHash 为索引定位对应的 ShaderCode",
   },
 ] as const;
 
@@ -180,6 +214,12 @@ function resolveApiItems(step: WorkbenchState["currentStep"]) {
   return [];
 }
 
+function resolveHighlightedObjectiveFactIds(
+  step: WorkbenchState["currentStep"],
+) {
+  return new Set(step.highlightedObjectiveFactIds ?? []);
+}
+
 function resolveCodeTone(
   focusColorKey: WorkbenchState["currentStep"]["focusColorKey"],
   line: string,
@@ -229,9 +269,11 @@ function ApiListPanel({
   title: string;
   items: Array<{id: number; label: string}>;
 }) {
+  const ariaLabel = title || "API list";
+
   return (
-    <section className="notes-api-panel" aria-label={title}>
-      <p className="notes-api-title">{title}</p>
+    <section className="notes-api-panel" aria-label={ariaLabel}>
+      {title ? <p className="notes-api-title">{title}</p> : null}
       <ul className="notes-api-list">
         {items.map((item) => (
           <li key={`${item.id}-${item.label}`} className="notes-api-item">
@@ -282,6 +324,7 @@ function NotesCard({
 }) {
   const codeLines = step.codeSample?.split("\n") ?? [];
   const objectiveFacts = resolveObjectiveFacts(steps, step.id);
+  const highlightedObjectiveFactIds = resolveHighlightedObjectiveFactIds(step);
   const apiItems = resolveApiItems(step);
   const relatedLinks = step.relatedLinks ?? [];
 
@@ -307,28 +350,40 @@ function NotesCard({
           <ul className="notes-point-list notes-point-list--objective-facts">
             {objectiveFacts.map((fact, index) => {
               const factState = newObjectiveFacts.has(fact) ? "new" : "stable";
+              const isHighlighted = highlightedObjectiveFactIds.has(index + 1);
 
               return (
-                <li
-                  key={`${step.id}-${fact}`}
-                  className="notes-point-item notes-point-item--objective-facts"
-                  data-fact-state={factState}
-                >
-                  <span
-                    className="notes-point-bullet"
-                    data-testid="notes-point-bullet"
-                    data-fact-index={index + 1}
-                    aria-hidden="true"
-                  >
-                    {index + 1}
-                  </span>
-                  <span
-                    className="notes-point-copy notes-point-copy--objective-facts"
+                <Fragment key={`${step.id}-${fact}`}>
+                  {index > 0 ? (
+                    <li
+                      className="notes-point-separator notes-point-separator--objective-facts"
+                      aria-hidden="true"
+                    >
+                      <span className="notes-point-divider notes-point-divider--objective-facts" />
+                    </li>
+                  ) : null}
+                  <li
+                    className="notes-point-item notes-point-item--objective-facts"
                     data-fact-state={factState}
+                    data-fact-highlighted={isHighlighted ? "true" : "false"}
                   >
-                    {renderObjectiveFact(fact)}
-                  </span>
-                </li>
+                    <span
+                      className="notes-point-bullet"
+                      data-testid="notes-point-bullet"
+                      data-fact-index={index + 1}
+                      data-fact-highlighted={isHighlighted ? "true" : "false"}
+                      aria-hidden="true"
+                    >
+                      {index + 1}
+                    </span>
+                    <span
+                      className="notes-point-copy notes-point-copy--objective-facts"
+                      data-fact-state={factState}
+                    >
+                      {renderObjectiveFact(fact)}
+                    </span>
+                  </li>
+                </Fragment>
               );
             })}
           </ul>
@@ -354,7 +409,7 @@ function NotesCard({
           <p className="notes-section-label">相关链接</p>
           <ul className="notes-link-list">
             {relatedLinks.map((link) => (
-              <li key={`${step.id}-${link.url}`} className="notes-link-item">
+              <li key={`${step.id}-${link.label}-${link.url}`} className="notes-link-item">
                 <a
                   className="notes-link-anchor"
                   href={link.url}

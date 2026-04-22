@@ -48,7 +48,7 @@ const STAGE_PROMPT_OVERLAY_CONTENT: readonly StagePromptOverlayContent[] = [
     stepId: "page_16",
     lines: ["Q: 为什么不直接用 rec.upipelinecache，", "还要 expand 呢？"],
   },
-  {stepId: "page_17", lines: ["A: 为了保持映射。"]},
+  {stepId: "page_17", lines: ["A: 因为 Hash 不是跨版本稳定标识"]},
   {stepId: "page_28", lines: ["Q: 为什么不能cook直接输出PSOCache"]},
   {
     stepId: "page_18_img",

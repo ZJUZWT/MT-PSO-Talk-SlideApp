@@ -1,3 +1,5 @@
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 import React from "react";
 import {render} from "@testing-library/react";
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
@@ -21,6 +23,11 @@ vi.mock("remotion", () => ({
 
 import {MyComposition} from "./Composition";
 import {resolveRemotionStepFrame} from "./embed";
+
+const page10SceneSource = readFileSync(
+  join(process.cwd(), "src", "remotion", "pages", "Page10Scene.tsx"),
+  "utf8",
+);
 
 function setStepFrame(stepId: Parameters<typeof resolveRemotionStepFrame>[0]) {
   mockFrame = resolveRemotionStepFrame(stepId);
@@ -54,7 +61,25 @@ describe("page16 placeholder cleanup", () => {
     expect(findSvgTextNodesByContent(container, "rec.upipelinecache").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, ".scl.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "手机包收集到的UE PSO").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(container, "和UE PSO同版本Cook出来的").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "双向映射").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "ShaderStableKey 关键参数")).toHaveLength(0);
     expect(findSvgTextNodesByContent(container, "示例值（待补）")).toHaveLength(0);
+  });
+
+  it("keeps page 16 and page 17 top artifact cards function-first and filenames secondary", () => {
+    expect(page10SceneSource).toContain('label="ShaderHash + State"');
+    expect(page10SceneSource).toContain('subLabel="（历史版本）"');
+    expect(page10SceneSource).toContain('detail="rec.upipelinecache"');
+    expect(page10SceneSource).toContain('label="ShaderStableKey + State"');
+    expect(page10SceneSource).toContain('detail="stablepc.csv"');
+    expect(page10SceneSource).toContain('label="ShaderHash <-> ShaderStableKey"');
+    expect(page10SceneSource).toContain('detail=".scl.csv"');
+    expect(page10SceneSource).toContain('label="ShaderHash + State"');
+    expect(page10SceneSource).toContain('subLabel="（当前版本）"');
+    expect(page10SceneSource).toContain('detail="stable.upipelinecache"');
   });
 });

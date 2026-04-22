@@ -12,11 +12,14 @@ describe("formal page review registry", () => {
     expect(stepIds).toEqual(
       expect.arrayContaining([
         "page_00",
+        "page_01",
         "page_02",
         "page_03",
         "page_04_data",
         "page_05",
         "page_14",
+        "page_16",
+        "page_17",
         "page_18",
         "page_18_img",
         "page_19",
@@ -28,6 +31,7 @@ describe("formal page review registry", () => {
         "page_27",
         "page_28",
         "page_29",
+        "page_29_data",
         "page_30",
         "page_31",
         "page_32",
@@ -52,6 +56,27 @@ describe("formal page review registry", () => {
     );
 
     const artifact = buildGeometryReviewArtifact(page00!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_01 as a first-class formal review surface", () => {
+    const page01 = findFormalPageReviewSketchByStepId("page_01");
+
+    expect(page01).toBeDefined();
+    expect(page01?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "input-box",
+        "fx-box",
+        "output-box",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page01!);
 
     expect(artifact.metrics.overlapCount).toBe(0);
     expect(artifact.metrics.crossingCount).toBe(0);
@@ -179,8 +204,14 @@ describe("formal page review registry", () => {
     const page14 = findFormalPageReviewSketchByStepId("page_14");
     const recCard = page14?.nodes.find((node) => node.id === "rec-card");
     const recordSavePill = page14?.nodes.find((node) => node.id === "record-save-pill");
+    const uePsoCard = page14?.nodes.find((node) => node.id === "ue-pso-card");
+    const createResolvePill = page14?.nodes.find((node) => node.id === "create-resolve-pill");
+    const gfxPsoCard = page14?.nodes.find((node) => node.id === "gfx-pso-card");
     const bindUsePill = page14?.nodes.find((node) => node.id === "bind-use-pill");
+    const gpuRuntimeStack = page14?.nodes.find((node) => node.id === "gpu-runtime-stack");
+    const ueToGfx = page14?.edges.find((edge) => edge.id === "ue-to-gfx");
     const ueToRec = page14?.edges.find((edge) => edge.id === "ue-to-rec");
+    const gfxToGpu = page14?.edges.find((edge) => edge.id === "gfx-to-gpu");
 
     expect(page14).toBeDefined();
     expect(page14?.nodes.map((node) => node.id)).toEqual(
@@ -196,11 +227,35 @@ describe("formal page review registry", () => {
       ]),
     );
     expect(recCard?.width).toBeGreaterThanOrEqual(288);
-    expect((recordSavePill?.x ?? Infinity) + (recordSavePill?.width ?? 0)).toBeLessThan(308);
-    expect(bindUsePill?.x).toBeLessThan(780);
     expect(
-      Math.abs((ueToRec?.waypoints?.[0]?.x ?? 0) - 320),
-    ).toBeLessThanOrEqual(96);
+      Math.abs(
+        (ueToRec?.from.x ?? 0) - ((recordSavePill?.x ?? 0) + (recordSavePill?.width ?? 0)),
+      ),
+    ).toBeLessThanOrEqual(16);
+    expect(recordSavePill?.y).toBeGreaterThanOrEqual(228);
+    expect((gfxPsoCard?.x ?? 0) - ((uePsoCard?.x ?? 0) + (uePsoCard?.width ?? 0))).toBeGreaterThanOrEqual(140);
+    expect(
+      (gpuRuntimeStack?.x ?? 0) - ((gfxPsoCard?.x ?? 0) + (gfxPsoCard?.width ?? 0)),
+    ).toBeGreaterThanOrEqual(130);
+    expect(createResolvePill?.y).toBeGreaterThanOrEqual(328);
+    expect(bindUsePill?.y).toBeGreaterThanOrEqual(328);
+    expect(
+      Math.abs(
+        (createResolvePill?.x ?? 0) +
+          (createResolvePill?.width ?? 0) / 2 -
+          (((ueToGfx?.from.x ?? 0) + (ueToGfx?.to.x ?? 0)) / 2),
+      ),
+    ).toBeLessThanOrEqual(8);
+    expect(
+      Math.abs(
+        (bindUsePill?.x ?? 0) +
+          (bindUsePill?.width ?? 0) / 2 -
+          (((gfxToGpu?.from.x ?? 0) + (gfxToGpu?.to.x ?? 0)) / 2),
+      ),
+    ).toBeLessThanOrEqual(8);
+    expect(
+      Math.abs((ueToRec?.waypoints?.[0]?.x ?? 0) - 300),
+    ).toBeLessThanOrEqual(72);
 
     const artifact = buildGeometryReviewArtifact(page14!);
     const ueToRecMetric = artifact.edgeRouteMetrics.find((edge) => edge.edgeId === "ue-to-rec");
@@ -210,10 +265,99 @@ describe("formal page review registry", () => {
     expect(artifact.metrics.nodePierceCount).toBe(0);
     expect(artifact.metrics.textOverflowCount).toBe(0);
     expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
-    expect(artifact.metrics.minNodeGap).toBeGreaterThanOrEqual(6);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThanOrEqual(8);
     expect(ueToRecMetric?.detourRatio ?? Infinity).toBeLessThan(0.2);
     expect(artifact.scores.blockerOpen).toBe(false);
     expect(artifact.mechanicalScore).toBeGreaterThanOrEqual(6);
+  });
+
+  it("registers page_16 as a first-class why-expand formal review surface", () => {
+    const page16 = findFormalPageReviewSketchByStepId("page_16");
+    const expandMergeNode = page16?.nodes.find((node) => node.id === "expand-merge");
+    const exampleCard = page16?.nodes.find((node) => node.id === "expand-example-card");
+
+    expect(page16).toBeDefined();
+    expect(page16?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "page16-board",
+        "page16-title",
+        "page16-subtitle",
+        "rec-node",
+        "scl-node",
+        "expand-merge",
+        "expand-pill",
+        "stablepc-node",
+        "stable-note-top",
+        "stable-note-bottom",
+        "expand-example-card",
+        "hash-token",
+        "stable-key-a",
+        "stable-key-b",
+      ]),
+    );
+    expect(expandMergeNode?.shape).toBe("circle");
+    expect(exampleCard?.tone).toBe("muted");
+
+    const artifact = buildGeometryReviewArtifact(page16!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.metrics.minMargin).toBeGreaterThanOrEqual(20);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThan(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_17 as a build-only formal review surface", () => {
+    const page17 = findFormalPageReviewSketchByStepId("page_17");
+    const stablepcNode = page17?.nodes.find((node) => node.id === "stablepc-node");
+    const currentSclNode = page17?.nodes.find((node) => node.id === "current-scl-node");
+    const stableCacheNode = page17?.nodes.find((node) => node.id === "stable-cache-node");
+    const buildMergeNode = page17?.nodes.find((node) => node.id === "build-merge");
+    const stableLabelTop = page17?.nodes.find((node) => node.id === "stable-label-top");
+    const stableLabel = page17?.nodes.find((node) => node.id === "stable-label");
+    const currentLabel = page17?.nodes.find((node) => node.id === "current-label");
+    const mappingExample = page17?.nodes.find((node) => node.id === "mapping-example");
+    const stableCacheDetail = page17?.nodes.find((node) => node.id === "stable-cache-detail");
+
+    expect(page17).toBeDefined();
+    expect(page17?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "page17-board",
+        "stablepc-node",
+        "current-scl-node",
+        "build-pill",
+        "build-merge",
+        "mapping-pill",
+        "stable-cache-node",
+      ]),
+    );
+    expect(stablepcNode?.width).toBeGreaterThanOrEqual(300);
+    expect(currentSclNode?.width).toBeGreaterThanOrEqual(220);
+    expect(stableCacheNode?.width).toBeGreaterThanOrEqual(300);
+    expect(stableLabelTop?.label).toBe("所有历史版本的");
+    expect(stableLabel?.label).toBe("稳定UE PSO");
+    expect(stablepcNode?.textRuns?.map((run) => run.text)).toEqual(
+      expect.arrayContaining(["ShaderStableKey + State", "stablepc.csv"]),
+    );
+    expect(currentLabel?.label).toBe("当前版本Cook出来的双向映射");
+    expect(mappingExample?.label).toBe("ShaderHash <-> ShaderStableKey");
+    expect(stableCacheDetail?.label).toBe("当前包体可以用作预编译的UE PSO");
+    expect(stableCacheNode?.labelLines).toEqual(["stable.", "upipelinecache"]);
+    expect(buildMergeNode?.shape).toBe("circle");
+
+    const artifact = buildGeometryReviewArtifact(page17!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.metrics.minMargin).toBeGreaterThanOrEqual(24);
+    expect(artifact.metrics.minNodeGap).toBeGreaterThan(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
   });
 
   it("registers page_18 as a first-class formal review surface", () => {
@@ -266,20 +410,53 @@ describe("formal page review registry", () => {
     expect(artifact.scores.blockerOpen).toBe(false);
   });
 
+  it("registers page_29_data as a first-class formal late-tail review surface", () => {
+    const page29Data = findFormalPageReviewSketchByStepId("page_29_data");
+
+    expect(page29Data).toBeDefined();
+    expect(page29Data?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "shader-card",
+        "vertex-code",
+        "fragment-code",
+        "state-card",
+        "state-vk",
+        "state-gl",
+        "pc-card",
+        "android-card",
+        "pc-row-1",
+        "pc-row-2",
+        "android-row-1",
+        "android-row-2",
+        "footer-note",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page29Data!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
   it("lets the existing geometry score chain review page_31 without a sketch-only path", () => {
     const page31 = findFormalPageReviewSketchByStepId("page_31");
 
     expect(page31).toBeDefined();
     expect(page31?.nodes.map((node) => node.id)).toEqual(
       expect.arrayContaining([
-        "loop-card",
-        "agent-node",
-        "edge-node",
-        "artifact-node",
-        "metrics-node",
-        "policy-node",
-        "feedback-node",
-        "helper-card",
+        "loop-core-title",
+        "hook-node",
+        "data-node",
+        "image-node",
+        "receipt-node",
+        "source-1",
+        "source-2",
+        "decision-1",
+        "decision-2",
       ]),
     );
 
@@ -291,6 +468,53 @@ describe("formal page review registry", () => {
     expect(artifact.metrics.textOverflowCount).toBe(0);
     expect(artifact.scores.stageLayout).toBeGreaterThanOrEqual(6);
     expect(artifact.mechanicalScore).toBeGreaterThanOrEqual(6.3);
+  });
+
+  it("registers page_32 as the page_01-style abstract endpoint", () => {
+    const page32 = findFormalPageReviewSketchByStepId("page_32");
+
+    expect(page32).toBeDefined();
+    expect(page32?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "bridge-title",
+        "concept-harness",
+        "concept-loss",
+        "concept-feedback",
+        "model-input",
+        "model-fx",
+        "model-output",
+        "bridge-footer",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page32!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_33 as the standalone final epilogue surface", () => {
+    const page33 = findFormalPageReviewSketchByStepId("page_33");
+
+    expect(page33).toBeDefined();
+    expect(page33?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "quote-title",
+        "quote-body",
+        "quote-footer",
+        "left-links-card",
+        "right-links-card",
+      ]),
+    );
+
+    const artifact = buildGeometryReviewArtifact(page33!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
   });
 
   it("measures page_21 shader card typography as explicit technical-name runs", () => {

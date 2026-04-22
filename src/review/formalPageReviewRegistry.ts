@@ -148,6 +148,26 @@ const page00FormalReviewSketch = makeFormalReviewSketch(
   ],
 );
 
+const page01FormalReviewSketch = makeFormalReviewSketch(
+  "formal-page01",
+  "page_01",
+  "Page 01 abstract function",
+  [
+    node("input-box", "Input", {x: 210, y: 316, width: 150, height: 88}, {
+      fontSizeOverride: 28,
+      fontWeightOverride: 680,
+    }),
+    node("fx-box", "f(x)", {x: 480, y: 304, width: 320, height: 112}, {
+      fontSizeOverride: 36,
+      fontWeightOverride: 700,
+    }),
+    node("output-box", "Output", {x: 920, y: 316, width: 150, height: 88}, {
+      fontSizeOverride: 28,
+      fontWeightOverride: 680,
+    }),
+  ],
+);
+
 const page02FormalReviewSketch = makeFormalReviewSketch(
   "formal-page02",
   "page_02",
@@ -592,7 +612,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
     receiverPlane: "Formal Remotion stage",
     primaryLine: "UE PSO -> Gfx PSO -> GPU, with one support route UE PSO -> .rec.upipelinecache",
     keepStable:
-      "Keep the approved quarter anchors at x 320 / 640 / 960 and preserve the shared horizontal spine.",
+      "Keep the approved anchors at x 300 / 732 / 1072 and preserve the shared horizontal spine.",
     newChange:
       "Model the page14 explanation board as a first-class formal review surface so the shared harness scores the real split-PSO layout instead of the retired loop sketch.",
     doNot:
@@ -600,22 +620,22 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
   },
   nodes: [
     node("page14-board", "", {x: 148, y: 104, width: 984, height: 512}),
-    node("rec-card", ".rec.upipelinecache", {x: 168, y: 108, width: 304, height: 84}, {
+    node("rec-card", ".rec.upipelinecache", {x: 148, y: 104, width: 304, height: 88}, {
       containerId: "page14-board",
       fontSizeOverride: 24,
       fontWeightOverride: 760,
     }),
-    node("record-save-pill", "record / save", {x: 148, y: 220, width: 156, height: 40}, {
+    node("record-save-pill", "record / save", {x: 154, y: 232, width: 140, height: 40}, {
       containerId: "page14-board",
-      fontSizeOverride: 22,
+      fontSizeOverride: 21,
       fontWeightOverride: 760,
     }),
-    node("ue-pso-card", "UE PSO", {x: 196, y: 304, width: 248, height: 188}, {
+    node("ue-pso-card", "UE PSO", {x: 172, y: 300, width: 256, height: 196}, {
       containerId: "page14-board",
       textRuns: [
         {
           text: "UE PSO",
-          x: 124,
+          x: 128,
           y: 42,
           fontSize: 30,
           fontWeight: 790,
@@ -624,7 +644,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "ShaderHash + State",
-          x: 124,
+          x: 128,
           y: 90,
           fontSize: 24,
           fontWeight: 730,
@@ -633,7 +653,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "引擎侧记录 / 描述",
-          x: 124,
+          x: 128,
           y: 126,
           fontSize: 22,
           fontWeight: 700,
@@ -642,7 +662,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "BSS + State",
-          x: 124,
+          x: 128,
           y: 156,
           fontSize: 20,
           fontWeight: 680,
@@ -651,17 +671,17 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
       ],
     }),
-    node("create-resolve-pill", "create / resolve", {x: 388, y: 220, width: 196, height: 40}, {
+    node("create-resolve-pill", "create / resolve", {x: 436, y: 330, width: 176, height: 40}, {
       containerId: "page14-board",
       fontSizeOverride: 22,
       fontWeightOverride: 760,
     }),
-    node("gfx-pso-card", "Gfx PSO", {x: 518, y: 304, width: 244, height: 188}, {
+    node("gfx-pso-card", "Gfx PSO", {x: 620, y: 300, width: 224, height: 196}, {
       containerId: "page14-board",
       textRuns: [
         {
           text: "Gfx PSO",
-          x: 122,
+          x: 112,
           y: 42,
           fontSize: 30,
           fontWeight: 790,
@@ -670,7 +690,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "RHI / driver object",
-          x: 122,
+          x: 112,
           y: 90,
           fontSize: 22,
           fontWeight: 720,
@@ -679,7 +699,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "运行时对象 / 编译结果",
-          x: 122,
+          x: 112,
           y: 126,
           fontSize: 21,
           fontWeight: 700,
@@ -688,7 +708,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
         {
           text: "create or hit",
-          x: 122,
+          x: 112,
           y: 156,
           fontSize: 19,
           fontWeight: 680,
@@ -697,12 +717,12 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
         },
       ],
     }),
-    node("bind-use-pill", "bind / use", {x: 750, y: 238, width: 176, height: 40}, {
+    node("bind-use-pill", "bind / use", {x: 856, y: 330, width: 140, height: 40}, {
       containerId: "page14-board",
       fontSizeOverride: 21,
       fontWeightOverride: 760,
     }),
-    node("gpu-runtime-stack", "GPU", {x: 872, y: 304, width: 176, height: 188}, {
+    node("gpu-runtime-stack", "GPU", {x: 1004, y: 300, width: 128, height: 196}, {
       containerId: "page14-board",
       fontSizeOverride: 32,
       fontWeightOverride: 800,
@@ -710,7 +730,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
     textNode(
       "page14-footer-1",
       "UE PSO 记录描述；Gfx PSO 是运行时对象 / 编译结果",
-      {x: 182, y: 534, width: 916, height: 32},
+      {x: 182, y: 544, width: 916, height: 32},
       {
         containerId: "page14-board",
         fontSizeOverride: 21,
@@ -720,7 +740,7 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
     textNode(
       "page14-footer-2",
       "注：Vulkan / Metal = BSS + State，OpenGL = BSS（无显式 State）",
-      {x: 160, y: 572, width: 960, height: 32},
+      {x: 160, y: 584, width: 960, height: 32},
       {
         containerId: "page14-board",
         fontSizeOverride: 19,
@@ -731,25 +751,25 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
   edges: [
     {
       id: "ue-to-gfx",
-      from: {x: 444, y: 398},
-      to: {x: 518, y: 398},
+      from: {x: 436, y: 398},
+      to: {x: 612, y: 398},
       tone: "primary",
       arrowEnd: true,
     },
     {
       id: "gfx-to-gpu",
-      from: {x: 762, y: 398},
-      to: {x: 872, y: 398},
+      from: {x: 852, y: 398},
+      to: {x: 1004, y: 398},
       tone: "primary",
       arrowEnd: true,
     },
     {
       id: "ue-to-rec",
-      from: {x: 320, y: 304},
-      to: {x: 320, y: 192},
+      from: {x: 300, y: 300},
+      to: {x: 300, y: 192},
       waypoints: [
-        {x: 320, y: 216},
-        {x: 320, y: 192},
+        {x: 300, y: 210},
+        {x: 300, y: 192},
       ],
       tone: "support",
       dashed: true,
@@ -757,6 +777,277 @@ const page14FormalReviewSketch: GeometrySketchDefinition = {
     },
   ],
 };
+
+const page16FormalReviewSketch = makeFormalReviewSketch(
+  "formal-page16",
+  "page_16",
+  "Page 16 why-expand stable uplift board",
+  [
+    node("page16-board", "", {x: 76, y: 56, width: 1128, height: 576}),
+    textNode("page16-title", "为什么需要 expand", {x: 104, y: 94, width: 324, height: 56}, {
+      containerId: "page16-board",
+      fontSizeOverride: 46,
+      fontWeightOverride: 840,
+    }),
+    textNode(
+      "page16-subtitle",
+      "旧版UE PSO不能直接复用",
+      {x: 76, y: 154, width: 400, height: 22},
+      {
+        containerId: "page16-board",
+        fontSizeOverride: 14,
+        fontWeightOverride: 700,
+        textColorOverride: "#66748a",
+      },
+    ),
+    textNode(
+      "page16-subtitle-line2",
+      "要靠同版本 Cook 的双向映射",
+      {x: 96, y: 178, width: 380, height: 22},
+      {
+        containerId: "page16-board",
+        fontSizeOverride: 14,
+        fontWeightOverride: 700,
+        textColorOverride: "#66748a",
+      },
+    ),
+    textNode("rec-phase-label", "手机包收集到的UE PSO", {x: 100, y: 232, width: 360, height: 32}, {
+      containerId: "page16-board",
+      fontSizeOverride: 17.5,
+      fontWeightOverride: 780,
+      textColorOverride: "#d06b44",
+    }),
+    node("rec-node", "", {x: 100, y: 272, width: 360, height: 104}, {
+      containerId: "page16-board",
+      textRuns: [
+        {
+          text: "ShaderHash + State",
+          x: 180,
+          y: 28,
+          fontSize: 22,
+          fontWeight: 800,
+          textAnchor: "middle",
+        },
+        {
+          text: "（历史版本）",
+          x: 180,
+          y: 54,
+          fontSize: 17.5,
+          fontWeight: 720,
+          textAnchor: "middle",
+        },
+        {
+          text: "rec.upipelinecache",
+          x: 180,
+          y: 80,
+          fontSize: 16,
+          fontWeight: 700,
+          textAnchor: "middle",
+        },
+      ],
+    }),
+    textNode("scl-phase-label-top", "和UE PSO同版本Cook出来的", {x: 380, y: 58, width: 540, height: 22}, {
+      containerId: "page16-board",
+      fontSizeOverride: 14,
+      fontWeightOverride: 720,
+      textColorOverride: "#d06b44",
+    }),
+    textNode("scl-phase-label", "双向映射", {x: 510, y: 82, width: 280, height: 26}, {
+      containerId: "page16-board",
+      fontSizeOverride: 17.5,
+      fontWeightOverride: 780,
+      textColorOverride: "#d06b44",
+    }),
+    node("scl-node", "", {x: 480, y: 110, width: 340, height: 84}, {
+      containerId: "page16-board",
+      textRuns: [
+        {
+          text: "ShaderHash <-> ShaderStableKey",
+          x: 170,
+          y: 28,
+          fontSize: 18.5,
+          fontWeight: 760,
+          textAnchor: "middle",
+        },
+        {
+          text: ".scl.csv",
+          x: 170,
+          y: 56,
+          fontSize: 16,
+          fontWeight: 700,
+          textAnchor: "middle",
+        },
+      ],
+    }),
+    node("expand-merge", "+", {x: 626, y: 300, width: 48, height: 48}, {
+      containerId: "page16-board",
+      shape: "circle",
+      fontSizeOverride: 26,
+      fontWeightOverride: 840,
+    }),
+    node("expand-pill", "expand", {x: 694, y: 288, width: 108, height: 34}, {
+      containerId: "page16-board",
+      fontSizeOverride: 17,
+      fontWeightOverride: 800,
+    }),
+    node("stablepc-node", "", {x: 820, y: 272, width: 360, height: 104}, {
+      containerId: "page16-board",
+      textRuns: [
+        {
+          text: "ShaderStableKey + State",
+          x: 180,
+          y: 30,
+          fontSize: 21,
+          fontWeight: 800,
+          textAnchor: "middle",
+        },
+        {
+          text: "stablepc.csv",
+          x: 180,
+          y: 62,
+          fontSize: 16,
+          fontWeight: 700,
+          textAnchor: "middle",
+        },
+      ],
+    }),
+    textNode("stable-note-top", "stable = 语义稳定", {x: 845, y: 404, width: 350, height: 28}, {
+      containerId: "page16-board",
+      fontSizeOverride: 18,
+      fontWeightOverride: 800,
+      textColorOverride: "#d06b44",
+    }),
+    textNode("stable-note-bottom", "不是 hash 稳定", {x: 895, y: 438, width: 250, height: 28}, {
+      containerId: "page16-board",
+      fontSizeOverride: 17,
+      fontWeightOverride: 740,
+      textColorOverride: "#556173",
+    }),
+    node("expand-example-card", "", {x: 100, y: 400, width: 560, height: 220}, {
+      containerId: "page16-board",
+      tone: "muted",
+    }),
+    textNode("expand-example-title", "Expand Example", {x: 118, y: 418, width: 246, height: 24}, {
+      containerId: "expand-example-card",
+      fontSizeOverride: 16,
+      fontWeightOverride: 820,
+      textColorOverride: "#556173",
+    }),
+    textNode(
+      "expand-example-detail",
+      "1 个 Hash_rec 映射到 2 个 StableKey",
+      {x: 118, y: 448, width: 366, height: 24},
+      {
+        containerId: "expand-example-card",
+        fontSizeOverride: 14.5,
+        fontWeightOverride: 740,
+        textColorOverride: "#66748a",
+      },
+    ),
+    node("hash-token", "Hash_rec", {x: 159, y: 514, width: 154, height: 40}, {
+      containerId: "expand-example-card",
+      fontSizeOverride: 16.5,
+      fontWeightOverride: 780,
+    }),
+    node("stable-key-a", "StableKey_A", {x: 483, y: 484, width: 154, height: 40}, {
+      containerId: "expand-example-card",
+      fontSizeOverride: 15.5,
+      fontWeightOverride: 780,
+    }),
+    node("stable-key-b", "StableKey_B", {x: 483, y: 544, width: 154, height: 40}, {
+      containerId: "expand-example-card",
+      fontSizeOverride: 15.5,
+      fontWeightOverride: 780,
+    }),
+  ],
+);
+
+const page17FormalReviewSketch = makeFormalReviewSketch(
+  "formal-page17",
+  "page_17",
+  "Page 17 build-only stable-to-current mapping board",
+  [
+    node("page17-board", "", {x: 146, y: 170, width: 988, height: 438}),
+    textNode("stable-label-top", "所有历史版本的", {x: 304, y: 212, width: 160, height: 24}, {
+      containerId: "page17-board",
+      fontSizeOverride: 14.4,
+      fontWeightOverride: 790,
+      textColorOverride: "#d06b44",
+    }),
+    textNode("stable-label", "稳定UE PSO", {x: 334, y: 238, width: 220, height: 24}, {
+      containerId: "page17-board",
+      fontSizeOverride: 14.6,
+      fontWeightOverride: 790,
+      textColorOverride: "#d06b44",
+    }),
+    node("stablepc-node", "", {x: 292, y: 266, width: 310, height: 72}, {
+      containerId: "page17-board",
+      textRuns: [
+        {
+          text: "ShaderStableKey + State",
+          x: 155,
+          y: 28,
+          fontSize: 18.2,
+          fontWeight: 790,
+          textAnchor: "middle",
+        },
+        {
+          text: "stablepc.csv",
+          x: 155,
+          y: 54,
+          fontSize: 15.2,
+          fontWeight: 720,
+          textAnchor: "middle",
+        },
+      ],
+    }),
+    textNode("current-label", "当前版本Cook出来的双向映射", {x: 238, y: 372, width: 360, height: 24}, {
+      containerId: "page17-board",
+      fontSizeOverride: 15,
+      fontWeightOverride: 790,
+      textColorOverride: "#d06b44",
+    }),
+    node("current-scl-node", ".scl.csv", {x: 286, y: 408, width: 264, height: 68}, {
+      containerId: "page17-board",
+      fontSizeOverride: 18.2,
+      fontWeightOverride: 780,
+    }),
+    textNode("mapping-example", "ShaderHash <-> ShaderStableKey", {x: 258, y: 488, width: 320, height: 24}, {
+      containerId: "page17-board",
+      fontSizeOverride: 15,
+      fontWeightOverride: 700,
+      textColorOverride: "#44536a",
+    }),
+    node("build-pill", "build", {x: 620, y: 286, width: 84, height: 36}, {
+      containerId: "page17-board",
+      fontSizeOverride: 16.8,
+      fontWeightOverride: 790,
+    }),
+    node("build-merge", "+", {x: 624, y: 340, width: 40, height: 40}, {
+      containerId: "page17-board",
+      shape: "circle",
+      fontSizeOverride: 23,
+      fontWeightOverride: 840,
+    }),
+    node("mapping-pill", "StableKey -> 当前 Hash", {x: 574, y: 408, width: 226, height: 36}, {
+      containerId: "page17-board",
+      fontSizeOverride: 14.2,
+      fontWeightOverride: 760,
+    }),
+    node("stable-cache-node", "stable.upipelinecache", {x: 764, y: 308, width: 318, height: 92}, {
+      containerId: "page17-board",
+      labelLines: ["stable.", "upipelinecache"],
+      fontSizeOverride: 18,
+      fontWeightOverride: 800,
+    }),
+    textNode("stable-cache-detail", "当前包体可以用作预编译的UE PSO", {x: 742, y: 272, width: 364, height: 24}, {
+      containerId: "page17-board",
+      fontSizeOverride: 14.8,
+      fontWeightOverride: 760,
+      textColorOverride: "#d06b44",
+    }),
+  ],
+);
 
 const page18FormalReviewSketch = makeFormalReviewSketch(
   "formal-page18",
@@ -1323,6 +1614,56 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("right-image", "Mesh 2 UV", {x: 610, y: 426, width: 584, height: 208}),
     node("footer", "Footer", {x: 120, y: 648, width: 1040, height: 48}),
   ]),
+  makeFormalReviewSketch("formal-page29-data", "page_29_data", "Page 29 data driver optimization", [
+    node("shader-card", "Shader", {x: 72, y: 56, width: 1136, height: 178}),
+    node("vertex-code", "Vertex Shader", {x: 72, y: 56, width: 552, height: 178}, {
+      containerId: "shader-card",
+      fontSizeOverride: 14,
+      fontWeightOverride: 760,
+    }),
+    node("fragment-code", "Fragment Shader", {x: 656, y: 56, width: 552, height: 178}, {
+      containerId: "shader-card",
+      fontSizeOverride: 14,
+      fontWeightOverride: 740,
+    }),
+    node("state-card", "State", {x: 72, y: 250, width: 1136, height: 78}),
+    node("state-vk", "Vulkan known at build", {x: 72, y: 250, width: 552, height: 78}, {
+      containerId: "state-card",
+      fontSizeOverride: 13,
+      fontWeightOverride: 780,
+    }),
+    node("state-gl", "OpenGL build-time blind", {x: 656, y: 250, width: 552, height: 78}, {
+      containerId: "state-card",
+      fontSizeOverride: 13,
+      fontWeightOverride: 760,
+    }),
+    node("pc-card", "PC RTX3080", {x: 72, y: 356, width: 552, height: 270}),
+    node("pc-row-1", "loop=10", {x: 126, y: 474, width: 444, height: 56}, {
+      containerId: "pc-card",
+      fontSizeOverride: 16,
+      fontWeightOverride: 760,
+    }),
+    node("pc-row-2", "loop=5000", {x: 126, y: 530, width: 444, height: 56}, {
+      containerId: "pc-card",
+      fontSizeOverride: 16,
+      fontWeightOverride: 760,
+    }),
+    node("android-card", "Android Adreno", {x: 656, y: 356, width: 552, height: 270}),
+    node("android-row-1", "loop=10", {x: 710, y: 474, width: 444, height: 56}, {
+      containerId: "android-card",
+      fontSizeOverride: 16,
+      fontWeightOverride: 760,
+    }),
+    node("android-row-2", "loop=5000", {x: 710, y: 530, width: 444, height: 56}, {
+      containerId: "android-card",
+      fontSizeOverride: 16,
+      fontWeightOverride: 760,
+    }),
+    node("footer-note", "Footnote", {x: 72, y: 644, width: 1136, height: 36}, {
+      fontSizeOverride: 15,
+      fontWeightOverride: 760,
+    }),
+  ]),
   makeFormalReviewSketch("formal-page30", "page_30", "Page 30 PSO reading", [
     node("reading-card", "PSO Reading", {x: 208, y: 148, width: 864, height: 446}),
     node("reading-note", "PSO Reading Note", {x: 266, y: 220, width: 736, height: 32}, {
@@ -1343,98 +1684,137 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     }),
   ]),
   makeFormalReviewSketch("formal-page31", "page_31", "Page 31 harness loop", [
-    node("loop-card", "Harness Loop", {x: 84, y: 138, width: 644, height: 418}),
-    node("agent-node", "Agent", {x: 104, y: 224, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("edge-node", "Front Edge Probe", {x: 320, y: 224, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("artifact-node", "Artifact", {x: 536, y: 224, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("metrics-node", "Metrics", {x: 536, y: 432, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("policy-node", "Policy", {x: 320, y: 432, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("feedback-node", "Feedback", {x: 104, y: 432, width: 176, height: 72}, {
-      containerId: "loop-card",
-    }),
-    node("helper-card", "Hook And Gates", {x: 752, y: 138, width: 378, height: 418}),
-    node("trigger-1", "hook", {x: 774, y: 230, width: 156, height: 42}, {
-      containerId: "helper-card",
-      fontSizeOverride: 18,
-    }),
-    node("trigger-2", "workflow_gate.py", {x: 946, y: 230, width: 164, height: 42}, {
-      containerId: "helper-card",
-      labelLines: ["workflow_gate", ".py"],
-      fontSizeOverride: 14,
-    }),
-    node("trigger-3", "review:mechanical", {x: 774, y: 286, width: 156, height: 42}, {
-      containerId: "helper-card",
-      labelLines: ["review:", "mechanical"],
-      fontSizeOverride: 13.5,
-    }),
-    node("trigger-4", "front Edge probe", {x: 946, y: 286, width: 164, height: 42}, {
-      containerId: "helper-card",
-      labelLines: ["front Edge", "probe"],
-      fontSizeOverride: 13.5,
-    }),
-    node("gate-1", "Overlap", {x: 774, y: 452, width: 156, height: 42}, {
-      containerId: "helper-card",
+    textNode("loop-core-kicker", "Live Harness", {x: 550, y: 280, width: 180, height: 28}, {
       fontSizeOverride: 16,
+      fontWeightOverride: 800,
+      textColorOverride: "#d06b44",
     }),
-    node("gate-2", "Crossing", {x: 946, y: 452, width: 164, height: 42}, {
-      containerId: "helper-card",
-      fontSizeOverride: 16,
+    textNode("loop-core-title", "先看真实结果", {x: 488, y: 310, width: 304, height: 40}, {
+      fontSizeOverride: 31,
+      fontWeightOverride: 820,
     }),
-    node("gate-3", "Pierce", {x: 774, y: 508, width: 156, height: 42}, {
-      containerId: "helper-card",
-      fontSizeOverride: 16,
+    textNode("loop-core-subtitle", "再决定停或继续", {x: 470, y: 356, width: 340, height: 36}, {
+      fontSizeOverride: 24,
+      fontWeightOverride: 760,
     }),
-    node("gate-4", "Overflow", {x: 946, y: 508, width: 164, height: 42}, {
-      containerId: "helper-card",
-      fontSizeOverride: 16,
+    node("hook-node", "Hook 进入", {x: 526, y: 166, width: 228, height: 74}, {
+      fontSizeOverride: 24,
+      fontWeightOverride: 760,
     }),
-    node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
-  ]),
-  makeFormalReviewSketch("formal-page32", "page_32", "Page 32 reading", [
-    node("culture-card", "Culture Reading", {x: 84, y: 136, width: 1048, height: 332}),
-    node("culture-link-1", "Foundation", {x: 122, y: 226, width: 408, height: 47}, {
-      containerId: "culture-card",
+    node("data-node", "网页数据评分", {x: 844, y: 292, width: 212, height: 86}, {
+      fontSizeOverride: 23,
+      fontWeightOverride: 760,
     }),
-    node("culture-link-2", "Dhring", {x: 122, y: 338, width: 408, height: 47}, {
-      containerId: "culture-card",
+    node("image-node", "网页图片评分", {x: 522, y: 452, width: 236, height: 86}, {
+      fontSizeOverride: 23,
+      fontWeightOverride: 760,
     }),
-    node("culture-link-3", "Marx Video", {x: 654, y: 226, width: 408, height: 47}, {
-      containerId: "culture-card",
+    node("receipt-node", "回执循环", {x: 224, y: 292, width: 220, height: 86}, {
+      fontSizeOverride: 24,
+      fontWeightOverride: 780,
     }),
-    node("culture-link-4", "Capital", {x: 654, y: 338, width: 408, height: 47}, {
-      containerId: "culture-card",
+    node("source-1", "workflow gate", {x: 520, y: 112, width: 236, height: 42}, {
+      fontSizeOverride: 14.5,
+      fontWeightOverride: 760,
     }),
-    node("game-card", "Game Reading", {x: 84, y: 502, width: 1048, height: 128}),
-    node("game-link-1", "Outer Wilds", {x: 114, y: 550, width: 420, height: 44}, {
-      containerId: "game-card",
+    node("source-2", "front probe", {x: 906, y: 228, width: 180, height: 42}, {
+      fontSizeOverride: 14.5,
+      fontWeightOverride: 760,
     }),
-    node("game-link-2", "Type Help", {x: 630, y: 550, width: 420, height: 44}, {
-      containerId: "game-card",
+    node("source-3", "browser capture", {x: 480, y: 560, width: 320, height: 42}, {
+      fontSizeOverride: 13.8,
+      fontWeightOverride: 760,
+    }),
+    node("source-4", "blind critics", {x: 146, y: 228, width: 194, height: 42}, {
+      fontSizeOverride: 14.5,
+      fontWeightOverride: 760,
+    }),
+    node("decision-1", "通过则停止", {x: 126, y: 394, width: 196, height: 44}, {
+      fontSizeOverride: 15,
+      fontWeightOverride: 780,
+    }),
+    node("decision-2", "不通过继续", {x: 126, y: 446, width: 196, height: 44}, {
+      fontSizeOverride: 15,
+      fontWeightOverride: 780,
     }),
   ]),
-  makeFormalReviewSketch("formal-page33", "page_33", "Page 33 quote", [
-    node("quote", "Closing Quote", {x: 192, y: 152, width: 896, height: 398}),
-    node("footer", "Quote Footer", {x: 430, y: 566, width: 420, height: 52}),
+  makeFormalReviewSketch("formal-page32", "page_32", "Page 32 feedback bridge", [
+    textNode("bridge-title", "反馈系统与人的学习", {x: 360, y: 96, width: 560, height: 52}, {
+      fontSizeOverride: 34,
+      fontWeightOverride: 830,
+      textColorOverride: "#d66630",
+    }),
+    node("concept-harness", "harness", {x: 490, y: 174, width: 300, height: 54}, {
+      fontSizeOverride: 28,
+      fontWeightOverride: 760,
+    }),
+    node("concept-loss", "loss + back propagation", {x: 430, y: 246, width: 420, height: 54}, {
+      fontSizeOverride: 26,
+      fontWeightOverride: 760,
+    }),
+    node("concept-feedback", "feedback system", {x: 474, y: 318, width: 332, height: 54}, {
+      fontSizeOverride: 27,
+      fontWeightOverride: 760,
+    }),
+    node("model-input", "Input", {x: 220, y: 432, width: 160, height: 88}, {
+      fontSizeOverride: 28,
+      fontWeightOverride: 680,
+    }),
+    node("model-fx", "f(x)", {x: 470, y: 418, width: 340, height: 116}, {
+      fontSizeOverride: 36,
+      fontWeightOverride: 700,
+    }),
+    node("model-output", "Output", {x: 900, y: 432, width: 160, height: 88}, {
+      fontSizeOverride: 28,
+      fontWeightOverride: 680,
+    }),
+    textNode("bridge-footer", "Feedback Bridge Footer", {x: 216, y: 606, width: 848, height: 38}, {
+      fontSizeOverride: 27,
+      fontWeightOverride: 800,
+      textColorOverride: "#d66630",
+    }),
+  ]),
+  makeFormalReviewSketch("formal-page33", "page_33", "Page 33 final epilogue", [
+    textNode("quote-title", "《逍遥游》", {x: 390, y: 96, width: 500, height: 52}, {
+      fontSizeOverride: 33,
+      fontWeightOverride: 830,
+      textColorOverride: "#d66630",
+    }),
+    textNode("quote-body", "Closing Quote", {x: 192, y: 172, width: 896, height: 240}, {
+      fontSizeOverride: 40,
+      fontWeightOverride: 760,
+    }),
+    textNode("quote-footer", "Quote Footer", {x: 370, y: 442, width: 540, height: 34}, {
+      fontSizeOverride: 21,
+      fontWeightOverride: 640,
+    }),
+    node("left-links-card", "Book And Video Reading", {x: 84, y: 500, width: 510, height: 164}),
+    node("left-link-1", "Foundation", {x: 110, y: 552, width: 448, height: 42}, {
+      containerId: "left-links-card",
+    }),
+    node("left-link-2", "Ideology Course", {x: 110, y: 610, width: 448, height: 42}, {
+      containerId: "left-links-card",
+    }),
+    node("right-links-card", "Game Reading", {x: 622, y: 500, width: 510, height: 164}),
+    node("right-link-1", "Outer Wilds", {x: 648, y: 552, width: 448, height: 42}, {
+      containerId: "right-links-card",
+    }),
+    node("right-link-2", "Type Help", {x: 648, y: 610, width: 448, height: 42}, {
+      containerId: "right-links-card",
+    }),
   ]),
 ];
 
 const FORMAL_PAGE_REVIEW_SKETCHES: GeometrySketchDefinition[] = [
   page00FormalReviewSketch,
+  page01FormalReviewSketch,
   page02FormalReviewSketch,
   page03FormalReviewSketch,
   page04DataFormalReviewSketch,
   page05FormalReviewSketch,
   page14FormalReviewSketch,
+  page16FormalReviewSketch,
+  page17FormalReviewSketch,
   page18FormalReviewSketch,
   page18ImageFormalReviewSketch,
   page19R1Sketch,

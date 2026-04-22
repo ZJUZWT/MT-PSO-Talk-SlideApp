@@ -37,6 +37,7 @@ export type StoryStepId =
   | "page_27"
   | "page_28"
   | "page_29"
+  | "page_29_data"
   | "page_30"
   | "page_31"
   | "page_32"
@@ -69,6 +70,7 @@ export type StoryStep = {
   notes: string;
   keyPoints?: string[];
   objectiveFacts?: string[];
+  highlightedObjectiveFactIds?: number[];
   apiHighlights?: string[];
   relatedLinks?: StoryLink[];
   focusTarget: string;

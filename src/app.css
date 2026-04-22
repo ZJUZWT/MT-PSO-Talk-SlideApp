@@ -559,7 +559,7 @@ select {
 }
 
 .notes-point-list--objective-facts {
-  gap: 10px;
+  gap: 0;
 }
 
 .notes-point-item {
@@ -576,11 +576,29 @@ select {
 .notes-point-item--objective-facts {
   overflow: hidden;
   isolation: isolate;
-  padding: 0.38rem 0.7rem 0.44rem 0.18rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.18rem;
   border-radius: 18px;
   font-size: 1.08rem;
   font-weight: 760;
   line-height: 1.64;
+}
+
+.notes-point-separator--objective-facts {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  min-height: 0.52rem;
+  margin: 0;
+  padding: 0 0.7rem 0 0.18rem;
+  background: var(--paper);
+}
+
+.notes-point-divider--objective-facts {
+  display: block;
+  inline-size: 100%;
+  height: 1px;
+  background: rgba(34, 48, 61, 0.1);
 }
 
 .notes-point-item--objective-facts[data-fact-state="new"] {
@@ -596,6 +614,19 @@ select {
     0 12px 28px rgba(198, 111, 76, 0.12);
 }
 
+.notes-point-item--objective-facts[data-fact-highlighted="true"] {
+  background: linear-gradient(
+    135deg,
+    rgba(198, 111, 76, 0.14) 0%,
+    rgba(198, 111, 76, 0.06) 44%,
+    rgba(255, 255, 255, 0.42) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(198, 111, 76, 0.16),
+    0 0 0 1px rgba(198, 111, 76, 0.06),
+    0 10px 22px rgba(198, 111, 76, 0.1);
+}
+
 .notes-point-item--objective-facts[data-fact-state="new"]::before {
   content: "";
   position: absolute;
@@ -607,6 +638,19 @@ select {
     radial-gradient(circle at 78% 50%, rgba(198, 111, 76, 0.22), transparent 40%);
   opacity: 0.28;
   animation: notes-objective-fact-glow 2280ms cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
+}
+
+.notes-point-item--objective-facts[data-fact-highlighted="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 244, 214, 0.54), transparent 34%),
+    radial-gradient(circle at 78% 50%, rgba(198, 111, 76, 0.16), transparent 38%);
+  opacity: 0.22;
+  animation: notes-objective-fact-glow 2480ms cubic-bezier(0.25, 1, 0.5, 1) infinite alternate;
 }
 
 .notes-point-item--objective-facts[data-fact-state="new"]::after {
@@ -630,6 +674,27 @@ select {
   animation: notes-objective-fact-sheen 3860ms cubic-bezier(0.16, 1, 0.3, 1) 240ms infinite;
 }
 
+.notes-point-item--objective-facts[data-fact-highlighted="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -8% -28%;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 252, 244, 0) 36%,
+    rgba(255, 252, 244, 0.52) 47%,
+    rgba(255, 239, 198, 0.68) 50%,
+    rgba(255, 252, 244, 0.52) 53%,
+    rgba(255, 252, 244, 0) 64%,
+    transparent 80%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translate3d(-132%, 0, 0);
+  animation: notes-objective-fact-sheen 4280ms cubic-bezier(0.16, 1, 0.3, 1) 320ms infinite;
+}
+
 .notes-point-bullet {
   flex: 0 0 auto;
   display: inline-grid;
@@ -647,6 +712,11 @@ select {
   line-height: 1;
 }
 
+.notes-point-item--objective-facts[data-fact-highlighted="true"] .notes-point-bullet {
+  background: color-mix(in srgb, var(--accent) 8%, rgba(255, 252, 248, 0.9) 92%);
+  box-shadow: 0 0 0 4px rgba(198, 111, 76, 0.12);
+}
+
 .notes-point-copy {
   flex: 1 1 auto;
 }
@@ -662,6 +732,10 @@ select {
 
 .notes-point-item--objective-facts[data-fact-state="new"] .notes-point-copy--objective-facts {
   color: color-mix(in srgb, var(--ink) 90%, var(--accent) 10%);
+}
+
+.notes-point-item--objective-facts[data-fact-highlighted="true"] .notes-point-copy--objective-facts {
+  color: color-mix(in srgb, var(--ink) 92%, var(--accent) 8%);
 }
 
 .notes-inline-emphasis {
@@ -693,6 +767,26 @@ select {
 }
 
 .notes-inline-emphasis--high-cost {
+  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
+}
+
+.notes-inline-emphasis--asset-self {
+  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
+}
+
+.notes-inline-emphasis--global-asset {
+  color: color-mix(in srgb, #5d8f68 86%, var(--ink) 14%);
+}
+
+.notes-inline-emphasis--global-index {
+  color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
+}
+
+.notes-inline-emphasis--shared-mode {
+  color: color-mix(in srgb, #4f8b72 78%, var(--accent) 22%);
+}
+
+.notes-inline-emphasis--hash-index {
   color: color-mix(in srgb, var(--accent) 84%, var(--ink) 16%);
 }
 

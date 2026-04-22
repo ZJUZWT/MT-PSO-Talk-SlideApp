@@ -38,6 +38,7 @@ describe("masterStoryboard", () => {
       "page_27",
       "page_28",
       "page_29",
+      "page_29_data",
       "page_30",
       "page_31",
       "page_32",
@@ -80,11 +81,29 @@ describe("masterStoryboard", () => {
     expect(page00?.manuscript).not.toContain("stablepc.csv");
   });
 
-  it("keeps session 4 focused on expand / build / merged precompile in one step", () => {
+  it("keeps session 4 through the player-facing delivery handoff", () => {
     expect(
       masterStoryboard.sessions?.find((session) => session.id === "s4-stable-precompile")
         ?.stepIds,
-    ).toEqual(["page_16", "page_17", "page_18", "page_18_img", "page_19"]);
+    ).toEqual(["page_16", "page_17", "page_18", "page_18_img", "page_19", "page_21"]);
+    expect(
+      masterStoryboard.sessions?.find((session) => session.id === "s5-awareness-bridge")
+        ?.stepIds,
+    ).toEqual([
+      "page_22",
+      "page_24",
+      "page_25",
+      "page_26",
+      "page_27",
+      "page_28",
+      "page_29",
+      "page_29_data",
+      "page_30",
+    ]);
+    expect(
+      masterStoryboard.sessions?.find((session) => session.id === "s6-optimization-notes")
+        ?.stepIds,
+    ).toEqual(["page_31", "page_32", "page_33"]);
   });
 
   it("describes page 14 as a UE-PSO record to Gfx-PSO runtime-object explanation page", () => {
@@ -96,13 +115,32 @@ describe("masterStoryboard", () => {
     expect(page14?.keyPoints).toContain(
       "UE PSO 是引擎侧记录 / 描述，Gfx PSO 是 RHI / driver 侧运行时对象。",
     );
-    expect(page14?.apiHighlights).toEqual(
-      expect.arrayContaining(["UE PSO", "Gfx PSO", ".rec.upipelinecache"]),
-    );
+    expect(page14?.apiHighlights).toEqual([
+      ".rec.upipelinecache",
+      "CreatePSO类",
+      "BindPSO类",
+    ]);
     expect(page14?.manuscript).toContain("UE PSO");
     expect(page14?.manuscript).toContain("Gfx PSO");
     expect(page14?.manuscript).toContain("GPU 不是把 `UE PSO` 变成 `Gfx PSO` 的转换器");
     expect(page14?.manuscript).not.toContain("stablepc.csv");
+  });
+
+  it("restores page11 collection premise and shortens page18 closed-loop fact", () => {
+    const page11 = masterStoryboard.steps.find((step) => step.id === "page_11");
+    const page18 = masterStoryboard.steps.find((step) => step.id === "page_18");
+
+    expect(page11).toBeDefined();
+    expect(page11?.objectiveFacts).toContain(
+      "由于②，PSO只能从真机上面收集到真实被使用的条目，而我们需要在测试环境跑收集循环。",
+    );
+    expect(page11?.apiHighlights).toEqual([".ushaderbytecode"]);
+    expect(page11?.manuscript).toContain(".ushaderbytecode");
+
+    expect(page18).toBeDefined();
+    expect(page18?.objectiveFacts).toContain(
+      "PSO收集闭环：Phone采集，Computer经Expand / Build，再回到Phone。",
+    );
   });
 
   it("marks only the still-retired late-tail placeholders as hidden in navigation", () => {
@@ -115,6 +153,7 @@ describe("masterStoryboard", () => {
     expect(stepById.get("page_22")?.hiddenInNavigation).not.toBe(true);
     expect(stepById.get("page_26")?.hiddenInNavigation).not.toBe(true);
     expect(stepById.get("page_28")?.hiddenInNavigation).not.toBe(true);
+    expect(stepById.get("page_29_data")?.hiddenInNavigation).not.toBe(true);
     expect(stepById.get("page_31")?.hiddenInNavigation).not.toBe(true);
   });
 
@@ -159,6 +198,7 @@ describe("masterStoryboard", () => {
     const page27 = requireStep("page_27");
     const page28 = requireStep("page_28");
     const page29 = requireStep("page_29");
+    const page29Data = requireStep("page_29_data");
     const page30 = requireStep("page_30");
     const page31 = requireStep("page_31");
     const page32 = requireStep("page_32");
@@ -250,9 +290,13 @@ describe("masterStoryboard", () => {
     expect(page08.manuscript).toContain("metadata");
     expect(page08.manuscript).toContain("ShaderCode");
     expect(page09.label).toContain("提供全局表进行Hash索引");
-    expect(page09.objectiveFacts).toContain("Shared模式下ShaderCode由全局资产持有");
+    expect(page09.objectiveFacts).toContain(
+      "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+    );
     expect(page09.manuscript).toContain("SharedCode");
-    expect(page09.manuscript).toContain("Shared模式下ShaderCode由全局资产持有");
+    expect(page09.manuscript).toContain(
+      "Shared模式下ShaderCode由全局资产持有，含全局索引，Material共享",
+    );
     expect(page09.manuscript).toContain("ShaderHashTable");
     expect(page09.manuscript).toContain("LibraryShaderIndex");
     expect(page09.manuscript).toContain("PSO");
@@ -297,6 +341,7 @@ describe("masterStoryboard", () => {
     expect(page15.manuscript).toContain("回程");
     expect(page15.manuscript).not.toContain("stablepc.csv");
     expect(page15Img.label).toContain("插页证据");
+    expect(page15Img.apiHighlights).toEqual([".rec.upipelinecache"]);
     expect(page15Img.manuscript).toContain(".rec.upipelinecache");
     expect(page16.label).toContain("Expand");
     expect(page16.manuscript).toContain("rec.upipelinecache");
@@ -324,9 +369,16 @@ describe("masterStoryboard", () => {
     expect(page17.manuscript).toContain("stablepc.csv");
     expect(page17.manuscript).toContain("stable.upipelinecache");
     expect(page17.manuscript).toContain("build");
+    expect(page17.objectiveFacts).toContain(
+      "Hash版本间不稳定，ShaderStableKey版本间稳定",
+    );
     expect(page15.notesDataTable).toBeUndefined();
     expect(page18.label).toContain("闭环");
+    expect(page18.objectiveFacts).toContain(
+      "PSO收集闭环：Phone采集，Computer经Expand / Build，再回到Phone。",
+    );
     expect(page18.manuscript).toContain("stable.upipelinecache");
+    expect(page18.manuscript).toContain("PSO收集循环");
     expect(page18.manuscript).toContain("闭合");
     expect(page18.manuscript).toContain("手机");
     expect(page18Img.label).toContain("插页证据");
@@ -346,6 +398,14 @@ describe("masterStoryboard", () => {
     expect(page19.manuscript).toContain("binary / cache");
     expect(page19.manuscript).toContain("旧缓存失效");
     expect(page19.manuscript).toContain("Binary Archive 2");
+    expect(page19.apiHighlights).toContain("BinaryFileCache");
+    expect(page19.objectiveFacts).toContain(
+      "编译后的 PSO 可缓存成本地 binary，后续直接 Load。",
+    );
+    expect(page19.objectiveFacts).toContain(
+      "本地 binary 强依赖 OS / 驱动 / 芯片，不能稳定分发。",
+    );
+    expect(page19.manuscript).toContain("构建机上能用的本地二进制");
     expect(page21.label).toContain("玩家视角");
     expect(page21.caption).toContain("stable.upipelinecache");
     expect(page21.caption).toContain("ShaderLibrary");
@@ -356,8 +416,14 @@ describe("masterStoryboard", () => {
     expect(page21.manuscript).toContain("外网玩家");
     expect(page21.notes).toContain("删掉蓝色 `cook` 支线");
     expect(page22.label).toContain("我的理解");
-    expect(page22.manuscript).toContain("PSO 是对象");
-    expect(page22.manuscript).toContain("PSO Cache");
+    expect(page22.caption).toContain("五连反证表");
+    expect(page22.manuscript).toContain("不打开 `SharedShaderCode`");
+    expect(page22.manuscript).not.toContain("A1");
+    expect(page22.manuscript).not.toContain("A2");
+    expect(page22.manuscript).toContain("构建机构建的二进制");
+    expect(page22.manuscript).toContain("`.rec.upipelinecache`");
+    expect(page22.notes).toContain("发光");
+    expect(page22.notes).toContain("不再补");
     expect(page22.manuscript).toContain("不会消失");
     expect(page22.manuscript).toContain("只会转移");
     expect(page24.label).toContain("包体");
@@ -399,34 +465,45 @@ describe("masterStoryboard", () => {
     expect(page29.manuscript).toContain("1 个 UV");
     expect(page29.manuscript).toContain("2 个 UV");
     expect(page29.manuscript).toContain("同一个Material作用于不同的Mesh也会产生不同的PSO");
+    expect(page29Data.label).toContain("PSO驱动层");
+    expect(page29Data.manuscript).toContain("loop=10");
+    expect(page29Data.manuscript).toContain("loop=5000");
+    expect(page29Data.manuscript).toContain("RTX 3080");
+    expect(page29Data.manuscript).toContain("Adreno");
+    expect(page29Data.manuscript).toContain("blendAtt.colorWriteMask = 0");
+    expect(page29Data.manuscript).toContain("桌面驱动");
+    expect(page29Data.manuscript).toContain("移动端驱动");
     expect(page30.label).toContain("PSO 延伸阅读");
     expect(page30.manuscript).toContain("PSO Precaching for Unreal Engine");
     expect(page30.manuscript).toContain("PSO 小实验");
     expect(page30.manuscript).toContain("UE项目优化：PSO Cache");
     expect(page30.manuscript).toContain("Mesa");
-    expect(page31.label).toContain("自动回环");
-    expect(page31.manuscript).toContain("geometryReviewArtifact");
-    expect(page31.manuscript).toContain("geometryMetrics");
-    expect(page31.manuscript).toContain("geometryScorePolicy");
-    expect(page31.manuscript).toContain("hook");
+    expect(page31.label).toContain("先看真实结果");
+    expect(page31.manuscript).toContain("Hook");
     expect(page31.manuscript).toContain("workflow_gate.py");
-    expect(page31.manuscript).toContain("Microsoft Edge");
+    expect(page31.manuscript).toContain("front Edge probe");
+    expect(page31.manuscript).toContain("browser-api capture");
+    expect(page31.manuscript).toContain("blind critics");
     expect(page31.manuscript).toContain("review:mechanical");
-    expect(page31.manuscript).toContain("真实数据");
-    expect(page32.label).toContain("延伸阅读");
-    expect(page32.manuscript).not.toContain("PSO 小实验");
-    expect(page32.manuscript).not.toContain("PSO Precaching for Unreal Engine");
-    expect(page32.manuscript).not.toContain("Mesa 开源驱动");
-    expect(page32.manuscript).toContain("银河帝国");
-    expect(page32.manuscript).toContain("艾萨克·阿西莫夫");
-    expect(page32.manuscript).toContain("反杜林论");
-    expect(page32.manuscript).toContain("弗里德里希·恩格斯");
-    expect(page32.manuscript).toContain("马克思主义哲学");
-    expect(page32.manuscript).toContain("星际拓荒");
-    expect(page32.manuscript).toContain("Type Help");
+    expect(page31.manuscript).toContain("通过");
+    expect(page31.manuscript).toContain("继续改");
+    expect(page32.label).toContain("反馈系统");
+    expect(page32.manuscript).toContain("loss + back propagation");
+    expect(page32.manuscript).toContain("feedback system");
+    expect(page32.manuscript).toContain("从具体问题往上抽象");
+    expect(page32.manuscript).toContain("Input / f(x) / Output");
+    expect(page32.manuscript).toContain("看似无用");
     expect(page33.label).toContain("逍遥游");
+    expect(page33.manuscript).not.toContain("PSO 小实验");
+    expect(page33.manuscript).not.toContain("PSO Precaching for Unreal Engine");
+    expect(page33.manuscript).not.toContain("Mesa 开源驱动");
     expect(page33.manuscript).toContain("今子有大树");
     expect(page33.manuscript).toContain("无何有之乡");
     expect(page33.manuscript).toContain("安所困苦哉");
+    expect(page33.manuscript).toContain("银河帝国");
+    expect(page33.manuscript).not.toContain("弗里德里希·恩格斯");
+    expect(page33.manuscript).toContain("人类高质量思政课");
+    expect(page33.manuscript).toContain("星际拓荒");
+    expect(page33.manuscript).toContain("Type Help");
   });
 });

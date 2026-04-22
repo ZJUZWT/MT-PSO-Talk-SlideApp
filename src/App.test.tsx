@@ -291,7 +291,7 @@ describe("App", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: "A: 为了保持映射。",
+        name: "A: 因为 Hash 不是跨版本稳定标识",
         level: 1,
       }),
     ).toBeInTheDocument();

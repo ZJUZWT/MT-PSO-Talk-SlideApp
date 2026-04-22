@@ -59,6 +59,7 @@ const LEGACY_STEP_FRAME_MAP = {
   page_27: 2004,
   page_28: 2094,
   page_29: 2184,
+  page_29_data: 2230,
   page_30: 2274,
   page_31: 2364,
   page_32: 2454,
@@ -101,6 +102,10 @@ function remapLegacyFrame(legacyFrame: number) {
 
 function setLegacyFrame(legacyFrame: number) {
   mockFrame = remapLegacyFrame(legacyFrame);
+}
+
+function setStepFrame(stepId: keyof typeof LEGACY_STEP_FRAME_MAP, offset = 0) {
+  mockFrame = resolveRemotionStepFrame(stepId) + offset;
 }
 
 function normalizeText(value: string | null | undefined) {
@@ -2913,6 +2918,15 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page17Container, "stablepc.csv").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "stable.").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "upipelinecache").length).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(page17Container, "所有历史版本的稳定UE PSO").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(page17Container, "当前版本Cook出来的双向映射").length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      findSvgTextNodesByContent(page17Container, "当前包体可以用作预编译的UE PSO").length,
+    ).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "K1").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "K2").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page17Container, "H_a").length).toBeGreaterThanOrEqual(1);
@@ -2948,18 +2962,20 @@ describe("MyComposition", () => {
     expect(findSvgTextNodesByContent(page19Container, "GPU").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page19Container, "VertexData").length).toBe(0);
     expect(findSvgTextNodesByContent(page19Container, "Pixels").length).toBe(0);
-    expect(findSvgTextNodesByContent(page19Container, "GfxPSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "OpenGL").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Program Binary").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Vulkan").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Pipeline Cache").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Metal").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Binary Archive").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "系统管理").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "内存中GfxPSO").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(page19Container, "硬盘中的 PSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "Program Binary").length).toBeGreaterThanOrEqual(2);
-    expect(findSvgTextNodesByContent(page19Container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(page19Container, "functions.data").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(page19Container, "PSO 1").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "PSO 2").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "PSO ...").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "OpenGL").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "Program Binary").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "Vulkan").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "Pipeline Cache").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "Metal").length).toBe(1);
+    expect(findSvgTextNodesByContent(page19Container, "Binary Archive").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "系统管理").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "VulkanPSO.cache").length).toBe(0);
+    expect(findSvgTextNodesByContent(page19Container, "functions.data").length).toBe(0);
     expect(findSvgTextNodesByContent(page19Container, "Precompile").length).toBe(0);
   });
 
@@ -2989,10 +3005,13 @@ describe("MyComposition", () => {
     const gfxRect = nearestBoxRect(gfxLabel);
     const recordRect = nearestBoxRect(recordLabel);
     const createRect = nearestBoxRect(createLabel);
+    const bindRect = nearestBoxRect(bindLabel);
     const ueToGfxArrow = container.querySelector('[data-testid="page14-ue-to-gfx-arrow"]');
     const gfxToGpuArrow = container.querySelector('[data-testid="page14-gfx-to-gpu-arrow"]');
     const ueToRecArrow = container.querySelector('[data-testid="page14-ue-to-rec-arrow"]');
     const ueToRecVertices = parsePolylineVertices(ueToRecArrow);
+    const ueToGfxPoints = parseSimplePathPoints(ueToGfxArrow);
+    const gfxToGpuPoints = parseSimplePathPoints(gfxToGpuArrow);
     const phoneRuntimeRoot = gpuLabel
       ?.closest('[data-testid="page10-phone-runtime"]')
       ?.parentElement;
@@ -3011,6 +3030,7 @@ describe("MyComposition", () => {
     expect(gfxRect).not.toBeNull();
     expect(recordRect).not.toBeNull();
     expect(createRect).not.toBeNull();
+    expect(bindRect).not.toBeNull();
     expect(findSvgTextNodesByContent(container, "ShaderHash + State").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "RHI / driver object").length).toBeGreaterThanOrEqual(1);
     expect(
@@ -3019,35 +3039,41 @@ describe("MyComposition", () => {
     expect(fontSizeOf(ueLabel)).toBeGreaterThanOrEqual(20.5);
     expect(fontSizeOf(gfxLabel)).toBeGreaterThanOrEqual(20.5);
     expect(fontSizeOf(recLabel)).toBeGreaterThanOrEqual(18);
-    expect(fontSizeOf(recordLabel)).toBeGreaterThanOrEqual(22);
+    expect(fontSizeOf(recordLabel)).toBeGreaterThanOrEqual(21);
     expect(fontSizeOf(createLabel)).toBeGreaterThanOrEqual(22);
     expect(fontSizeOf(bindLabel)).toBeGreaterThanOrEqual(22);
     expect(Math.abs(textX(recLabel) - textX(ueLabel))).toBeLessThanOrEqual(6);
-    expect(Math.abs(rectCenterX(ueRect) - 320)).toBeLessThanOrEqual(4);
-    expect(Math.abs(rectCenterX(gfxRect) - 640)).toBeLessThanOrEqual(4);
-    expect(Math.abs(renderedGpuX - 960)).toBeLessThanOrEqual(4);
+    expect(Math.abs(rectCenterX(ueRect) - 300)).toBeLessThanOrEqual(6);
+    expect(Math.abs(rectCenterX(gfxRect) - 732)).toBeLessThanOrEqual(6);
+    expect(Math.abs(renderedGpuX - 1072)).toBeLessThanOrEqual(6);
     expect(Math.abs(rectCenterY(ueRect) - textY(gpuLabel))).toBeLessThanOrEqual(2);
     expect(Math.abs(rectCenterY(gfxRect) - textY(gpuLabel))).toBeLessThanOrEqual(2);
-    expect(textX(gfxLabel) - textX(ueLabel)).toBeGreaterThanOrEqual(300);
+    expect(textX(gfxLabel) - textX(ueLabel)).toBeGreaterThanOrEqual(426);
     expect(rectMetrics(nearestBoxRect(recLabel)).width).toBeGreaterThanOrEqual(288);
-    expect(textX(recordLabel)).toBeLessThan(textX(ueLabel) - 24);
-    expect(textY(createLabel)).toBeLessThan(textY(ueLabel) - 90);
-    expect(textX(bindLabel)).toBeGreaterThan(textX(gfxLabel) + 140);
-    expect(textX(bindLabel)).toBeLessThan(renderedGpuX - 80);
+    expect(Math.abs((ueToRecVertices[0]?.x ?? 0) - rectMetrics(recordRect).right)).toBeLessThanOrEqual(16);
+    expect(
+      Math.abs(textX(createLabel) - (((ueToGfxPoints?.x1 ?? 0) + (ueToGfxPoints?.x2 ?? 0)) / 2)),
+    ).toBeLessThanOrEqual(8);
+    expect(
+      Math.abs(textX(bindLabel) - (((gfxToGpuPoints?.x1 ?? 0) + (gfxToGpuPoints?.x2 ?? 0)) / 2)),
+    ).toBeLessThanOrEqual(8);
+    expect((ueToGfxPoints?.y1 ?? 0) - rectMetrics(createRect).bottom).toBeLessThanOrEqual(40);
+    expect((gfxToGpuPoints?.y1 ?? 0) - rectMetrics(bindRect).bottom).toBeLessThanOrEqual(40);
+    expect((ueToRecVertices[0]?.y ?? 0) - rectMetrics(recordRect).bottom).toBeLessThanOrEqual(30);
     expect(rectMetrics(recordRect).right).toBeLessThanOrEqual(rectMetrics(createRect).x);
-    expect(rectMetrics(recordRect).right).toBeLessThan(textX(ueLabel) - 12);
+    expect(rectMetrics(recordRect).right).toBeLessThan(rectMetrics(createRect).x - 24);
     expect(ueToGfxArrow).not.toBeNull();
     expect(gfxToGpuArrow).not.toBeNull();
     expect(ueToRecArrow).not.toBeNull();
     expect(strokePalette(ueToGfxArrow)).toBe("#d06b44");
     expect(strokePalette(gfxToGpuArrow)).toBe("#d06b44");
     expect(strokePalette(ueToRecArrow)).toBe(LOOP_CLOUD_STROKE);
-    expect(Math.abs((parseSimplePathPoints(ueToGfxArrow)?.y1 ?? 0) - textY(gpuLabel))).toBeLessThanOrEqual(2);
-    expect(Math.abs((parseSimplePathPoints(gfxToGpuArrow)?.y1 ?? 0) - textY(gpuLabel))).toBeLessThanOrEqual(2);
-    expect(Math.abs((ueToRecVertices[1]?.x ?? 0) - textX(ueLabel))).toBeLessThanOrEqual(96);
-    expect(Math.abs((ueToRecVertices[2]?.x ?? 0) - textX(ueLabel))).toBeLessThanOrEqual(96);
-    expect(parseSimplePathLength(ueToGfxArrow)).toBeGreaterThanOrEqual(47);
-    expect(parseSimplePathLength(gfxToGpuArrow)).toBeGreaterThanOrEqual(120);
+    expect(Math.abs((ueToGfxPoints?.y1 ?? 0) - textY(gpuLabel))).toBeLessThanOrEqual(2);
+    expect(Math.abs((gfxToGpuPoints?.y1 ?? 0) - textY(gpuLabel))).toBeLessThanOrEqual(2);
+    expect(Math.abs((ueToRecVertices[1]?.x ?? 0) - textX(ueLabel))).toBeLessThanOrEqual(72);
+    expect(Math.abs((ueToRecVertices[2]?.x ?? 0) - textX(ueLabel))).toBeLessThanOrEqual(72);
+    expect(parseSimplePathLength(ueToGfxArrow)).toBeGreaterThanOrEqual(120);
+    expect(parseSimplePathLength(gfxToGpuArrow)).toBeGreaterThanOrEqual(156);
     expect(parseSimplePathLength(ueToRecArrow)).toBeGreaterThanOrEqual(70);
   });
 
@@ -3137,6 +3163,99 @@ describe("MyComposition", () => {
     ).toBe("#d06b44");
   });
 
+  it("widens the page 16 and 17 top cards so semantic titles stay on one line and version tags drop below", () => {
+    const highestOpacityNode = (container: HTMLElement, label: string) =>
+      findSvgTextNodesByContent(container, label)
+        .sort((left, right) => effectiveOpacity(right) - effectiveOpacity(left))[0];
+    const nearestBoxRect = (node: Element | undefined) => {
+      let current = node?.closest("g") ?? null;
+
+      while (current && !current.querySelector("rect")) {
+        current = current.parentElement?.closest("g") ?? null;
+      }
+
+      return current?.querySelector("rect") ?? null;
+    };
+
+    mockFrame = resolveRemotionStepFrame("page_16") + 24;
+    const {container: page16Container, unmount: unmount16} = render(
+      <MyComposition variantId="bus-clean" />,
+    );
+
+    const historyTitle = highestOpacityNode(page16Container, "ShaderHash + State");
+    const historyVersion = highestOpacityNode(page16Container, "（历史版本）");
+    const historyFile = highestOpacityNode(page16Container, "rec.upipelinecache");
+    const stableTitle = highestOpacityNode(page16Container, "ShaderStableKey + State");
+    const stableFile = highestOpacityNode(page16Container, "stablepc.csv");
+    const mappingTitle = highestOpacityNode(page16Container, "ShaderHash <-> ShaderStableKey");
+    const mappingFile = highestOpacityNode(page16Container, ".scl.csv");
+    const historyRect = nearestBoxRect(historyTitle);
+    const stableRect = nearestBoxRect(stableTitle);
+    const mappingRect = nearestBoxRect(mappingTitle);
+
+    expect(historyTitle).toBeDefined();
+    expect(historyVersion).toBeDefined();
+    expect(historyFile).toBeDefined();
+    expect(stableTitle).toBeDefined();
+    expect(stableFile).toBeDefined();
+    expect(mappingTitle).toBeDefined();
+    expect(mappingFile).toBeDefined();
+    expect(historyRect).not.toBeNull();
+    expect(stableRect).not.toBeNull();
+    expect(mappingRect).not.toBeNull();
+    expect(rectMetrics(historyRect).width).toBeGreaterThanOrEqual(344);
+    expect(rectMetrics(stableRect).width).toBeGreaterThanOrEqual(344);
+    expect(rectMetrics(mappingRect).width).toBeGreaterThanOrEqual(320);
+    expect(textY(historyTitle)).toBeLessThan(textY(historyVersion));
+    expect(textY(historyVersion)).toBeLessThan(textY(historyFile));
+    expect(fontSizeOf(historyVersion)).toBeLessThan(fontSizeOf(historyTitle));
+    expect(Math.abs(textX(historyTitle) - rectCenterX(historyRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(stableTitle) - rectCenterX(stableRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(mappingTitle) - rectCenterX(mappingRect))).toBeLessThanOrEqual(2);
+    expect(findSvgTextNodesByContent(page16Container, "ShaderStableKey").length).toBe(0);
+    expect(findSvgTextNodesByContent(page16Container, "ShaderHash <->").length).toBe(0);
+
+    unmount16();
+    mockFrame = resolveRemotionStepFrame("page_17") + 24;
+    const {container: page17Container} = render(<MyComposition variantId="bus-clean" />);
+
+    const currentTitle = highestOpacityNode(page17Container, "ShaderHash + State");
+    const currentVersion = highestOpacityNode(page17Container, "（当前版本）");
+    const currentFile = highestOpacityNode(page17Container, "stable.upipelinecache");
+    const page17StableTitle = highestOpacityNode(page17Container, "ShaderStableKey + State");
+    const page17StableFile = highestOpacityNode(page17Container, "stablepc.csv");
+    const page17MappingTitle = highestOpacityNode(
+      page17Container,
+      "ShaderHash <-> ShaderStableKey",
+    );
+    const page17MappingFile = highestOpacityNode(page17Container, ".scl.csv");
+    const currentRect = nearestBoxRect(currentTitle);
+    const page17StableRect = nearestBoxRect(page17StableTitle);
+    const page17MappingRect = nearestBoxRect(page17MappingTitle);
+
+    expect(currentTitle).toBeDefined();
+    expect(currentVersion).toBeDefined();
+    expect(currentFile).toBeDefined();
+    expect(page17StableTitle).toBeDefined();
+    expect(page17StableFile).toBeDefined();
+    expect(page17MappingTitle).toBeDefined();
+    expect(page17MappingFile).toBeDefined();
+    expect(currentRect).not.toBeNull();
+    expect(page17StableRect).not.toBeNull();
+    expect(page17MappingRect).not.toBeNull();
+    expect(rectMetrics(currentRect).width).toBeGreaterThanOrEqual(344);
+    expect(rectMetrics(page17StableRect).width).toBeGreaterThanOrEqual(344);
+    expect(rectMetrics(page17MappingRect).width).toBeGreaterThanOrEqual(320);
+    expect(textY(currentTitle)).toBeLessThan(textY(currentVersion));
+    expect(textY(currentVersion)).toBeLessThan(textY(currentFile));
+    expect(fontSizeOf(currentVersion)).toBeLessThan(fontSizeOf(currentTitle));
+    expect(Math.abs(textX(currentTitle) - rectCenterX(currentRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(page17StableTitle) - rectCenterX(page17StableRect))).toBeLessThanOrEqual(2);
+    expect(Math.abs(textX(page17MappingTitle) - rectCenterX(page17MappingRect))).toBeLessThanOrEqual(2);
+    expect(findSvgTextNodesByContent(page17Container, "ShaderStableKey").length).toBe(0);
+    expect(findSvgTextNodesByContent(page17Container, "ShaderHash <->").length).toBe(0);
+  });
+
   it("renders merged page 19 as one centered precompile-to-cache diagram", () => {
     mockFrame = resolveRemotionStepFrame("page_19") + 8;
     const {container} = render(<MyComposition variantId="bus-clean" />);
@@ -3150,12 +3269,8 @@ describe("MyComposition", () => {
       (node) => effectiveOpacity(node) > 0.16,
     );
     const gpuLabels = findSvgTextNodesByContent(container, "GPU");
-    const gfxTitle = findSvgTextNodesByContent(container, "GfxPSO")[0];
+    const gfxTitle = findSvgTextNodesByContent(container, "内存中GfxPSO")[0];
     const diskTitle = findSvgTextNodesByContent(container, "硬盘中的 PSO")[0];
-    const openGlLabel = findSvgTextNodesByContent(container, "OpenGL")[0];
-    const diskCacheLabel = findSvgTextNodesByContent(container, "VulkanPSO.cache")[0];
-    const pso1Label = findSvgTextNodesByContent(container, "PSO 1")[0];
-    const pso2Label = findSvgTextNodesByContent(container, "PSO 2")[0];
     const rawTextContent = Array.from(container.querySelectorAll("text")).map(
       (node) => node.textContent?.trim(),
     );
@@ -3169,23 +3284,22 @@ describe("MyComposition", () => {
     expect(container.querySelectorAll('[data-testid="pixel-grid"]').length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "VertexData").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "Pixels").length).toBe(0);
-    expect(findSvgTextNodesByContent(container, "PSO 1").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "PSO 2").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "PSO ...").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "PSO 1").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "PSO 2").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "PSO ...").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "UE 1").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "UE 2").length).toBe(0);
-    expect(findSvgTextNodesByContent(container, "GfxPSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "OpenGL").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Program Binary").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Vulkan").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Pipeline Cache").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Metal").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Binary Archive").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "系统管理").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "内存中GfxPSO").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "OpenGL").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Program Binary").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Vulkan").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Pipeline Cache").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "Metal").length).toBe(1);
+    expect(findSvgTextNodesByContent(container, "Binary Archive").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "系统管理").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "硬盘中的 PSO").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "Program Binary").length).toBeGreaterThanOrEqual(2);
-    expect(findSvgTextNodesByContent(container, "VulkanPSO.cache").length).toBeGreaterThanOrEqual(1);
-    expect(findSvgTextNodesByContent(container, "functions.data").length).toBeGreaterThanOrEqual(1);
+    expect(findSvgTextNodesByContent(container, "VulkanPSO.cache").length).toBe(0);
+    expect(findSvgTextNodesByContent(container, "functions.data").length).toBe(0);
     expect(findSvgTextNodesByContent(container, "Shader / State").length).toBeGreaterThanOrEqual(1);
     expect(findSvgTextNodesByContent(container, "codegen / 映射").length).toBeGreaterThanOrEqual(1);
     expect(
@@ -3208,17 +3322,16 @@ describe("MyComposition", () => {
           (rectMetrics(diskRect).x - rectMetrics(gfxRect).right),
       ),
     ).toBeLessThanOrEqual(1);
+    expect(rectMetrics(stableRect).height).toBeLessThanOrEqual(240);
+    expect(rectMetrics(gfxRect).height).toBeLessThanOrEqual(240);
+    expect(rectMetrics(diskRect).height).toBeLessThanOrEqual(240);
     expect(fontSizeOf(uePsoLabel)).toBeGreaterThanOrEqual(34);
-    expect(fontSizeOf(stableTitle)).toBeGreaterThanOrEqual(18);
+    expect(fontSizeOf(stableTitle)).toBeGreaterThanOrEqual(16.5);
     expect(fontSizeOf(uePsoLabel)).toBeGreaterThan(fontSizeOf(stableTitle));
     expect(textY(uePsoLabel)).toBeLessThan(textY(stableTitle));
     expect(Math.max(...gpuLabels.map((node) => fontSizeOf(node)))).toBeGreaterThanOrEqual(52);
     expect(fontSizeOf(gfxTitle)).toBeGreaterThanOrEqual(30);
-    expect(fontSizeOf(diskTitle)).toBeGreaterThanOrEqual(28);
-    expect(fontSizeOf(openGlLabel)).toBeGreaterThanOrEqual(22);
-    expect(fontSizeOf(diskCacheLabel)).toBeGreaterThanOrEqual(19);
-    expect(fontSizeOf(pso1Label)).toBeGreaterThanOrEqual(23);
-    expect(fontSizeOf(pso2Label)).toBeGreaterThanOrEqual(23);
+    expect(fontSizeOf(diskTitle)).toBeGreaterThanOrEqual(30);
   });
 
   it("keeps the page 18 image handoff from flashing back to the old loop stage", () => {
@@ -3234,7 +3347,7 @@ describe("MyComposition", () => {
     const visiblePage19Nodes = [
       ...findSvgTextNodesByContent(container, "stable.upipelinecache"),
       ...findSvgTextNodesByContent(container, "UE PSO"),
-      ...findSvgTextNodesByContent(container, "GfxPSO"),
+      ...findSvgTextNodesByContent(container, "内存中GfxPSO"),
     ].filter((node) => effectiveOpacity(node) > 0.08);
 
     expect(findVisibleLegacyLoopNodes(container).length).toBe(0);
@@ -3371,16 +3484,103 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "什么时候会失效？")).toHaveLength(0);
   });
 
-  it("renders page 22 in the same late-tail summary format as later strategy pages", () => {
+  it("renders page 22 as a five-step rebuttal table while keeping the PSO cost verdict", () => {
     setLegacyFrame(1554);
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const leftRect = container.querySelector(
+      '[data-geometry-node-id="left-column"] [data-geometry-node-box="1"] rect',
+    );
+    const factsRect = container.querySelector(
+      '[data-geometry-node-id="facts-column"] [data-geometry-node-box="1"] rect',
+    );
+    const rightRect = container.querySelector(
+      '[data-geometry-node-id="right-column"] [data-geometry-node-box="1"] rect',
+    );
+    const leftHeading = findTextNodes(container, "非要这么干？")[0];
+    const factsHeading = findTextNodes(container, "事实")[0];
+    const rightHeading = findTextNodes(container, "那就会这样")[0];
+    const leftCopy = findTextNodes(container, "不打开 SharedShaderCode")[0];
+    const rightCopy = findTextNodes(container, "构建机上能用，玩家机器上不一定能用。")[0];
+    const sampleBImage = container.querySelector('[data-geometry-node-id="sample-b-strip"] image');
+    const leftGapArrow = container.querySelector('[data-testid="page22-left-gap-arrow"]');
+    const rightGapArrow = container.querySelector('[data-testid="page22-right-gap-arrow"]');
+    const leftGapArrowPoints = parseSimplePathPoints(leftGapArrow);
+    const rightGapArrowPoints = parseSimplePathPoints(rightGapArrow);
+    const factBadges = [
+      "page22-fact-badge-row0-fact6",
+      "page22-fact-badge-row0-fact8",
+      "page22-fact-badge-row1-fact5",
+      "page22-fact-badge-row2-fact12",
+      "page22-fact-badge-row2-fact13",
+      "page22-fact-badge-row3-fact2",
+      "page22-fact-badge-row3-fact9",
+      "page22-fact-badge-row4-fact10",
+      "page22-fact-badge-row4-fact11",
+    ];
+    const factGlows = [
+      "page22-fact-glow-row0-fact6",
+      "page22-fact-glow-row0-fact8",
+      "page22-fact-glow-row1-fact5",
+      "page22-fact-glow-row2-fact12",
+      "page22-fact-glow-row2-fact13",
+      "page22-fact-glow-row3-fact2",
+      "page22-fact-glow-row3-fact9",
+      "page22-fact-glow-row4-fact10",
+      "page22-fact-glow-row4-fact11",
+    ];
 
-    expect(findTextNodes(container, "核心区分")[0]).toBeDefined();
-    expect(findTextNodes(container, "PSO 是对象，PSO Cache 是方法。")[0]).toBeDefined();
-    expect(findTextNodes(container, "PSO：对象")[0]).toBeDefined();
-    expect(findTextNodes(container, "PSO Cache：方法")[0]).toBeDefined();
-    expect(findTextNodes(container, "代价 / 适用")[0]).toBeDefined();
+    expect(findTextNodes(container, "前文收束")).toHaveLength(0);
+    expect(findTextNodes(container, "非要这么干？")[0]).toBeDefined();
+    expect(findTextNodes(container, "事实")[0]).toBeDefined();
+    expect(findTextNodes(container, "那就会这样")[0]).toBeDefined();
+    expect(findTextNodes(container, "不打开 SharedShaderCode")[0]).toBeDefined();
+    expect(findTextNodes(container, "01")).toHaveLength(0);
+    expect(findTextNodes(container, "02")).toHaveLength(0);
+    expect(findTextNodes(container, "03")).toHaveLength(0);
+    expect(findTextNodes(container, "04")).toHaveLength(0);
+    expect(findTextNodes(container, "05")).toHaveLength(0);
+    expect(findTextNodes(container, "06")).toHaveLength(0);
+    expect(findTextNodes(container, "07")).toHaveLength(0);
+    expect(findTextNodes(container, "08")).toHaveLength(0);
+    expect(factBadges).toHaveLength(9);
+    for (const testId of factBadges) {
+      expect(container.querySelector(`[data-testid="${testId}"]`)).not.toBeNull();
+    }
+    expect(findTextNodes(container, "UE PSO 存 ShaderHash 索引")).toHaveLength(0);
+    expect(findTextNodes(container, "Shared 全局持有 ShaderCode / 索引")).toHaveLength(0);
+    expect(
+      findTextNodes(container, "PSO 收集了之后也没法应用到下一次；")[0],
+    ).toBeDefined();
+    expect(findTextNodes(container, "直接分发构建机构建的二进制")[0]).toBeDefined();
+    expect(findTextNodes(container, "二进制强依赖")).toHaveLength(0);
+    expect(findTextNodes(container, "OS / 驱动 / 芯片")).toHaveLength(0);
+    expect(findTextNodes(container, "构建机上能用，玩家机器上不一定能用。")[0]).toBeDefined();
+    expect(findTextNodes(container, ".rec.upipelinecache")[0]).toBeDefined();
+    expect(findTextNodes(container, "Phone rec -> Expand / Build -> Phone stable")).toHaveLength(0);
+    expect(findTextNodes(container, "新包里的 Hash，和旧包可能早就对不上了。")[0]).toBeDefined();
+    expect(factGlows).toHaveLength(9);
+    for (const testId of factGlows) {
+      expect(container.querySelector(`[data-testid="${testId}"]`)).not.toBeNull();
+    }
+    expect(leftGapArrow).not.toBeNull();
+    expect(rightGapArrow).not.toBeNull();
+    expect(Math.abs((leftGapArrowPoints?.x1 ?? 0) - (leftGapArrowPoints?.x2 ?? 0))).toBeLessThanOrEqual(1);
+    expect(Math.abs((rightGapArrowPoints?.x1 ?? 0) - (rightGapArrowPoints?.x2 ?? 0))).toBeLessThanOrEqual(1);
+    expect(leftGapArrowPoints?.y2).toBeGreaterThan(leftGapArrowPoints?.y1 ?? Infinity);
+    expect(rightGapArrowPoints?.y2).toBeGreaterThan(rightGapArrowPoints?.y1 ?? Infinity);
+    expect(sampleBImage).not.toBeNull();
+    expect(findTextNodes(container, "样本 B")).toHaveLength(0);
+    expect(Number(leftRect?.getAttribute("width"))).toBe(Number(rightRect?.getAttribute("width")));
+    expect(Number(leftRect?.getAttribute("width"))).toBeGreaterThan(
+      Number(factsRect?.getAttribute("width")),
+    );
+    expect(Math.abs(Number(leftHeading?.getAttribute("x")) - rectCenterX(leftRect))).toBeLessThanOrEqual(1);
+    expect(Math.abs(Number(factsHeading?.getAttribute("x")) - rectCenterX(factsRect))).toBeLessThanOrEqual(1);
+    expect(Math.abs(Number(rightHeading?.getAttribute("x")) - rectCenterX(rightRect))).toBeLessThanOrEqual(1);
+    expect(Number(leftCopy?.getAttribute("font-size"))).toBeGreaterThan(18);
+    expect(Number(rightCopy?.getAttribute("font-size"))).toBeGreaterThan(17);
     expect(findTextNodes(container, "PSO 的成本不会消失，只会转移。")[0]).toBeDefined();
+    expect(Number(sampleBImage?.getAttribute("width"))).toBe(428);
   });
 
   it("renders page 28 with a vertex-buffer inset below the anonymous sample pair", () => {
@@ -4088,37 +4288,93 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "Mesa 开源驱动")[0]).toBeDefined();
   });
 
-  it("renders page 31 as the harness explanation page", () => {
-    setLegacyFrame(2364);
+  it("renders page 29_data as the code-plus-evidence page for PSO driver optimization", () => {
+    setLegacyFrame(2230);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "完整回环")[0]).toBeDefined();
-    expect(findTextNodes(container, "Hook / 真实取数")[0]).toBeDefined();
-    expect(findSvgTextNodesByContent(container, "geometry")[0]).toBeDefined();
-    expect(findSvgTextNodesByContent(container, "Metrics")[0]).toBeDefined();
-    expect(findSvgTextNodesByContent(container, "overlap = 0")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO驱动层的激进优化")[0]).toBeUndefined();
+    expect(findTextNodes(container, "原始数据表格 + 对比总结")[0]).toBeUndefined();
+    expect(findTextNodes(container, "参数 / 环境")[0]).toBeUndefined();
+    expect(findTextNodes(container, "测试 Shader")[0]).toBeUndefined();
+    expect(findTextNodes(container, "Vertex Shader")[0]).toBeDefined();
+    expect(findTextNodes(container, "Fragment Shader")[0]).toBeDefined();
+    expect(findTextNodes(container, "layout(location = 0) in vec3 inPos;")[0]).toBeDefined();
+    expect(findTextNodes(container, "out vec4 outColor;")[0]).toBeDefined();
+    expect(findTextNodes(container, "State 开关 / 驱动可见性")[0]).toBeUndefined();
+    expect(findTextNodes(container, "API 对照：Vulkan / OpenGL")[0]).toBeUndefined();
+    expect(findTextNodes(container, "API 对照：Vulkan / GLES")[0]).toBeUndefined();
+    expect(findTextNodes(container, "blendAtt.colorWriteMask = 0;")[0]).toBeDefined();
+    expect(
+      findTextNodes(container, "glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);")[0],
+    ).toBeDefined();
+    expect(findTextNodes(container, "PC（RTX 3080）")[0]).toBeDefined();
+    expect(findTextNodes(container, "Android（Adreno）")[0]).toBeDefined();
+    expect(findTextNodes(container, "VK off")[0]).toBeDefined();
+    expect(findTextNodes(container, "VK on")[0]).toBeDefined();
+    expect(findTextNodes(container, "loop=10")[0]).toBeDefined();
+    expect(findTextNodes(container, "loop=5000")[0]).toBeDefined();
+    expect(findTextNodes(container, "0.0653")[0]).toBeDefined();
+    expect(findTextNodes(container, "0.0645")[0]).toBeDefined();
+    expect(findTextNodes(container, "400.7728")[0]).toBeDefined();
+    expect(
+      findTextNodes(
+        container,
+        "同一份 heavy shader 下，NV 的 Vulkan mask=0 几乎不随 loop 波动；移动端驱动并没有兑现同级别的编译期优化。",
+      )[0],
+    ).toBeDefined();
   });
 
-  it("renders page 32 as a books-videos-and-games recommendation page after the PSO reading split", () => {
-    setLegacyFrame(2454);
+  it("renders page 31 as the live harness loop page", () => {
+    setStepFrame("page_31");
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "书与视频")[0]).toBeDefined();
-    expect(findTextNodes(container, "推荐游戏")[0]).toBeDefined();
-    expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeUndefined();
-    expect(findTextNodes(container, "PSO 小实验")[0]).toBeUndefined();
-    expect(findTextNodes(container, "《银河帝国》")[0]).toBeDefined();
-    expect(findTextNodes(container, "《反杜林论》")[0]).toBeDefined();
-    expect(findTextNodes(container, "马克思主义哲学")[0]).toBeDefined();
+    expect(findTextNodes(container, "先看真实结果")[0]).toBeDefined();
+    expect(findTextNodes(container, "再决定停或继续")[0]).toBeDefined();
+    expect(findTextNodes(container, "Hook")[0]).toBeDefined();
+    expect(findTextNodes(container, "进入")[0]).toBeDefined();
+    expect(findTextNodes(container, "网页数据评分")[0]).toBeDefined();
+    expect(findTextNodes(container, "网页图片评分")[0]).toBeDefined();
+    expect(findTextNodes(container, "回执循环")[0]).toBeDefined();
+    expect(findTextNodes(container, "workflow gate")[0]).toBeDefined();
+    expect(findTextNodes(container, "browser capture")[0]).toBeDefined();
+    expect(findTextNodes(container, "通过则停止")[0]).toBeDefined();
   });
 
-  it("renders page 33 as a quote-only closing page", () => {
-    setLegacyFrame(2544);
+  it("renders page 32 as the feedback bridge page", () => {
+    setStepFrame("page_32", 42);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findTextNodes(container, "反馈系统与人的学习")[0]).toBeDefined();
+    expect(findTextNodes(container, "harness")[0]).toBeDefined();
+    expect(findTextNodes(container, "loss + back propagation")[0]).toBeDefined();
+    expect(findTextNodes(container, "feedback system")[0]).toBeDefined();
+    expect(findTextNodes(container, "Input")[0]).toBeDefined();
+    expect(findTextNodes(container, "f(x)")[0]).toBeDefined();
+    expect(findTextNodes(container, "Output")[0]).toBeDefined();
+    expect(
+      findTextNodes(
+        container,
+        "从一个具体问题往回推时 也许会借到一些看似无用的东西",
+      )[0],
+    ).toBeDefined();
+  });
+
+  it("renders page 33 as the final quote-plus-recommendations ending page", () => {
+    setStepFrame("page_33", 56);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(
       findTextNodes(container, "今子有大树，患其无用，何不树之于无何有之乡，")[0],
     ).toBeDefined();
+    expect(findTextNodes(container, "书与视频")[0]).toBeDefined();
+    expect(findTextNodes(container, "推荐游戏")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeUndefined();
+    expect(findTextNodes(container, "PSO 小实验")[0]).toBeUndefined();
+    expect(findTextNodes(container, "《银河帝国》")[0]).toBeDefined();
+    expect(findTextNodes(container, "《反杜林论》")[0]).toBeUndefined();
+    expect(findTextNodes(container, "人类高质量思政课")[0]).toBeDefined();
+    expect(findTextNodes(container, "重读资本论")[0]).toBeUndefined();
     expect(findTextNodes(container, "无所可用，安所困苦哉！")[0]).toBeDefined();
+    expect(findTextNodes(container, "以此作为这次分享的最后一句。")[0]).toBeDefined();
   });
 });

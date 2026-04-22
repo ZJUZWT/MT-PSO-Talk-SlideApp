@@ -72,8 +72,10 @@ describe("progress rail session colors", () => {
     expect(readSessionToken("page_05").shellToken).toBe("session-2");
     expect(readSessionToken("page_11").shellToken).toBe("session-3");
     expect(readSessionToken("page_16").shellToken).toBe("session-4");
+    expect(readSessionToken("page_21").shellToken).toBe("session-4");
     expect(readSessionToken("page_22").shellToken).toBe("session-5");
-    expect(readSessionToken("page_24").shellToken).toBe("session-6");
+    expect(readSessionToken("page_24").shellToken).toBe("session-5");
+    expect(readSessionToken("page_31").shellToken).toBe("session-6");
     expect(readSessionToken("page_16").bubbleToken).toBe("session-4");
   });
 
