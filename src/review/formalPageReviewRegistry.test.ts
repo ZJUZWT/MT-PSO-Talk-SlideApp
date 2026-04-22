@@ -525,13 +525,22 @@ describe("formal page review registry", () => {
     expect(conceptHarness).toBeDefined();
     expect(conceptLoss).toBeDefined();
     expect(conceptFeedback).toBeDefined();
-    expect(conceptLoss?.y ?? 0).toBeGreaterThan(conceptHarness?.y ?? 0);
-    expect(conceptFeedback?.y ?? 0).toBeGreaterThan(conceptLoss?.y ?? 0);
+    expect(
+      Math.abs(
+        ((conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2) -
+          ((modelSystemFrame?.x ?? 0) + (modelSystemFrame?.width ?? 0) / 2),
+      ),
+    ).toBeLessThanOrEqual(2);
+    expect(
+      Math.abs(
+        ((conceptFeedback?.x ?? 0) + (conceptFeedback?.width ?? 0) / 2) -
+          ((modelSystemFrame?.x ?? 0) + (modelSystemFrame?.width ?? 0) / 2),
+      ),
+    ).toBeLessThanOrEqual(2);
+    expect((conceptLoss?.y ?? 0) - (conceptHarness?.y ?? 0)).toBeGreaterThanOrEqual(90);
+    expect((conceptFeedback?.y ?? 0) - (conceptLoss?.y ?? 0)).toBeGreaterThanOrEqual(90);
     expect((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2).toBeLessThan(
-      (conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2,
-    );
-    expect((conceptFeedback?.x ?? 0) + (conceptFeedback?.width ?? 0) / 2).toBeLessThan(
-      (conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2,
+      (conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2 - 100,
     );
     expect(modelInput?.containerId).toBe("model-system-frame");
     expect(modelFx?.containerId).toBe("model-system-frame");

@@ -4429,13 +4429,12 @@ describe("MyComposition", () => {
 
     expect(systemFrame).toBeDefined();
     expect(systemFrameRect).toBeDefined();
-    expect(lossMetrics.y).toBeGreaterThan(harnessMetrics.y);
-    expect(feedbackMetrics.y).toBeGreaterThan(lossMetrics.y);
+    expect(Math.abs(harnessMetrics.x + harnessMetrics.width / 2 - (systemFrameMetrics.x + systemFrameMetrics.width / 2))).toBeLessThanOrEqual(2);
+    expect(Math.abs(feedbackMetrics.x + feedbackMetrics.width / 2 - (systemFrameMetrics.x + systemFrameMetrics.width / 2))).toBeLessThanOrEqual(2);
+    expect(lossMetrics.y).toBeGreaterThan(harnessMetrics.y + 60);
+    expect(feedbackMetrics.y).toBeGreaterThan(lossMetrics.y + 60);
     expect(lossMetrics.x + lossMetrics.width / 2).toBeLessThan(
-      harnessMetrics.x + harnessMetrics.width / 2,
-    );
-    expect(feedbackMetrics.x + feedbackMetrics.width / 2).toBeLessThan(
-      lossMetrics.x + lossMetrics.width / 2,
+      harnessMetrics.x + harnessMetrics.width / 2 - 100,
     );
     expect(systemFrameMetrics.x).toBeLessThan(inputMetrics.x);
     expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
@@ -4444,7 +4443,7 @@ describe("MyComposition", () => {
     expect(rectCenterX(fxRect)).toBeLessThan(systemFrameMetrics.x + systemFrameMetrics.width / 2);
     expect(feedbackArrowPath?.getAttribute("d")).toContain("Q");
     expect(feedbackArrow).not.toBeNull();
-    expect(Math.abs((feedbackArrow?.x2 ?? 0) - (feedbackArrow?.x1 ?? 0))).toBeLessThanOrEqual(24);
+    expect(Math.abs((feedbackArrow?.x2 ?? 0) - (feedbackArrow?.x1 ?? 0))).toBeLessThanOrEqual(2);
     expect(feedbackArrow?.y2).toBeGreaterThan(feedbackArrow!.y1);
   });
 

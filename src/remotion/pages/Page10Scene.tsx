@@ -7786,38 +7786,38 @@ function Page32FeedbackBridgePage({
   const modelOpacity = opacity * resolveWindowProgress(entryProgress, 0.22, 0.84, easeOutQuint);
   const footerOpacity = opacity * resolveWindowProgress(entryProgress, 0.54, 0.92, easeOutQuint);
   const center = centerX(PLACEHOLDER_BOARD);
-  const titleBox = {x: 338, y: 78, width: 604, height: 52};
+  const titleBox = {x: 338, y: 52, width: 604, height: 52};
   const conceptCards = [
     {
       ...PAGE32_ABSTRACTION_PILLS[0],
-      box: {x: 594, y: 172, width: 300, height: 54, radius: 24},
+      box: {x: 490, y: 146, width: 300, height: 54, radius: 24},
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[1],
-      box: {x: 502, y: 246, width: 420, height: 54, radius: 24},
+      box: {x: 286, y: 252, width: 420, height: 54, radius: 24},
     },
     {
       ...PAGE32_ABSTRACTION_PILLS[2],
-      box: {x: 430, y: 324, width: 332, height: 54, radius: 24},
+      box: {x: 474, y: 346, width: 332, height: 54, radius: 24},
     },
   ] as const;
   const harnessCard = conceptCards[0]!;
   const lossCard = conceptCards[1]!;
   const feedbackCard = conceptCards[2]!;
-  const modelSystemFrameBox = {x: 124, y: 406, width: 1032, height: 176, radius: 34};
-  const modelInputBox = {x: 168, y: 448, width: 172, height: 92, radius: 20};
-  const modelCenterBox = {x: 450, y: 430, width: 344, height: 128, radius: 24};
-  const modelOutputBox = {x: 940, y: 448, width: 172, height: 92, radius: 20};
+  const modelSystemFrameBox = {x: 124, y: 446, width: 1032, height: 160, radius: 34};
+  const modelInputBox = {x: 168, y: 482, width: 172, height: 88, radius: 20};
+  const modelCenterBox = {x: 450, y: 464, width: 344, height: 124, radius: 24};
+  const modelOutputBox = {x: 940, y: 482, width: 172, height: 88, radius: 20};
   const modelAxisY = centerY(modelInputBox);
-  const feedbackSystemAnchor = {x: centerX(modelCenterBox) - 12, y: modelSystemFrameBox.y + 16};
-  const loopLaneX = 1028;
+  const feedbackSystemAnchor = {x: centerX(feedbackCard.box), y: modelSystemFrameBox.y + 16};
+  const loopLaneX = 1018;
   const loopBackPoints = [
     {x: right(feedbackCard.box) + 12, y: centerY(feedbackCard.box)},
     {x: loopLaneX, y: centerY(feedbackCard.box)},
     {x: loopLaneX, y: centerY(harnessCard.box)},
     {x: right(harnessCard.box) + 12, y: centerY(harnessCard.box)},
   ];
-  const footerBox = {x: 184, y: 648, width: 912, height: 38};
+  const footerBox = {x: 184, y: 638, width: 912, height: 38};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -7865,14 +7865,14 @@ function Page32FeedbackBridgePage({
         ))}
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: centerX(harnessCard.box) - 12, y: bottom(harnessCard.box) + 8},
-            {x: centerX(harnessCard.box) - 94, y: centerY(harnessCard.box) + 44},
-            {x: centerX(lossCard.box) - 92, y: lossCard.box.y - 8},
+            {x: centerX(harnessCard.box) - 10, y: bottom(harnessCard.box) + 8},
+            {x: centerX(lossCard.box) - 132, y: centerY(lossCard.box) - 18},
+            {x: centerX(lossCard.box) + 10, y: lossCard.box.y - 8},
           )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={centerX(lossCard.box) - 92}
+          tipX={centerX(lossCard.box) + 10}
           tipY={lossCard.box.y - 8}
           direction="down"
           shaftWidth={3.1}
@@ -7881,14 +7881,14 @@ function Page32FeedbackBridgePage({
         />
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: centerX(lossCard.box) - 18, y: bottom(lossCard.box) + 8},
-            {x: centerX(lossCard.box) - 110, y: centerY(lossCard.box) + 48},
-            {x: centerX(feedbackCard.box) - 66, y: feedbackCard.box.y - 8},
+            {x: centerX(lossCard.box) + 12, y: bottom(lossCard.box) + 8},
+            {x: centerX(lossCard.box) + 148, y: centerY(feedbackCard.box) - 12},
+            {x: centerX(feedbackCard.box) - 10, y: feedbackCard.box.y - 8},
           )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={centerX(feedbackCard.box) - 66}
+          tipX={centerX(feedbackCard.box) - 10}
           tipY={feedbackCard.box.y - 8}
           direction="down"
           shaftWidth={3.1}
@@ -7897,8 +7897,8 @@ function Page32FeedbackBridgePage({
         />
         <StrokeArrow
           d={quadraticCurvePath(
-            {x: centerX(feedbackCard.box) + 18, y: bottom(feedbackCard.box) + 10},
-            {x: centerX(feedbackCard.box) + 10, y: modelSystemFrameBox.y - 32},
+            {x: centerX(feedbackCard.box), y: bottom(feedbackCard.box) + 10},
+            {x: centerX(feedbackCard.box), y: modelSystemFrameBox.y - 34},
             {x: feedbackSystemAnchor.x, y: feedbackSystemAnchor.y - 8},
           )}
           stroke={scene.apiStroke}
