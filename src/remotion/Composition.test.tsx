@@ -4425,7 +4425,7 @@ describe("MyComposition", () => {
     const feedbackArrowPath = container.querySelector(
       '[data-testid="page32-feedback-to-system"] path',
     );
-    const feedbackArrow = parseQuadraticPath(feedbackArrowPath);
+    const feedbackArrow = parsePathPoints(feedbackArrowPath);
 
     expect(systemFrame).toBeDefined();
     expect(systemFrameRect).toBeDefined();
@@ -4440,8 +4440,10 @@ describe("MyComposition", () => {
     expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
     expect(systemFrameMetrics.y).toBeLessThan(fxMetrics.y);
     expect(systemFrameMetrics.bottom).toBeGreaterThan(inputMetrics.bottom);
-    expect(rectCenterX(fxRect)).toBeLessThan(systemFrameMetrics.x + systemFrameMetrics.width / 2);
-    expect(feedbackArrowPath?.getAttribute("d")).toContain("Q");
+    expect(
+      Math.abs(rectCenterX(fxRect) - (systemFrameMetrics.x + systemFrameMetrics.width / 2)),
+    ).toBeLessThanOrEqual(2);
+    expect(feedbackArrowPath?.getAttribute("d")).toContain("L");
     expect(feedbackArrow).not.toBeNull();
     expect(Math.abs((feedbackArrow?.x2 ?? 0) - (feedbackArrow?.x1 ?? 0))).toBeLessThanOrEqual(2);
     expect(feedbackArrow?.y2).toBeGreaterThan(feedbackArrow!.y1);

@@ -1788,12 +1788,12 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     }),
   ]),
   makeFormalReviewSketch("formal-page32", "page_32", "Page 32 feedback bridge", [
-    textNode("bridge-title", "反馈系统与人的学习", {x: 338, y: 52, width: 604, height: 52}, {
+    textNode("bridge-title", "反馈系统与人的学习", {x: 338, y: 34, width: 604, height: 52}, {
       fontSizeOverride: 34,
       fontWeightOverride: 830,
       textColorOverride: "#d66630",
     }),
-    node("concept-harness", "harness", {x: 490, y: 146, width: 300, height: 54}, {
+    node("concept-harness", "harness", {x: 490, y: 124, width: 300, height: 54}, {
       fontSizeOverride: 28,
       fontWeightOverride: 760,
     }),
@@ -1801,31 +1801,31 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       fontSizeOverride: 26,
       fontWeightOverride: 760,
     }),
-    node("concept-feedback", "feedback system", {x: 474, y: 346, width: 332, height: 54}, {
+    node("concept-feedback", "feedback system", {x: 474, y: 380, width: 332, height: 54}, {
       fontSizeOverride: 27,
       fontWeightOverride: 760,
     }),
-    node("model-system-frame", "Input / f(x) / Output system", {x: 124, y: 446, width: 1032, height: 160}, {
+    node("model-system-frame", "Input / f(x) / Output system", {x: 124, y: 470, width: 1032, height: 146}, {
       renderStyle: "outline",
       fontSizeOverride: 18,
       fontWeightOverride: 760,
     }),
-    node("model-input", "Input", {x: 168, y: 482, width: 172, height: 88}, {
+    node("model-input", "Input", {x: 168, y: 501, width: 172, height: 84}, {
       containerId: "model-system-frame",
       fontSizeOverride: 28,
       fontWeightOverride: 680,
     }),
-    node("model-fx", "f(x)", {x: 450, y: 464, width: 344, height: 124}, {
+    node("model-fx", "f(x)", {x: 468, y: 481, width: 344, height: 124}, {
       containerId: "model-system-frame",
       fontSizeOverride: 36,
       fontWeightOverride: 700,
     }),
-    node("model-output", "Output", {x: 940, y: 482, width: 172, height: 88}, {
+    node("model-output", "Output", {x: 940, y: 501, width: 172, height: 84}, {
       containerId: "model-system-frame",
       fontSizeOverride: 28,
       fontWeightOverride: 680,
     }),
-    textNode("bridge-footer", "Feedback Bridge Footer", {x: 184, y: 638, width: 912, height: 38}, {
+    textNode("bridge-footer", "Feedback Bridge Footer", {x: 184, y: 642, width: 912, height: 38}, {
       fontSizeOverride: 27,
       fontWeightOverride: 800,
       textColorOverride: "#d66630",

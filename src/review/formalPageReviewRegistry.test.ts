@@ -545,9 +545,12 @@ describe("formal page review registry", () => {
     expect(modelInput?.containerId).toBe("model-system-frame");
     expect(modelFx?.containerId).toBe("model-system-frame");
     expect(modelOutput?.containerId).toBe("model-system-frame");
-    expect((modelFx?.x ?? 0) + (modelFx?.width ?? 0) / 2).toBeLessThan(
-      (modelSystemFrame?.x ?? 0) + (modelSystemFrame?.width ?? 0) / 2,
-    );
+    expect(
+      Math.abs(
+        ((modelFx?.x ?? 0) + (modelFx?.width ?? 0) / 2) -
+          ((modelSystemFrame?.x ?? 0) + (modelSystemFrame?.width ?? 0) / 2),
+      ),
+    ).toBeLessThanOrEqual(2);
 
     const artifact = buildGeometryReviewArtifact(page32!);
 
