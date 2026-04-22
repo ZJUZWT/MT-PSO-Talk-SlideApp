@@ -514,11 +514,25 @@ describe("formal page review registry", () => {
     );
 
     const modelSystemFrame = page32?.nodes.find((node) => node.id === "model-system-frame");
+    const conceptHarness = page32?.nodes.find((node) => node.id === "concept-harness");
+    const conceptLoss = page32?.nodes.find((node) => node.id === "concept-loss");
+    const conceptFeedback = page32?.nodes.find((node) => node.id === "concept-feedback");
     const modelFx = page32?.nodes.find((node) => node.id === "model-fx");
     const modelInput = page32?.nodes.find((node) => node.id === "model-input");
     const modelOutput = page32?.nodes.find((node) => node.id === "model-output");
 
     expect(modelSystemFrame).toBeDefined();
+    expect(conceptHarness).toBeDefined();
+    expect(conceptLoss).toBeDefined();
+    expect(conceptFeedback).toBeDefined();
+    expect((conceptHarness?.x ?? 0) + (conceptHarness?.width ?? 0) / 2).toBeLessThan(
+      (conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2,
+    );
+    expect((conceptLoss?.x ?? 0) + (conceptLoss?.width ?? 0) / 2).toBeLessThan(
+      (conceptFeedback?.x ?? 0) + (conceptFeedback?.width ?? 0) / 2,
+    );
+    expect(conceptLoss?.y ?? 0).toBeLessThan(conceptHarness?.y ?? 0);
+    expect(Math.abs((conceptFeedback?.y ?? 0) - (conceptHarness?.y ?? 0))).toBeLessThanOrEqual(2);
     expect(modelInput?.containerId).toBe("model-system-frame");
     expect(modelFx?.containerId).toBe("model-system-frame");
     expect(modelOutput?.containerId).toBe("model-system-frame");
@@ -544,10 +558,29 @@ describe("formal page review registry", () => {
         "quote-title",
         "quote-body",
         "quote-footer",
-        "left-links-card",
-        "right-links-card",
+        "left-link-1",
+        "left-link-2",
+        "repo-qr",
+        "repo-url",
+        "right-link-1",
+        "right-link-2",
       ]),
     );
+
+    const leftLink = page33?.nodes.find((node) => node.id === "left-link-1");
+    const rightLink = page33?.nodes.find((node) => node.id === "right-link-1");
+    const repoQr = page33?.nodes.find((node) => node.id === "repo-qr");
+    const leftMargin = leftLink?.x ?? 0;
+    const rightMargin = 1280 - ((rightLink?.x ?? 0) + (rightLink?.width ?? 0));
+    const leftGap = (repoQr?.x ?? 0) - ((leftLink?.x ?? 0) + (leftLink?.width ?? 0));
+    const rightGap = (rightLink?.x ?? 0) - ((repoQr?.x ?? 0) + (repoQr?.width ?? 0));
+
+    expect(leftMargin).toBeGreaterThanOrEqual(120);
+    expect(rightMargin).toBeGreaterThanOrEqual(120);
+    expect(Math.abs(leftMargin - rightMargin)).toBeLessThanOrEqual(2);
+    expect(leftGap).toBeGreaterThanOrEqual(120);
+    expect(rightGap).toBeGreaterThanOrEqual(120);
+    expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(2);
 
     const artifact = buildGeometryReviewArtifact(page33!);
 

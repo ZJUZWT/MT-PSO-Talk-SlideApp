@@ -313,6 +313,8 @@ const ENDING_GAME_LINKS = [
     href: "https://william-rous.itch.io/type-help",
   },
 ] as const;
+const ENDING_REPO_URL = "https://github.com/ZJUZWT/MT-PSO-Talk";
+const ENDING_REPO_QR_ASSET = "/supplement/mt-pso-talk-repo-qr.svg";
 const ZHUANGZI_CLOSING_LINES = [
   "今子有大树，患其无用，何不树之于无何有之乡，",
   "广莫之野，彷徨乎无为其侧，逍遥乎寝卧其下。",
@@ -6544,6 +6546,7 @@ function EndingLinkItem({
   titleFontSize = 24,
   subtitleFontSize = 17,
   subtitleOffset = 28,
+  align = "start",
 }: {
   x: number;
   y: number;
@@ -6556,7 +6559,9 @@ function EndingLinkItem({
   titleFontSize?: number;
   subtitleFontSize?: number;
   subtitleOffset?: number;
+  align?: "start" | "end";
 }) {
+  const geometryBoxX = align === "end" ? x - geometryWidth + 4 : x - 4;
   const titleNode = (
     <text
       x={x}
@@ -6564,7 +6569,7 @@ function EndingLinkItem({
       fill="#21303d"
       fontSize={titleFontSize}
       fontWeight="780"
-      textAnchor="start"
+      textAnchor={align}
       dominantBaseline="middle"
       textDecoration={href ? "underline" : undefined}
       data-geometry-node-text={geometryNodeId || markGeometryText ? "1" : undefined}
@@ -6581,7 +6586,7 @@ function EndingLinkItem({
       {geometryNodeId ? (
         <g data-geometry-node-box="1">
           <rect
-            x={x - 4}
+            x={geometryBoxX}
             y={y - Math.max(titleFontSize, subtitleFontSize)}
             width={geometryWidth}
             height={subtitleOffset + subtitleFontSize + 8}
@@ -6604,7 +6609,7 @@ function EndingLinkItem({
         fill="rgba(34, 48, 61, 0.72)"
         fontSize={subtitleFontSize}
         fontWeight="650"
-        textAnchor="start"
+        textAnchor={align}
         dominantBaseline="middle"
         data-geometry-node-text={geometryNodeId || markGeometryText ? "1" : undefined}
       >
@@ -7781,43 +7786,38 @@ function Page32FeedbackBridgePage({
   const modelOpacity = opacity * resolveWindowProgress(entryProgress, 0.22, 0.84, easeOutQuint);
   const footerOpacity = opacity * resolveWindowProgress(entryProgress, 0.54, 0.92, easeOutQuint);
   const center = centerX(PLACEHOLDER_BOARD);
-  const titleBox = {x: 338, y: 112, width: 604, height: 52};
-  const conceptBaseY = 174;
-  const conceptGap = 72;
-  const conceptCards = PAGE32_ABSTRACTION_PILLS.map((entry, index) => ({
-    ...entry,
-    box: {
-      x: center - entry.width / 2,
-      y: conceptBaseY + index * conceptGap,
-      width: entry.width,
-      height: 54,
-      radius: 24,
+  const titleBox = {x: 338, y: 78, width: 604, height: 52};
+  const conceptCards = [
+    {
+      ...PAGE32_ABSTRACTION_PILLS[0],
+      box: {x: 244, y: 214, width: 300, height: 54, radius: 24},
     },
-  }));
+    {
+      ...PAGE32_ABSTRACTION_PILLS[1],
+      box: {x: 430, y: 154, width: 420, height: 54, radius: 24},
+    },
+    {
+      ...PAGE32_ABSTRACTION_PILLS[2],
+      box: {x: 706, y: 214, width: 332, height: 54, radius: 24},
+    },
+  ] as const;
   const harnessCard = conceptCards[0]!;
   const lossCard = conceptCards[1]!;
   const feedbackCard = conceptCards[2]!;
-  const modelSystemFrameBox = {x: 150, y: 392, width: 960, height: 168, radius: 34};
-  const modelInputBox = {x: 178, y: 432, width: 160, height: 88, radius: 20};
-  const modelCenterBox = {x: 450, y: 414, width: 300, height: 124, radius: 24};
-  const modelOutputBox = {x: 862, y: 432, width: 160, height: 88, radius: 20};
+  const modelSystemFrameBox = {x: 124, y: 406, width: 1032, height: 176, radius: 34};
+  const modelInputBox = {x: 168, y: 448, width: 172, height: 92, radius: 20};
+  const modelCenterBox = {x: 450, y: 430, width: 344, height: 128, radius: 24};
+  const modelOutputBox = {x: 940, y: 448, width: 172, height: 92, radius: 20};
   const modelAxisY = centerY(modelInputBox);
   const feedbackSystemAnchor = {
-    x: modelSystemFrameBox.x + 442,
+    x: centerX(modelSystemFrameBox) - 6,
     y: modelSystemFrameBox.y + 16,
   };
-  const loopLaneX = right(feedbackCard.box) + 94;
-  const loopBackPoints = [
-    {x: right(feedbackCard.box) + 10, y: centerY(feedbackCard.box)},
-    {x: loopLaneX, y: centerY(feedbackCard.box)},
-    {x: loopLaneX, y: centerY(harnessCard.box)},
-    {x: right(harnessCard.box) + 10, y: centerY(harnessCard.box)},
-  ];
-  const footerBox = {x: 216, y: 620, width: 848, height: 38};
+  const footerBox = {x: 184, y: 648, width: 912, height: 38};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
-      <g transform="translate(0 -12)">
+      <g>
         <g
           data-geometry-node-id="bridge-title"
           data-geometry-node-label="Feedback Bridge Title"
@@ -7860,23 +7860,31 @@ function Page32FeedbackBridgePage({
           />
         ))}
         <StrokeArrow
-          d={verticalPath(centerX(harnessCard.box), bottom(harnessCard.box) + 8, lossCard.box.y - 8)}
+          d={quadraticCurvePath(
+            {x: centerX(harnessCard.box) + 86, y: harnessCard.box.y - 8},
+            {x: centerX(harnessCard.box) + 142, y: lossCard.box.y - 28},
+            {x: lossCard.box.x + 90, y: bottom(lossCard.box) + 8},
+          )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={centerX(harnessCard.box)}
-          tipY={lossCard.box.y - 8}
-          direction="down"
+          tipX={lossCard.box.x + 90}
+          tipY={bottom(lossCard.box) + 8}
+          direction="up"
           shaftWidth={3.1}
           underlayWidth={6}
           headSize={8.5}
         />
         <StrokeArrow
-          d={verticalPath(centerX(lossCard.box), bottom(lossCard.box) + 8, feedbackCard.box.y - 8)}
+          d={quadraticCurvePath(
+            {x: right(lossCard.box) - 96, y: bottom(lossCard.box) + 8},
+            {x: right(lossCard.box) + 54, y: lossCard.box.y - 28},
+            {x: feedbackCard.box.x + 74, y: feedbackCard.box.y - 8},
+          )}
           stroke={scene.apiStroke}
           opacity={conceptOpacity}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity)}
-          tipX={centerX(lossCard.box)}
+          tipX={feedbackCard.box.x + 74}
           tipY={feedbackCard.box.y - 8}
           direction="down"
           shaftWidth={3.1}
@@ -7886,7 +7894,7 @@ function Page32FeedbackBridgePage({
         <StrokeArrow
           d={quadraticCurvePath(
             {x: centerX(feedbackCard.box), y: bottom(feedbackCard.box) + 10},
-            {x: centerX(feedbackCard.box) - 12, y: modelSystemFrameBox.y + 42},
+            {x: centerX(feedbackCard.box) - 48, y: modelSystemFrameBox.y - 28},
             {x: feedbackSystemAnchor.x, y: feedbackSystemAnchor.y - 8},
           )}
           stroke={scene.apiStroke}
@@ -7901,12 +7909,16 @@ function Page32FeedbackBridgePage({
           testId="page32-feedback-to-system"
         />
         <StrokeArrow
-          d={roundedPolylinePath(loopBackPoints, 0)}
+          d={quadraticCurvePath(
+            {x: feedbackCard.box.x + 48, y: feedbackCard.box.y - 10},
+            {x: center, y: titleBox.y + 8},
+            {x: right(harnessCard.box) - 36, y: harnessCard.box.y - 10},
+          )}
           stroke="rgba(214, 102, 48, 0.68)"
           opacity={conceptOpacity * 0.92}
           headOpacity={revealHeadOpacity(reveal, conceptOpacity * 0.92)}
-          tipX={right(harnessCard.box) + 10}
-          tipY={centerY(harnessCard.box)}
+          tipX={right(harnessCard.box) - 36}
+          tipY={harnessCard.box.y - 10}
           direction="left"
           shaftWidth={2.8}
           underlayWidth={5}
@@ -8085,10 +8097,13 @@ function Page33ReadingPage({
   const quoteLineStartY = 188;
   const quoteLineGap = 70;
   const quoteFooterBox = {x: 430, y: 430, width: 420, height: 44};
-  const leftCard = {x: 84, y: 494, width: 510, height: 170, radius: 24};
-  const rightCard = {x: 622, y: 494, width: 510, height: 170, radius: 24};
-  const linkStartY = leftCard.y + 74;
-  const linkStep = 62;
+  const leftColumnX = 124;
+  const rightColumnX = 1156;
+  const linkStartY = 540;
+  const linkStep = 86;
+  const columnWidth = 280;
+  const qrBox = {x: 540, y: 476, width: 200, height: 200, radius: 0};
+  const qrUrlY = 696;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -8181,89 +8196,82 @@ function Page33ReadingPage({
             </text>
           </g>
         </g>
-        <g
-          data-geometry-node-id="left-links-card"
-          data-geometry-node-label="Book And Video Reading"
-        >
-          <StageBox
-            box={leftCard}
-            fill="rgba(255, 252, 247, 0.96)"
-            stroke={scene.nodeStroke}
-            strokeWidth={2.2}
-            markGeometryBox
-          />
-          <text
-            x={leftCard.x + 30}
-            y={leftCard.y + 28}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="22"
-            fontWeight="830"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-            opacity={linksOpacity}
-          >
-            书与视频
-          </text>
-          <g opacity={linksOpacity}>
-            {ENDING_CULTURE_LINKS.map((item, index) => (
-              <EndingLinkItem
-                key={item.title}
-                x={leftCard.x + 30}
-                y={linkStartY + index * linkStep}
-                title={item.title}
-                subtitle={item.subtitle}
-                href={item.href}
+        <g opacity={linksOpacity}>
+          {ENDING_CULTURE_LINKS.map((item, index) => (
+            <EndingLinkItem
+              key={item.title}
+              x={leftColumnX}
+              y={linkStartY + index * linkStep}
+              title={item.title}
+              subtitle={item.subtitle}
+              href={item.href}
               geometryNodeId={`left-link-${index + 1}`}
-                geometryWidth={448}
-                titleFontSize={22}
-                subtitleFontSize={16}
-                subtitleOffset={22}
-              />
-            ))}
-          </g>
-        </g>
-        <g
-          data-geometry-node-id="right-links-card"
-          data-geometry-node-label="Game Reading"
-        >
-          <StageBox
-            box={rightCard}
-            fill="rgba(255, 252, 247, 0.96)"
-            stroke={scene.nodeStroke}
-            strokeWidth={2.2}
-            markGeometryBox
-          />
-          <text
-            x={rightCard.x + 30}
-            y={rightCard.y + 28}
-            fill="rgba(214, 102, 48, 0.96)"
-            fontSize="22"
-            fontWeight="830"
-            textAnchor="start"
-            dominantBaseline="middle"
-            data-geometry-node-text="1"
-            opacity={linksOpacity}
+              geometryWidth={columnWidth}
+              titleFontSize={22}
+              subtitleFontSize={15.5}
+              subtitleOffset={22}
+            />
+          ))}
+          <g
+            data-geometry-node-id="repo-qr"
+            data-geometry-node-label="Repo QR"
+            data-testid="page33-repo-qr"
           >
-            推荐游戏
-          </text>
-          <g opacity={linksOpacity}>
-            {ENDING_GAME_LINKS.map((item, index) => (
-              <EndingLinkItem
-                key={item.title}
-                x={rightCard.x + 30}
-                y={linkStartY + index * linkStep}
-                title={item.title}
-                subtitle={item.subtitle}
-                href={item.href}
-              geometryNodeId={`right-link-${index + 1}`}
-                geometryWidth={448}
-                titleFontSize={22}
-                subtitleFontSize={16}
-                subtitleOffset={22}
-              />
-            ))}
+            <FramedImage
+              box={qrBox}
+              href={ENDING_REPO_QR_ASSET}
+              clipId="page33-repo-qr"
+              preserveAspectRatio="xMidYMid meet"
+              fill="rgba(255, 255, 255, 0.98)"
+              stroke="rgba(92, 106, 118, 0.22)"
+              strokeWidth={1.4}
+              markGeometryBox
+            />
           </g>
+          <g
+            data-geometry-node-id="repo-url"
+            data-geometry-node-label="Repo URL"
+          >
+            <g data-geometry-node-box="1">
+              <rect
+                x={438}
+                y={qrUrlY - 18}
+                width={404}
+                height={30}
+                rx={8}
+                fill="transparent"
+                stroke="none"
+              />
+            </g>
+            <text
+              x={quoteCenterX}
+              y={qrUrlY}
+              fill="rgba(34, 48, 61, 0.68)"
+              fontSize="15.5"
+              fontWeight="650"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              data-geometry-node-text="1"
+            >
+              github.com/ZJUZWT/MT-PSO-Talk
+            </text>
+          </g>
+          {ENDING_GAME_LINKS.map((item, index) => (
+            <EndingLinkItem
+              key={item.title}
+              x={rightColumnX}
+              y={linkStartY + index * linkStep}
+              title={item.title}
+              subtitle={item.subtitle}
+              href={item.href}
+              geometryNodeId={`right-link-${index + 1}`}
+              geometryWidth={columnWidth}
+              titleFontSize={22}
+              subtitleFontSize={15.5}
+              subtitleOffset={22}
+              align="end"
+            />
+          ))}
         </g>
       </g>
     </PlaceholderBoardShell>

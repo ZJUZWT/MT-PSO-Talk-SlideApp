@@ -4403,12 +4403,21 @@ describe("MyComposition", () => {
 
     const systemFrame = container.querySelector('[data-geometry-node-id="model-system-frame"]');
     const systemFrameRect = systemFrame?.querySelector("rect[data-geometry-node-box='1']");
+    const harnessGroup = container.querySelector('[data-geometry-node-id="concept-harness"]');
+    const lossGroup = container.querySelector('[data-geometry-node-id="concept-loss"]');
+    const feedbackGroup = container.querySelector('[data-geometry-node-id="concept-feedback"]');
     const inputGroup = findVisibleBoxGroupByLabel(container, "Input");
     const fxGroup = findVisibleBoxGroupByLabel(container, "f(x)");
     const outputGroup = findVisibleBoxGroupByLabel(container, "Output");
+    const harnessRect = harnessGroup?.querySelector("[data-geometry-node-box='1'] rect");
+    const lossRect = lossGroup?.querySelector("[data-geometry-node-box='1'] rect");
+    const feedbackRect = feedbackGroup?.querySelector("[data-geometry-node-box='1'] rect");
     const inputRect = inputGroup?.querySelector("rect[data-geometry-node-box='1']");
     const fxRect = fxGroup?.querySelector("rect[data-geometry-node-box='1']");
     const outputRect = outputGroup?.querySelector("rect[data-geometry-node-box='1']");
+    const harnessMetrics = rectMetrics(harnessRect);
+    const lossMetrics = rectMetrics(lossRect);
+    const feedbackMetrics = rectMetrics(feedbackRect);
     const systemFrameMetrics = rectMetrics(systemFrameRect);
     const inputMetrics = rectMetrics(inputRect);
     const fxMetrics = rectMetrics(fxRect);
@@ -4420,6 +4429,12 @@ describe("MyComposition", () => {
 
     expect(systemFrame).toBeDefined();
     expect(systemFrameRect).toBeDefined();
+    expect(harnessMetrics.x + harnessMetrics.width / 2).toBeLessThan(lossMetrics.x + lossMetrics.width / 2);
+    expect(lossMetrics.x + lossMetrics.width / 2).toBeLessThan(
+      feedbackMetrics.x + feedbackMetrics.width / 2,
+    );
+    expect(lossMetrics.y).toBeLessThan(harnessMetrics.y);
+    expect(Math.abs(feedbackMetrics.y - harnessMetrics.y)).toBeLessThanOrEqual(2);
     expect(systemFrameMetrics.x).toBeLessThan(inputMetrics.x);
     expect(systemFrameMetrics.right).toBeGreaterThan(outputMetrics.right);
     expect(systemFrameMetrics.y).toBeLessThan(fxMetrics.y);
@@ -4434,19 +4449,49 @@ describe("MyComposition", () => {
   it("renders page 33 as the final quote-plus-recommendations ending page", () => {
     setStepFrame("page_33", 56);
     const {container} = render(<MyComposition variantId="bus-clean" />);
+    const images = Array.from(container.querySelectorAll("image"));
 
     expect(
       findTextNodes(container, "今子有大树，患其无用，何不树之于无何有之乡，")[0],
     ).toBeDefined();
-    expect(findTextNodes(container, "书与视频")[0]).toBeDefined();
-    expect(findTextNodes(container, "推荐游戏")[0]).toBeDefined();
+    expect(findTextNodes(container, "书与视频")[0]).toBeUndefined();
+    expect(findTextNodes(container, "推荐游戏")[0]).toBeUndefined();
     expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeUndefined();
     expect(findTextNodes(container, "PSO 小实验")[0]).toBeUndefined();
     expect(findTextNodes(container, "《银河帝国》")[0]).toBeDefined();
     expect(findTextNodes(container, "《反杜林论》")[0]).toBeUndefined();
     expect(findTextNodes(container, "人类高质量思政课")[0]).toBeDefined();
     expect(findTextNodes(container, "重读资本论")[0]).toBeUndefined();
+    expect(findTextNodes(container, "星际拓荒")[0]).toBeDefined();
+    expect(findTextNodes(container, "Type Help")[0]).toBeDefined();
+    expect(findTextNodes(container, "github.com/ZJUZWT/MT-PSO-Talk")[0]).toBeDefined();
+    expect(
+      images.some((node) => node.getAttribute("href") === "/supplement/mt-pso-talk-repo-qr.svg"),
+    ).toBe(true);
+    expect(container.querySelector('[data-geometry-node-id="left-links-card"]')).toBeNull();
+    expect(container.querySelector('[data-geometry-node-id="right-links-card"]')).toBeNull();
+    expect(container.querySelector('[data-geometry-node-id="repo-qr"]')).not.toBeNull();
     expect(findTextNodes(container, "无所可用，安所困苦哉！")[0]).toBeDefined();
     expect(findTextNodes(container, "以此作为这次分享的最后一句。")[0]).toBeDefined();
+  });
+
+  it("renders page 33 with a square repo QR and symmetrically inset link columns", () => {
+    setStepFrame("page_33", 56);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    const repoQrGroup = container.querySelector('[data-geometry-node-id="repo-qr"]');
+    const repoQrRect = repoQrGroup?.querySelector("rect[data-geometry-node-box='1']");
+    const leftTitle = findTextNodes(container, "《银河帝国》")[0];
+    const rightTitle = findTextNodes(container, "星际拓荒")[0];
+    const rightSubtitle = findTextNodes(
+      container,
+      "Outer Wilds / Mobius Digital / Steam",
+    )[0];
+
+    expect(repoQrRect?.getAttribute("rx")).toBe("0");
+    expect(textX(leftTitle)).toBe(124);
+    expect(textX(rightTitle)).toBe(1156);
+    expect(rightTitle?.getAttribute("text-anchor")).toBe("end");
+    expect(rightSubtitle?.getAttribute("text-anchor")).toBe("end");
   });
 });
