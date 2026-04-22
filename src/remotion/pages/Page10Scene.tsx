@@ -194,11 +194,20 @@ const PAGE29_DATA_ANDROID_ROWS = [
     values: ["400.7728", "400.7216", "402.2887"] as const,
   },
 ] as const;
-type Page29ShaderTone = "plain" | "keyword" | "type" | "number" | "function" | "comment";
+type Page29ShaderTone =
+  | "plain"
+  | "keyword"
+  | "type"
+  | "number"
+  | "function"
+  | "comment"
+  | "macro"
+  | "string";
 type Page29ShaderToken = {
   text: string;
   tone?: Page29ShaderTone;
 };
+type LateCodeLine = string | readonly Page29ShaderToken[];
 type Page29DataFocusTone = "default" | "good" | "high" | "muted";
 type Page29DataFocusToken = {
   text: string;
@@ -403,33 +412,144 @@ const COMPRESSION_SUMMARY_ROWS = [
     ios: "0.09",
   },
 ] as const;
-const VERTEX_DESCRIPTOR_CODE_LINES = [
-  "FString FVertexElement::ToString() const",
-  "{",
-  "  return FString::Printf(TEXT(\"<%u %u %u %u %u %u>\")",
-  "    , uint32(StreamIndex), uint32(Offset), uint32(Type)",
-  "    , uint32(AttributeIndex), uint32(Stride)",
-  "    , uint32(bUseInstanceIndex));",
-  "}",
-  "struct FVertexFactoryInput",
-  "void FLocalVertexFactory::InitRHI()",
+const VERTEX_DESCRIPTOR_CODE_LINES: readonly (readonly Page29ShaderToken[])[] = [
+  [
+    {text: "FString", tone: "type"},
+    {text: " "},
+    {text: "FVertexElement", tone: "type"},
+    {text: "::"},
+    {text: "ToString", tone: "function"},
+    {text: "() "},
+    {text: "const", tone: "keyword"},
+  ],
+  [{text: "{"}],
+  [
+    {text: "  "},
+    {text: "return", tone: "keyword"},
+    {text: " "},
+    {text: "FString", tone: "type"},
+    {text: "::"},
+    {text: "Printf", tone: "function"},
+    {text: "("},
+    {text: "TEXT", tone: "macro"},
+    {text: "(\"<%u %u %u %u %u %u>\")", tone: "string"},
+  ],
+  [
+    {text: "    , "},
+    {text: "uint32", tone: "type"},
+    {text: "(StreamIndex), "},
+    {text: "uint32", tone: "type"},
+    {text: "(Offset), "},
+    {text: "uint32", tone: "type"},
+    {text: "(Type)"},
+  ],
+  [
+    {text: "    , "},
+    {text: "uint32", tone: "type"},
+    {text: "(AttributeIndex), "},
+    {text: "uint32", tone: "type"},
+    {text: "(Stride)"},
+  ],
+  [
+    {text: "    , "},
+    {text: "uint32", tone: "type"},
+    {text: "(bUseInstanceIndex));"},
+  ],
+  [{text: "}"}],
+  [
+    {text: "struct", tone: "keyword"},
+    {text: " "},
+    {text: "FVertexFactoryInput", tone: "type"},
+  ],
+  [
+    {text: "void", tone: "keyword"},
+    {text: " "},
+    {text: "FLocalVertexFactory", tone: "type"},
+    {text: "::"},
+    {text: "InitRHI", tone: "function"},
+    {text: "()"},
+  ],
 ] as const;
-const LOCAL_VERTEX_FACTORY_CODE_LINES = [
-  "struct FVertexFactoryInput",
-  "{",
-  "#if NUM_MATERIAL_TEXCOORDS_VERTEX > 1",
-  "  float4 PackedTexCoords4[...] : ATTRIBUTE4;",
-  "#endif",
-  "#if NUM_MATERIAL_TEXCOORDS_VERTEX == 1",
-  "  float2 PackedTexCoords2 : ATTRIBUTE4;",
-  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 3",
-  "  float2 PackedTexCoords2 : ATTRIBUTE5;",
-  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 5",
-  "  float2 PackedTexCoords2 : ATTRIBUTE6;",
-  "#elif NUM_MATERIAL_TEXCOORDS_VERTEX == 7",
-  "  float2 PackedTexCoords2 : ATTRIBUTE7;",
-  "#endif",
-  "}",
+const LOCAL_VERTEX_FACTORY_CODE_LINES: readonly (readonly Page29ShaderToken[])[] = [
+  [
+    {text: "struct", tone: "keyword"},
+    {text: " "},
+    {text: "FVertexFactoryInput", tone: "type"},
+  ],
+  [{text: "{"}],
+  [
+    {text: "#if", tone: "macro"},
+    {text: " "},
+    {text: "NUM_MATERIAL_TEXCOORDS_VERTEX", tone: "macro"},
+    {text: " > "},
+    {text: "1", tone: "number"},
+  ],
+  [
+    {text: "  "},
+    {text: "float4", tone: "type"},
+    {text: " PackedTexCoords4[...] : "},
+    {text: "ATTRIBUTE4", tone: "macro"},
+    {text: ";"},
+  ],
+  [{text: "#endif", tone: "macro"}],
+  [
+    {text: "#if", tone: "macro"},
+    {text: " "},
+    {text: "NUM_MATERIAL_TEXCOORDS_VERTEX", tone: "macro"},
+    {text: " == "},
+    {text: "1", tone: "number"},
+  ],
+  [
+    {text: "  "},
+    {text: "float2", tone: "type"},
+    {text: " PackedTexCoords2 : "},
+    {text: "ATTRIBUTE4", tone: "macro"},
+    {text: ";"},
+  ],
+  [
+    {text: "#elif", tone: "macro"},
+    {text: " "},
+    {text: "NUM_MATERIAL_TEXCOORDS_VERTEX", tone: "macro"},
+    {text: " == "},
+    {text: "3", tone: "number"},
+  ],
+  [
+    {text: "  "},
+    {text: "float2", tone: "type"},
+    {text: " PackedTexCoords2 : "},
+    {text: "ATTRIBUTE5", tone: "macro"},
+    {text: ";"},
+  ],
+  [
+    {text: "#elif", tone: "macro"},
+    {text: " "},
+    {text: "NUM_MATERIAL_TEXCOORDS_VERTEX", tone: "macro"},
+    {text: " == "},
+    {text: "5", tone: "number"},
+  ],
+  [
+    {text: "  "},
+    {text: "float2", tone: "type"},
+    {text: " PackedTexCoords2 : "},
+    {text: "ATTRIBUTE6", tone: "macro"},
+    {text: ";"},
+  ],
+  [
+    {text: "#elif", tone: "macro"},
+    {text: " "},
+    {text: "NUM_MATERIAL_TEXCOORDS_VERTEX", tone: "macro"},
+    {text: " == "},
+    {text: "7", tone: "number"},
+  ],
+  [
+    {text: "  "},
+    {text: "float2", tone: "type"},
+    {text: " PackedTexCoords2 : "},
+    {text: "ATTRIBUTE7", tone: "macro"},
+    {text: ";"},
+  ],
+  [{text: "#endif", tone: "macro"}],
+  [{text: "}"}],
 ] as const;
 const LIVE_HARNESS_SOURCE_TOKENS = [
   "workflow gate",
@@ -714,6 +834,10 @@ function resolvePage29ShaderToneFill(defaultFill: string, tone: Page29ShaderTone
       return "#b0623b";
     case "comment":
       return "rgba(92, 106, 118, 0.76)";
+    case "macro":
+      return "#c46b37";
+    case "string":
+      return "#7a6bc0";
     default:
       return defaultFill;
   }
@@ -1435,16 +1559,20 @@ function LateCodeCard({
   titleFontSize = 17,
   codeFontSize = 14,
   lineHeight = 19,
+  titleInsetX = 18,
+  codeInsetX = 18,
 }: {
   scene: SceneModel;
   box: {x: number; y: number; width: number; height: number; radius: number};
   title: string;
-  lines: readonly string[];
+  lines: readonly LateCodeLine[];
   opacity: number;
   geometryNodeId?: string;
   titleFontSize?: number;
   codeFontSize?: number;
   lineHeight?: number;
+  titleInsetX?: number;
+  codeInsetX?: number;
 }) {
   return (
     <g
@@ -1461,7 +1589,7 @@ function LateCodeCard({
         />
       </g>
       <text
-        x={box.x + 18}
+        x={box.x + titleInsetX}
         y={box.y + 24}
         fill={scene.apiStroke}
         fontSize={titleFontSize}
@@ -1473,13 +1601,16 @@ function LateCodeCard({
         {title}
       </text>
       {lines.map((line, index) => {
-        const isAttributeLine = /ATTRIBUTE[4-7]/.test(line);
+        const lineText =
+          typeof line === "string" ? line : line.map((token) => token.text).join("");
+        const isAttributeLine = /ATTRIBUTE[4-7]/.test(lineText);
+        const defaultFill = isAttributeLine ? scene.apiStroke : "#22303d";
         return (
           <text
-            key={`${title}-code-${index}`}
-            x={box.x + 18}
+            key={`${title}-code-${lineText}-${index}`}
+            x={box.x + codeInsetX}
             y={box.y + 54 + index * lineHeight}
-            fill={isAttributeLine ? scene.apiStroke : "#22303d"}
+            fill={defaultFill}
             fontFamily="SFMono-Regular, Menlo, Consolas, monospace"
             fontSize={isAttributeLine ? `${codeFontSize + 0.5}` : `${codeFontSize}`}
             fontWeight={isAttributeLine ? "780" : "650"}
@@ -1487,7 +1618,7 @@ function LateCodeCard({
             dominantBaseline="middle"
             data-geometry-node-text={geometryNodeId ? "1" : undefined}
           >
-            {line}
+            {typeof line === "string" ? line : renderPage29ShaderLine(line, defaultFill)}
           </text>
         );
       })}
@@ -1601,6 +1732,8 @@ function LateBareImage({
   preserveAspectRatio = "xMidYMid meet",
   titleFontSize = 17,
   titleAlign = "start",
+  titleOffsetY = 18,
+  geometryExpandX,
 }: {
   scene: SceneModel;
   box: {x: number; y: number; width: number; height: number; radius: number};
@@ -1613,11 +1746,14 @@ function LateBareImage({
   preserveAspectRatio?: string;
   titleFontSize?: number;
   titleAlign?: "start" | "center";
+  titleOffsetY?: number;
+  geometryExpandX?: number;
 }) {
   const resolvedHref = resolveRemotionPublicAssetHref(href);
-  const geometryBoxX = title ? box.x - 8 : box.x;
-  const geometryBoxWidth = box.width + (title ? 16 : 0);
-  const geometryBoxTop = title ? box.y - 40 : box.y;
+  const resolvedGeometryExpandX = geometryExpandX ?? (title ? 8 : 0);
+  const geometryBoxX = title ? box.x - resolvedGeometryExpandX : box.x;
+  const geometryBoxWidth = box.width + (title ? resolvedGeometryExpandX * 2 : 0);
+  const geometryBoxTop = title ? box.y - (titleOffsetY + 24) : box.y;
   const geometryBoxHeight = box.height + (title ? 48 : 0);
   const titleX = titleAlign === "center" ? centerX(box) : box.x;
   const titleAnchor = titleAlign === "center" ? "middle" : "start";
@@ -1655,7 +1791,7 @@ function LateBareImage({
       {title ? (
         <text
           x={titleX}
-          y={box.y - 18}
+          y={box.y - titleOffsetY}
           fill={scene.apiStroke}
           fontSize={titleFontSize}
           fontWeight="820"
@@ -4598,9 +4734,9 @@ function Page22Placeholder({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const leftColumn = {x: 60, y: 138, width: 396, height: 434, radius: 30};
-  const factsColumn = {x: 480, y: 138, width: 320, height: 434, radius: 28};
-  const rightColumn = {x: 824, y: 138, width: 396, height: 434, radius: 30};
+  const leftColumn = {x: 64, y: 138, width: 400, height: 434, radius: 30};
+  const factsColumn = {x: 516, y: 138, width: 248, height: 434, radius: 28};
+  const rightColumn = {x: 816, y: 138, width: 400, height: 434, radius: 30};
   const rowStartY = leftColumn.y + 70;
   const rowGap = 12;
   const rowHeight = 62;
@@ -4608,6 +4744,10 @@ function Page22Placeholder({
   const factBadgeSpacing = 72;
   const factGlowOuterRadius = factBadgeRadius + 12;
   const factGlowInnerRadius = factBadgeRadius + 7;
+  const page22DividerStroke = "rgba(176, 137, 112, 0.26)";
+  const page22FactsStroke = "rgba(198, 111, 76, 0.46)";
+  const page22RightStroke = "rgba(176, 137, 112, 0.34)";
+  const page22FlowStroke = "rgba(198, 111, 76, 0.9)";
   const rowCenters = Array.from({length: 5}, (_, index) =>
     rowStartY + rowHeight / 2 + index * (rowHeight + rowGap),
   );
@@ -4643,8 +4783,8 @@ function Page22Placeholder({
     .map((center) => center + rowHeight / 2 + rowGap / 2 - 1);
   const leftGapArrowX = (right(leftColumn) + factsColumn.x) / 2;
   const rightGapArrowX = (right(factsColumn) + rightColumn.x) / 2;
-  const gapArrowTopY = rowCenters[0]! - 18;
-  const gapArrowBottomY = rowCenters[rowCenters.length - 1]! + 18;
+  const gapArrowTopY = leftColumn.y + 54;
+  const gapArrowBottomY = bottom(leftColumn) - 24;
   const footerBox = {x: 204, y: 606, width: 872, height: 54, radius: 24};
   const sampleBStripBox = {x: 426, y: 674, width: 428, height: 72, radius: 18};
 
@@ -4683,8 +4823,8 @@ function Page22Placeholder({
               y1={y}
               x2={right(leftColumn) - 18}
               y2={y}
-              stroke="rgba(92, 106, 118, 0.18)"
-              strokeWidth={1.2}
+              stroke={page22DividerStroke}
+              strokeWidth={1.35}
             />
           ))}
           {rows.map((row, index) => (
@@ -4714,15 +4854,16 @@ function Page22Placeholder({
         <StrokeArrow
           testId="page22-left-gap-arrow"
           d={verticalPath(leftGapArrowX, gapArrowTopY, gapArrowBottomY)}
-          stroke="rgba(92, 106, 118, 0.62)"
+          stroke={page22FlowStroke}
           opacity={panelOpacity}
           headOpacity={panelOpacity}
           tipX={leftGapArrowX}
           tipY={gapArrowBottomY}
           direction="down"
-          shaftWidth={2.4}
-          underlayWidth={4.4}
-          headSize={6.8}
+          shaftWidth={3.8}
+          underlayWidth={7.2}
+          underlayOpacity={0.22}
+          headSize={9.6}
         />
         <g
           opacity={panelOpacity}
@@ -4732,9 +4873,9 @@ function Page22Placeholder({
           <g data-geometry-node-box="1">
             <StageBox
               box={factsColumn}
-              fill="rgba(255, 255, 255, 0.92)"
-              stroke="rgba(92, 106, 118, 0.34)"
-              strokeWidth={2.2}
+              fill="rgba(255, 252, 247, 0.95)"
+              stroke={page22FactsStroke}
+              strokeWidth={2.4}
             />
           </g>
           <text
@@ -4756,8 +4897,8 @@ function Page22Placeholder({
               y1={y}
               x2={right(factsColumn) - 18}
               y2={y}
-              stroke="rgba(92, 106, 118, 0.18)"
-              strokeWidth={1.2}
+              stroke={page22DividerStroke}
+              strokeWidth={1.35}
             />
           ))}
           {rows.map((row, index) => (
@@ -4806,15 +4947,16 @@ function Page22Placeholder({
         <StrokeArrow
           testId="page22-right-gap-arrow"
           d={verticalPath(rightGapArrowX, gapArrowTopY, gapArrowBottomY)}
-          stroke="rgba(92, 106, 118, 0.62)"
+          stroke={page22FlowStroke}
           opacity={panelOpacity}
           headOpacity={panelOpacity}
           tipX={rightGapArrowX}
           tipY={gapArrowBottomY}
           direction="down"
-          shaftWidth={2.4}
-          underlayWidth={4.4}
-          headSize={6.8}
+          shaftWidth={3.8}
+          underlayWidth={7.2}
+          underlayOpacity={0.22}
+          headSize={9.6}
         />
         <g
           opacity={panelOpacity}
@@ -4824,9 +4966,9 @@ function Page22Placeholder({
           <g data-geometry-node-box="1">
             <StageBox
               box={rightColumn}
-              fill="rgba(249, 247, 244, 0.94)"
-              stroke="rgba(92, 106, 118, 0.32)"
-              strokeWidth={2.1}
+              fill="rgba(255, 249, 244, 0.95)"
+              stroke={page22RightStroke}
+              strokeWidth={2.2}
             />
           </g>
           <text
@@ -4848,8 +4990,8 @@ function Page22Placeholder({
               y1={y}
               x2={right(rightColumn) - 18}
               y2={y}
-              stroke="rgba(92, 106, 118, 0.18)"
-              strokeWidth={1.2}
+              stroke={page22DividerStroke}
+              strokeWidth={1.35}
             />
           ))}
           {rows.map((row, index) => (
@@ -7307,18 +7449,18 @@ function Page29GovernanceSourcePage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.92, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const compileParamBox = {x: 330, y: 116, width: 620, height: 42, radius: 16};
-  const leftCode = {x: 72, y: 164, width: 520, height: 286, radius: 24};
-  const rightCode = {x: 610, y: 164, width: 584, height: 286, radius: 24};
-  const leftImage = {x: leftCode.x, y: 478, width: leftCode.width, height: 200, radius: 16};
+  const compileParamBox = {x: 316, y: 98, width: 648, height: 38, radius: 15};
+  const leftCode = {x: 84, y: 148, width: 548, height: 314, radius: 24};
+  const rightCode = {x: 648, y: 148, width: 548, height: 314, radius: 24};
+  const leftImage = {x: leftCode.x, y: 484, width: leftCode.width, height: 184, radius: 16};
   const rightImage = {
     x: rightCode.x,
-    y: 478,
+    y: 484,
     width: rightCode.width,
-    height: 208,
+    height: 184,
     radius: 16,
   };
-  const footerBox = {x: 120, y: 700, width: 1040, height: 48, radius: 22};
+  const footerBox = {x: 132, y: 684, width: 1016, height: 48, radius: 22};
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -7339,9 +7481,9 @@ function Page29GovernanceSourcePage({
           lines={VERTEX_DESCRIPTOR_CODE_LINES}
           opacity={panelOpacity}
           geometryNodeId="left-code"
-          titleFontSize={20}
-          codeFontSize={15}
-          lineHeight={19.2}
+          titleFontSize={21}
+          codeFontSize={15.4}
+          lineHeight={20.4}
         />
         <LateCodeCard
           scene={scene}
@@ -7350,9 +7492,11 @@ function Page29GovernanceSourcePage({
           lines={LOCAL_VERTEX_FACTORY_CODE_LINES}
           opacity={panelOpacity}
           geometryNodeId="right-code"
-          titleFontSize={20}
-          codeFontSize={13.8}
-          lineHeight={15.4}
+          titleFontSize={21}
+          codeFontSize={14.2}
+          lineHeight={17.8}
+          titleInsetX={26}
+          codeInsetX={30}
         />
         <LateBareImage
           scene={scene}
@@ -7364,8 +7508,10 @@ function Page29GovernanceSourcePage({
           geometryNodeId="left-image"
           geometryNodeLabel="UVStride4IA"
           preserveAspectRatio="xMidYMid meet"
-          titleFontSize={15.8}
+          titleFontSize={19}
           titleAlign="center"
+          titleOffsetY={22}
+          geometryExpandX={0}
         />
         <LateBareImage
           scene={scene}
@@ -7377,8 +7523,10 @@ function Page29GovernanceSourcePage({
           geometryNodeId="right-image"
           geometryNodeLabel="UVStride8IA"
           preserveAspectRatio="xMidYMid meet"
-          titleFontSize={15.8}
+          titleFontSize={19}
           titleAlign="center"
+          titleOffsetY={22}
+          geometryExpandX={0}
         />
         <LateFooterBar
           scene={scene}
@@ -7467,10 +7615,10 @@ function Page30PsoReadingPage({
 }) {
   const reveal = resolveWindowProgress(entryProgress, 0.08, 0.9, easeOutQuint);
   const panelOpacity = opacity * reveal;
-  const readingRegion = {x: 208, y: 148, width: 864, height: 446, radius: 0};
-  const linkX = 360;
-  const linkStartY = readingRegion.y + 120;
-  const linkStep = 82;
+  const readingRegion = {x: 132, y: 112, width: 1016, height: 560, radius: 0};
+  const linkX = 186;
+  const linkStartY = readingRegion.y + 96;
+  const linkStep = 126;
 
   return (
     <PlaceholderBoardShell opacity={panelOpacity}>
@@ -7499,10 +7647,10 @@ function Page30PsoReadingPage({
               subtitle={item.subtitle}
               href={item.href}
               geometryNodeId={`reading-link-${index + 1}`}
-              geometryWidth={560}
-              titleFontSize={24}
-              subtitleFontSize={16}
-              subtitleOffset={26}
+              geometryWidth={904}
+              titleFontSize={34}
+              subtitleFontSize={22}
+              subtitleOffset={40}
             />
           ))}
         </g>

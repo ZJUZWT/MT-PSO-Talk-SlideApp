@@ -467,6 +467,89 @@ describe("formal page review registry", () => {
     expect(artifact.scores.blockerOpen).toBe(false);
   });
 
+  it("registers page_29 as a centered twin-code evidence surface", () => {
+    const page29 = findFormalPageReviewSketchByStepId("page_29");
+
+    expect(page29).toBeDefined();
+    expect(page29?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "compile-param",
+        "left-code",
+        "right-code",
+        "left-image",
+        "right-image",
+        "footer",
+      ]),
+    );
+
+    const leftCode = page29?.nodes.find((node) => node.id === "left-code");
+    const rightCode = page29?.nodes.find((node) => node.id === "right-code");
+    const leftImage = page29?.nodes.find((node) => node.id === "left-image");
+    const rightImage = page29?.nodes.find((node) => node.id === "right-image");
+    const pairCenter =
+      (((leftCode?.x ?? 0) + (leftCode?.width ?? 0) / 2) +
+        ((rightCode?.x ?? 0) + (rightCode?.width ?? 0) / 2)) /
+      2;
+
+    expect(leftCode?.width).toBe(rightCode?.width);
+    expect(leftCode?.height).toBe(rightCode?.height);
+    expect(leftImage?.width).toBe(leftCode?.width);
+    expect(rightImage?.width).toBe(rightCode?.width);
+    expect(leftImage?.height).toBe(rightImage?.height);
+    expect(Math.abs(pairCenter - 640)).toBeLessThanOrEqual(2);
+
+    const artifact = buildGeometryReviewArtifact(page29!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
+  it("registers page_30 as a full-stage reading column instead of a narrow center strip", () => {
+    const page30 = findFormalPageReviewSketchByStepId("page_30");
+
+    expect(page30).toBeDefined();
+    expect(page30?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "reading-card",
+        "reading-link-1",
+        "reading-link-2",
+        "reading-link-3",
+        "reading-link-4",
+      ]),
+    );
+
+    const readingCard = page30?.nodes.find((node) => node.id === "reading-card");
+    const link1 = page30?.nodes.find((node) => node.id === "reading-link-1");
+    const link2 = page30?.nodes.find((node) => node.id === "reading-link-2");
+    const link3 = page30?.nodes.find((node) => node.id === "reading-link-3");
+    const link4 = page30?.nodes.find((node) => node.id === "reading-link-4");
+
+    expect(readingCard).toBeDefined();
+    expect(readingCard?.x).toBeLessThanOrEqual(140);
+    expect(readingCard?.width).toBeGreaterThanOrEqual(1000);
+    expect(readingCard?.height).toBeGreaterThanOrEqual(540);
+    expect(link1?.containerId).toBe("reading-card");
+    expect(link4?.containerId).toBe("reading-card");
+    expect(link1?.width).toBeGreaterThanOrEqual(900);
+    expect(link1?.x).toBeLessThanOrEqual(186);
+    expect((link2?.y ?? 0) - (link1?.y ?? 0)).toBeGreaterThanOrEqual(120);
+    expect((link3?.y ?? 0) - (link2?.y ?? 0)).toBeGreaterThanOrEqual(120);
+    expect((link4?.y ?? 0) - (link3?.y ?? 0)).toBeGreaterThanOrEqual(120);
+
+    const artifact = buildGeometryReviewArtifact(page30!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.crossingCount).toBe(0);
+    expect(artifact.metrics.nodePierceCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.metrics.childOutOfBoundsCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
+  });
+
   it("lets the existing geometry score chain review page_31 without a sketch-only path", () => {
     const page31 = findFormalPageReviewSketchByStepId("page_31");
 
@@ -619,6 +702,40 @@ describe("formal page review registry", () => {
       lineCount: 2,
       overflowPx: 0,
     });
+  });
+
+  it("models page_22 as a centered three-column rebuttal table with wider flow lanes", () => {
+    const page22 = findFormalPageReviewSketchByStepId("page_22");
+
+    expect(page22).toBeDefined();
+    expect(page22?.nodes.map((node) => node.id)).toEqual(
+      expect.arrayContaining([
+        "left-column",
+        "facts-column",
+        "right-column",
+        "footer",
+      ]),
+    );
+
+    const leftColumn = page22?.nodes.find((node) => node.id === "left-column");
+    const factsColumn = page22?.nodes.find((node) => node.id === "facts-column");
+    const rightColumn = page22?.nodes.find((node) => node.id === "right-column");
+    const leftGap = (factsColumn?.x ?? 0) - ((leftColumn?.x ?? 0) + (leftColumn?.width ?? 0));
+    const rightGap = (rightColumn?.x ?? 0) - ((factsColumn?.x ?? 0) + (factsColumn?.width ?? 0));
+
+    expect(leftColumn?.x).toBe(64);
+    expect(leftColumn?.width).toBe(400);
+    expect(factsColumn?.width).toBe(248);
+    expect(rightColumn?.width).toBe(400);
+    expect(leftGap).toBeGreaterThanOrEqual(52);
+    expect(rightGap).toBeGreaterThanOrEqual(52);
+    expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(1);
+
+    const artifact = buildGeometryReviewArtifact(page22!);
+
+    expect(artifact.metrics.overlapCount).toBe(0);
+    expect(artifact.metrics.textOverflowCount).toBe(0);
+    expect(artifact.scores.blockerOpen).toBe(false);
   });
 
   it("models page_24 platform pills as explicit child review surfaces", () => {

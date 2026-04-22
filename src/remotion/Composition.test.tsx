@@ -3526,6 +3526,12 @@ describe("MyComposition", () => {
     const rightGapArrow = container.querySelector('[data-testid="page22-right-gap-arrow"]');
     const leftGapArrowPoints = parseSimplePathPoints(leftGapArrow);
     const rightGapArrowPoints = parseSimplePathPoints(rightGapArrow);
+    const leftGap =
+      Number(factsRect?.getAttribute("x")) -
+      (Number(leftRect?.getAttribute("x")) + Number(leftRect?.getAttribute("width")));
+    const rightGap =
+      Number(rightRect?.getAttribute("x")) -
+      (Number(factsRect?.getAttribute("x")) + Number(factsRect?.getAttribute("width")));
     const factBadges = [
       "page22-fact-badge-row0-fact6",
       "page22-fact-badge-row0-fact8",
@@ -3588,8 +3594,19 @@ describe("MyComposition", () => {
     expect(Math.abs((rightGapArrowPoints?.x1 ?? 0) - (rightGapArrowPoints?.x2 ?? 0))).toBeLessThanOrEqual(1);
     expect(leftGapArrowPoints?.y2).toBeGreaterThan(leftGapArrowPoints?.y1 ?? Infinity);
     expect(rightGapArrowPoints?.y2).toBeGreaterThan(rightGapArrowPoints?.y1 ?? Infinity);
+    expect(leftGap).toBeGreaterThanOrEqual(52);
+    expect(rightGap).toBeGreaterThanOrEqual(52);
+    expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(1);
+    expect(strokeWidthSignature(leftGapArrow)).toBe("7.2,3.8,3.8,3.8");
+    expect(strokeWidthSignature(rightGapArrow)).toBe("7.2,3.8,3.8,3.8");
+    expect(strokePalette(leftGapArrow)).toBe("rgba(198, 111, 76, 0.9)");
+    expect(strokePalette(rightGapArrow)).toBe("rgba(198, 111, 76, 0.9)");
     expect(sampleBImage).not.toBeNull();
     expect(findTextNodes(container, "样本 B")).toHaveLength(0);
+    expect(Number(leftRect?.getAttribute("x"))).toBe(64);
+    expect(Number(leftRect?.getAttribute("width"))).toBe(400);
+    expect(Number(factsRect?.getAttribute("width"))).toBe(248);
+    expect(Number(rightRect?.getAttribute("width"))).toBe(400);
     expect(Number(leftRect?.getAttribute("width"))).toBe(Number(rightRect?.getAttribute("width")));
     expect(Number(leftRect?.getAttribute("width"))).toBeGreaterThan(
       Number(factsRect?.getAttribute("width")),
@@ -4240,11 +4257,17 @@ describe("MyComposition", () => {
     const images = Array.from(container.querySelectorAll("image"));
     const leftTitle = findTextNodes(container, "VertexDescriptor / InitRHI")[0];
     const rightTitle = findTextNodes(container, "LocalVertexFactory.ush")[0];
+    const leftPrintfLine = findTextNodes(
+      container,
+      "  return FString::Printf(TEXT(\"<%u %u %u %u %u %u>\")",
+    )[0];
+    const rightMacroLine = findTextNodes(container, "#if NUM_MATERIAL_TEXCOORDS_VERTEX > 1")[0];
 
     expect(leftTitle).toBeDefined();
     expect(rightTitle).toBeDefined();
-    expect(findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 1")[0]).toBeDefined();
-    expect(findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 2")[0]).toBeDefined();
+    expect(findTextNodes(container, "编译参数：NUM_MATERIAL_TEXCOORDS_VERTEX = 2")[0]).toBeDefined();
+    expect(findTextNodes(container, "Mesh：1 个 UV")[0]).toBeDefined();
+    expect(findTextNodes(container, "Mesh：2 个 UV")[0]).toBeDefined();
     expect(
       findTextNodes(container, "同一个Material作用于不同的Mesh也会产生不同的PSO")[0],
     ).toBeDefined();
@@ -4256,6 +4279,15 @@ describe("MyComposition", () => {
     ).toBe(true);
     expect(fontSizeOf(leftTitle)).toBeGreaterThanOrEqual(20);
     expect(fontSizeOf(rightTitle)).toBeGreaterThanOrEqual(20);
+    expect(Number(rightMacroLine?.getAttribute("x"))).toBeGreaterThan(
+      Number(rightTitle?.getAttribute("x")),
+    );
+    expect(leftPrintfLine?.querySelectorAll("tspan").length).toBeGreaterThan(3);
+    expect(
+      Array.from(rightMacroLine?.querySelectorAll("tspan") ?? []).find(
+        (span) => span.textContent === "NUM_MATERIAL_TEXCOORDS_VERTEX",
+      )?.getAttribute("fill"),
+    ).toBe("#c46b37");
   });
 
   it("keeps page 29 images directly below their matching code cards", () => {
@@ -4276,15 +4308,22 @@ describe("MyComposition", () => {
     );
     const leftImage = container.querySelector('[data-geometry-node-id="left-image"] image');
     const rightImage = container.querySelector('[data-geometry-node-id="right-image"] image');
-    const leftImageTitle = findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 1")[0];
-    const rightImageTitle = findTextNodes(container, "NUM_MATERIAL_TEXCOORDS_VERTEX = 2")[0];
+    const leftImageTitle = findTextNodes(container, "Mesh：1 个 UV")[0];
+    const rightImageTitle = findTextNodes(container, "Mesh：2 个 UV")[0];
 
     expect(Number(leftImage?.getAttribute("y"))).toBeGreaterThan(rectMetrics(leftCodeRect).bottom);
     expect(Number(rightImage?.getAttribute("y"))).toBeGreaterThan(rectMetrics(rightCodeRect).bottom);
-    expect(rectMetrics(leftImageRect).x).toBe(rectMetrics(leftCodeRect).x - 8);
-    expect(rectMetrics(rightImageRect).x).toBe(rectMetrics(rightCodeRect).x - 8);
-    expect(rectMetrics(leftImageRect).width).toBe(rectMetrics(leftCodeRect).width + 16);
-    expect(rectMetrics(rightImageRect).width).toBe(rectMetrics(rightCodeRect).width + 16);
+    expect(rectMetrics(leftImageRect).x).toBe(rectMetrics(leftCodeRect).x);
+    expect(rectMetrics(rightImageRect).x).toBe(rectMetrics(rightCodeRect).x);
+    expect(rectMetrics(leftImageRect).width).toBe(rectMetrics(leftCodeRect).width);
+    expect(rectMetrics(rightImageRect).width).toBe(rectMetrics(rightCodeRect).width);
+    expect(rectMetrics(leftCodeRect).width).toBe(rectMetrics(rightCodeRect).width);
+    expect(rectMetrics(leftCodeRect).height).toBe(rectMetrics(rightCodeRect).height);
+    expect(
+      Math.abs(
+        (rectCenterX(leftCodeRect) + rectCenterX(rightCodeRect)) / 2 - 640,
+      ),
+    ).toBeLessThanOrEqual(2);
     expect(Number(leftImage?.getAttribute("x"))).toBe(rectMetrics(leftCodeRect).x);
     expect(Number(rightImage?.getAttribute("x"))).toBe(rectMetrics(rightCodeRect).x);
     expect(Number(leftImageTitle?.getAttribute("x"))).toBe(
@@ -4295,13 +4334,14 @@ describe("MyComposition", () => {
     );
     expect(leftImageTitle?.getAttribute("text-anchor")).toBe("middle");
     expect(rightImageTitle?.getAttribute("text-anchor")).toBe("middle");
+    expect(fontSizeOf(leftImageTitle)).toBeGreaterThanOrEqual(19);
+    expect(fontSizeOf(rightImageTitle)).toBeGreaterThanOrEqual(19);
   });
 
   it("renders page 30 as a standalone PSO engineering reading page", () => {
     setLegacyFrame(2274);
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
-    expect(findTextNodes(container, "工程延伸")[0]).toBeDefined();
     expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeDefined();
     expect(findTextNodes(container, "PSO 小实验")[0]).toBeDefined();
     expect(findTextNodes(container, "UE项目优化：PSO Cache")[0]).toBeDefined();
@@ -4381,6 +4421,42 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "workflow gate")[0]).toBeDefined();
     expect(findTextNodes(container, "browser capture")[0]).toBeDefined();
     expect(findTextNodes(container, "通过则停止")[0]).toBeDefined();
+  });
+
+  it("renders page 30 as a larger full-stage reading page", () => {
+    setLegacyFrame(2274);
+    const {container} = render(<MyComposition variantId="bus-clean" />);
+
+    expect(findTextNodes(container, "PSO Precaching for Unreal Engine")[0]).toBeDefined();
+    expect(findTextNodes(container, "PSO 小实验")[0]).toBeDefined();
+    expect(findTextNodes(container, "UE项目优化：PSO Cache")[0]).toBeDefined();
+    expect(findTextNodes(container, "Mesa 开源驱动")[0]).toBeDefined();
+
+    const readingCard = container.querySelector('[data-geometry-node-id="reading-card"]');
+    const readingCardRect = readingCard?.querySelector("[data-geometry-node-box='1'] rect");
+    const link1 = container.querySelector('[data-geometry-node-id="reading-link-1"]');
+    const link2 = container.querySelector('[data-geometry-node-id="reading-link-2"]');
+    const link3 = container.querySelector('[data-geometry-node-id="reading-link-3"]');
+    const link4 = container.querySelector('[data-geometry-node-id="reading-link-4"]');
+    const link1Rect = link1?.querySelector("[data-geometry-node-box='1'] rect");
+    const link2Rect = link2?.querySelector("[data-geometry-node-box='1'] rect");
+    const link3Rect = link3?.querySelector("[data-geometry-node-box='1'] rect");
+    const link4Rect = link4?.querySelector("[data-geometry-node-box='1'] rect");
+    const cardMetrics = rectMetrics(readingCardRect);
+    const link1Metrics = rectMetrics(link1Rect);
+    const link2Metrics = rectMetrics(link2Rect);
+    const link3Metrics = rectMetrics(link3Rect);
+    const link4Metrics = rectMetrics(link4Rect);
+
+    expect(cardMetrics.x).toBeLessThanOrEqual(140);
+    expect(cardMetrics.width).toBeGreaterThanOrEqual(1000);
+    expect(cardMetrics.height).toBeGreaterThanOrEqual(540);
+    expect(link1Metrics.x).toBeLessThanOrEqual(186);
+    expect(link1Metrics.width).toBeGreaterThanOrEqual(900);
+    expect(link4Metrics.bottom).toBeLessThanOrEqual(cardMetrics.bottom);
+    expect(link2Metrics.y - link1Metrics.y).toBeGreaterThanOrEqual(120);
+    expect(link3Metrics.y - link2Metrics.y).toBeGreaterThanOrEqual(120);
+    expect(link4Metrics.y - link3Metrics.y).toBeGreaterThanOrEqual(120);
   });
 
   it("renders page 32 as the feedback bridge page", () => {

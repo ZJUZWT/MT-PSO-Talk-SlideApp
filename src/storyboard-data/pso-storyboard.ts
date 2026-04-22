@@ -935,8 +935,9 @@ export const masterStoryboard: Storyboard = {
         "把 page29 和 page30 压成一页：上面放两段代码，下面直接放对应 IA 截图，去掉 tab，把根因和证据放在同一眼里。",
       keyPoints: [
         "上中统一给出共享编译参数：`NUM_MATERIAL_TEXCOORDS_VERTEX = 2`。",
+        "左右代码块改成等宽、居中的拉长版，并给关键 token 做轻量语法高亮；右上代码正文额外内缩一档。",
         "上半区用 `VertexDescriptor` 和 `LocalVertexFactory.ush` 的代码说明输入侧根因。",
-        "下半区不再把差异讲成两个编译参数，而是直接写成两个 Mesh 的输入差异：`1 个 UV / 2 个 UV`。",
+        "下半区不再把差异讲成两个编译参数，而是直接写成两个 Mesh 的输入差异：`1 个 UV / 2 个 UV`，且图片宽度与上方代码框严格一致。",
         "重点结论改成：同一个Material作用于不同的Mesh也会产生不同的PSO。",
       ],
       apiHighlights: [
@@ -948,14 +949,14 @@ export const masterStoryboard: Storyboard = {
         "同一个Material作用于不同的Mesh也会产生不同的PSO",
       ],
       notes:
-        "page29 现在成为治理证据宿主页；page30 暂时保留用于 motion continuity，但核心代码 + 证据已经合并到这一页。",
+        "page29 现在成为治理证据宿主页；page30 暂时保留用于 motion continuity，但核心代码 + 证据已经合并到这一页。当前版式要求左右代码卡等宽居中，参数条、代码、IA 与 footer 形成稳定的纵向阅读带，右上代码正文需要更明显的内缩，图片标题也要比上一版更醒目。",
       focusTarget: "Governance Evidence",
       timingHint:
         "代码块先进入，随后在它们正下方补对应截图；不再先切到下一页才看 IA 证据。",
       intro:
         "现象讲完以后，不再把“根因代码页”和“治理证据页”拆开，而是直接压成一张合页。",
       manuscript:
-        "第二十九页现在把原来的 page29 和 page30 合成一张治理证据合页。上半区仍然是两段代码：左边用 `VertexDescriptor / InitRHI` 说明 CPU 侧怎么定义输入布局，右边用 `LocalVertexFactory.ush` 里的 `FVertexFactoryInput` 说明 shader 输入会怎样接住这些 declaration。但这一次不再把左右差异讲成两套编译参数，而是在上中统一给出共享编译参数 `NUM_MATERIAL_TEXCOORDS_VERTEX = 2`。真正分叉的地方改成两张 IA 截图对应的 Mesh 输入差异：左边是 `1 个 UV`，右边是 `2 个 UV`。这样观众在同一眼里就能看到：同样的编译参数下，只要 Mesh 输入布局不同，代码里的 declaration 差异仍然会变成图里的 IA 差异。也就是说，同一个Material作用于不同的Mesh也会产生不同的PSO。",
+        "第二十九页现在把原来的 page29 和 page30 合成一张治理证据合页。上半区仍然是两段代码：左边用 `VertexDescriptor / InitRHI` 说明 CPU 侧怎么定义输入布局，右边用 `LocalVertexFactory.ush` 里的 `FVertexFactoryInput` 说明 shader 输入会怎样接住这些 declaration。这一版把两块代码卡做成等宽、居中的拉长版，并只给关键词、宏和字符串做轻量语法高亮，让 `#if / ATTRIBUTE / TEXT(...)` 这些真正影响理解的 token 更容易扫到；其中右上代码正文会比左侧再多一档内缩，避免长行直接贴着卡片边缘。但这一次不再把左右差异讲成两套编译参数，而是在上中统一给出共享编译参数 `NUM_MATERIAL_TEXCOORDS_VERTEX = 2`。真正分叉的地方改成两张 IA 截图对应的 Mesh 输入差异：左边是 `1 个 UV`，右边是 `2 个 UV`，而且两张图的测量宽度会严格贴齐各自上方代码框，标题也比上一版更大。这样观众在同一眼里就能看到：同样的编译参数下，只要 Mesh 输入布局不同，代码里的 declaration 差异仍然会变成图里的 IA 差异。也就是说，同一个Material作用于不同的Mesh也会产生不同的PSO。",
       focusColorKey: "shared",
     },
     {

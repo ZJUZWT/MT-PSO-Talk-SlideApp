@@ -208,26 +208,26 @@ describe("page_19+ review harness", () => {
       sketchId: "formal-page22",
       nodes: [
         {
-          nodeId: "left-card",
-          label: "PSO 是对象，PSO Cache 是方法。",
-          fontSizePx: 17.5,
-          lineCount: 5,
-          topPaddingPx: 14.2,
-          rightPaddingPx: -56.1,
-          bottomPaddingPx: 163.1,
-          leftPaddingPx: 22,
-          tightestPaddingPx: -56.1,
+          nodeId: "left-column",
+          label: "非要这么干？",
+          fontSizePx: 18.5,
+          lineCount: 6,
+          topPaddingPx: 18.4,
+          rightPaddingPx: -34.7,
+          bottomPaddingPx: 19.8,
+          leftPaddingPx: 20.2,
+          tightestPaddingPx: -34.7,
           textBounds: {
-            x: 126,
-            y: 160.2,
-            width: 602.1,
-            height: 224.7,
+            x: 84.2,
+            y: 156.4,
+            width: 414.5,
+            height: 395.8,
           },
           nodeBounds: {
-            x: 104,
-            y: 146,
-            width: 568,
-            height: 402,
+            x: 64,
+            y: 138,
+            width: 400,
+            height: 434,
           },
         },
       ],
@@ -260,10 +260,10 @@ describe("page_19+ review harness", () => {
       throw new Error("Expected page_22 review page entry");
     }
     expect(
-      page22.summary.worstNodes.find((node) => node.nodeId === "left-card"),
+      page22.summary.worstNodes.find((node) => node.nodeId === "left-column"),
     ).toMatchObject({
-      nodeId: "left-card",
-      overflowPx: 56.1,
+      nodeId: "left-column",
+      overflowPx: 34.7,
     });
   });
 });

@@ -1279,97 +1279,143 @@ const page21FormalReviewSketch = makeFormalReviewSketch(
 const page22FormalReviewSketch = makeFormalReviewSketch(
   "formal-page22",
   "page_22",
-  "Page 22 narrative understanding of PSO cache",
+  "Page 22 five-step rebuttal table",
   [
-    node("left-card", "PSO 是对象，PSO Cache 是方法。", {x: 88, y: 146, width: 600, height: 402}, {
+    node("left-column", "非要这么干？", {x: 64, y: 138, width: 400, height: 434}, {
       textRuns: [
-        {text: "核心区分", x: 22, y: 28, fontSize: 19, fontWeight: 820},
         {
-          text: "PSO 是对象，PSO Cache 是方法。",
-          x: 22,
-          y: 104,
-          fontSize: 26,
+          text: "非要这么干？",
+          x: 200,
+          y: 28,
+          fontSize: 24,
           fontWeight: 820,
+          textAnchor: "middle",
         },
         {
-          text: "它附属于 Shader，用启动时间 + 内存空间换运行时卡顿率。",
-          x: 22,
-          y: 178,
-          fontSize: 17,
-          fontWeight: 740,
+          text: "不打开 SharedShaderCode",
+          x: 200,
+          y: 101,
+          fontSize: 18.5,
+          fontWeight: 820,
+          textAnchor: "middle",
         },
         {
-          text: "没有 PSO Cache，项目也可能照样跑得很好。",
-          x: 22,
-          y: 203,
-          fontSize: 17,
-          fontWeight: 680,
+          text: "不做 PSO 预编译",
+          x: 200,
+          y: 175,
+          fontSize: 18.5,
+          fontWeight: 820,
+          textAnchor: "middle",
         },
         {
-          text: "所以它是手段，不是每个项目都必须上的答案。",
-          x: 22,
-          y: 228,
-          fontSize: 17,
-          fontWeight: 680,
+          text: "直接分发构建机构建的二进制",
+          x: 200,
+          y: 249,
+          fontSize: 18.5,
+          fontWeight: 820,
+          textAnchor: "middle",
+        },
+        {
+          text: "cook 时一把梭算完",
+          x: 200,
+          y: 323,
+          fontSize: 18.5,
+          fontWeight: 820,
+          textAnchor: "middle",
+        },
+        {
+          text: "新包直接吃上一个版本的",
+          x: 200,
+          y: 385,
+          fontSize: 18.5,
+          fontWeight: 820,
+          textAnchor: "middle",
+        },
+        {
+          text: ".rec.upipelinecache",
+          x: 200,
+          y: 409,
+          fontSize: 18.5,
+          fontWeight: 760,
+          textAnchor: "middle",
         },
       ],
-      fontSizeOverride: 26,
     }),
-    node("right-1", "PSO：对象", {x: 712, y: 146, width: 424, height: 102}, {
+    node("facts-column", "事实", {x: 516, y: 138, width: 248, height: 434}, {
       textRuns: [
-        {text: "PSO：对象", x: 20, y: 26, fontSize: 18, fontWeight: 820},
-        {
-          text: "被创建、绑定、命中的运行时对象。",
-          x: 20,
-          y: 58,
-          fontSize: 17,
-          fontWeight: 720,
-        },
+        {text: "事实", x: 124, y: 28, fontSize: 23, fontWeight: 820, textAnchor: "middle"},
+        {text: "6 / 8", x: 124, y: 101, fontSize: 18, fontWeight: 780, textAnchor: "middle"},
+        {text: "5", x: 124, y: 175, fontSize: 18, fontWeight: 780, textAnchor: "middle"},
+        {text: "12 / 13", x: 124, y: 249, fontSize: 18, fontWeight: 780, textAnchor: "middle"},
+        {text: "2 / 9", x: 124, y: 323, fontSize: 18, fontWeight: 780, textAnchor: "middle"},
+        {text: "10 / 11", x: 124, y: 397, fontSize: 18, fontWeight: 780, textAnchor: "middle"},
       ],
     }),
-    node("right-2", "PSO Cache：方法", {x: 712, y: 296, width: 424, height: 102}, {
+    node("right-column", "那就会这样", {x: 816, y: 138, width: 400, height: 434}, {
       textRuns: [
-        {text: "PSO Cache：方法", x: 20, y: 26, fontSize: 18, fontWeight: 820},
         {
-          text: "依赖 Shader Module 提供数据；",
-          x: 20,
-          y: 58,
-          fontSize: 15.5,
-          fontWeight: 720,
+          text: "那就会这样",
+          x: 200,
+          y: 28,
+          fontSize: 24,
+          fontWeight: 820,
+          textAnchor: "middle",
         },
         {
-          text: ".ushaderbytecode / .scl.csv 会参与。",
-          x: 20,
-          y: 78,
-          fontSize: 15.5,
+          text: "PSO 收集了之后也没法应用到下一次；",
+          x: 200,
+          y: 89,
+          fontSize: 17.2,
+          fontWeight: 790,
+          textAnchor: "middle",
+        },
+        {
+          text: "只有 Hash，根本没法反查 ShaderCode。",
+          x: 200,
+          y: 113,
+          fontSize: 17.2,
           fontWeight: 720,
+          textAnchor: "middle",
+        },
+        {
+          text: "编译高峰原封不动甩给玩家。",
+          x: 200,
+          y: 175,
+          fontSize: 17.6,
+          fontWeight: 790,
+          textAnchor: "middle",
+        },
+        {
+          text: "构建机上能用，玩家机器上不一定能用。",
+          x: 200,
+          y: 249,
+          fontSize: 17.2,
+          fontWeight: 790,
+          textAnchor: "middle",
+        },
+        {
+          text: "PSO 指数膨胀，数量直接起飞。",
+          x: 200,
+          y: 323,
+          fontSize: 17.6,
+          fontWeight: 790,
+          textAnchor: "middle",
+        },
+        {
+          text: "新包里的 Hash，和旧包可能早就对不上了。",
+          x: 200,
+          y: 397,
+          fontSize: 17.2,
+          fontWeight: 790,
+          textAnchor: "middle",
         },
       ],
     }),
-    node("right-3", "代价 / 适用", {x: 712, y: 446, width: 424, height: 114}, {
-      textRuns: [
-        {text: "代价 / 适用", x: 20, y: 26, fontSize: 18, fontWeight: 820},
-        {
-          text: "不是所有项目都需要它；",
-          x: 20,
-          y: 58,
-          fontSize: 16.5,
-          fontWeight: 720,
-        },
-        {
-          text: "而且代价往往比想象中更大。",
-          x: 20,
-          y: 79,
-          fontSize: 16.5,
-          fontWeight: 670,
-        },
-      ],
-    }),
-    node("footer", "工程方法", {x: 164, y: 606, width: 948, height: 54}, {
+    node("footer", "工程方法", {x: 204, y: 606, width: 872, height: 54}, {
       textRuns: [
         {
           text: "PSO 的成本不会消失，只会转移。",
-          x: 474,
+          x: 436,
           y: 27,
           fontSize: 20,
           fontWeight: 700,
@@ -1657,15 +1703,15 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     node("footer", "Footer", {x: 164, y: 606, width: 948, height: 54}),
   ]),
   makeFormalReviewSketch("formal-page29", "page_29", "Page 29 governance source", [
-    node("compile-param", "CompileParam = 2", {x: 330, y: 64, width: 620, height: 42}, {
+    node("compile-param", "CompileParam = 2", {x: 316, y: 46, width: 648, height: 38}, {
       fontSizeOverride: 17,
       fontWeightOverride: 780,
     }),
-    node("left-code", "Vertex", {x: 72, y: 112, width: 520, height: 286}),
-    node("right-code", "Factory", {x: 610, y: 112, width: 584, height: 286}),
-    node("left-image", "Mesh 1 UV", {x: 72, y: 426, width: 520, height: 200}),
-    node("right-image", "Mesh 2 UV", {x: 610, y: 426, width: 584, height: 208}),
-    node("footer", "Footer", {x: 120, y: 648, width: 1040, height: 48}),
+    node("left-code", "Vertex", {x: 84, y: 96, width: 548, height: 314}),
+    node("right-code", "Factory", {x: 648, y: 96, width: 548, height: 314}),
+    node("left-image", "Mesh 1 UV", {x: 84, y: 432, width: 548, height: 184}),
+    node("right-image", "Mesh 2 UV", {x: 648, y: 432, width: 548, height: 184}),
+    node("footer", "Footer", {x: 132, y: 632, width: 1016, height: 48}),
   ]),
   makeFormalReviewSketch("formal-page29-data", "page_29_data", "Page 29 data driver optimization", [
     node("shader-card", "Shader", {x: 72, y: 56, width: 1136, height: 194}),
@@ -1718,17 +1764,17 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
     }),
   ]),
   makeFormalReviewSketch("formal-page30", "page_30", "Page 30 PSO reading", [
-    node("reading-card", "PSO Reading", {x: 208, y: 148, width: 864, height: 446}),
-    node("reading-link-1", "UE Precaching", {x: 356, y: 268, width: 568, height: 50}, {
+    node("reading-card", "PSO Reading", {x: 132, y: 112, width: 1016, height: 560}),
+    node("reading-link-1", "UE Precaching", {x: 182, y: 174, width: 904, height: 70}, {
       containerId: "reading-card",
     }),
-    node("reading-link-2", "PSO Experiment", {x: 356, y: 350, width: 568, height: 50}, {
+    node("reading-link-2", "PSO Experiment", {x: 182, y: 300, width: 904, height: 70}, {
       containerId: "reading-card",
     }),
-    node("reading-link-3", "UE PSO Cache", {x: 356, y: 432, width: 568, height: 50}, {
+    node("reading-link-3", "UE PSO Cache", {x: 182, y: 426, width: 904, height: 70}, {
       containerId: "reading-card",
     }),
-    node("reading-link-4", "Mesa", {x: 356, y: 514, width: 568, height: 50}, {
+    node("reading-link-4", "Mesa", {x: 182, y: 552, width: 904, height: 70}, {
       containerId: "reading-card",
     }),
   ]),
