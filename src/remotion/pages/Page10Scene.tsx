@@ -6083,9 +6083,9 @@ function Page26TimingPage({
   };
   const page26FooterBox = {x: 164, y: 610, width: 948, height: 54, radius: 22};
   const parallelRows = [
-    {label: "SIMD", detail: "单核向量化"},
+    {label: "SIMD", detail: "单核向量化 -> DOP、ECS"},
     {label: "Thread", detail: "多 worker 并发"},
-    {label: "GPU", detail: "大规模并行 kernel"},
+    {label: "GPU", detail: "大规模并行 kernel -> ATT"},
   ] as const;
 
   return (
@@ -6130,13 +6130,13 @@ function Page26TimingPage({
             x={right(leftCard) - 20}
             y={leftCard.y + 38}
             fill={scene.apiStroke}
-            fontSize="15.5"
+            fontSize="14.5"
             fontWeight="820"
             textAnchor="end"
             dominantBaseline="middle"
             data-geometry-node-text="1"
           >
-            画质分档
+            画质分档 / 功能分档
           </text>
           <g
             data-geometry-node-id="event-strip"

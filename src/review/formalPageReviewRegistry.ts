@@ -1430,6 +1430,14 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
           fontSize: 16.5,
           fontWeight: 760,
         },
+        {
+          text: "画质分档 / 功能分档",
+          x: 536,
+          y: 38,
+          fontSize: 14.5,
+          fontWeight: 820,
+          textAnchor: "end",
+        },
       ],
     }),
     node("event-strip", "Context Trigger", {x: 108, y: 160, width: 508, height: 92}, {
@@ -1530,11 +1538,11 @@ const lateTailFormalReviewSketches: GeometrySketchDefinition[] = [
       textRuns: [
         {text: "并行层级", x: 20, y: 22, fontSize: 16.5, fontWeight: 800},
         {text: "SIMD", x: 24, y: 67, fontSize: 27, fontWeight: 820},
-        {text: "单核向量化", x: 176, y: 67, fontSize: 18, fontWeight: 720},
+        {text: "单核向量化 -> DOP、ECS", x: 176, y: 67, fontSize: 18, fontWeight: 720},
         {text: "Thread", x: 24, y: 115, fontSize: 27, fontWeight: 820},
         {text: "多 worker 并发", x: 176, y: 115, fontSize: 18, fontWeight: 720},
         {text: "GPU", x: 24, y: 163, fontSize: 27, fontWeight: 820},
-        {text: "大规模并行 kernel", x: 176, y: 163, fontSize: 18, fontWeight: 720},
+        {text: "大规模并行 kernel -> ATT", x: 176, y: 163, fontSize: 18, fontWeight: 720},
       ],
     }),
     node("parallel-summary", "Parallel summary", {x: 682, y: 498, width: 490, height: 56}, {

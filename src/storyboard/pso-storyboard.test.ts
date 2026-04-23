@@ -164,6 +164,7 @@ describe("masterStoryboard", () => {
     expect(page26?.manuscript).toContain("地图 A");
     expect(page26?.manuscript).toContain("点击下载 B+C");
     expect(page26?.manuscript).toContain("Compile UsageMask = B+C");
+    expect(page26?.manuscript).toContain("功能分档");
     expect(page26?.manuscript).not.toContain("地图 B 被下载");
     expect(page26?.manuscript).not.toContain("Compile UsageMask = A + B");
   });
@@ -457,6 +458,7 @@ describe("masterStoryboard", () => {
     expect(page26.manuscript).toContain("点击下载 B+C");
     expect(page26.manuscript).toContain("B+C");
     expect(page26.manuscript).toContain("分集合");
+    expect(page26.manuscript).toContain("功能分档");
     expect(page26.manuscript).toContain("并行化");
     expect(page26.manuscript).toContain("SIMD");
     expect(page26.manuscript).toContain("GPU");

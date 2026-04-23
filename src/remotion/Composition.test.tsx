@@ -4221,7 +4221,7 @@ describe("MyComposition", () => {
     const {container} = render(<MyComposition variantId="bus-clean" />);
 
     expect(findTextNodes(container, "分集合")[0]).toBeDefined();
-    expect(findTextNodes(container, "画质分档")[0]).toBeDefined();
+    expect(findTextNodes(container, "画质分档 / 功能分档")[0]).toBeDefined();
     expect(findTextNodes(container, "Game")[0]).toBeDefined();
     expect(findTextNodes(container, "UsageMask = A")[0]).toBeDefined();
     expect(findTextNodes(container, "Compile")[0]).toBeDefined();
@@ -4235,6 +4235,8 @@ describe("MyComposition", () => {
     expect(findTextNodes(container, "并行化")[0]).toBeDefined();
     expect(findTextNodes(container, "SIMD / Thread / GPU")[0]).toBeDefined();
     expect(findTextNodes(container, "并行层级")[0]).toBeDefined();
+    expect(findTextNodes(container, "单核向量化 -> DOP、ECS")[0]).toBeDefined();
+    expect(findTextNodes(container, "大规模并行 kernel -> ATT")[0]).toBeDefined();
     expect(findTextNodes(container, "分集合决定做什么，并行化决定怎样更快做完。")[0]).toBeDefined();
   });
 
